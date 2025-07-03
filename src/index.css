@@ -303,11 +303,13 @@
 }
 
 html {
+  height: 100%;
   font-size: clamp(16px, 4vw, 18px);
   background-color: lightgray;
 }
 /* 전체 앱에 기본 폰트 적용 (선택사항) */
 body {
+  height: 100%;
   font-family:
     "SUIT Variable",
     -apple-system,

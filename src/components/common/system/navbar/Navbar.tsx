@@ -42,7 +42,7 @@ const NAV_ITEMS = [
       filled: HeartIconFilled,
       outline: HeartIcon,
     },
-    path: "/heart",
+    path: "/like",
   },
   {
     label: "마이페이지",
@@ -58,7 +58,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <nav className="fixed w-full max-w-[444px]  bottom-0 flex px-4 pt-2 pb-8 justify-between box-border">
+    <nav className="fixed w-full max-w-[444px] bottom-0 flex px-4 pt-2 pb-8 justify-between box-border">
       {NAV_ITEMS.map(item => {
         const isActive = location.pathname === item.path;
         const IconComponent = isActive ? item.icon.filled : item.icon.outline;

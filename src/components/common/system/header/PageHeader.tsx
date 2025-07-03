@@ -4,11 +4,23 @@ import MeetBall from "@/assets/icons/meetball.svg";
 
 interface PageHeaderProps {
   title: string;
+  onBackClick?: () => void;
   onMoreClick?: () => void;
 }
 
-export const PageHeader = ({ title, onMoreClick }: PageHeaderProps) => {
+export const PageHeader = ({
+  title,
+  onBackClick,
+  onMoreClick,
+}: PageHeaderProps) => {
   const navigate = useNavigate();
+  const handleBackClick = () => {
+    if (onBackClick) {
+      onBackClick();
+    } else {
+      navigate(-1);
+    }
+  };
   return (
     <div className="flex items-center justify-between gap-3 w-full px-4">
       <button type="button" className="p-1">
@@ -16,7 +28,7 @@ export const PageHeader = ({ title, onMoreClick }: PageHeaderProps) => {
           src={ArrowLeft}
           className="w-6"
           alt="arrow_left"
-          onClick={() => navigate(-1)}
+          onClick={handleBackClick}
         />
       </button>
 
