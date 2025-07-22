@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { useExerciseFilterStore } from "../../store/useExerciseFilterStore";
 import { useNavigate } from "react-router-dom";
-import { CautionModal } from "./CautionModal";
 import { Toggle } from "../../components/common/Toggle";
 import { DropBox } from "../../components/common/DropBox";
 import { MultiSelectButtonGroup } from "../../components/common/MultiSelectButtonGroup";
+import { CautionModal } from "../../components/group/main/CautionModal";
+import { useGroupRecommendFilterState } from "../../store/useGroupRecommendFilterStore";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 
 const cities = [
@@ -58,14 +58,16 @@ const seoulDistricts = [
   "강동구",
 ];
 
-export const ExerciseFilterPage = () => {
-  const { region, level, style, time, setFilter, resetFilter } =
-    useExerciseFilterStore();
+export const GroupRecommendFilterPage = () => {
+  const { region, level, style, day, time, keyword, setFilter, resetFilter } =
+    useGroupRecommendFilterState();
   const initialFilterRef = useRef({
     region,
     level,
     style,
+    day,
     time,
+    keyword,
   });
   const [showModal, setShowModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
@@ -73,7 +75,7 @@ export const ExerciseFilterPage = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    const currentFilter = { region, level, style, time };
+    const currentFilter = { region, level, style, day, time, keyword };
     const initialFilter = initialFilterRef.current;
 
     const isDirty =
@@ -143,6 +145,13 @@ export const ExerciseFilterPage = () => {
               onChange={newVal => setFilter("style", newVal)}
             />
           </Toggle>
+          <Toggle title="운동 요일">
+            <MultiSelectButtonGroup
+              options={["전체", "월", "화", "수", "목", "금", "토", "일"]}
+              selected={day}
+              onChange={newVal => setFilter("day", newVal)}
+            />
+          </Toggle>
           <Toggle title="활동 시간">
             <MultiSelectButtonGroup
               options={["상시", "오전", "오후"]}
@@ -151,14 +160,19 @@ export const ExerciseFilterPage = () => {
               onChange={newVal => setFilter("time", newVal)}
             />
           </Toggle>
+          <Toggle title="키워드">
+            <></>
+          </Toggle>
         </div>
       </div>
+
       <Grad_Mix_L
         type="refresh"
         label="필터 적용"
         onImageClick={resetFilter}
         onClick={() => navigate(-1)}
       />
+
       {showModal && (
         <CautionModal
           onClose={() => setShowModal(false)}

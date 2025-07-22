@@ -29,7 +29,7 @@ const Sort = ({
       `}
     >
       <span>{label}</span>
-      <img src={icon} alt="정렬 화살표" />
+      <img src={icon} alt="정렬 화살표" className="size-4" />
     </button>
   );
 };

@@ -1,18 +1,24 @@
 import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 
+interface FilterBtnProps extends BaseBtnProps {
+  forceStatus?: IconTextStatus; // 외부에서 상태를 강제 지정할 수 있도록
+}
+
 export default function FilterBtn({
   children,
   disabled = false,
   onClick,
   type,
-}: BaseBtnProps) {
+  forceStatus,
+}: FilterBtnProps) {
   //상태 관리
 
   const { status, onMouseDown, onMouseUp, onMouseLeave } = useDynamicStatus(
     disabled,
     true,
   );
+  const actualStatus = forceStatus ?? status;
 
   const statusMap: Record<IconTextStatus, { bg: string; icon: string }> = {
     clicked: {
@@ -37,7 +43,7 @@ export default function FilterBtn({
     },
   };
 
-  const { bg, icon } = statusMap[status];
+  const { bg, icon } = statusMap[actualStatus];
 
   return (
     <button

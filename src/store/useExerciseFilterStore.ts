@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export type FilterKey = "region" | "level" | "style" | "time";
 
-interface ExerciseFilterState {
+export interface ExerciseFilterState {
   region: string[];
   level: string[];
   style: string;

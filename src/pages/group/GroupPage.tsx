@@ -11,10 +11,19 @@ import {
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import { Empty } from "../../components/group/main/Empty";
 import AddIcon from "@/assets/icons/add.svg";
+import { useNavigate } from "react-router-dom";
+import { useGroupRecommendFilterState } from "../../store/useGroupRecommendFilterStore";
 
 export const GroupPage = () => {
+  const navigate = useNavigate();
   const data: IFMyGroupData[] = groupExerciseData;
   const recommendDate = RecommendGroupData;
+  const { resetFilter } = useGroupRecommendFilterState();
+
+  const onClickGroupRecommend = () => {
+    resetFilter();
+    navigate("/group/recommend");
+  };
   return (
     <div className="flex flex-col">
       <MainHeader />
@@ -64,6 +73,7 @@ export const GroupPage = () => {
                 pressing: ArrowRight,
                 clicked: ArrowRight,
               }}
+              onClick={onClickGroupRecommend}
             />
           </div>
 
@@ -72,12 +82,14 @@ export const GroupPage = () => {
               recommendDate.map(item => (
                 <Group_M
                   id={item.id}
-                  title={item.title}
+                  groupName={item.groupName}
                   location={item.location}
                   femaleLevel={item.femaleLevel}
                   maleLevel={item.maleLevel}
-                  summary={item.summary}
-                  imageSrc={item.imageSrc}
+                  nextActivitDate={item.nextActivitDate}
+                  groupImage={item.groupImage}
+                  upcomingCount={item.upcomingCount}
+                  isMine={true}
                 />
               ))}
           </div>

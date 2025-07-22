@@ -1,22 +1,22 @@
 import { useNavigate } from "react-router-dom";
-import GY800_S from "../../components/common/Btn_Static/Text/GY800_S";
-import RD500_S from "../../components/common/Btn_Static/Text/RD500_S";
-import { ModalBar } from "../../components/common/system/ModalBar";
 import Emoji from "@/assets/icons/emoji_surprise.svg";
+import { ModalBar } from "../../common/system/ModalBar";
+import RD500_S from "../../common/Btn_Static/Text/RD500_S";
+import GY800_S from "../../common/Btn_Static/Text/GY800_S";
 import {
-  useExerciseFilterStore,
-  type ExerciseFilterState,
+  useGroupRecommendFilterState,
   type FilterKey,
-} from "../../store/useExerciseFilterStore";
+  type GroupRecommendFilterState,
+} from "../../../store/useGroupRecommendFilterStore";
 
 interface CautionModalProps {
   onClose: () => void;
-  initialFilter: Pick<ExerciseFilterState, FilterKey>;
+  initialFilter: Pick<GroupRecommendFilterState, FilterKey>;
 }
 
 export const CautionModal = ({ onClose, initialFilter }: CautionModalProps) => {
   const navigate = useNavigate();
-  const setFilter = useExerciseFilterStore(state => state.setFilter);
+  const setFilter = useGroupRecommendFilterState(state => state.setFilter);
   const handleBackAndReset = () => {
     (Object.keys(initialFilter) as (keyof typeof initialFilter)[]).forEach(
       key => {

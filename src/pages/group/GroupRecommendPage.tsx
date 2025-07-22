@@ -1,30 +1,30 @@
-import { useState } from "react";
-import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
+import { useNavigate } from "react-router-dom";
 import CheckBoxBtn from "../../components/common/DynamicBtn/CheckBoxBtn";
 import FilterBtn from "../../components/common/DynamicBtn/FilterBtn";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { groupExerciseData } from "../../components/home/mock/homeMock";
-import { SortBottomSheet } from "../../components/common/SortBottomSheet";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Sort from "../../components/common/Sort";
+import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
+import { SortBottomSheet } from "../../components/common/SortBottomSheet";
+import { groupExerciseData } from "../../components/home/mock/homeMock";
 import {
   isFilterDirty,
-  useExerciseFilterStore,
-} from "../../store/useExerciseFilterStore";
+  useGroupRecommendFilterState,
+} from "../../store/useGroupRecommendFilterStore";
 
-export const RecommendPage = () => {
+export const GroupRecommendPage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+  const { region, level, style, day, time, keyword } =
+    useGroupRecommendFilterState();
+  const filterState = { region, level, style, day, time, keyword };
   const data = groupExerciseData;
-  const { region, level, style, time } = useExerciseFilterStore();
-  const filterState = { region, level, style, time };
   const filterStatus = isFilterDirty(filterState) ? "clicked" : "default";
   return (
-    <div className="flex flex-col gap-2 -mx-4 px-4 bg-white">
-      <PageHeader title="운동 추천" onBackClick={() => navigate("/")} />
+    <div className="flex flex-col gap-2">
+      <PageHeader title="모임 추천" />
       <div className="flex flex-col gap-3">
-        <div className="w-full h-17">{/* 달력 */}</div>
         <div className="flex justify-between w-full h-7">
           <CheckBoxBtn>
             <span>콕플 추천</span>
@@ -32,7 +32,7 @@ export const RecommendPage = () => {
 
           <div className="flex items-center">
             <FilterBtn
-              onClick={() => navigate("/recommend/filter")}
+              onClick={() => navigate("/group/recommend-filter")}
               forceStatus={filterStatus}
             >
               <span>필터</span>
@@ -71,6 +71,7 @@ export const RecommendPage = () => {
         onClose={() => setIsSortOpen(false)}
         selected={sortOption}
         onSelect={option => setSortOption(option)}
+        options={["최신순", "운동 많은 순"]}
       />
     </div>
   );
