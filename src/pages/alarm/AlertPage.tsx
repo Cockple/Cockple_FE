@@ -77,9 +77,11 @@ export const AlertPage = () => {
       <PageHeader title="알림" onBackClick={() => navigate("/")} />
 
       {/* 알림 카드들 */}
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex-1 flex flex-col items-center gap-4">
         {alertList.length === 0 ? (
-          <NoAlertMessage />
+          <div className="flex flex-1 justify-center items-center">
+            <NoAlertMessage />
+          </div>
         ) : (
           alertList.map(alert => {
             // 이미 승인된 경우 → AlertInviteApproved 렌더링

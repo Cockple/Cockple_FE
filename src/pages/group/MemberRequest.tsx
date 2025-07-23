@@ -5,6 +5,7 @@ import { Member } from "../../components/common/contentcard/Member";
 import type { MemberProps } from "../../components/common/contentcard/Member";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
+import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
 
 const MemberRequestPage = () => {
   const [activeTab, setActiveTab] = useState<"request" | "approved">("request");
@@ -82,7 +83,7 @@ const MemberRequestPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-[100dvh]">
       <PageHeader title="멤버 신청 관리" />
       <TabSelector
         options={[
@@ -93,8 +94,8 @@ const MemberRequestPage = () => {
         onChange={value => setActiveTab(value)}
       />
 
-      <div className="flex flex-col gap-3 mt-2">
-        {activeTab === "request" &&
+      <div className="flex-1 flex flex-col gap-3 mt-2">
+        {/* {activeTab === "request" &&
           requests.map(member => (
             <Member
               key={member.name}
@@ -107,12 +108,44 @@ const MemberRequestPage = () => {
         {activeTab === "approved" &&
           approved.map(member => (
             <Member key={member.name} {...member} status="approved" />
-          ))}
+          ))} */}
+        {activeTab === "request" && (
+          <>
+            {requests.length === 0 ? (
+              <div className="flex flex-1 justify-center items-center">
+                <NoAlertMessage message="멤버 신청 내역" />
+              </div>
+            ) : (
+              requests.map(member => (
+                <Member
+                  key={member.name}
+                  {...member}
+                  onAccept={() => openApproveModal(member)}
+                  onReject={() => openRejectModal(member)}
+                />
+              ))
+            )}
+          </>
+        )}
+
+        {activeTab === "approved" && (
+          <>
+            {approved.length === 0 ? (
+              <div className="flex flex-1 justify-center items-center">
+                <NoAlertMessage message="승인 완료 내역" />
+              </div>
+            ) : (
+              approved.map(member => (
+                <Member key={member.name} {...member} status="approved" />
+              ))
+            )}
+          </>
+        )}
       </div>
 
       {/* 승인 모달 */}
       {modalType === "approve" && selectedMember && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black-60 z-50">
           <ApproveModal
             onClose={closeModal}
             onApprove={handleApprove}
@@ -123,7 +156,7 @@ const MemberRequestPage = () => {
 
       {/* 거절 모달 */}
       {modalType === "reject" && selectedMember && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black-60 z-50">
           <RejectModal
             onClose={closeModal}
             onReject={handleReject}
