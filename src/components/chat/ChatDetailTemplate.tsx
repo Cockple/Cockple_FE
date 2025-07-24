@@ -9,15 +9,16 @@ import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
-import { getLocalDateString } from "../../utils/getLocalDateString";
+import { formatChatDate, formatTime } from "../../utils/formatDate";
+//import { getLocalDateString } from "../../utils/getLocalDateString";
 
-import type { Chatting } from "../../types/chat";
+import type { Chatting, ChatMessageResponse } from "../../types/chat";
 
 interface ChatDetailTemplateProps {
   chatId: string;
   chatName: string;
   chatType: "group" | "personal";
-  chatData: Record<string, Chatting[]>;
+  chatData: Record<string, ChatMessageResponse[]>;
   onBack: () => void;
   showHomeButton?: boolean;
 }
@@ -32,18 +33,37 @@ export const ChatDetailTemplate = ({
   const [chattings, setChattings] = useState<Chatting[]>([]);
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
   // const [pendingImage, setPendingImage] = useState<string | null>(null);
   // const [pendingFileName, setPendingFileName] = useState<string>("");
   // const [pendingFileSize, setPendingFileSize] = useState<string>("");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const currentUserId = 999;
+
+  // useEffect(() => {
+  //   if (chatId && chatData[chatId]) {
+  //     setChattings(chatData[chatId]);
+  //   }
+  // }, [chatId, chatData]);
   useEffect(() => {
     if (chatId && chatData[chatId]) {
-      setChattings(chatData[chatId]);
+      const response: ChatMessageResponse[] = chatData[chatId];
+      const mapped = response.map(msg => ({
+        id: msg.messageId,
+        nickname: msg.senderName,
+        profile: msg.senderProfileImage,
+        chatting: msg.messageType === "TEXT" ? msg.content : "",
+        imageUrls: msg.messageType === "IMAGE" ? [msg.content] : [],
+        time: formatTime(msg.createdAt),
+        createdAt: formatChatDate(msg.createdAt),
+        isMe: msg.senderId === currentUserId,
+        unreadCount: 0,
+      }));
+      setChattings(mapped);
     }
   }, [chatId, chatData]);
 
@@ -51,32 +71,32 @@ export const ChatDetailTemplate = ({
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chattings]);
 
-  // 채팅창 날짜 표시
-  const formatDateLabel = (dateString: string) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-    const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
-    return `${year}.${month}.${day} (${weekday})`;
-  };
-
   const handleSendMessage = () => {
     if (input.trim()) {
       const now = new Date();
 
+      // const newChat: Chatting = {
+      //   id: chattings.length + 1,
+      //   nickname: "나",
+      //   profile: ProfileImg,
+      //   chatting: input,
+      //   time: now.toLocaleTimeString([], {
+      //     hour: "2-digit",
+      //     minute: "2-digit",
+      //   }),
+      //   createdAt: getLocalDateString(), // YYYY-MM-DD
+      //   isMe: true,
+      //   unreadCount: 1,
+      // };
       const newChat: Chatting = {
-        id: chattings.length + 1,
+        id: Date.now(),
         nickname: "나",
         profile: ProfileImg,
         chatting: input,
-        time: now.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        createdAt: getLocalDateString(), // YYYY-MM-DD
+        time: formatTime(now.toISOString()),
+        createdAt: formatChatDate(now.toISOString()),
         isMe: true,
-        unreadCount: 1,
+        unreadCount: 0,
       };
 
       setChattings(prev => [...prev, newChat]);
@@ -110,18 +130,29 @@ export const ChatDetailTemplate = ({
     const now = new Date();
 
     // 채팅에 바로 전송
+    // const newChat: Chatting = {
+    //   id: chattings.length + 1,
+    //   nickname: "나",
+    //   profile: ProfileImg,
+    //   chatting: "",
+    //   time: now.toLocaleTimeString([], {
+    //     hour: "2-digit",
+    //     minute: "2-digit",
+    //   }),
+    //   createdAt: getLocalDateString(),
+    //   isMe: true,
+    //   unreadCount: 1,
+    //   imageUrls: [fileUrl],
+    // };
     const newChat: Chatting = {
-      id: chattings.length + 1,
+      id: Date.now(),
       nickname: "나",
       profile: ProfileImg,
       chatting: "",
-      time: now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      createdAt: getLocalDateString(),
+      time: formatTime(now.toISOString()),
+      createdAt: formatChatDate(now.toISOString()),
       isMe: true,
-      unreadCount: 1,
+      unreadCount: 0,
       imageUrls: [fileUrl],
     };
 
@@ -151,6 +182,15 @@ export const ChatDetailTemplate = ({
   //   setChattings(prev => [...prev, newChat]);
   //   setPendingImage(null);
   // };
+  // 채팅창 날짜 표시
+  const formatDateLabel = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+    return `${year}.${month}.${day} (${weekday})`;
+  };
 
   return (
     <div
