@@ -117,12 +117,14 @@ const MemberRequestPage = () => {
               </div>
             ) : (
               requests.map(member => (
-                <Member
-                  key={member.name}
-                  {...member}
-                  onAccept={() => openApproveModal(member)}
-                  onReject={() => openRejectModal(member)}
-                />
+                <div className="border-b border-gy-200 pb-1">
+                  <Member
+                    key={member.name}
+                    {...member}
+                    onAccept={() => openApproveModal(member)}
+                    onReject={() => openRejectModal(member)}
+                  />
+                </div>
               ))
             )}
           </>
