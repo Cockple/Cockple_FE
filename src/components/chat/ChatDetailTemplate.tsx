@@ -34,7 +34,7 @@ export const ChatDetailTemplate = ({
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null!);
 
   // const [pendingImage, setPendingImage] = useState<string | null>(null);
   // const [pendingFileName, setPendingFileName] = useState<string>("");
@@ -104,7 +104,7 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();

@@ -9,7 +9,7 @@ export interface ChatMessageResponse {
   content: string;
   reactions: Reaction[];
   replyTo: null | number;
-  fileInfo: null | any;
+  fileInfo: FileInfo | null;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
@@ -21,6 +21,12 @@ interface Reaction {
   count: number;
   userReacted: boolean;
   reactedUsers: string[];
+}
+
+export interface FileInfo {
+  fileName: string;
+  fileSize: number;
+  fileUrl: string;
 }
 
 // 프론트에서 사용하는 메시지 타입 (ChattingComponent에 맞춤)

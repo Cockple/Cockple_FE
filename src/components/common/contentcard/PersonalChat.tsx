@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Num_Noti } from "./Num_Noti";
 
-interface PersonalChatProps {
+export interface PersonalChatProps {
   imageSrc: string;
   userName: string;
   lastMessage: string;
   lastMessageTime: string;
-  unreadCount: number; 
+  unreadCount: number;
 }
 
 export const PersonalChat = ({
@@ -29,8 +29,8 @@ export const PersonalChat = ({
       onTouchEnd={() => setPressing(false)}
     >
       <img
-        src={imageSrc} 
-        alt={userName} 
+        src={imageSrc}
+        alt={userName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem]"
       />
 
@@ -40,16 +40,16 @@ export const PersonalChat = ({
             {userName}
           </p>
         </div>
-        
+
         <span
           className="body-rg-400 block text-left"
           style={{
-            display: '-webkit-box',
-            WebkitLineClamp: '2',
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            lineHeight: '144%',
+            display: "-webkit-box",
+            WebkitLineClamp: "2",
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            lineHeight: "144%",
           }}
         >
           {lastMessage}
@@ -57,7 +57,7 @@ export const PersonalChat = ({
       </div>
 
       <div className="flex flex-col justify-between w-[3rem] h-[4rem] items-center">
-        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p> 
+        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p>
         <div className="flex items-center justify-center w-full">
           {unreadCount > 0 && <Num_Noti unreadCount={unreadCount} />}
         </div>

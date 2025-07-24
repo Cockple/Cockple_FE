@@ -2,14 +2,17 @@
 import React from "react";
 import { GroupChat } from "../common/contentcard/GroupChat";
 import { PersonalChat } from "../common/contentcard/PersonalChat";
+import type { GroupChatProps } from "../common/contentcard/GroupChat";
+import type { PersonalChatProps } from "../common/contentcard/PersonalChat";
+import type { NavigateFunction } from "react-router-dom";
 
 interface Props {
   tab: "group" | "personal";
-  groupChats: any[];
-  personalChats: any[];
+  groupChats: (GroupChatProps & { id: number })[];
+  personalChats: (PersonalChatProps & { id: number })[];
   isValidSearch: boolean;
   searchTerm: string;
-  navigate: (path: string, options?: any) => void;
+  navigate: NavigateFunction;
 }
 
 const ChatList = ({
