@@ -1,7 +1,10 @@
-@import url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Variable.woff2");
+@import url("https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css");
 @import "tailwindcss";
-
+@import "swiper/css";
+@import "swiper/css/pagination";
 @theme {
+  --color-gr-100: #eaf5ed;
+  --color-gr-200: #d8edde;
   --color-gr-500: #1abb65;
   --color-gr-600: #0b9a4e;
   --color-gr-700: #0a7456;
@@ -10,9 +13,13 @@
   --color-ye-400: #fcd55c;
 
   --color-bl-400: #398df4;
+  --color-bl-500: #1f56e0;
 
   --color-pk-400: #ff64aa;
 
+  --color-rd-500: #f62d2d;
+
+  --color-gy-50: #f9fafb;
   --color-gy-100: #f4f5f6;
   --color-gy-200: #e4e7ea;
   --color-gy-300: #d6dae0;
@@ -26,13 +33,77 @@
   --color-white: #fcfcff;
   --color-black: #121212;
 
+  --color-warning: #f57d1b;
+  --color-active: #87c95e;
+
   /* 그라디언트 */
   --color-gradient-ye-gr: linear-gradient(90deg, #fcd55c 0%, #1abb65 100%);
   --color-gradient-gy: linear-gradient(83deg, #d6dae0 9.02%, #a8aebd 90.81%);
+  --color-gradient-home-header:
+    linear-gradient(
+      180deg,
+      #49e792 -33.96%,
+      rgba(176, 211, 119, 0.35) 58.02%,
+      rgba(227, 219, 109, 0.23) 72.17%,
+      rgba(255, 224, 129, 0) 99.83%
+    ),
+    #fcfcff;
+
+  /* Drop Shadows */
+  --color-gradient-white_100_0: linear-gradient(
+    180deg,
+    #fcfcff 10%,
+    rgba(252, 252, 255, 0.8) 50%,
+    rgba(252, 252, 255, 0) 100%
+  );
+  --color-gradient-White_0_100: linear-gradient(
+    180deg,
+    rgba(252, 252, 255, 0) 0%,
+    rgba(252, 252, 255, 0.8) 50%,
+    var(--Colors-GrayScale-White, #fcfcff) 90%
+  );
+  --color-gradient-fade-vertical {
+    background-image:
+      linear-gradient(
+        180deg,
+        #fcfcff 10%,
+        rgba(252, 252, 255, 0.8) 50%,
+        rgba(252, 252, 255, 0) 100%
+      ),
+      linear-gradient(
+        0deg,
+        #fcfcff 10%,
+        rgba(252, 252, 255, 0.8) 50%,
+        rgba(252, 252, 255, 0) 100%
+      );
+  }
+
+  /* Drop Shadows */
+  --shadow-ds50: 0px 0px 12px 0px rgba(18, 18, 18, 0.04);
+  --shadow-ds100: 0px 0px 4px 0px rgba(18, 18, 18, 0.12);
+  --shadow-ds200: 0px 0px 16px 0px rgba(18, 18, 18, 0.16);
+  --shadow-ds200-gr: 0px 0px 8px 0px rgba(26, 187, 101, 0.16);
+  --shadow-ds300: 0px 0px 24px 0px rgba(18, 18, 18, 0.2);
+  --shadow-ds400: 0px 0px 40px 0px rgba(18, 18, 18, 0.24);
+  --shadow-ds50-is50:
+    -0.5px -1px 1px 0px rgba(252, 252, 255, 0.4) inset,
+    1px 1px 2px 0px rgba(252, 252, 255, 0.6) inset,
+    0px 0px 12px 0px rgba(18, 18, 18, 0.04);
+  --shadow-is50: 0px 0px 4px 0px rgba(18, 18, 18, 0.2) inset;
+
+  /* Transparent Colors */
+  --color-gr500-20: rgba(26, 187, 101, 0.2);
+  --color-black-20: rgba(18, 18, 18, 0.2);
+  --color-black-60: rgba(18, 18, 18, 0.6);
+  --color-white-40: rgba(252, 252, 255, 0.4);
+  --color-white-50: rgba(252, 252, 255, 0.5);
+
+  /* Background Blur */
+  --blur-bg: 20px;
 
   /* 폰트 패밀리 */
   --font-family-suit:
-    "SUIT", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    "SUIT Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* 커스텀 타이포그래피 클래스 */
@@ -93,6 +164,14 @@
     letter-spacing: -0.025rem;
   }
 
+  .body-lg-700 {
+    font-family: var(--font-family-suit);
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 156%;
+    letter-spacing: -0.0225rem;
+  }
+
   .body-lg-500 {
     font-family: var(--font-family-suit);
     font-size: 1.125rem;
@@ -107,6 +186,14 @@
     font-weight: 400;
     line-height: 156%;
     letter-spacing: -0.0225rem;
+  }
+
+  .body-md-700 {
+    font-family: var(--font-family-suit);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 150%;
+    letter-spacing: -0.02rem;
   }
 
   .body-md-500 {
@@ -129,6 +216,13 @@
     font-family: var(--font-family-suit);
     font-size: 0.875rem;
     font-weight: 500;
+    line-height: 144%;
+    letter-spacing: -0.0175rem;
+  }
+  .body-rg-600 {
+    font-family: var(--font-family-suit);
+    font-size: 0.875rem;
+    font-weight: 600;
     line-height: 144%;
     letter-spacing: -0.0175rem;
   }
@@ -172,18 +266,160 @@
     line-height: 132%;
     letter-spacing: -0.015rem;
   }
+
+  /* Border radius shapes */
+  .border-hard {
+    border-radius: 8px;
+  }
+
+  .border-soft {
+    border-radius: 12px;
+  }
+
+  .border-round {
+    border-radius: 16px;
+  }
+
+  .border-curve {
+    border-radius: 24px;
+  }
+
+  /* Style borders */
+  .border-default {
+    border-color: var(--color-gy-400);
+  }
+
+  .border-active {
+    border-color: var(--color-active);
+  }
+
+  .border-success {
+    border-color: var(--color-bl-500);
+  }
+
+  .border-error {
+    border-color: var(--color-rd-500);
+  }
+
+  .border-warning {
+    border-color: var(--color-warning);
+  }
+
+  .shadow-ds50 {
+    box-shadow: var(--shadow-ds50);
+  }
+
+  .shadow-ds100 {
+    box-shadow: var(--shadow-ds100);
+  }
+
+  .shadow-ds200 {
+    box-shadow: var(--shadow-ds200);
+  }
+
+  .shadow-ds200-gr {
+    box-shadow: var(--shadow-ds200-gr);
+  }
+
+  .shadow-ds300 {
+    box-shadow: var(--shadow-ds300);
+  }
+
+  .shadow-ds400 {
+    box-shadow: var(--shadow-ds400);
+  }
+
+  .shadow-ds50-is50 {
+    box-shadow: var(--shadow-ds50-is50);
+  }
+
+  .shadow-is50 {
+    box-shadow: var(--shadow-is50);
+  }
+
+  /* Background Blur */
+  .bg-blur {
+    backdrop-filter: blur(var(--blur-bg));
+    -webkit-backdrop-filter: blur(var(--blur-bg)); /* Safari 지원 */
+  }
+  /* Transparent Color */
+  .bg-gr500-20 {
+    background-color: var(--color-gr500-20);
+  }
+
+  .bg-black-20 {
+    background-color: var(--color-black-20);
+  }
+
+  .bg-black-60 {
+    background-color: var(--color-black-60);
+  }
+
+  .bg-white-40 {
+    background-color: var(--color-white-40);
+  }
+
+  .bg-white-50 {
+    background-color: var(--color-white-50);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+  .gap-vertical-section-s {
+    gap: 1.25rem;
+  }
+  .gap-vertical-section {
+    gap: 2rem;
+  }
 }
 
 html {
+  height: 100%;
   font-size: clamp(16px, 4vw, 18px);
   background-color: lightgray;
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 /* 전체 앱에 기본 폰트 적용 (선택사항) */
 body {
+  height: 100%;
+  overscroll-behavior-y: none;
   font-family:
     "SUIT Variable",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.swiper-pagination-bullet {
+  @apply bg-gy-500 size-2 rounded-full;
+  margin: 0 8px !important;
+}
+.swiper-pagination-bullet-active {
+  @apply bg-gr-500 mx-2;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
