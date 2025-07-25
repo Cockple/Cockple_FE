@@ -1,5 +1,3 @@
-import React from "react";
-
 export const NoAlertMessage = () => {
   return (
     <div className="flex flex-col items-center justify-center px-2 gap-[var(--Gaps-Vertical-Section_S, 1.25rem)]">

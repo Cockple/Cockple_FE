@@ -1,5 +1,5 @@
 // 지도는 임시로 그냥 만들었어요
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Search from "@/assets/icons/search.svg?react";
 import LocationIcon from "@/assets/icons/mylocation.svg?react";
@@ -31,7 +31,10 @@ export const MyPageAddressSearchPage = ({
   const [currentMainAddr, setCurrentMainAddr] = useState(initialMainAddr);
   const [currentStreetAddr, setCurrentStreetAddr] = useState(initialStreetAddr);
   const [inputAddress, setInputAddress] = useState(initialInputAddress);
-  const [markerPosition, setMarkerPosition] = useState<{ x: number; y: number } | null>(null);
+  const [markerPosition, setMarkerPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const initialMapStateRef = useRef<{
@@ -42,7 +45,7 @@ export const MyPageAddressSearchPage = ({
   } | null>(null);
 
   const mockReverseGeocode = useCallback((x: number, y: number) => {
-    return new Promise<{ main: string; street: string }>((resolve) => {
+    return new Promise<{ main: string; street: string }>(resolve => {
       setTimeout(() => {
         const randomId = Math.floor(Math.random() * 1000);
         resolve({
@@ -54,7 +57,7 @@ export const MyPageAddressSearchPage = ({
   }, []);
 
   const mockGeocode = useCallback((address: string) => {
-    return new Promise<{ x: number; y: number }>((resolve) => {
+    return new Promise<{ x: number; y: number }>(resolve => {
       setTimeout(() => {
         if (mapRef.current) {
           const mapWidth = mapRef.current.offsetWidth;
@@ -73,7 +76,7 @@ export const MyPageAddressSearchPage = ({
   const getCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
+        async position => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           console.log(`현재 위치: Lat ${lat}, Lng ${lng}`);
@@ -98,7 +101,7 @@ export const MyPageAddressSearchPage = ({
             };
           }
         },
-        (error) => {
+        error => {
           console.error("현재 위치를 가져오는데 실패했습니다:", error);
           alert("현재 위치를 가져올 수 없습니다. 지도에서 직접 선택해주세요.");
           setCurrentMainAddr("위치를 찾을 수 없음");
@@ -110,7 +113,7 @@ export const MyPageAddressSearchPage = ({
             inputAddr: initialInputAddress,
           };
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
       );
     } else {
       alert("이 브라우저는 지오로케이션을 지원하지 않습니다.");
@@ -121,7 +124,12 @@ export const MyPageAddressSearchPage = ({
         inputAddr: initialInputAddress,
       };
     }
-  }, [initialMainAddr, initialStreetAddr, initialInputAddress, mockReverseGeocode]);
+  }, [
+    initialMainAddr,
+    initialStreetAddr,
+    initialInputAddress,
+    mockReverseGeocode,
+  ]);
 
   useEffect(() => {
     const initializeLocation = async () => {
@@ -142,10 +150,17 @@ export const MyPageAddressSearchPage = ({
       }
     };
     initializeLocation();
-  }, [initialMainAddr, initialStreetAddr, initialInputAddress, mockGeocode, getCurrentLocation]);
+  }, [
+    initialMainAddr,
+    initialStreetAddr,
+    initialInputAddress,
+    mockGeocode,
+    getCurrentLocation,
+  ]);
 
-
-  const handleMapClick = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMapClick = async (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
     if (!mapRef.current) return;
 
     const rect = mapRef.current.getBoundingClientRect();
@@ -159,8 +174,10 @@ export const MyPageAddressSearchPage = ({
     setInputAddress(main);
   };
 
-  const handleResetToInitialLocation = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); 
+  const handleResetToInitialLocation = (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    e.stopPropagation();
     console.log("현위치 버튼 클릭됨");
     console.log("초기 상태:", initialMapStateRef.current);
     if (initialMapStateRef.current && initialMapStateRef.current.marker) {
@@ -170,13 +187,18 @@ export const MyPageAddressSearchPage = ({
       setInputAddress(initialMapStateRef.current.inputAddr);
       console.log("초기 위치로 복귀 완료");
     } else {
-      console.log("initialMapStateRef에 유효한 초기 마커 위치 없음. 현재 위치 재탐색 시도.");
+      console.log(
+        "initialMapStateRef에 유효한 초기 마커 위치 없음. 현재 위치 재탐색 시도.",
+      );
       getCurrentLocation();
     }
   };
 
   const handleRegisterCurrentLocation = () => {
-    if (currentMainAddr === "위치를 찾을 수 없음" || currentMainAddr === "현재 위치를 불러오는 중...") {
+    if (
+      currentMainAddr === "위치를 찾을 수 없음" ||
+      currentMainAddr === "현재 위치를 불러오는 중..."
+    ) {
       alert("유효한 위치를 먼저 선택해주세요.");
       return;
     }
@@ -192,14 +214,20 @@ export const MyPageAddressSearchPage = ({
     navigate("/mypage/edit");
   };
 
-  const handleSearchInputKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      navigate(`/mypage/edit/location?initialLocationValue=${encodeURIComponent(inputAddress)}`);
+  const handleSearchInputKeyPress = async (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Enter") {
+      navigate(
+        `/mypage/edit/location?initialLocationValue=${encodeURIComponent(inputAddress)}`,
+      );
     }
   };
-  
+
   const handleSearchButtonClick = () => {
-    navigate(`/mypage/edit/location?initialLocationValue=${encodeURIComponent(inputAddress)}`);
+    navigate(
+      `/mypage/edit/location?initialLocationValue=${encodeURIComponent(inputAddress)}`,
+    );
   };
 
   return (
@@ -210,7 +238,7 @@ export const MyPageAddressSearchPage = ({
         <input
           type="text"
           value={inputAddress}
-          onChange={(e) => setInputAddress(e.target.value)}
+          onChange={e => setInputAddress(e.target.value)}
           onKeyPress={handleSearchInputKeyPress}
           className="flex-grow header-h5 focus:outline-none"
           placeholder="건물명, 도로명으로 검색"
@@ -231,14 +259,14 @@ export const MyPageAddressSearchPage = ({
         <MapMarker
           className="absolute transform -translate-x-1/2 -translate-y-full"
           style={{
-            left: markerPosition ? markerPosition.x : '50%',
-            top: markerPosition ? markerPosition.y : '50%',
+            left: markerPosition ? markerPosition.x : "50%",
+            top: markerPosition ? markerPosition.y : "50%",
           }}
         />
 
         <div className="absolute right-4 bottom-2">
           <button
-            onClick={handleResetToInitialLocation} 
+            onClick={handleResetToInitialLocation}
             className="w-11 h-11 bg-white shadow-ds200 rounded-full p-1 flex items-center justify-center"
           >
             <LocationIcon className="w-6 h-6" />

@@ -1,5 +1,3 @@
-import React from "react";
-
 interface FileSendModalProps {
   imageUrl: string;
   fileName: string;

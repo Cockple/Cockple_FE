@@ -1,4 +1,3 @@
-import React from "react";
 import ArrowDown from "../../assets/icons/arrow_down.svg";
 import ArrowDownG from "../../assets/icons/arrow_downG.svg";
 import ArrowUp from "../../assets/icons/arrow_up.svg";

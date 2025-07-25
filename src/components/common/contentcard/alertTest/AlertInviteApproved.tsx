@@ -1,4 +1,3 @@
-import React from "react";
 import RD500_XS from "../../Btn_Static/Text/RD500_XS";
 import GR600_XS from "../../Btn_Static/Text/GR600_XS";
 

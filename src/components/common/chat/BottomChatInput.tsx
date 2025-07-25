@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import Clear_M from "../Btn_Static/Icon_Btn/Clear_M";
 import Camera from "../../../assets/icons/camera.svg";
 import Imogi from "../../../assets/icons/emoji_smile.svg";

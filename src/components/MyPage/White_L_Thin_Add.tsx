@@ -1,4 +1,3 @@
-import React from "react";
 import Btn_Static from "../common/Btn_Static/Btn_Static";
 import Plus from "../../assets/icons/add.svg";
 

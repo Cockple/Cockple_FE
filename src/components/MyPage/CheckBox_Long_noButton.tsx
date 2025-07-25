@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 
@@ -39,7 +39,7 @@ export const CheckBox_Long_noButton = ({
     setRecordTexts(newTexts);
 
     if (isRecordFocused.length < recordTexts.length) {
-      setIsRecordFocused((prev) => [...prev, false]);
+      setIsRecordFocused(prev => [...prev, false]);
     }
   };
 
@@ -68,7 +68,7 @@ export const CheckBox_Long_noButton = ({
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsPrivate((prev) => !prev)}
+              onClick={() => setIsPrivate(prev => !prev)}
               type="button"
               className="focus:outline-none"
             >
@@ -86,9 +86,9 @@ export const CheckBox_Long_noButton = ({
       {recordTexts.map((text, idx) => (
         <div key={idx} className="relative mb-4">
           <textarea
-            ref={(el) => (textAreaRefs.current[idx] = el)}
+            ref={el => (textAreaRefs.current[idx] = el)}
             value={text}
-            onChange={(e) => onChangeText(idx, e.target.value)}
+            onChange={e => onChangeText(idx, e.target.value)}
             onFocus={() => onFocus(idx)}
             onBlur={() => onBlur(idx)}
             disabled={isPrivate}
@@ -100,8 +100,8 @@ export const CheckBox_Long_noButton = ({
                 isPrivate
                   ? "border-[#E4E7EA] cursor-not-allowed"
                   : isRecordFocused[idx]
-                  ? "border-[#87C95E]"
-                  : "border-[#E4E7EA] text-black"
+                    ? "border-[#87C95E]"
+                    : "border-[#E4E7EA] text-black"
               }
               focus:outline-none
             `}

@@ -1,8 +1,6 @@
 // TabBtn을 사용하는 컴포넌트
 // 채팅 페이지에서는 "모임채팅" "개인채팅"
 // 찜 페이지에서는 "모임" "운동"
-
-import React from "react";
 import TabBtn from "./DynamicBtn/TabBtn";
 
 interface TabOption {

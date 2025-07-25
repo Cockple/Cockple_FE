@@ -1,5 +1,3 @@
-import React from "react";
-
 interface AlertTest1Props {
   groupName: string;
   alertText: string;
