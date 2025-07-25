@@ -1,4 +1,3 @@
-import React from "react";
 import Btn_Static from "../Btn_Static";
 import type { BtnStatus } from "../types";
 import RefreshGY400 from "../../../../assets/icons/refresh-gy-400.svg";

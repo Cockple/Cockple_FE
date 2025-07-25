@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Clear_M from "../../components/common/Btn_Static/Icon_Btn/Clear_M";
 import AlertInvite from "../../components/common/contentcard/alertTest/AlertInvite";
 import AlertInviteApproved from "../../components/common/contentcard/alertTest/AlertInviteApproved";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
@@ -10,8 +9,6 @@ import AlertChange from "../../components/common/contentcard/alertTest/AlertChan
 import AlertShadow from "../../components/common/contentcard/alertTest/AlertShadow";
 import { alertList } from "../../components/alert/alertList";
 // 아이콘
-import ArrowLeft from "../../assets/icons/arrow_left.svg";
-import { MainHeader } from "../../components/common/system/header/MainHeader";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
 

@@ -12,7 +12,6 @@ interface MedalItem {
   isAwarded: boolean;
 }
 
-
 interface MyMedalProps {
   name?: string;
   gender?: string;
@@ -30,11 +29,11 @@ interface MyMedalProps {
 }
 
 export const MyPageProfileMedal = ({
-  name = "",
-  gender = "",
-  group = "",
-  birth = "",
-  imageSrc = "",
+  // name = "",
+  // gender = "",
+  // group = "",
+  // birth = "",
+  // imageSrc = "",
 
   myMedalTotal = 0,
   goldCount = 0,
@@ -44,9 +43,11 @@ export const MyPageProfileMedal = ({
 
   medals = [],
 }: MyMedalProps) => {
-  const [selectedTab, setSelectedTab] = useState<"전체" | "미입상 기록">("전체");
+  const [selectedTab, setSelectedTab] = useState<"전체" | "미입상 기록">(
+    "전체",
+  );
 
-  const filteredList = medals.filter((item) => {
+  const filteredList = medals.filter(item => {
     if (selectedTab === "전체") return true;
     if (selectedTab === "미입상 기록") return !item.isAwarded;
     return true;
@@ -62,7 +63,7 @@ export const MyPageProfileMedal = ({
 
       {isEmpty ? (
         <div className="flex items-center justify-center">
-        <ProfileMyMedal_None />
+          <ProfileMyMedal_None />
         </div>
       ) : (
         <>
@@ -79,7 +80,7 @@ export const MyPageProfileMedal = ({
           <div className="w-[375px] mb-5">
             <div className="flex gap-4 px-4 relative h-10">
               <div className="absolute bottom-0 left-0 right-0 h-[0.125rem] bg-[#F4F5F6]" />
-              {["전체", "미입상 기록"].map((tab) => (
+              {["전체", "미입상 기록"].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setSelectedTab(tab as "전체" | "미입상 기록")}
