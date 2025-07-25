@@ -37,7 +37,6 @@ import { RecommendPage } from "./pages/home/Recommendpage";
 import { GroupChatDetailPage } from "./pages/chat/GroupChatDetailPage";
 import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";
 import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
 import useSplashStore from "./zustand/useSplashStore";
 import SplashScreen from "./pages/login/SplashScreen";
@@ -51,6 +50,7 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 
 const router = createBrowserRouter([
   {
