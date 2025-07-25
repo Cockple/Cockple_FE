@@ -86,7 +86,9 @@ export const CheckBox_Long_noButton = ({
       {recordTexts.map((text, idx) => (
         <div key={idx} className="relative mb-4">
           <textarea
-            ref={el => (textAreaRefs.current[idx] = el)}
+            ref={el => {
+              textAreaRefs.current[idx] = el;
+            }}
             value={text}
             onChange={e => onChangeText(idx, e.target.value)}
             onFocus={() => onFocus(idx)}
