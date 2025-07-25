@@ -3,7 +3,7 @@ import { MyPage } from "../../../../pages/mypage/MyPage";
 import { MemoryRouter } from "react-router-dom";
 
 const createMockFile = (
-  url: string,
+  // url: string,
   filename: string,
   mimeType: string,
 ): File => {
@@ -19,7 +19,7 @@ const createMockFile = (
 const mockProfileImageFile = createMockFile(
   "../../../../assets/images/kitty.png",
   "../../../../assets/images/kitty.png",
-  "../../../../assets/images/kitty.png",
+  // "../../../../assets/images/kitty.png",
 );
 
 const meta = {
@@ -103,7 +103,7 @@ export const MaleUser: Story = {
     profileImage: createMockFile(
       "https://via.placeholder.com/150/87CEEB/FFFFFF?text=MaleProfile",
       "male_profile.png",
-      "image/png",
+      // "image/png",
     ),
     myMedalTotal: 5,
     goldCount: 2,
