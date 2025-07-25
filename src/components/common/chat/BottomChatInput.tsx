@@ -14,12 +14,12 @@ interface BottomChatInputProps {
   onCompositionEnd: (e: React.CompositionEvent<HTMLInputElement>) => void;
   onSendMessage: () => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 const BottomChatInput = ({
   input,
-  isComposing,
+  // isComposing,
   onInputChange,
   onKeyDown,
   onCompositionStart,
