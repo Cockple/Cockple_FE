@@ -11,9 +11,9 @@ interface ExerciseMProps {
   time: string;
   location: string;
   imageSrc: string;
-  isFavorite?: boolean; 
+  isFavorite?: boolean;
   onToggleFavorite?: (id: number) => void;
-};
+}
 
 export const Exercise_M = ({
   id,
@@ -22,10 +22,10 @@ export const Exercise_M = ({
   time,
   location,
   imageSrc,
-  isFavorite = false, 
+  isFavorite = false,
   onToggleFavorite,
 }: ExerciseMProps) => {
-  // pressing 상태 관리 
+  // pressing 상태 관리
   const [isPressing, setIsPressing] = useState(false);
 
   const [favorite, setFavorite] = useState(isFavorite);
@@ -51,15 +51,17 @@ export const Exercise_M = ({
       <div className="relative">
         <img
           src={imageSrc}
-          alt="운동 이미지" 
+          alt="운동 이미지"
           className="w-[5.5rem] h-[5.5rem] rounded-[0.5rem] object-cover"
         />
-        <div style={{ position: "absolute", bottom: "0.25rem", right: "0.25rem" }}>
+        <div
+          style={{ position: "absolute", bottom: "0.25rem", right: "0.25rem" }}
+        >
           <RD500_S_Icon
-            isActive={favorite} 
-            onClick={() => handleToggleFavorite?.(id)}        
-            />
-          </div>
+            isActive={favorite}
+            onClick={() => handleToggleFavorite()}
+          />
+        </div>
       </div>
 
       {/* 글/정보 영역 */}
@@ -81,7 +83,6 @@ export const Exercise_M = ({
           </div>
         </div>
       </div>
-
     </div>
   );
 };

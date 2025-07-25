@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -7,13 +7,14 @@ import People from "../../../assets/icons/people.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
+import { useNavigate } from "react-router-dom";
 
 interface ContentCardLProps {
   id: number;
   isUserJoined: boolean;
   isGuestAllowedByOwner: boolean;
   isCompleted: boolean; // 참여 완료일때 버튼X
-  title: String;
+  title: string;
   date: string;
   location: string;
   time: string;
@@ -24,7 +25,7 @@ interface ContentCardLProps {
   like?: boolean;
   onToggleFavorite?: (id: number) => void;
 }
-export type { ContentCardLProps };  
+export type { ContentCardLProps };
 
 export const ContentCardL = ({
   id,
@@ -42,6 +43,7 @@ export const ContentCardL = ({
   like = false,
   onToggleFavorite,
 }: ContentCardLProps) => {
+  const navigate = useNavigate();
   const [isStarted, setIsStarted] = useState(false);
   const [isStartPressing, setIsStartPressing] = useState(false);
   const [isGuestPressing, setIsGuestPressing] = useState(false);
@@ -71,21 +73,21 @@ export const ContentCardL = ({
     >
       {/* 상단 */}
       <div className="flex items-center justify-between">
-       <div className="flex items-center gap-2 max-w-[16rem]">
+        <div className="flex items-center gap-2 max-w-[16rem]">
           <p className="body-md-500 truncate">{title}</p>
-            <RD500_S_Icon
-            isActive={favorite} 
-            onClick={() => handleToggleFavorite?.(id)}
-          />        
+          <RD500_S_Icon
+            isActive={favorite}
+            onClick={() => handleToggleFavorite()}
+          />
         </div>
-        <RightAngle className="w-4 h-4" />
+        <RightAngle className="w-4 h-4" onClick={() => navigate("/mypage/myexercise/:exerciseId")}/>
       </div>
 
       {/* 정보 */}
       <div className="flex flex-col gap-[0.375rem] text-black body-sm-400">
         <div className="flex items-center gap-1">
-        <Calendar className="w-[0.875rem] h-[0.875rem]" />
-        <span>{`${date} (${day})`}</span>
+          <Calendar className="w-[0.875rem] h-[0.875rem]" />
+          <span>{`${date} (${day})`}</span>
         </div>
         <div className="flex items-center gap-1">
           <Vector className="w-[0.875rem] h-[0.875rem]" />
@@ -95,8 +97,8 @@ export const ContentCardL = ({
           <Clock className="w-[0.875rem] h-[0.875rem]" />
           <span>{time}</span>
         </div>
-        
-       <div className="w-[19.9375rem] flex gap-[0.8125rem]">
+
+        <div className="w-[19.9375rem] flex gap-[0.8125rem]">
           <div className="flex items-center gap-1 w-[9rem] truncate">
             <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
             <span className="truncate">{femaleLevel}</span>
@@ -115,7 +117,9 @@ export const ContentCardL = ({
 
       {/* 버튼 */}
       {!isCompleted && (
-        <div className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}>
+        <div
+          className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}
+        >
           <button
             onClick={() => setIsStarted(prev => !prev)}
             onMouseDown={() => setIsStartPressing(true)}
@@ -144,10 +148,7 @@ export const ContentCardL = ({
             </button>
           )}
         </div>
-      )}  
-
+      )}
     </div>
   );
 };
-
-

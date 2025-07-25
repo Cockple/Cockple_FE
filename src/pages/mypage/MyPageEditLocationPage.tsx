@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
@@ -16,12 +16,16 @@ interface MyPageEditLocationPageProps {
   initialLocationValue?: string;
 }
 
-export const MyPageEditLocationPage = ({ initialLocationValue = "" }: MyPageEditLocationPageProps) => {
+export const MyPageEditLocationPage = ({
+  initialLocationValue = "",
+}: MyPageEditLocationPageProps) => {
   const navigate = useNavigate();
 
   const [searchText, setSearchText] = useState(initialLocationValue);
   const [searchResults, setSearchResults] = useState<LocationItem[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
+    null,
+  );
 
   const handleSearch = () => {
     console.log(`Searching for: ${searchText}`);
@@ -33,7 +37,6 @@ export const MyPageEditLocationPage = ({ initialLocationValue = "" }: MyPageEdit
     setSearchResults([]); // 🚀 검색 결과를 빈 배열로 초기화 (또는 실제 API 결과로 채움)
     setSelectedLocationId(null);
   };
-
 
   const handleLocationClick = (id: number, isClicked: boolean) => {
     if (isClicked) {
@@ -58,13 +61,14 @@ export const MyPageEditLocationPage = ({ initialLocationValue = "" }: MyPageEdit
       alert("등록할 위치를 선택해주세요.");
       return;
     }
-    const selectedLocation = searchResults.find(loc => loc.id === selectedLocationId);
+    const selectedLocation = searchResults.find(
+      loc => loc.id === selectedLocationId,
+    );
     if (selectedLocation) {
       console.log("등록할 위치:", selectedLocation);
       navigate("/mypage/edit");
     }
   };
-
 
   return (
     <>
@@ -75,9 +79,9 @@ export const MyPageEditLocationPage = ({ initialLocationValue = "" }: MyPageEdit
             <input
               type="text"
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+              onChange={e => setSearchText(e.target.value)}
+              onKeyPress={e => {
+                if (e.key === "Enter") {
                   handleSearch();
                 }
               }}
@@ -123,7 +127,9 @@ export const MyPageEditLocationPage = ({ initialLocationValue = "" }: MyPageEdit
               </React.Fragment>
             ))
           ) : (
-            <p className=" body-rg-500 text-[#E4E7EA] text-center">검색 결과가 없습니다.</p>
+            <p className=" body-rg-500 text-[#E4E7EA] text-center">
+              검색 결과가 없습니다.
+            </p>
           )}
         </div>
 
@@ -136,9 +142,8 @@ export const MyPageEditLocationPage = ({ initialLocationValue = "" }: MyPageEdit
             textColor="text-white"
             justify="justify-center"
             onClick={handleRegisterLocation}
-          /> 
+          />
         </div>
-
       </div>
     </>
   );

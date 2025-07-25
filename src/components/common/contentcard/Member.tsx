@@ -19,16 +19,21 @@ interface MemberProps {
   showStar?: boolean;
   isGuest?: boolean;
   guestName?: string;
-  number?: number // No ~ 몇번인지 임시로...
+  number?: number;
 
-  isMe?: boolean;       // 자기 자신 여부
+  isMe?: boolean;
   isLeader?: boolean;
 
   onAccept?: () => void;
   onReject?: () => void;
   onClick?: () => void;
   onDelete?: () => void;
+
+  imgUrl?: string | null;
+  position?: string | null;
+  canCancel?: boolean;
 }
+
 
 export type { MemberProps };  
 
@@ -143,13 +148,17 @@ export const Member = ({
 
           </div>
         );
-
-      case "waiting":
+      
+  
+        case "waiting":
         return (
-          <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
+          <div className="relative">
+            <div
+              className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
+              onClick={onClick}
+            >            
             <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
             <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
-            <MemberInfo {...{ name, gender, level, isGuest }} />
             {(isMe || isLeader) && (
                 <Prohibition
                   className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
@@ -158,9 +167,49 @@ export const Member = ({
                     setIsModalOpen(true);
                   }}
                 />
-              )}          
+              )}
+            </div>
+
+            {isModalOpen && (
+              <div className="absolute z-50 top-[5rem] left-1/2 -translate-x-1/2">
+                {isLeader ? (
+                  <Modal_Subtract_Leader
+                    onClose={() => setIsModalOpen(false)}
+                    onConfirm={() => {
+                      setIsModalOpen(false);
+                      onDelete?.(); // 리더의 삭제
+                    }}
+                  />
+                ) : (
+                  <Modal_Subtract
+                    onClose={() => setIsModalOpen(false)}
+                    onConfirm={() => {
+                      setIsModalOpen(false);
+                      onDelete?.(); // 자기 자신 삭제
+                    }}
+                  />
+                )}
+              </div>
+            )}
           </div>
         );
+      // case "waiting":
+      //   return (
+      //     <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
+      //       <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
+      //       <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+      //       <MemberInfo {...{ name, gender, level, isGuest }} />
+      //       {(isMe || isLeader) && (
+      //           <Prohibition
+      //             className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+      //             onClick={(e) => {
+      //               e.stopPropagation();
+      //               setIsModalOpen(true);
+      //             }}
+      //           />
+      //         )}          
+      //     </div>
+      //   );
 
 // 여기는 아직 나온 부분이 X  
       case "invite":

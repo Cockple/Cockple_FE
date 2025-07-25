@@ -49,12 +49,14 @@ export const GroupPage = () => {
                 <White_L_Test label="모임 만들기" icon={AddIcon} />
                 {data &&
                   data.map(item => (
-                    <Group_S
-                      key={item.id}
-                      title={item.title}
-                      location={item.location}
-                      imageSrc={item.imgSrc}
-                    />
+                    <div onClick={() => navigate(`/group/${item.id}`)}>
+                      <Group_S
+                        key={item.id}
+                        title={item.title}
+                        location={item.location}
+                        imageSrc={item.imgSrc}
+                      />
+                    </div>
                   ))}
               </>
             ) : (

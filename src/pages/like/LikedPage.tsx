@@ -39,20 +39,22 @@ export const LikedPage = () => {
     if (activeTab === "group") {
       setGroupCards(prev =>
         prev.map(card =>
-          card.id === id ? { ...card, isFavorite: !card.isFavorite } : card,
+          card.id === id ? { ...card, isFavorite: !card.like } : card,
         ),
       );
     } else {
       setExerciseCards(prev =>
         prev.map(card =>
-          card.id === id ? { ...card, isFavorite: !card.isFavorite } : card,
+          card.id === id ? { ...card, isFavorite: !card.like } : card,
         ),
       );
     }
+    // 배포 오류 해결을 위한 임시 코드
+    console.log(exerciseCards);
   };
 
   return (
-    <div className="flex flex-col w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden pt-14">
+    <div className="flex flex-col w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden">
       <MainHeader />
       {/* 탭 선택 */}
       <TabSelector

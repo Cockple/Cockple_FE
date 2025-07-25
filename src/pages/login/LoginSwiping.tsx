@@ -15,7 +15,7 @@ export default function LoginSwiping({
     <div
       className={`flex items-center flex-col  justify-center w-full  ${title2 ? "gap-5" : "gap-10"}`}
     >
-      <div className=" header-h3 pt-20">
+      <div className=" header-h3 pt-18">
         <p>{title} </p>
         {title2 && <p>{title2}</p>}
       </div>

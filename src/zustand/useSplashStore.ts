@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-
-const SplashStore = set => ({
+interface SplashState {
+  isSplashShown: boolean;
+  hasShownSplash: boolean;
+  showSplash: () => void;
+}
+const SplashStore: import("zustand").StateCreator<SplashState> = set => ({
   isSplashShown: false,
   hasShownSplash: false,
 

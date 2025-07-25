@@ -1,20 +1,20 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { LocationList } from '../LocationList';
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { LocationList } from "../LocationList";
 
 const meta = {
-  title: 'Components/LocationList', 
-  component: LocationList, 
+  title: "Components/LocationList",
+  component: LocationList,
   parameters: {
-    layout: 'centered', 
+    layout: "centered",
   },
-  tags: ['autodocs'], 
+  tags: ["autodocs"],
   argTypes: {
-    mainAddress: { control: 'text', description: '메인 주소' },
-    subAddress: { control: 'text', description: '서브 주소' },
-    showOnMapText: { control: 'text', description: '지도에서 보기 텍스트' },
-    disabled: { control: 'boolean', description: '비활성화 여부' },
-    initialClicked: { control: 'boolean', description: '초기 클릭 상태' },
-    onClick: { action: 'clicked', description: '클릭 이벤트 콜백' }, 
+    isMainAddr: { control: "text", description: "메인 주소" },
+    streetAddr: { control: "text", description: "서브 주소" },
+    showOnMapText: { control: "text", description: "지도에서 보기 텍스트" },
+    disabled: { control: "boolean", description: "비활성화 여부" },
+    initialClicked: { control: "boolean", description: "초기 클릭 상태" },
+    onClick: { action: "clicked", description: "클릭 이벤트 콜백" },
   },
 } satisfies Meta<typeof LocationList>;
 
@@ -24,8 +24,9 @@ type Story = StoryObj<typeof meta>;
 // 기본 (활성화, 클릭되지 않음) 상태
 export const Default: Story = {
   args: {
-    mainAddress: "우헿헤 배드민턴장",
-    subAddress: "서울시 강남구 테헤란로 123",
+    id: 1,
+    isMainAddr: "우헿헤 배드민턴장",
+    streetAddr: "서울시 강남구 테헤란로 123",
     showOnMapText: "지도에서 보기",
     disabled: false,
     initialClicked: false,
@@ -36,8 +37,8 @@ export const Default: Story = {
 export const Clicked: Story = {
   args: {
     ...Default.args,
-    mainAddress: "선택된 배드민턴장",
-    initialClicked: true, 
+    isMainAddr: "선택된 배드민턴장",
+    initialClicked: true,
   },
 };
 
@@ -45,7 +46,7 @@ export const Clicked: Story = {
 export const Disabled: Story = {
   args: {
     ...Default.args,
-    mainAddress: "비활성화된 배드민턴장",
+    isMainAddr: "비활성화된 배드민턴장",
     disabled: true, // 비활성화
   },
 };
@@ -54,8 +55,8 @@ export const Disabled: Story = {
 export const LongAddress: Story = {
   args: {
     ...Default.args,
-    mainAddress: "헤헤헤헤ㅔ아아아아하하ㅏ핳 ㅏ안 끝나ㅏ하하ㅏ하ㅏ",
-    subAddress: "서울시 강남구 테헤란로 123번길 45-67 아주아주아주아주아주아주아주아주아주 긴 주소입니다",
+    isMainAddr: "헤헤헤헤ㅔ아아아아하하ㅏ핳 ㅏ안 끝나ㅏ하하ㅏ하ㅏ",
+    streetAddr:
+      "서울시 강남구 테헤란로 123번길 45-67 아주아주아주아주아주아주아주아주아주 긴 주소입니다",
   },
 };
-

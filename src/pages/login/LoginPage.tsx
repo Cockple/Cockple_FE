@@ -23,7 +23,7 @@ export const LoginPage = () => {
   ];
 
   return (
-    <div className="flex flex-col  w-full  ">
+    <div className="flex flex-col  w-full -mb-8 ">
       {/* 스와이퍼 */}
       <div className="">
         <Swiper

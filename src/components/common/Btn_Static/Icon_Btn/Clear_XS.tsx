@@ -1,5 +1,5 @@
 // components/Btn_Static/Text/RD500_M.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import ArrowRight from "../../../../assets/icons/arrow_right.svg";
 import ArrowRightGY400 from "../../../../assets/icons/arrow_right_gy_400.svg";
 

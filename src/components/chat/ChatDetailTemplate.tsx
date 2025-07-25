@@ -1,17 +1,17 @@
 // 그룹 채팅창과 개인 채팅창에 사용되는 공통 컴포넌트(템플릿)
 
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import ChattingComponent from "../common/chat/ChattingComponent";
-import FileSendModal from "./FileSendModal";
+//import FileSendModal from "./FileSendModal";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
-
-import type { Chatting } from "../../types/chat";
-
 import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
+import ChatDateSeparator from "./ChatDataSeperator";
+import { getLocalDateString } from "../../utils/getLocalDateString";
+
+import type { Chatting } from "../../types/chat";
 
 interface ChatDetailTemplateProps {
   chatId: string;
@@ -25,7 +25,6 @@ interface ChatDetailTemplateProps {
 export const ChatDetailTemplate = ({
   chatId,
   chatName,
-  chatType,
   chatData,
   onBack,
   showHomeButton = false,
@@ -36,9 +35,9 @@ export const ChatDetailTemplate = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [pendingImage, setPendingImage] = useState<string | null>(null);
-  const [pendingFileName, setPendingFileName] = useState<string>("");
-  const [pendingFileSize, setPendingFileSize] = useState<string>("");
+  // const [pendingImage, setPendingImage] = useState<string | null>(null);
+  // const [pendingFileName, setPendingFileName] = useState<string>("");
+  // const [pendingFileSize, setPendingFileSize] = useState<string>("");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -52,17 +51,30 @@ export const ChatDetailTemplate = ({
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chattings]);
 
+  // 채팅창 날짜 표시
+  const formatDateLabel = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+    return `${year}.${month}.${day} (${weekday})`;
+  };
+
   const handleSendMessage = () => {
     if (input.trim()) {
+      const now = new Date();
+
       const newChat: Chatting = {
         id: chattings.length + 1,
         nickname: "나",
         profile: ProfileImg,
         chatting: input,
-        time: new Date().toLocaleTimeString([], {
+        time: now.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
+        createdAt: getLocalDateString(), // YYYY-MM-DD
         isMe: true,
         unreadCount: 1,
       };
@@ -72,7 +84,7 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -95,6 +107,7 @@ export const ChatDetailTemplate = ({
     if (!file) return;
 
     const fileUrl = URL.createObjectURL(file);
+    const now = new Date();
 
     // 채팅에 바로 전송
     const newChat: Chatting = {
@@ -102,10 +115,11 @@ export const ChatDetailTemplate = ({
       nickname: "나",
       profile: ProfileImg,
       chatting: "",
-      time: new Date().toLocaleTimeString([], {
+      time: now.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       }),
+      createdAt: getLocalDateString(),
       isMe: true,
       unreadCount: 1,
       imageUrls: [fileUrl],
@@ -117,26 +131,26 @@ export const ChatDetailTemplate = ({
     e.target.value = "";
   };
 
-  const handleSendPendingImage = () => {
-    if (!pendingImage) return;
+  // const handleSendPendingImage = () => {
+  //   if (!pendingImage) return;
 
-    const newChat: Chatting = {
-      id: chattings.length + 1,
-      nickname: "나",
-      profile: ProfileImg,
-      chatting: "",
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      isMe: true,
-      unreadCount: 1,
-      imageUrls: [pendingImage],
-    };
+  //   const newChat: Chatting = {
+  //     id: chattings.length + 1,
+  //     nickname: "나",
+  //     profile: ProfileImg,
+  //     chatting: "",
+  //     time: new Date().toLocaleTimeString([], {
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //     }),
+  //     isMe: true,
+  //     unreadCount: 1,
+  //     imageUrls: [pendingImage],
+  //   };
 
-    setChattings(prev => [...prev, newChat]);
-    setPendingImage(null);
-  };
+  //   setChattings(prev => [...prev, newChat]);
+  //   setPendingImage(null);
+  // };
 
   return (
     <div
@@ -166,13 +180,27 @@ export const ChatDetailTemplate = ({
         )}
 
         <div className="flex flex-col gap-5 shrink-0 p-4">
-          {chattings.map(chat => (
+          {/* {chattings.map(chat => (
             <ChattingComponent
               key={chat.id}
               {...chat}
               onImageClick={setPreviewImage}
             />
-          ))}
+          ))} */}
+          {chattings.map((chat, index) => {
+            const currentDate = chat.createdAt;
+            const prevDate = index > 0 ? chattings[index - 1].createdAt : null;
+            const showDate = index === 0 || currentDate !== prevDate;
+
+            return (
+              <React.Fragment key={chat.id}>
+                {showDate && (
+                  <ChatDateSeparator date={formatDateLabel(currentDate)} />
+                )}
+                <ChattingComponent {...chat} onImageClick={setPreviewImage} />
+              </React.Fragment>
+            );
+          })}
           <div className="h-5" ref={chatEndRef}></div>
         </div>
 

@@ -1,5 +1,5 @@
 // components/Btn_Static/Text/RD500_M.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import Pen from "../../../../assets/icons/pen.svg";
 import PenGY400 from "../../../../assets/icons/pen-gy-400.svg";
 

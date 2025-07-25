@@ -24,7 +24,7 @@ export default function Picker({
     if (!container) return;
 
     const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         const newHeight = entry.contentRect.height;
         if (newHeight !== containerHeight) {
           setContainerHeight(newHeight);

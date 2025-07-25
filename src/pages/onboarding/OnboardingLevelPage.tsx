@@ -5,24 +5,50 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import IntroText from "./components/IntroText";
 import { useForm } from "react-hook-form";
+import { useOnboardingState } from "../../zustand/useOnboardingStore";
 
 export const OnboardingLevelPage = () => {
-  const level = ["초심", "C조", "D조"];
-
+  const levelOptions = [
+    "왕초심",
+    "초심",
+    "D조",
+    "C조",
+    "B조",
+    "A조",
+    "준자강",
+    "자강",
+  ];
   const navigate = useNavigate();
+  const { level, setTemp } = useOnboardingState();
+
   const {
-    register,
+    // register,
     setValue,
     watch,
-    formState: { errors },
-  } = useForm();
+    // formState: { errors },
+  } = useForm({
+    defaultValues: {
+      levelOptions: level ?? "",
+    },
+  });
 
-  const levelValue = watch("level") || "";
-  const isNextEnabled = levelValue === "disabled" || level.includes(levelValue);
+  // console.log(level);
+
+  const levelValue = watch("levelOptions") || "";
+  const isFormValid =
+    levelValue === "disabled" || levelOptions.includes(levelValue);
+
+  const handleNext = () => {
+    setTemp({
+      level: levelValue,
+    });
+    navigate("/onboarding/address");
+  };
+
   return (
     <div className="w-full flex flex-col -mb-8">
       <PageHeader title="회원 정보 입력" />
-      <ProgressBar width="24" />
+      <ProgressBar width={!isFormValid ? "28" : "48"} />
 
       <section className="flex gap-8 text-left flex-col pb-67 ">
         <IntroText
@@ -34,23 +60,24 @@ export const OnboardingLevelPage = () => {
 
         <DropCheckBox
           title="전국 급수"
-          options={level}
+          options={levelOptions}
           checkLabel="급수 없음"
           value={levelValue}
+          checked={levelValue === "disabled"}
           onChange={val =>
-            setValue("level", val ?? "", { shouldValidate: true })
+            setValue("levelOptions", val ?? "", { shouldValidate: true })
           }
         />
       </section>
       <div
         className="flex items-center justify-center pt-[1px]"
-        onClick={() => navigate("/onboarding/address")}
+        onClick={handleNext}
       >
         <Btn_Static
           label="다음"
           kind="GR400"
           size="L"
-          initialStatus={!isNextEnabled ? "disabled" : "default"}
+          initialStatus={!isFormValid ? "disabled" : "default"}
         />
       </div>
     </div>

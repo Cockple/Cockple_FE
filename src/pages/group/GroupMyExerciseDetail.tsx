@@ -7,6 +7,8 @@ import { Member } from "../../components/common/contentcard/Member";
 import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../components/common/contentcard/Member";
 import { useState } from "react";
+import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
+import { Modal_Apply } from "../../components/group/Modal_Apply";
 
 interface MyPageExerciseDetailPageProps {
   notice?: string;
@@ -37,7 +39,7 @@ interface MyPageExerciseDetailPageProps {
 // }: MyPageExerciseDetailPageProps) => {
 
 // export const MyPageExerciseDetailPage = ({
-export const MyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
+export const GroupMyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
  const {
     notice = "명찰을 위한 신분증",
     placeName = "산성 배드민턴장",
@@ -50,23 +52,16 @@ export const MyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
       { status: "Participating", name: "이지은", gender: "female", level: "C조" },
       { status: "Participating", name: "박서준", gender: "male", level: "D조" },
     ],
-
-    waitingCount = 2,
-    waitingGenderCount = { male: 1, female: 1 },
-    waitingMembers = [
-      { status: "waiting", name: "홍길동", gender: "male", level: "A조" },
-      { status: "waiting", name: "김민수", gender: "male", level: "B조" },
-      { status: "waiting", name: "이지은", gender: "female", level: "C조" },
-      { status: "waiting", name: "박서준", gender: "male", level: "D조" },
-    ],
   } = props;
 
   const [members, setMembers] = useState<MemberProps[]>(participantMembers);
-  const [waiting, setWaiting] = useState<MemberProps[]>(waitingMembers);
   
   const [participantsCountState, setParticipantsCount] = useState(participantsCount);
-  const [waitingCountState, setWaitingCount] = useState(waitingCount);
+  const [waitingMembers, setWaitingMembers] = useState<MemberProps[]>(props.waitingMembers ?? []);
+  const [waitingCount, setWaitingCount] = useState(props.waitingCount ?? 0);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [isApplied, setIsApplied] = useState(false); // 신청 여부 
 
   // 참여 멤버 삭제 함수
   const handleDeleteMember = (idx: number) => {
@@ -75,18 +70,11 @@ export const MyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
     setParticipantsCount(updated.length);
   };
 
-  // 대기 멤버 삭제 함수
-  const handleDeleteWaiting = (idx: number) => {
-    const updated = waiting.filter((_, i) => i !== idx);
-    setWaiting(updated);
-    setWaitingCount(updated.length);
-  };
 
-
-const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <>
-      <PageHeader title="내 운동 상세" />
+      <PageHeader title="운동 상세" />
       <div className="flex flex-col gap-8">
 
         {/* 장소 정보 */}
@@ -134,37 +122,71 @@ const navigate = useNavigate();
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>
         ))}
-
-
-
-
-        {/* 대기 인원 */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <label className="text-left header-h5">대기 인원</label>
-              <p className="header-h5">{waitingCount}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Female className="w-4 h-4" />
-              <p className="body-rg-500">{waitingGenderCount.female}</p>
-              <Male className="w-4 h-4" />
-              <p className="body-rg-500">{waitingGenderCount.male}</p>
-            </div>
-          </div>
-        </div>
         
-        {waiting.map((member, idx) => (
-          <div key={`waiting-${idx}`}>
-            <Member
-              {...member}
-              number={idx + 1}
-              onClick={() => navigate("/mypage/profile")}
-              onDelete={() => handleDeleteWaiting(idx)}
-            />
-            <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+       {/* 대기 인원 */}
+        {waitingMembers.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <label className="text-left header-h5">대기 인원</label>
+                <p className="header-h5">{waitingCount}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Female className="w-4 h-4" />
+                <p className="body-rg-500">{waitingGenderCount?.female ?? 0}</p>
+                <Male className="w-4 h-4" />
+                <p className="body-rg-500">{waitingGenderCount?.male ?? 0}</p>
+              </div>
+            </div>
+
+            {waitingMembers.map((member, idx) => (
+              <div key={`waiting-${idx}`}>
+                <Member
+                  {...member}
+                  number={idx + 1}
+                  onClick={() => navigate("/mypage/profile")}
+                  onDelete={() => {
+                    const updated = waitingMembers.filter((_, i) => i !== idx);
+                    setWaitingMembers(updated);
+                    setWaitingCount(updated.length);
+                  }}
+                />
+                <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+
+
+        <Grad_GR400_L label="신청하기" onClick={() => setIsModalOpen(true)} />
+        {isModalOpen && (
+          <Modal_Apply
+            title={
+              isApplied
+                ? "신청이 완료되었어요!"
+                : "운동을 신청하시겠어요?"
+            }
+            messages={
+              isApplied
+                ? ["'운동 상세' 페이지에서","운동의 세부 내용들을 확인할 수 있어요."]
+                : [
+                    "‘신청하기’를 누르시면 운동에 바로 참여됩니다.",
+                    "시간과 장소, 공지를 꼭 확인해주세요.",
+                  ]
+            }
+            confirmLabel={isApplied ? "운동 상세 보기" : "신청하기"}
+            onConfirm={() => {
+              if (!isApplied) {
+                setIsApplied(true); 
+              } else {
+                console.log("운동 상세 페이지로 이동");
+                // navigate("")
+              }
+              setIsModalOpen(false); 
+            }}
+            onCancel={() => setIsModalOpen(false)}
+          />
+        )}
 
       </div>
     </>

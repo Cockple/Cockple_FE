@@ -19,8 +19,9 @@ export const PersonalChatDetailPage = () => {
         profile: ProfileImg,
         chatting: "안녕하세요! 개인채팅입니다 :)",
         time: "10:30",
+        createdAt: "2024.06.01",
         isMe: false,
-        unreadCount: 1,
+        unreadCount: 0,
       },
       {
         id: 2,
@@ -28,8 +29,9 @@ export const PersonalChatDetailPage = () => {
         profile: ProfileImg,
         chatting: "반가워요!",
         time: "10:35",
+        createdAt: "2024.06.01",
         isMe: true,
-        unreadCount: 0,
+        unreadCount: 1,
       },
     ],
   };
