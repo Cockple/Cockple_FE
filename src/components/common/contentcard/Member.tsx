@@ -5,6 +5,7 @@ import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Message from "../../../assets/icons/message.svg?react";
 import { Modal_Subtract_Leader } from "../../MyPage/Modal_Subtract_Leader";
+import { Modal_Subtract } from "../../MyPage/Modal_Subtract";
 import { useState } from "react";
 
 type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
@@ -18,6 +19,11 @@ interface MemberProps {
   showStar?: boolean;
   isGuest?: boolean;
   guestName?: string;
+  number?: number // No ~ 몇번인지 임시로...
+
+  isMe?: boolean;       // 자기 자신 여부
+  isLeader?: boolean;
+
   onAccept?: () => void;
   onReject?: () => void;
   onClick?: () => void;
@@ -33,6 +39,7 @@ const MemberInfo = ({
   isGuest = false,
   guestName,
   showStar = false,
+  
 }: {
   name: string;
   gender: "male" | "female";
@@ -77,10 +84,13 @@ export const Member = ({
   showStar,
   isGuest,
   guestName,
+  number,
   onAccept,
   onReject,
   onClick,
   onDelete, 
+  isMe = false,
+  isLeader = false,
 }: MemberProps) => {
   //모달창 ->  서버장일때에만 가능하도록 수정
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,42 +105,64 @@ export const Member = ({
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">No. 00</p>
+              <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo {...{ name, gender, level, showStar, isGuest, guestName }} />
-              <Prohibition
-                className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsModalOpen(true);
-                }}
-              />
+              {(isMe || isLeader) && (
+                <Prohibition
+                  className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                  }}
+                />
+              )}
             </div>
 
             {isModalOpen && (
               <div className="absolute z-50 top-[5rem] left-1/2 -translate-x-1/2">
-                <Modal_Subtract_Leader
-                  onClose={() => setIsModalOpen(false)}
-                  onConfirm={() => {
-                    setIsModalOpen(false);
-                    onDelete?.(); // 삭제
-                  }}
-                />
+                {isLeader ? (
+                  <Modal_Subtract_Leader
+                    onClose={() => setIsModalOpen(false)}
+                    onConfirm={() => {
+                      setIsModalOpen(false);
+                      onDelete?.(); // 리더의 삭제
+                    }}
+                  />
+                ) : (
+                  <Modal_Subtract
+                    onClose={() => setIsModalOpen(false)}
+                    onConfirm={() => {
+                      setIsModalOpen(false);
+                      onDelete?.(); // 자기 자신 삭제
+                    }}
+                  />
+                )}
               </div>
             )}
+
           </div>
         );
 
       case "waiting":
         return (
           <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
-            <p className="body-md-500">대기00</p>
+            <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
             <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
             <MemberInfo {...{ name, gender, level, isGuest }} />
-            <Prohibition className="w-[2rem] h-[2rem] ml-auto" />
+            {(isMe || isLeader) && (
+                <Prohibition
+                  className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                  }}
+                />
+              )}          
           </div>
         );
 
+// 여기는 아직 나온 부분이 X  
       case "invite":
         return (
           <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
