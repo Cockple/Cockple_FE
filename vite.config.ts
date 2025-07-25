@@ -7,49 +7,58 @@ import { fileURLToPath, URL } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), svgr(), tailwindcss()],
+// ✅ defineConfig에 함수를 전달하여 'mode'를 받아옵니다.
+export default defineConfig(({ mode }) => {
+  const isProduction = mode === "production";
 
-  // @ 경로 별칭을 ESM 표준 방식으로 수정
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-    extensions: [".js", ".ts", ".jsx", ".tsx"],
-  },
+  return {
+    plugins: [react(), svgr(), tailwindcss()],
 
-  optimizeDeps: {
-    include: ["swiper", "swiper/react"],
-  },
-  server: {
-    host: true,
-  },
-  test: {
-    projects: [
-      {
-        extends: true,
-        plugins: [
-          storybookTest({
-            // ✅ 이 부분도 ESM 방식으로 경로를 지정하여 일관성 유지
-            configDir: fileURLToPath(new URL("./.storybook", import.meta.url)),
-          }),
-        ],
-
-        test: {
-          name: "storybook",
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: "playwright",
-            instances: [
-              {
-                browser: "chromium",
-              },
-            ],
-          },
-          setupFiles: [".storybook/vitest.setup.ts"],
-        },
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
-    ],
-  },
+      extensions: [".js", ".ts", ".jsx", ".tsx"],
+    },
+
+    optimizeDeps: {
+      include: ["swiper", "swiper/react"],
+    },
+    server: {
+      host: true,
+    },
+
+    // ✅ 프로덕션 빌드가 아닐 때만 test 설정을 포함시킵니다.
+    ...(!isProduction && {
+      test: {
+        projects: [
+          {
+            extends: true,
+            plugins: [
+              storybookTest({
+                configDir: fileURLToPath(
+                  new URL("./.storybook", import.meta.url),
+                ),
+              }),
+            ],
+
+            test: {
+              name: "storybook",
+              browser: {
+                enabled: true,
+                headless: true,
+                provider: "playwright",
+                instances: [
+                  {
+                    browser: "chromium",
+                  },
+                ],
+              },
+              setupFiles: [".storybook/vitest.setup.ts"],
+            },
+          },
+        ],
+      },
+    }),
+  };
 });
