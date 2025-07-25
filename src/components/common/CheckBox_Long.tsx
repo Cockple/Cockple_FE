@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import White_L_Thin_Add from "../../components/MyPage/White_L_Thin_Add";
@@ -7,8 +7,8 @@ import VectorRed from "../../assets/icons/Vector_red.svg?react";
 interface CheckBoxLongProps {
   title?: string;
   maxLength?: number;
-  errors?: Record<number, string>; 
-  onValidate?: (text: string) => string | null;  
+  errors?: Record<number, string>;
+  onValidate?: (text: string) => string | null;
 }
 
 export const CheckBox_Long = ({
@@ -46,7 +46,7 @@ export const CheckBox_Long = ({
     setRecordTexts(newTexts);
 
     if (isRecordFocused.length < recordTexts.length) {
-      setIsRecordFocused((prev) => [...prev, false]);
+      setIsRecordFocused(prev => [...prev, false]);
     }
 
     let errorMsg = "";
@@ -57,7 +57,7 @@ export const CheckBox_Long = ({
       if (value.trim() === "") errorMsg = "필수 입력입니다";
     }
 
-    setLocalErrors((prev) => ({ ...prev, [idx]: errorMsg }));
+    setLocalErrors(prev => ({ ...prev, [idx]: errorMsg }));
   };
 
   const onFocus = (idx: number) => {
@@ -73,8 +73,8 @@ export const CheckBox_Long = ({
   };
 
   const handleAdd = () => {
-    setRecordTexts((prev) => [...prev, ""]);
-    setIsRecordFocused((prev) => [...prev, false]);
+    setRecordTexts(prev => [...prev, ""]);
+    setIsRecordFocused(prev => [...prev, false]);
   };
 
   return (
@@ -91,7 +91,7 @@ export const CheckBox_Long = ({
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsPrivate((prev) => !prev)}
+              onClick={() => setIsPrivate(prev => !prev)}
               type="button"
               className="focus:outline-none"
             >
@@ -114,9 +114,11 @@ export const CheckBox_Long = ({
         return (
           <div key={idx} className="relative mb-4">
             <textarea
-              ref={(el) => (textAreaRefs.current[idx] = el)}
+              ref={el => {
+                textAreaRefs.current[idx] = el;
+              }}
               value={text}
-              onChange={(e) => onChangeText(idx, e.target.value)}
+              onChange={e => onChangeText(idx, e.target.value)}
               onFocus={() => onFocus(idx)}
               onBlur={() => onBlur(idx)}
               disabled={isPrivate}
@@ -128,10 +130,10 @@ export const CheckBox_Long = ({
                   isPrivate
                     ? "border-[#E4E7EA] cursor-not-allowed"
                     : hasError
-                    ? "border-[#F62D2D]"
-                    : isRecordFocused[idx]
-                    ? "border-[#87C95E]"
-                    : "border-[#E4E7EA] text-black"
+                      ? "border-[#F62D2D]"
+                      : isRecordFocused[idx]
+                        ? "border-[#87C95E]"
+                        : "border-[#E4E7EA] text-black"
                 }
                 focus:outline-none
               `}
@@ -140,7 +142,9 @@ export const CheckBox_Long = ({
               ({text.length}/{maxLength})
             </div>
             {hasError && (
-              <p className="body-sm-500 text-[#F62D2D] text-left mt-1">{errorMsg}</p>
+              <p className="body-sm-500 text-[#F62D2D] text-left mt-1">
+                {errorMsg}
+              </p>
             )}
           </div>
         );

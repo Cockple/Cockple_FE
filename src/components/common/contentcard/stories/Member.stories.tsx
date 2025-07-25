@@ -1,6 +1,6 @@
 // Member.stories.tsx
-import type { Meta, StoryObj } from "@storybook/react";
-import { Member, MemberProps } from "../Member";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Member } from "../Member";
 
 const meta = {
   title: "Components/Member",
@@ -22,8 +22,12 @@ const meta = {
       control: { type: "select", options: ["male", "female"] },
       description: "성별",
     },
-    group: { control: "text", description: "소속 그룹" },
-    birth: { control: "text", description: "생년월일", table: { defaultValue: { summary: "-" } } },
+    // group: { control: "text", description: "소속 그룹" },
+    birth: {
+      control: "text",
+      description: "생년월일",
+      table: { defaultValue: { summary: "-" } },
+    },
     showStar: { control: "boolean", description: "별 아이콘 표시 여부" },
     isGuest: { control: "boolean", description: "게스트 여부" },
     guestName: { control: "text", description: "게스트 이름" },
@@ -40,10 +44,10 @@ export const Participating: Story = {
     status: "Participating",
     name: "김셰익스피어",
     gender: "female",
-    group: "전국 D조",
+    level: "전국 D조",
     showStar: true,
     isGuest: true,
-    guestName: "김알렉산드라 게스트",  
+    guestName: "김알렉산드라 게스트",
   },
 };
 
@@ -52,7 +56,7 @@ export const Waiting: Story = {
     status: "waiting",
     name: "이문세",
     gender: "male",
-    group: "전국 A조",
+    level: "전국 A조",
   },
 };
 
@@ -61,7 +65,7 @@ export const Invite: Story = {
     status: "invite",
     name: "홍길동",
     gender: "male",
-    group: "전국 Z조",
+    level: "전국 Z조",
   },
 };
 
@@ -70,7 +74,7 @@ export const Request: Story = {
     status: "request",
     name: "윤동주",
     gender: "male",
-    group: "전국 B조",
+    level: "전국 B조",
     birth: "1999.12.31",
   },
 };
@@ -80,7 +84,7 @@ export const Approved: Story = {
     status: "approved",
     name: "김소월",
     gender: "female",
-    group: "전국 C조",
+    level: "전국 C조",
     birth: "1995.01.01",
   },
 };

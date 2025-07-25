@@ -1,4 +1,3 @@
-import React from "react";
 import { Group_M } from "../common/contentcard/Group_M";
 import { ContentCardL } from "../common/contentcard/ContentCardL";
 

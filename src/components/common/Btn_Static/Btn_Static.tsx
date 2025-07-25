@@ -1,6 +1,6 @@
 // components/common/Btn_Static/Button.tsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type { BtnKind, BtnSize, BtnStatus } from "./types";
 import { buttonPresets, sizePresets } from "./presets";
 

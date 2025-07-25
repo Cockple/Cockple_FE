@@ -13,7 +13,7 @@ interface ContentCardLProps {
   isUserJoined: boolean;
   isGuestAllowedByOwner: boolean;
   isCompleted: boolean; // 참여 완료일때 버튼X
-  title: String;
+  title: string;
   date: string;
   location: string;
   time: string;
@@ -24,7 +24,7 @@ interface ContentCardLProps {
   like?: boolean;
   onToggleFavorite?: (id: number) => void;
 }
-export type { ContentCardLProps };  
+export type { ContentCardLProps };
 
 export const ContentCardL = ({
   id,
@@ -71,12 +71,12 @@ export const ContentCardL = ({
     >
       {/* 상단 */}
       <div className="flex items-center justify-between">
-       <div className="flex items-center gap-2 max-w-[16rem]">
+        <div className="flex items-center gap-2 max-w-[16rem]">
           <p className="body-md-500 truncate">{title}</p>
-            <RD500_S_Icon
-            isActive={favorite} 
-            onClick={() => handleToggleFavorite?.(id)}
-          />        
+          <RD500_S_Icon
+            isActive={favorite}
+            onClick={() => handleToggleFavorite()}
+          />
         </div>
         <RightAngle className="w-4 h-4" />
       </div>
@@ -84,8 +84,8 @@ export const ContentCardL = ({
       {/* 정보 */}
       <div className="flex flex-col gap-[0.375rem] text-black body-sm-400">
         <div className="flex items-center gap-1">
-        <Calendar className="w-[0.875rem] h-[0.875rem]" />
-        <span>{`${date} (${day})`}</span>
+          <Calendar className="w-[0.875rem] h-[0.875rem]" />
+          <span>{`${date} (${day})`}</span>
         </div>
         <div className="flex items-center gap-1">
           <Vector className="w-[0.875rem] h-[0.875rem]" />
@@ -95,8 +95,8 @@ export const ContentCardL = ({
           <Clock className="w-[0.875rem] h-[0.875rem]" />
           <span>{time}</span>
         </div>
-        
-       <div className="w-[19.9375rem] flex gap-[0.8125rem]">
+
+        <div className="w-[19.9375rem] flex gap-[0.8125rem]">
           <div className="flex items-center gap-1 w-[9rem] truncate">
             <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
             <span className="truncate">{femaleLevel}</span>
@@ -115,7 +115,9 @@ export const ContentCardL = ({
 
       {/* 버튼 */}
       {!isCompleted && (
-        <div className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}>
+        <div
+          className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}
+        >
           <button
             onClick={() => setIsStarted(prev => !prev)}
             onMouseDown={() => setIsStartPressing(true)}
@@ -144,10 +146,7 @@ export const ContentCardL = ({
             </button>
           )}
         </div>
-      )}  
-
+      )}
     </div>
   );
 };
-
-

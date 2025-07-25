@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import White_L_Thin_Add from "./White_L_Thin_Add";
-import VectorRed from "../../assets/icons/Vector_red.svg?react";
 import Dismiss from "../../assets/icons/dismiss.svg?react";
 import { useForm, Controller } from "react-hook-form";
 
@@ -10,7 +9,9 @@ interface CheckBoxDismissTruncateProps {
   title: string;
 }
 
-export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({ title }) => {
+export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
+  title,
+}) => {
   const { control, setValue } = useForm();
 
   const [recordTexts, setRecordTexts] = useState<string[]>([""]);
@@ -55,13 +56,15 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({ title 
       <div className="flex flex-col gap-1">
         <div className="flex justify-between items-start">
           <div className="flex items-center">
-            <label className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}>
+            <label
+              className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}
+            >
               {title}
             </label>
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsPrivate((prev) => !prev)}
+              onClick={() => setIsPrivate(prev => !prev)}
               type="button"
               className="focus:outline-none"
             >
@@ -92,12 +95,12 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({ title 
                   disabled={isPrivate}
                   style={{ paddingRight: "3rem" }}
                   className="w-full rounded-xl border border-gy-200 py-[0.625rem] px-3 focus:outline-none overflow-hidden whitespace-nowrap text-ellipsis focus:border-active"
-                  ref={(el) => {
+                  ref={el => {
                     field.ref(el);
                     textAreaRefs.current[idx] = el;
                     if (el) adjustHeight(idx);
                   }}
-                  onChange={(e) => {
+                  onChange={e => {
                     field.onChange(e);
                     onChangeText(idx, e.target.value);
                   }}
