@@ -5,11 +5,9 @@ export { MyPageExerciseDetailPage } from "./MyPageExerciseDetailPage";
 export { MyPageMedalDetailPage } from "./MyPageMedalDetailPage";
 export { MyPageMyExercisePage } from "./MyPageMyExercisePage";
 export { MyPageMyGroupPage } from "./MyPageMyGroupPage";
-export { MyPageMyMedalPage } from "./MyPageMyMedalPage";
-export { MyPageMedalAddPage } from "./MyPageMedalAddPage";
-
+export { MyPageMedalAddPage } from "./MyPageMedalAddpage";
 export { MyPageAddressSearchPage } from "./MyPageAddressSearchPage";
-
 export { MyPageProfileGroup } from "./MyPageProfileGroup";
 export { MyPageProfileMedal } from "./MyPageProfileMedal";
 export { MyPageProfile } from "./MyPageProfile";
+export { default as MyPageMyMedalPage } from "./MyPageMyMedalPage";

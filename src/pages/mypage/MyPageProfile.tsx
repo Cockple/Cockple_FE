@@ -41,7 +41,7 @@ export const MyPageProfile = ({
   silverCount = 0,
   bronzeCount = 0,
   myGroupCount = 0,      
-  myExerciseCount = 0,   
+  // myExerciseCount = 0,   
   disabled = false,
 }: MyPageProps) => {
 

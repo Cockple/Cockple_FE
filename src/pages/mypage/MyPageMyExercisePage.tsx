@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { MyExerciseSort } from "../../components/MyPage/MyExerciseSort";
-import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
+import { SortBottomSheet } from "../../components/common/SortBottomSheet";
+import Sort from "../../components/common/Sort";import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import { useLocation } from "react-router-dom"; 
 import type { ContentCardLProps } from "../../components/common/contentcard/ContentCardL";
@@ -15,7 +15,8 @@ export const MyPageMyExercisePage = () => {
   const location = useLocation();
   const myActivityCount = location.state?.myActivityCount ?? [];
 
-  const [sortOption, setSortOption] = useState("최신순");
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [sortOption, setSortOption] = useState("최신순");  
   const [selectedTab, setSelectedTab] = useState<"전체" | "참여 예정" | "참여 완료">("전체");
 
   const sortActivities = (list: ContentCardLProps[], option: string) => {
@@ -27,7 +28,7 @@ export const MyPageMyExercisePage = () => {
   };
 
   const filteredList = sortActivities(
-    (myActivityCount ?? []).filter((item) => {
+    (myActivityCount ?? []).filter((item:ContentCardLProps) => {
       if (selectedTab === "전체") return true;
       if (selectedTab === "참여 예정") return !item.isCompleted;
       if (selectedTab === "참여 완료") return item.isCompleted;
@@ -39,7 +40,7 @@ export const MyPageMyExercisePage = () => {
   return (
     <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto"> 
  
-      <div className="sticky top-0 z-20 bg-white"> 
+      <div className={`sticky top-0 ${isSortOpen ? "z-0" : "z-20"}`}>
         <PageHeader title="내 운동" />
 
         <div className="mb-5 px-4">
@@ -68,7 +69,11 @@ export const MyPageMyExercisePage = () => {
         {filteredList.length > 0 ? (
           <>
             <div className="flex justify-end mb-3">
-              <MyExerciseSort selected={sortOption} onChange={setSortOption} />
+            <Sort
+              label={sortOption}
+              isOpen={isSortOpen}
+              onClick={() => setIsSortOpen(!isSortOpen)}
+            />                   
             </div>
             {filteredList.map((group, idx) => (
               <ContentCardL key={idx} {...group} />
@@ -80,6 +85,13 @@ export const MyPageMyExercisePage = () => {
           </div>
         )}
       </div>
+      <SortBottomSheet
+        isOpen={isSortOpen}
+        onClose={() => setIsSortOpen(false)}
+        selected={sortOption}
+        onSelect={option => setSortOption(option)}
+        options={["최신순", "오래된 순"]}
+      />
     </div>
   );
 };

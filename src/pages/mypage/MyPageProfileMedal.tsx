@@ -5,39 +5,41 @@ import { MyPage_Medal2 } from "../../components/common/contentcard/MyPage_Medal2
 import { ProfileMyMedal_None } from "../../components/MyPage/ProfileMyMedal_None";
 
 interface MedalItem {
+  id: string;
   title: string;
   date: string;
   medalImageSrc: string;
   isAwarded: boolean;
 }
 
-interface MyMedalProps {
-  name: string;
-  gender: string;
-  group: string;
-  birth: string;
-  imageSrc: string;
 
-  totalMedalsCount?: number;
-  goldMedals?: number;
-  silverMedals?: number;
-  bronzeMedals?: number;
+interface MyMedalProps {
+  name?: string;
+  gender?: string;
+  group?: string;
+  birth?: string;
+  imageSrc?: string;
+
+  myMedalTotal?: number;
+  goldCount?: number;
+  silverCount?: number;
+  bronzeCount?: number;
   disabled?: boolean;
 
-  medals: MedalItem[];
+  medals?: MedalItem[];
 }
 
 export const MyPageProfileMedal = ({
-  name,
-  gender,
-  group,
-  birth,
-  imageSrc,
+  name = "",
+  gender = "",
+  group = "",
+  birth = "",
+  imageSrc = "",
 
-  totalMedalsCount = 0,
-  goldMedals = 0,
-  silverMedals = 0,
-  bronzeMedals = 0,
+  myMedalTotal = 0,
+  goldCount = 0,
+  silverCount = 0,
+  bronzeCount = 0,
   disabled = false,
 
   medals = [],
@@ -65,10 +67,10 @@ export const MyPageProfileMedal = ({
       ) : (
         <>
           <MyPage_Medal2
-            totalMedalsCount={totalMedalsCount}
-            goldMedals={goldMedals}
-            silverMedals={silverMedals}
-            bronzeMedals={bronzeMedals}
+            myMedalTotal={myMedalTotal}
+            goldCount={goldCount}
+            silverCount={silverCount}
+            bronzeCount={bronzeCount}
             disabled={disabled}
           />
 

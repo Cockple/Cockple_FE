@@ -14,20 +14,19 @@ interface MedalItem {
 }
 
 interface MyMedalProps {
-  name: string;    
-  gender: string;
-  group: string;
-  birth: string;
-  imageSrc: string;
-
+  name?: string;    
+  gender?: string;
+  group?: string;
+  birth?: string;
+  imageSrc?: string;
   myMedalTotal?: number;
   goldCount?: number;
   silverCount?: number;
   bronzeCount?: number;
   disabled?: boolean;
-
-  medals: MedalItem[];
+  medals?: MedalItem[];
 }
+
 
 const dummyMedals: MedalItem[] = [
   {
@@ -56,20 +55,20 @@ const dummyMedals: MedalItem[] = [
   },
 ];
 
-export const MyPageMyMedalPage = ({
-  name,
-  gender,
-  group,
-  birth,
-  imageSrc,
-
+const MyPageMyMedalPage = ({
+  name = '',
+  gender = '',
+  group = '',
+  birth = '',
+  imageSrc = '',
   myMedalTotal = 0,
   goldCount = 0,
   silverCount = 0,
   bronzeCount = 0,
   disabled = false,
-  medals = dummyMedals, 
-  // medals = [],
+  medals = dummyMedals,
+    // medals = [],
+
 }: MyMedalProps) => {
     const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<"전체" | "미입상 기록">("전체");
@@ -154,3 +153,5 @@ export const MyPageMyMedalPage = ({
 
   );
 };
+
+export default MyPageMyMedalPage;

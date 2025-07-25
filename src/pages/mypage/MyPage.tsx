@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { GroupMProps } from "./MyPageMyGroupPage"; 
 import type { ContentCardLProps } from "../../components/common/contentcard/ContentCardL";
-import type { MedalType } from "./MyPageMyMedalPage";
 
 interface MyPageProps {
   name?: string;
@@ -73,7 +72,6 @@ export const MyPage = ({
 //   myExerciseCount = 5,   
 // }: MyPageProps) => {
   
-  const navigate = useNavigate(); 
   //모임 더미 데이터
   const dummyGroups: GroupMProps[] = [
   { id: 1, groupName: "운동모임 A", groupImage: "", location: "서울", femaleLevel: "초급", maleLevel: "중급", nextActivitDate: "2025-07-19", upcomingCount: 5, isMine: true },
@@ -128,6 +126,7 @@ const dummyEx: ContentCardLProps[] = [
     like: true,
   },
 ];
+
 //메달 더미
  const dummyMedals: MedalItem[] = [
     {
@@ -164,16 +163,17 @@ const dummyEx: ContentCardLProps[] = [
     },
   ];
 
-const [groups, setGroups] = useState<GroupMProps[]>(dummyGroups);
-const [exercises, setExercises] = useState<ContentCardLProps[]>(dummyEx);
-const totalMedals = dummyMedals.filter((m) => m.isAwarded).length;
+  const [groups, setGroups] = useState<GroupMProps[]>(dummyGroups);
+  const [exercises, setExercises] = useState<ContentCardLProps[]>(dummyEx);
+  const totalMedals = dummyMedals.filter((m) => m.isAwarded).length;
   const gold = dummyMedals.filter((m) => m.type === "gold").length;
   const silver = dummyMedals.filter((m) => m.type === "silver").length;
   const bronze = dummyMedals.filter((m) => m.type === "bronze").length;
+  const navigate = useNavigate(); 
 
   console.log(goldCount);
   return (
-    <div className="flex flex-col pt-15 overflow-auto">
+    <div className="flex flex-col overflow-auto">
       <div className="flex flex-col gap-[1.25rem]">
         <div className="max-w-full w-full">
           <MainHeader hasNotification={true} />
@@ -217,42 +217,39 @@ const totalMedals = dummyMedals.filter((m) => m.isAwarded).length;
           disabled={disabled}
           onClick={() => navigate("/myPage/mymedal")}  
         /> */}
-<MyPageContentcard
-  myMedalTotal={totalMedals}
-  goldCount={gold}
-  silverCount={silver}
-  bronzeCount={bronze}
-  disabled={disabled}
-  onClick={() => {
-  console.log("navigate with state:", {
-    medals: dummyMedals,
-    goldCount: gold,
-    silverCount: silver,
-    bronzeCount: bronze,
-    myMedalTotal: totalMedals,
-    disabled,
-  });
-  navigate("/myPage/mymedal", {
-    state: {
-      medals: dummyMedals,
-      goldCount: gold,
-      silverCount: silver,
-      bronzeCount: bronze,
-      myMedalTotal: totalMedals,
-      disabled,
-    },
-  });
-}}
-/>
-
-
-
+        <MyPageContentcard
+          myMedalTotal={totalMedals}
+          goldCount={gold}
+          silverCount={silver}
+          bronzeCount={bronze}
+          disabled={disabled}
+          onClick={() => {
+          console.log("navigate with state:", {
+            medals: dummyMedals,
+            goldCount: gold,
+            silverCount: silver,
+            bronzeCount: bronze,
+            myMedalTotal: totalMedals,
+            disabled,
+          });
+          navigate("/myPage/mymedal", {
+            state: {
+              medals: dummyMedals,
+              goldCount: gold,
+              silverCount: silver,
+              bronzeCount: bronze,
+              myMedalTotal: totalMedals,
+              disabled,
+            },
+          });
+        }}
+        />
       </div>
 
       <div className="gap-[0.25rem]">
-        <White_L initialStatus="Clicked" label="공지사항" onClick={() => alert("공지사항 클릭")} />
-        <White_L initialStatus="Clicked" label="이용약관" onClick={() => alert("이용약관 클릭")} />
-        <White_L initialStatus="Clicked" label=" 설정" onClick={() => alert("설정 클릭")} />
+        <White_L initialStatus="clicked" label="공지사항" onClick={() => alert("공지사항 클릭")} />
+        <White_L initialStatus="clicked" label="이용약관" onClick={() => alert("이용약관 클릭")} />
+        <White_L initialStatus="clicked" label=" 설정" onClick={() => alert("설정 클릭")} />
       </div>
     </div>
   );

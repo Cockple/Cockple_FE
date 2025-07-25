@@ -32,6 +32,7 @@ import {
   MyPageProfileGroup,
   MyPageProfileMedal,
 } from "./pages/mypage";
+
 import { RecommendPage } from "./pages/home/Recommendpage";
 import { GroupChatDetailPage } from "./pages/chat/GroupChatDetailPage";
 import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";

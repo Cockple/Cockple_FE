@@ -8,7 +8,7 @@ import VectorRed from "../../assets/icons/Vector_red.svg?react";
 import Kitty from "../../assets/images/Image Carousel.png";
 import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import { Modal_Add_Caution } from "../../components/MyPage/Modal_Add_Caution";
-import { Modal_Caution_Name } from "../../components/MyPage/Modal_ Caution_Name";
+import { Modal_Caution_Name } from "../../components/MyPage/Modal_Caution_Name";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -18,7 +18,6 @@ import { useForm } from "react-hook-form";
 
 export const MyPageMedalAddPage = () => {
   const {
-    data,
     register,
     handleSubmit,
     setValue,
@@ -36,7 +35,7 @@ export const MyPageMedalAddPage = () => {
   const formOptions = ["혼복", "여복", "남복", "단식"];
   const [recordText, setRecordText] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const pickerRef = useRef(null);
+  const pickerRef = useRef<{ getDueString: () => string }>(null);
   const isSaveEnabled = tournamentName.trim() !== "" && selectedDate !== "" && selectedForm !== null;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalNameOpen, setIsModalNameOpen] = useState(false);
@@ -70,7 +69,7 @@ export const MyPageMedalAddPage = () => {
   useEffect(() => {
   if (isEditMode && medalData) {
     setTournamentName(medalData.title);
-    setSelectedDate(new Date(medalData.date));
+    // setSelectedDate(new Date(medalData.date));
     setSelectedForm(medalData.participationType);
     setRecordText(medalData.record);
     setVideoLinks(medalData.videoUrl);
@@ -284,7 +283,7 @@ export const MyPageMedalAddPage = () => {
                 id="date-picker-overlay"
                 className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center"
                 onClick={e => {
-                  if (e.target.id === "date-picker-overlay") {
+                  if ((e.target as HTMLElement).id === "date-picker-overlay") {
                     handleCloseOverlay();
                   }
                 }}
@@ -380,7 +379,7 @@ export const MyPageMedalAddPage = () => {
          <Grad_GR400_L
           label="저장하기"
           initialStatus={isSaveEnabled ? "default" : "disabled"}
-          disabled={!isSaveEnabled}
+          // disabled={!isSaveEnabled}
           onClick={() => {
             if (!isSaveEnabled) return;
             console.log("대회 기록 저장 완료");

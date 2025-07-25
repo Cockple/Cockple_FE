@@ -8,18 +8,18 @@ import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../components/common/contentcard/Member";
 
 interface MyPageExerciseDetailPageProps {
-  notice: string;
-  placeName: string;
-  placeAddress: string;
+  notice?: string;
+  placeName?: string;
+  placeAddress?: string;
 
-  participantsCount: number;
-  participantGenderCount: { male: number; female: number };
-  participantMembers: MemberProps[];
+  participantsCount?: number;
+  participantGenderCount?: { male: number; female: number };
+  participantMembers?: MemberProps[];
 
-  waitingCount: number;
-  waitingGenderCount: { male: number; female: number };
-  waitingMembers: MemberProps[];
-}
+  waitingCount?: number;
+  waitingGenderCount?: { male: number; female: number };
+  waitingMembers?: MemberProps[];
+};
 
 // export const MyPageExerciseDetailPage = ({
 //   notice = "",
@@ -51,29 +51,29 @@ export const MyPageExerciseDetailPage = (props: MyPageExerciseDetailPageProps) =
     waitingMembers = [
       { status: "waiting", name: "박지민", gender: "female", level: "B조" },
     ],
-    inviteMembers = [
-      { status: "invite", name: "이수진", gender: "female", level: "C조" },
-    ],
-    requestMembers = [
-      {
-        status: "request",
-        name: "최민수",
-        gender: "male",
-        level: "혼합",
-        birth: "98.06.15",
-        onAccept: () => console.log("수락"),
-        onReject: () => console.log("거절"),
-      },
-    ],
-    approvedMembers = [
-      {
-        status: "approved",
-        name: "한예슬",
-        gender: "female",
-        level: "혼합",
-        birth: "00.11.11",
-      },
-    ],
+    // inviteMembers = [
+    //   { status: "invite", name: "이수진", gender: "female", level: "C조" },
+    // ],
+    // requestMembers = [
+    //   {
+    //     status: "request",
+    //     name: "최민수",
+    //     gender: "male",
+    //     level: "혼합",
+    //     birth: "98.06.15",
+    //     onAccept: () => console.log("수락"),
+    //     onReject: () => console.log("거절"),
+    //   },
+    // ],
+    // approvedMembers = [
+    //   {
+    //     status: "approved",
+    //     name: "한예슬",
+    //     gender: "female",
+    //     level: "혼합",
+    //     birth: "00.11.11",
+    //   },
+    // ],
   } = props;
 
 // }: MyPageExerciseDetailPageProps) => {
@@ -154,3 +154,5 @@ const navigate = useNavigate();
     </>
   );
 };
+// export default MyPageExerciseDetailPage;
+// export { MyPageExerciseDetailPage };

@@ -19,7 +19,7 @@ export default defineConfig({
   //@ 경로 오류가 나서 추가했습니다 - 연두
   resolve: {
     alias: {
-      "@": "/src",
+      "@": path.resolve(__dirname, "src"),
     },
     extensions: [".js", ".ts", ".jsx", ".tsx"],
   },

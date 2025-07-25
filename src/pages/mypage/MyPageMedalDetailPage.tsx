@@ -10,12 +10,12 @@ import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
 import Kitty from "../../assets/images/Image Carousel.png";
 
 interface MyPageMedalDetailPageProps {
-  photo: File | string | (File | string)[];
-  title: string;                // 대회명
-  date: string;                 // 날짜
-  participationType: string;    // 참여 형태
-  record: string;               // 대회 기록
-  videoUrl: string[];           // 영상 링크 여러개
+  photo?: File | string | (File | string)[];
+  title?: string;                // 대회명
+  date?: string;                 // 날짜
+  participationType?: string;    // 참여 형태
+  record?: string;               // 대회 기록
+  videoUrl?: string[];           // 영상 링크 여러개
 };
 
 export const MyPageMedalDetailPage = ({

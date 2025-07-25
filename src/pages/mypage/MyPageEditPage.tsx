@@ -1,7 +1,6 @@
 import { useState, useEffect,useRef, useCallback  } from "react";
 import { useNavigate } from "react-router-dom";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
-import { format } from "date-fns";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import LocationIcon from "../../assets/icons/mylocation.svg";
@@ -12,11 +11,9 @@ import Male from "../../assets/icons/male.svg?react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import Search from "../../assets/icons/search.svg?react";
-import { Select } from "../../components/MyPage/Select";
 import  { Location } from "../../components/common/contentcard/Location";
 import { Modal_Caution } from "../../components/MyPage/Modal_Caution";
 import TextBox from "../../components/common/Text_Box/TextBox";
-import CheckBoxBtn from "../../components/common/DynamicBtn/CheckBoxBtn";
 import { useForm } from "react-hook-form";
 
 interface LocationType {
@@ -53,7 +50,7 @@ export const MyPageEditPage = ({
   streetAddr="ㅈ돋ㅁㅎㄱ",
   // isMainAddr,
   // streetAddr,
-  keywords = ["ㅇ", "ㅇㅎㅁㅈㅎㄷ", "ㅇㅎㅈ", "ㅎㅁㄶ조", "ㅇ", "ㅇㅎㅁㅈㅎㄷ", "ㅇㅎㅈ"],
+  keywords = ["브랜드 스폰","친목","운영진이 게임을 짜드려요","가입비 무료"],
 }: MyPageEditProps) => {
   const navigate = useNavigate();
 
@@ -88,9 +85,10 @@ export const MyPageEditPage = ({
   const [selectedId, setSelectedId] = useState(1);
   const [editMode, setEditMode] = useState(false);
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     setLocations(prev => prev.filter(loc => loc.id !== id));
   };
+
   //Location 임시값////////////////////////////////////////////////////////////////
 
   
@@ -104,7 +102,7 @@ export const MyPageEditPage = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [selectedDate, setSelectedDate] = useState("");
-  const pickerRef = useRef(null);
+  // const pickerRef = useRef(null);
   const [isModalNameOpen, setIsModalNameOpen] = useState(false);
 
   const initialDataRef = useRef({
@@ -228,6 +226,8 @@ export const MyPageEditPage = ({
       reader.readAsDataURL(file);
     }
   };
+  const pickerRef = useRef<{ getDueString: () => string }>(null);
+
   //생년월일
   const handleCloseOverlay = () => {
       if (pickerRef.current) {
@@ -335,7 +335,7 @@ export const MyPageEditPage = ({
                 id="date-picker-overlay"
                 className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center"
                 onClick={e => {
-                  if (e.target.id === "date-picker-overlay") {
+                  if ((e.target as HTMLElement).id === "date-picker-overlay") {
                     handleCloseOverlay();
                   }
                 }}
