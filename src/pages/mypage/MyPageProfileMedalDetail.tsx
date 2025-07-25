@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';  
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 
-import 'swiper/css';
-import 'swiper/css/pagination';
+import "swiper/css";
+import "swiper/css/pagination";
 
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 
@@ -18,7 +17,7 @@ export const MyPageProfileMedalDetail = () => {
 
       <div className="relative mt-4 rounded-xl overflow-visible">
         <Swiper
-          modules={[Pagination]}   
+          modules={[Pagination]}
           pagination={{ clickable: true }}
           slidesPerView={1}
           spaceBetween={10}
@@ -38,16 +37,11 @@ export const MyPageProfileMedalDetail = () => {
         {/* 오버레이 영역 */}
         <div className="absolute -bottom-8 left-4 right-4 flex items-start justify-between gap-4 z-10">
           <div className="overflow-hidden">
-            <img
-              src={Kitty}
-              alt="프로필"
-              className="w-20 h-20 object-cover"
-            />
+            <img src={Kitty} alt="프로필" className="w-20 h-20 object-cover" />
           </div>
           <p className="body-rg-500 self-end">2000. 01. 01</p>
         </div>
       </div>
-
 
       {/* 대회명 */}
       <p className="text-left header-h4 mt-12 leading-snug">
@@ -86,8 +80,6 @@ Consectetur lacinia aliquam urna magna eu faucibus lacus id consectetur.`}
           />
         </div>
       </div>
-
-    
     </div>
   );
 };

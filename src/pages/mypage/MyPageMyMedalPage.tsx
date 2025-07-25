@@ -55,11 +55,11 @@ const dummyMedals: MedalItem[] = [
 ];
 
 const MyPageMyMedalPage = ({
-  name = "",
-  gender = "",
-  group = "",
-  birth = "",
-  imageSrc = "",
+  // name = "",
+  // gender = "",
+  // group = "",
+  // birth = "",
+  // imageSrc = "",
   myMedalTotal = 0,
   goldCount = 0,
   silverCount = 0,
