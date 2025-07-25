@@ -28,7 +28,7 @@ export const Group_M = ({
   nextActivitDate,
   upcomingCount,
   like = false,
-  isMine,
+  // isMine,
   onToggleFavorite,
 }: GroupMProps) => {
   const [isPressing, setIsPressing] = useState(false);

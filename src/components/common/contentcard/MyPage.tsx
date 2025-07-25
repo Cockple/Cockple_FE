@@ -9,6 +9,8 @@ interface MyPageProps {
   silverCount?: number;
   bronzeCount?: number;
   disabled?: boolean;
+  onClick?: () => void;
+
 }
 
 export const MyPage = ({

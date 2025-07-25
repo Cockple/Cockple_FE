@@ -18,7 +18,7 @@ export const OnboardingAddressPage = () => {
   return (
     <div className="w-full flex flex-col">
       <PageHeader title="회원 정보 입력" />
-      <ProgressBar width="28" />
+      <ProgressBar width="52" />
 
       <section className="flex gap-8 text-left flex-col flex-1">
         <IntroText

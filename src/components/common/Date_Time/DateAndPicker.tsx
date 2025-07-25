@@ -4,14 +4,16 @@ import RenderPickerGroup from "./RenderPickerGroup";
 interface DateAndTimePickerProps {
   showTime?: boolean;
 }
-
-const DateAndTimePicker = forwardRef(function DateAndTimePicker(
-  props: DateAndTimePickerProps,
-  ref,
-) {
+export interface DateAndTimePickerHandle {
+  getDueString: () => string;
+}
+const DateAndTimePicker = forwardRef<
+  DateAndTimePickerHandle,
+  DateAndTimePickerProps
+>(function DateAndTimePicker(props: DateAndTimePickerProps, ref) {
   const { showTime = false } = props;
 
-  const [selectedYear, setSelectedYear] = useState("2025");
+  const [selectedYear, setSelectedYear] = useState("2000");
   const [selectedMonth, setSelectedMonth] = useState("01");
   const [selectedDay, setSelectedDay] = useState("01");
   const [selectedHours, setSelectedHours] = useState("01");

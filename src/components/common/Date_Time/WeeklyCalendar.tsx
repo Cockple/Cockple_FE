@@ -13,7 +13,7 @@ interface WeeklyCalendarProps {
   shadow?: boolean;
 }
 export default function WeeklyCalendar({
-  selectedDate,
+  // selectedDate,
   onClick,
   exerciseDays = [],
   shadow = false,

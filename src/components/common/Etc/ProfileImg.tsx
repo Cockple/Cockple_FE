@@ -7,7 +7,7 @@ interface ProfileImgProps {
 }
 
 export default function ProfileImg({
-  size,
+  size = "XL",
   src = "/src/assets/images/base_profile_img.png",
   edit = false,
 }: ProfileImgProps) {
@@ -25,7 +25,7 @@ export default function ProfileImg({
           <img
             src={src}
             alt="프로필 이미지"
-            className={`object-cover ${sizeMap[size]}`}
+            className={`object-cover rounded-full ${sizeMap[size]}`}
           />
           {edit && (
             <img

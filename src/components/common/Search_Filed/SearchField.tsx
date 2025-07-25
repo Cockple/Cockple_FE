@@ -1,4 +1,4 @@
-import { UseFormRegisterReturn } from "react-hook-form";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import SearchFieldBtn from "./SearchFieldBtn";
 
 interface SearchFieldProps {

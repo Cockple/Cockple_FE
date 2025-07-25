@@ -3,59 +3,62 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import svgr from "vite-plugin-svgr";
 import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath, URL } from "node:url";
+import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 
 // https://vite.dev/config/
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
-const dirname =
-  typeof __dirname !== "undefined"
-    ? __dirname
-    : path.dirname(fileURLToPath(import.meta.url));
+// ✅ defineConfig에 함수를 전달하여 'mode'를 받아옵니다.
+export default defineConfig(({ mode }) => {
+  const isProduction = mode === "production";
 
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-export default defineConfig({
-  plugins: [react(), svgr(), tailwindcss()],
-  //@ 경로 오류가 나서 추가했습니다 - 연두
-  resolve: {
-    alias: {
-      "@": "/src",
-    },
-    extensions: [".js", ".ts", ".jsx", ".tsx"],
-  },
-  optimizeDeps: {
-    include: ["swiper", "swiper/react"],
-  },
-  server: {
-    host: true,
-  },
-  test: {
-    projects: [
-      {
-        extends: true,
-        plugins: [
-          // The plugin will run tests for the stories defined in your Storybook config
-          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
-          storybookTest({
-            configDir: path.join(dirname, ".storybook"),
-          }),
-        ],
+  return {
+    plugins: [react(), svgr(), tailwindcss()],
 
-        test: {
-          name: "storybook",
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: "playwright",
-            instances: [
-              {
-                browser: "chromium",
-              },
-            ],
-          },
-          setupFiles: [".storybook/vitest.setup.ts"],
-        },
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
-    ],
-  },
+      extensions: [".js", ".ts", ".jsx", ".tsx"],
+    },
+
+    optimizeDeps: {
+      include: ["swiper", "swiper/react"],
+    },
+    server: {
+      host: true,
+    },
+
+    // ✅ 프로덕션 빌드가 아닐 때만 test 설정을 포함시킵니다.
+    ...(!isProduction && {
+      test: {
+        projects: [
+          {
+            extends: true,
+            plugins: [
+              storybookTest({
+                configDir: fileURLToPath(
+                  new URL("./.storybook", import.meta.url),
+                ),
+              }),
+            ],
+
+            test: {
+              name: "storybook",
+              browser: {
+                enabled: true,
+                headless: true,
+                provider: "playwright",
+                instances: [
+                  {
+                    browser: "chromium",
+                  },
+                ],
+              },
+              setupFiles: [".storybook/vitest.setup.ts"],
+            },
+          },
+        ],
+      },
+    }),
+  };
 });

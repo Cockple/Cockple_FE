@@ -1,5 +1,5 @@
 // components/Btn_Static/Text/RD500_M.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import Camera from "../../../../assets/icons/camera.svg";
 import CameraGY400 from "../../../../assets/icons/camera_gy_400.svg";
 

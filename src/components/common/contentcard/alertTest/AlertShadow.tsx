@@ -1,5 +1,3 @@
-import React from "react";
-
 interface AlertShadowProps {
   groupName: string;
   alertText: string;

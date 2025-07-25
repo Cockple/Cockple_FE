@@ -7,10 +7,6 @@
 // import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 // import { ProgressBar } from "../../components/common/ProgressBar";
 
-import { useForm } from "react-hook-form";
-import InputField from "../../components/common/Search_Filed/InputField";
-import { useState } from "react";
-
 // export const OnboardingAddressSearchPage = () => {
 //   const [setRegister, setIsRegister] = useState(false);
 
