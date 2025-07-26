@@ -5,7 +5,14 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-import { GroupPage } from "./pages/group";
+// import { GroupPage } from "./pages/group";
+import { 
+  GroupPage,
+  GroupDetailMemberDefault,
+  MyGroupDetailMemberDefault,
+  GroupMyExerciseDetail
+} from "./pages/group";
+
 import { ExerciseMapPage } from "./pages/home/ExerciseMapPage";
 import { AlertPage } from "./pages/alarm/AlertPage";
 import { HomePage } from "./pages/home/HomePage";
@@ -121,7 +128,12 @@ const router = createBrowserRouter([
       { path: "/chat/group/:chatId", element: <GroupChatDetailPage /> },
       { path: "/chat/personal/:chatId", element: <PersonalChatDetailPage /> },
       { path: "/alert", element: <AlertPage /> },
+      // { path: "/group/recommend", element: <GroupRecommendPage /> },
       { path: "/group/recommend", element: <GroupRecommendPage /> },
+      { path: "/group/GroupDetailMemberDefault", element: <GroupDetailMemberDefault /> },
+      { path: "/group/MyGroupDetailMemberDefault", element: <MyGroupDetailMemberDefault /> },
+      { path: "/group/GroupMyExerciseDetail", element: <GroupMyExerciseDetail /> },
+
       {
         path: "/group/recommend-filter",
         element: <GroupRecommendFilterPage />,

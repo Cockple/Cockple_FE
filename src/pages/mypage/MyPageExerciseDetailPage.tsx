@@ -1,3 +1,4 @@
+// 더 이상 이 경로와 이 파일은 사용하지 않습니다. 모임 경로가 나오면 그때 삭제하겠습니다.
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

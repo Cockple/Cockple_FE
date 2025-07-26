@@ -1,12 +1,14 @@
 import ProfileImage from "../../../assets/icons/ProfileImage.svg?react";
 import Prohibition from "../../../assets/icons/prohibition.svg?react";
-import StarIcon  from "../../../assets/icons/star_filled_GR.svg?react";
+import StarIcon from "../../../assets/icons/star_filled_GR.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Message from "../../../assets/icons/message.svg?react";
-import { Modal_Subtract_Leader } from "../../MyPage/Modal_Subtract_Leader";
-import { Modal_Subtract } from "../../MyPage/Modal_Subtract";
+// import { Modal_Subtract_Leader } from "../../MyPage/Modal_Subtract_Leader";
+import { Modal_Subtract } from "../../group/Modal_Subtract";
 import { useState } from "react";
+import type { ModalConfig } from "../../group/modalConfig";
+import { getModalConfig } from "../../group/modalConfig";
 
 type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
 
@@ -20,22 +22,21 @@ interface MemberProps {
   isGuest?: boolean;
   guestName?: string;
   number?: number;
-
   isMe?: boolean;
   isLeader?: boolean;
-
   onAccept?: () => void;
   onReject?: () => void;
   onClick?: () => void;
   onDelete?: () => void;
-
   imgUrl?: string | null;
   position?: string | null;
   canCancel?: boolean;
+
+  modalConfig?: ModalConfig;
+
 }
 
-
-export type { MemberProps };  
+export type { MemberProps };
 
 const MemberInfo = ({
   name,
@@ -44,7 +45,6 @@ const MemberInfo = ({
   isGuest = false,
   guestName,
   showStar = false,
-  
 }: {
   name: string;
   gender: "male" | "female";
@@ -52,7 +52,6 @@ const MemberInfo = ({
   isGuest?: boolean;
   guestName?: string;
   showStar?: boolean;
-
 }) => {
   return (
     <div className="flex flex-col justify-center gap-[0.25rem] w-[9.75rem] h-[2.75rem]">
@@ -70,9 +69,7 @@ const MemberInfo = ({
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
-            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
-              {guestName}
-            </p>
+            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">{guestName}</p>
           </>
         )}
       </div>
@@ -93,18 +90,36 @@ export const Member = ({
   onAccept,
   onReject,
   onClick,
-  onDelete, 
+  onDelete,
   isMe = false,
   isLeader = false,
-}: MemberProps) => {
-  //모달창 ->  서버장일때에만 가능하도록 수정
+  modalConfig: propModalConfig,
+}: MemberProps & { modalConfig?: ModalConfig }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalConfig = propModalConfig ?? getModalConfig(status, isLeader, isMe);
+  const handleConfirm = () => {
+    onDelete?.(); 
+    setIsModalOpen(false);
+  };
+  const renderModal = () => {
+    if (!isModalOpen || !modalConfig) return null;
+
+    return (
+        <Modal_Subtract
+          title={modalConfig.title}
+          messages={modalConfig.messages}
+          confirmLabel={modalConfig.confirmLabel}
+          onCancel={() => setIsModalOpen(false)}
+          onConfirm={handleConfirm}
+        />
+    );
+  };
 
   const renderContent = () => {
     switch (status) {
       case "Participating":
+      case "waiting":
         return (
-
           <div className="relative">
             <div
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
@@ -123,95 +138,10 @@ export const Member = ({
                 />
               )}
             </div>
-
-            {isModalOpen && (
-              <div className="absolute z-50 top-[5rem] left-1/2 -translate-x-1/2">
-                {isLeader ? (
-                  <Modal_Subtract_Leader
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={() => {
-                      setIsModalOpen(false);
-                      onDelete?.(); // 리더의 삭제
-                    }}
-                  />
-                ) : (
-                  <Modal_Subtract
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={() => {
-                      setIsModalOpen(false);
-                      onDelete?.(); // 자기 자신 삭제
-                    }}
-                  />
-                )}
-              </div>
-            )}
-
+            {renderModal()}
           </div>
         );
-      
-  
-        case "waiting":
-        return (
-          <div className="relative">
-            <div
-              className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
-              onClick={onClick}
-            >            
-            <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
-            <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
-            {(isMe || isLeader) && (
-                <Prohibition
-                  className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsModalOpen(true);
-                  }}
-                />
-              )}
-            </div>
 
-            {isModalOpen && (
-              <div className="absolute z-50 top-[5rem] left-1/2 -translate-x-1/2">
-                {isLeader ? (
-                  <Modal_Subtract_Leader
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={() => {
-                      setIsModalOpen(false);
-                      onDelete?.(); // 리더의 삭제
-                    }}
-                  />
-                ) : (
-                  <Modal_Subtract
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={() => {
-                      setIsModalOpen(false);
-                      onDelete?.(); // 자기 자신 삭제
-                    }}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        );
-      // case "waiting":
-      //   return (
-      //     <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
-      //       <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
-      //       <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
-      //       <MemberInfo {...{ name, gender, level, isGuest }} />
-      //       {(isMe || isLeader) && (
-      //           <Prohibition
-      //             className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-      //             onClick={(e) => {
-      //               e.stopPropagation();
-      //               setIsModalOpen(true);
-      //             }}
-      //           />
-      //         )}          
-      //     </div>
-      //   );
-
-// 여기는 아직 나온 부분이 X  
       case "invite":
         return (
           <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
@@ -232,7 +162,11 @@ export const Member = ({
                 </div>
                 <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
                   <div className="flex items-center gap-[0.25rem]">
-                    <Female className="w-[1rem] h-[1rem]" />
+                    {gender === "female" ? (
+                      <Female className="w-[1rem] h-[1rem]" />
+                    ) : (
+                      <Male className="w-[1rem] h-[1rem]" />
+                    )}
                     <p className="whitespace-nowrap">{level}</p>
                   </div>
                   <p className="whitespace-nowrap">{birth}</p>
@@ -267,7 +201,11 @@ export const Member = ({
                 </div>
                 <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
                   <div className="flex items-center gap-[0.25rem]">
-                    <Female className="w-[1rem] h-[1rem]" />
+                    {gender === "female" ? (
+                      <Female className="w-[1rem] h-[1rem]" />
+                    ) : (
+                      <Male className="w-[1rem] h-[1rem]" />
+                    )}
                     <p className="whitespace-nowrap">{level}</p>
                   </div>
                   <p className="whitespace-nowrap">{birth}</p>

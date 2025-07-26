@@ -5,13 +5,8 @@ import Male from "../../assets/icons/male.svg?react";
 import { Member } from "../../components/common/contentcard/Member";
 import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../components/common/contentcard/Member";
-import { Modal_Join } from "../../components/group/Modal_Join";
 import { useState } from "react";
 import TabSelector from "../../components/common/TabSelector";
-import { useLocation } from "react-router-dom";
-import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
-import { getModalConfig } from "../../components/group/modalConfig";
-import type { ModalConfig } from "../../components/group/modalConfig";
 
 interface MyPageExerciseDetailPageProps {
   notice?: string;
@@ -27,11 +22,8 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 };
 
-export const GroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) => {
+export const MyGroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) => {
  const {
-    notice = "명찰을 위한 신분증",
-    placeName = "산성 배드민턴장",
-    placeAddress = "수정로456번길 19",
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
@@ -46,9 +38,7 @@ export const GroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) =
   
   const [participantsCountState, setParticipantsCount] = useState(participantsCount);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);  
-  const [isApplied, setIsApplied] = useState(false); // 신청 여부 
-  const [isApproved, setIsApproved] = useState(false);   // 모임장이 승인했는지 여부 -> 서버
+
   //검색 기능
   const [searchTerm, setSearchTerm] = useState("");
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,23 +50,6 @@ export const GroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) =
     return nameMatch || levelMatch;
   });
 
-  const status = "Participating"; 
-  const isLeader = false;         
-  const isMe = true;            
-
-  const modalConfig = getModalConfig(
-    status,
-    isLeader,
-    isMe,
-    {
-      title: "정말 모임을 탈퇴하시겠어요?",
-      messages: [
-        "'탈퇴하기'를 누르시면, 복구할 수 없으니",
-        "신중한 선택 부탁드려요."
-      ],
-      confirmLabel: "탈퇴하기",
-    }
-  );
 
   // 참여 멤버 삭제 함수
   const handleDeleteMember = (idx: number) => {
@@ -141,44 +114,11 @@ const initialTab = (location.state?.tab ?? "home") as "home" | "chat" | "Calenda
               number={idx + 1}
               onClick={() => navigate("/mypage/profile")}
               onDelete={() => handleDeleteMember(idx)}
-              modalConfig={modalConfig as ModalConfig}
             />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>
         ))}
        </div>
-
-      <div className="mt-8 relative">
-        <Grad_Mix_L
-          type="chat_question"
-          label="모임 가입하기"
-          initialStatus={isApproved ? "disabled" : "default"} 
-          onClick={() => {
-            if (!isApproved) {
-              setIsModalOpen(true);
-            }
-          }}
-        />
-      </div>
-
-       {isModalOpen && (
-        <Modal_Join
-          title={isApplied ? "가입 신청이 완료되었어요!" : "모임에 가입하시겠어요?"}
-          messages={
-            isApplied
-              ? ["모임장의 승인을 받아 가입이 완료되면,", "알림으로 알려드릴게요"]
-              : ["‘가입 신청하기’를 누르시면, 가입 신청이 완료되며", "모임장의 승인 이후 가입이 완료돼요."]
-          }
-          confirmLabel={isApplied ? "확인" : "가입 신청하기"}
-          onConfirm={() => {
-            if (!isApplied) {
-              setIsApplied(true); // 신청 상태로 전환
-            }
-            setIsModalOpen(false);
-          }}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      )}
     </>
   );
 };
