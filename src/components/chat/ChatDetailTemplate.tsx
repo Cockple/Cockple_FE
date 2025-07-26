@@ -9,10 +9,10 @@ import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
-import { formatChatDate, formatTime } from "../../utils/formatDate";
+import { formatTime } from "../../utils/formatDate";
 //import { getLocalDateString } from "../../utils/getLocalDateString";
 
-import type { Chatting, ChatMessageResponse } from "../../types/chat";
+import type { ChatMessageResponse } from "../../types/chat";
 
 interface ChatDetailTemplateProps {
   chatId: string;
@@ -30,42 +30,38 @@ export const ChatDetailTemplate = ({
   onBack,
   showHomeButton = false,
 }: ChatDetailTemplateProps) => {
-  const [chattings, setChattings] = useState<Chatting[]>([]);
+  const [chattings, setChattings] = useState<ChatMessageResponse[]>([]);
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null!);
 
-  // const [pendingImage, setPendingImage] = useState<string | null>(null);
-  // const [pendingFileName, setPendingFileName] = useState<string>("");
-  // const [pendingFileSize, setPendingFileSize] = useState<string>("");
-
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const currentUserId = 999;
 
-  // useEffect(() => {
-  //   if (chatId && chatData[chatId]) {
-  //     setChattings(chatData[chatId]);
-  //   }
-  // }, [chatId, chatData]);
   useEffect(() => {
     if (chatId && chatData[chatId]) {
-      const response: ChatMessageResponse[] = chatData[chatId];
-      const mapped = response.map(msg => ({
-        id: msg.messageId,
-        nickname: msg.senderName,
-        profile: msg.senderProfileImage,
-        chatting: msg.messageType === "TEXT" ? msg.content : "",
-        imageUrls: msg.messageType === "IMAGE" ? [msg.content] : [],
-        time: formatTime(msg.createdAt),
-        createdAt: formatChatDate(msg.createdAt),
-        isMe: msg.senderId === currentUserId,
-        unreadCount: 0,
-      }));
-      setChattings(mapped);
+      setChattings(chatData[chatId]);
     }
   }, [chatId, chatData]);
+  // useEffect(() => {
+  //   if (chatId && chatData[chatId]) {
+  //     const response: ChatMessageResponse[] = chatData[chatId];
+  //     const mapped = response.map(msg => ({
+  //       id: msg.messageId,
+  //       nickname: msg.senderName,
+  //       profile: msg.senderProfileImage,
+  //       chatting: msg.messageType === "TEXT" ? msg.content : "",
+  //       imageUrls: msg.messageType === "IMAGE" ? [msg.content] : [],
+  //       time: formatTime(msg.createdAt),
+  //       createdAt: formatChatDate(msg.createdAt),
+  //       isMe: msg.senderId === currentUserId,
+  //       unreadCount: 0,
+  //     }));
+  //     setChattings(mapped);
+  //   }
+  // }, [chatId, chatData]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -73,33 +69,35 @@ export const ChatDetailTemplate = ({
 
   const handleSendMessage = () => {
     if (input.trim()) {
-      const now = new Date();
+      const now = new Date().toISOString();
 
       // const newChat: Chatting = {
-      //   id: chattings.length + 1,
+      //   id: Date.now(),
       //   nickname: "나",
       //   profile: ProfileImg,
       //   chatting: input,
-      //   time: now.toLocaleTimeString([], {
-      //     hour: "2-digit",
-      //     minute: "2-digit",
-      //   }),
-      //   createdAt: getLocalDateString(), // YYYY-MM-DD
+      //   time: formatTime(now.toISOString()),
+      //   createdAt: formatChatDate(now.toISOString()),
       //   isMe: true,
-      //   unreadCount: 1,
+      //   unreadCount: 0,
       // };
-      const newChat: Chatting = {
-        id: Date.now(),
-        nickname: "나",
-        profile: ProfileImg,
-        chatting: input,
-        time: formatTime(now.toISOString()),
-        createdAt: formatChatDate(now.toISOString()),
-        isMe: true,
-        unreadCount: 0,
+      const newMessage: ChatMessageResponse = {
+        messageId: Date.now(),
+        chatRoomId: Number(chatId),
+        senderId: currentUserId,
+        senderName: "나",
+        senderProfileImage: ProfileImg,
+        messageType: "TEXT",
+        content: input,
+        reactions: [],
+        replyTo: null,
+        fileInfo: null,
+        isDeleted: false,
+        createdAt: now,
+        updatedAt: now,
       };
 
-      setChattings(prev => [...prev, newChat]);
+      setChattings(prev => [...prev, newMessage]);
       setInput("");
     }
   };
@@ -111,77 +109,51 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  // const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   const fileUrl = URL.createObjectURL(file);
-  //   setPendingImage(fileUrl);
-  //   setPendingFileName(file.name);
-  //   setPendingFileSize((file.size / 1024).toFixed(0) + "KB");
-
-  //   e.target.value = "";
-  // };
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const fileUrl = URL.createObjectURL(file);
-    const now = new Date();
+    const now = new Date().toISOString();
 
-    // 채팅에 바로 전송
     // const newChat: Chatting = {
-    //   id: chattings.length + 1,
+    //   id: Date.now(),
     //   nickname: "나",
     //   profile: ProfileImg,
     //   chatting: "",
-    //   time: now.toLocaleTimeString([], {
-    //     hour: "2-digit",
-    //     minute: "2-digit",
-    //   }),
-    //   createdAt: getLocalDateString(),
+    //   time: formatTime(now.toISOString()),
+    //   createdAt: formatChatDate(now.toISOString()),
     //   isMe: true,
-    //   unreadCount: 1,
+    //   unreadCount: 0,
     //   imageUrls: [fileUrl],
     // };
-    const newChat: Chatting = {
-      id: Date.now(),
-      nickname: "나",
-      profile: ProfileImg,
-      chatting: "",
-      time: formatTime(now.toISOString()),
-      createdAt: formatChatDate(now.toISOString()),
-      isMe: true,
-      unreadCount: 0,
-      imageUrls: [fileUrl],
+    const newImageMessage: ChatMessageResponse = {
+      messageId: Date.now(),
+      chatRoomId: Number(chatId),
+      senderId: currentUserId,
+      senderName: "나",
+      senderProfileImage: ProfileImg,
+      messageType: "IMAGE",
+      content: "", // content 필드는 사용하지 않지만 빈 문자열로 설정
+      reactions: [],
+      replyTo: null,
+      isDeleted: false,
+      fileInfo: {
+        fileId: Date.now(),
+        fileName: file.name,
+        fileSize: file.size,
+        fileUrl: fileUrl,
+      },
+      createdAt: now,
+      updatedAt: now,
     };
 
-    setChattings(prev => [...prev, newChat]);
+    setChattings(prev => [...prev, newImageMessage]);
 
     // 초기화
     e.target.value = "";
   };
 
-  // const handleSendPendingImage = () => {
-  //   if (!pendingImage) return;
-
-  //   const newChat: Chatting = {
-  //     id: chattings.length + 1,
-  //     nickname: "나",
-  //     profile: ProfileImg,
-  //     chatting: "",
-  //     time: new Date().toLocaleTimeString([], {
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //     }),
-  //     isMe: true,
-  //     unreadCount: 1,
-  //     imageUrls: [pendingImage],
-  //   };
-
-  //   setChattings(prev => [...prev, newChat]);
-  //   setPendingImage(null);
-  // };
   // 채팅창 날짜 표시
   const formatDateLabel = (dateString: string) => {
     const date = new Date(dateString);
@@ -233,11 +205,16 @@ export const ChatDetailTemplate = ({
             const showDate = index === 0 || currentDate !== prevDate;
 
             return (
-              <React.Fragment key={chat.id}>
+              <React.Fragment key={chat.messageId}>
                 {showDate && (
-                  <ChatDateSeparator date={formatDateLabel(currentDate)} />
+                  <ChatDateSeparator date={formatDateLabel(chat.createdAt)} />
                 )}
-                <ChattingComponent {...chat} onImageClick={setPreviewImage} />
+                <ChattingComponent
+                  message={chat}
+                  isMe={chat.senderId === currentUserId}
+                  onImageClick={setPreviewImage}
+                  time={formatTime(chat.createdAt)}
+                />
               </React.Fragment>
             );
           })}
@@ -267,16 +244,6 @@ export const ChatDetailTemplate = ({
         onImageUpload={handleImageUpload}
         fileInputRef={fileInputRef}
       />
-
-      {/* {pendingImage && (
-        <FileSendModal
-          imageUrl={pendingImage}
-          fileName={pendingFileName}
-          fileSize={pendingFileSize}
-          onCancel={() => setPendingImage(null)}
-          onSend={handleSendPendingImage}
-        />
-      )} */}
     </div>
   );
 };

@@ -24,6 +24,7 @@ interface Reaction {
 }
 
 export interface FileInfo {
+  fileId: number;
   fileName: string;
   fileSize: number;
   fileUrl: string;

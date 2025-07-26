@@ -5,7 +5,7 @@ import { ChatDetailTemplate } from "../../components/chat/ChatDetailTemplate";
 import ProfileImg from "../../assets/images/Profile_Image.png";
 import type { ChatMessageResponse } from "../../types/chat";
 
-export const GroupChatDetailPage = () => {
+export const GroupChatPage = () => {
   const { chatId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
