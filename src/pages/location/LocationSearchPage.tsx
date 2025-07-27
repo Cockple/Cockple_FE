@@ -7,6 +7,7 @@ import MyLocation from "@/assets/icons/mylocation.svg";
 import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import { LocationList } from "../../components/common/contentcard/LocationList";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
+import { useSearchParams } from "react-router-dom";
 
 interface Place {
   id: string;
@@ -17,7 +18,9 @@ interface Place {
 }
 
 export const LocationSearchPage = () => {
-  const [input, setInput] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("query") ?? "";
+  const [input, setInput] = useState(initialQuery);
   const debouncedInput = useDebounce(input, 400);
   const [results, setResults] = useState<Place[]>([]);
   const [page, setPage] = useState(1);
@@ -118,6 +121,7 @@ export const LocationSearchPage = () => {
                   streetAddr={item.address_name}
                   x={item.x}
                   y={item.y}
+                  input={debouncedInput}
                   initialClicked={selectedId === idx}
                   onClick={(id, clicked) => setSelectedId(clicked ? id : null)}
                 />

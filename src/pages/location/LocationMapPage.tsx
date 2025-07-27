@@ -20,6 +20,7 @@ export const LocationMapPage = () => {
   const y = searchParams.get("y");
   const place = searchParams.get("place");
   const address = searchParams.get("address");
+  const query = searchParams.get("query");
 
   useEffect(() => {
     const kakao = window.kakao;
@@ -50,7 +51,11 @@ export const LocationMapPage = () => {
   }, [x, y]);
   return (
     <div className="flex flex-col h-screen -mx-4">
-      <PageHeader title="주소 검색" className="px-4" />
+      <PageHeader
+        title="주소 검색"
+        className="px-4"
+        onBackClick={() => navigate(`/location/search?query=${query}`)}
+      />
 
       <div ref={mapRef} className="w-full flex-1 relative">
         <div
