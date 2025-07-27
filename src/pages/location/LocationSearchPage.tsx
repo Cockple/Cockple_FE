@@ -7,7 +7,7 @@ import MyLocation from "@/assets/icons/mylocation.svg";
 import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import { LocationList } from "../../components/common/contentcard/LocationList";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface Place {
   id: string;
@@ -18,10 +18,11 @@ interface Place {
 }
 
 export const LocationSearchPage = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("query") ?? "";
   const [input, setInput] = useState(initialQuery);
-  const debouncedInput = useDebounce(input, 400);
+  const debouncedInput = useDebounce(input, 200);
   const [results, setResults] = useState<Place[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -83,6 +84,46 @@ export const LocationSearchPage = () => {
     },
     [isLoading, hasMore, page, debouncedInput],
   );
+
+  const onClickCurrent = () => {
+    if (!navigator.geolocation) {
+      alert("위치 정보를 사용할 수 없습니다.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async position => {
+      const { latitude, longitude } = position.coords;
+      try {
+        const res = await axios.get(
+          "https://dapi.kakao.com/v2/local/geo/coord2address.json",
+          {
+            headers: {
+              Authorization: `KakaoAK ${import.meta.env.VITE_APP_KAKAO_SEARCH_KEY}`,
+            },
+            params: {
+              x: longitude,
+              y: latitude,
+            },
+          },
+        );
+
+        const addressInfo = res.data.documents?.[0]?.address;
+        const roadAddressInfo = res.data.documents?.[0]?.road_address;
+
+        const place = roadAddressInfo?.building_name || "현재 위치";
+        const address =
+          roadAddressInfo?.address_name || addressInfo.address_name || "";
+
+        navigate(
+          `/location/map?x=${longitude}&y=${latitude}&place=${encodeURIComponent(place)}&address=${encodeURIComponent(address)}&query=${encodeURIComponent(input ?? "")}`,
+        );
+      } catch (err) {
+        console.error("주소 정보 가져오기 실패", err);
+        alert("주소 정보를 불러올 수 없습니다.");
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col">
       <PageHeader title="주소 검색" />
@@ -103,7 +144,11 @@ export const LocationSearchPage = () => {
               <Search />
             </button>
           </div>
-          <White_L_Thin icon={MyLocation} label="현재 위치 불러오기" />
+          <White_L_Thin
+            icon={MyLocation}
+            label="현재 위치 불러오기"
+            onClick={onClickCurrent}
+          />
         </div>
 
         <div className="flex flex-col">
