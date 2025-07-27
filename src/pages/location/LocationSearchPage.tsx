@@ -108,7 +108,7 @@ export const LocationSearchPage = () => {
             const isLast = idx === results.length - 1;
             return (
               <div
-                className="pb-1 mb-1 border-b-1 border-gy-200"
+                className="flex justify-center pb-1 mb-1 border-b-1 border-gy-200"
                 key={idx}
                 ref={isLast ? lastResultRef : null}
               >
@@ -116,6 +116,8 @@ export const LocationSearchPage = () => {
                   id={idx}
                   isMainAddr={item.place_name}
                   streetAddr={item.address_name}
+                  x={item.x}
+                  y={item.y}
                   initialClicked={selectedId === idx}
                   onClick={(id, clicked) => setSelectedId(clicked ? id : null)}
                 />
@@ -128,7 +130,7 @@ export const LocationSearchPage = () => {
           )}
         </div>
         {selectedId !== null && (
-          <div className="fixed bottom-0 -ml-4">
+          <div className="fixed bottom-0 w-full max-w-[444px] flex justify-center -ml-4 bg-white">
             <Grad_GR400_L label="이 위치로 위치 등록" />
           </div>
         )}
