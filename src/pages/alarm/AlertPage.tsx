@@ -2,33 +2,36 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AlertInvite from "../../components/common/contentcard/alertTest/AlertInvite";
-import AlertInviteApproved from "../../components/common/contentcard/alertTest/AlertInviteApproved";
+//import AlertInviteApproved from "../../components/common/contentcard/alertTest/AlertInviteApproved";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
-import AlertChange from "../../components/common/contentcard/alertTest/AlertChange";
-import AlertShadow from "../../components/common/contentcard/alertTest/AlertShadow";
+// import AlertChange from "../../components/common/contentcard/alertTest/AlertChange";
+// import AlertShadow from "../../components/common/contentcard/alertTest/AlertShadow";
 import { alertList } from "../../components/alert/alertList";
 // 아이콘
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
+import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
 
 export const AlertPage = () => {
   const navigate = useNavigate();
 
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [approvedList, setApprovedList] = useState<
-    { id: number; date: string }[]
-  >([]);
+  // const [approvedList, setApprovedList] = useState<
+  //   { id: number; date: string }[]
+  // >([]);
   const [targetId, setTargetId] = useState<number | null>(null);
 
-  const getTodayDate = (): string => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const date = String(today.getDate()).padStart(2, "0");
-    return `${year}.${month}.${date} 승인 완료`;
-  };
+  // const getTodayDate = (): string => {
+  //   const today = new Date();
+  //   const year = today.getFullYear();
+  //   const month = String(today.getMonth() + 1).padStart(2, "0");
+  //   const date = String(today.getDate()).padStart(2, "0");
+  //   return `${year}.${month}.${date} 승인 완료`;
+  // };
+
+  const [notifications, setNotifications] = useState(alertList); // 상태 관리, 승인 클릭시 type=invite->simple
 
   const handleAccept = (id: number) => {
     setTargetId(id);
@@ -40,98 +43,170 @@ export const AlertPage = () => {
     setShowRejectModal(true);
   };
 
-  const handleDetail = (id: number) => {
-    console.log("상세보기 이동", id);
+  // const handleDetail = (id: number) => {
+  //   console.log("상세보기 이동", id);
+  // };
+  const handleDetail = (groupId: number) => {
+    console.log("모임 페이지로 이동", groupId);
+    navigate(`/group/${groupId}`); // 필요 시 id 기반 라우팅
   };
 
   const confirmApprove = () => {
     if (targetId !== null) {
-      const formattedDate = getTodayDate();
-      setApprovedList(prev => [...prev, { id: targetId, date: formattedDate }]);
+      // const formattedDate = getTodayDate();
+      // setApprovedList(prev => [...prev, { id: targetId, date: formattedDate }]);
+      // 추후 API 연동 시 아래 코드 추가 예정
+      // await axios.patch(`/api/notifications/${targetId}`, {
+      //   type: "simple",
+      //   isRead: true,
+      // });
+      setNotifications(prev =>
+        prev.map(alert =>
+          alert.notificationId === targetId
+            ? {
+                ...alert,
+                type: "invite_accept",
+                content: "모임 가입이 승인되었어요!",
+              }
+            : alert,
+        ),
+      );
+      console.log("승인 처리", targetId);
     }
     setShowApproveModal(false);
   };
 
   const confirmReject = () => {
     if (targetId !== null) {
+      //추후 reject 관련 처리
       console.log("거절 처리", targetId); // 실제 로직 대체 가능
     }
     setShowRejectModal(false);
   };
 
+  const shouldMoveToDetail = (type: string): boolean => {
+    // 운동 삭제 & 모임 삭제 제외
+    return !(type === "simple");
+  };
+
+  const getDescriptionText = (type: string) => {
+    if (shouldMoveToDetail(type)) {
+      return "클릭하시면 모임 페이지로 이동해요.";
+    }
+    return undefined;
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-y-scroll [&::-webkit-scrollbar]:hidden relative">
       {/* 헤더 */}
-      {/* <div className="h-[3.5rem] flex items-center gap-3 shrink-0 bg-white">
-        <Clear_M
-          iconMap={{
-            disabled: ArrowLeft,
-            default: ArrowLeft,
-            pressing: ArrowLeft,
-            clicked: ArrowLeft,
-          }}
-          onClick={() => navigate("/")}
-        />
-        <div className="header-h4">알림</div>
-      </div> */}
       <PageHeader title="알림" onBackClick={() => navigate("/")} />
 
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
-        {alertList.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="flex flex-1 justify-center items-center">
             <NoAlertMessage />
           </div>
         ) : (
-          alertList.map(alert => {
+          notifications.map(alert => {
             // 이미 승인된 경우 → AlertInviteApproved 렌더링
-            const approved = approvedList.find(a => a.id === alert.id);
-            if (alert.type === "invite" && approved) {
-              return (
-                <AlertInviteApproved
-                  key={alert.id}
-                  groupName={alert.groupName}
-                  alertText={alert.alertText}
-                  imageSrc={alert.imageSrc}
-                  approvedDate={approved.date}
-                />
-              );
-            }
+            // const approved = approvedList.find(a => a.id === alert.id);
+            // if (alert.type === "invite" && approved) {
+            //   return (
+            //     <AlertInviteApproved
+            //       key={alert.id}
+            //       groupName={alert.groupName}
+            //       alertText={alert.alertText}
+            //       imageSrc={alert.imageSrc}
+            //       approvedDate={approved.date}
+            //     />
+            //   );
+            // }
 
-            switch (alert.type) {
-              case "invite":
-                return (
-                  <AlertInvite
-                    key={alert.id}
-                    groupName={alert.groupName}
-                    alertText={alert.alertText}
-                    imageSrc={alert.imageSrc}
-                    onAccept={() => handleAccept(alert.id)}
-                    onReject={() => handleReject(alert.id)}
-                  />
-                );
-              case "change":
-                return (
-                  <AlertChange
-                    key={alert.id}
-                    groupName={alert.groupName}
-                    alertText={alert.alertText}
-                    imageSrc={alert.imageSrc}
-                    onClick={() => handleDetail(alert.id)}
-                  />
-                );
-              case "simple":
-                return (
-                  <AlertShadow
-                    key={alert.id}
-                    groupName={alert.groupName}
-                    alertText={alert.alertText}
-                    imageSrc={alert.imageSrc}
-                  />
-                );
-              default:
-                return null;
-            }
+            // switch (alert.type) {
+            //   case "invite":
+            //     return (
+            //       <AlertInvite
+            //         key={alert.id}
+            //         groupName={alert.groupName}
+            //         alertText={alert.alertText}
+            //         imageSrc={alert.imageSrc}
+            //         onAccept={() => handleAccept(alert.id)}
+            //         onReject={() => handleReject(alert.id)}
+            //       />
+            //     );
+            //   case "change":
+            //     return (
+            //       <AlertChange
+            //         key={alert.id}
+            //         groupName={alert.groupName}
+            //         alertText={alert.alertText}
+            //         imageSrc={alert.imageSrc}
+            //         onClick={() => handleDetail(alert.id)}
+            //       />
+            //     );
+            //   case "simple":
+            //     return (
+            //       <AlertShadow
+            //         key={alert.id}
+            //         groupName={alert.groupName}
+            //         alertText={alert.alertText}
+            //         imageSrc={alert.imageSrc}
+            //       />
+            //     );
+            //   default:
+            //     return null;
+            // }
+            // if (alert.type === "invite") {
+            //   return (
+            //     <AlertInvite
+            //       key={alert.notificationId}
+            //       groupName={alert.title}
+            //       alertText={alert.content}
+            //       imageSrc={alert.imageSrc}
+            //       onAccept={() => handleAccept(alert.notificationId)}
+            //       onReject={() => handleReject(alert.notificationId)}
+            //     />
+            //   );
+            // } else {
+            //   return (
+            //     <AlertTest1
+            //       key={alert.notificationId}
+            //       groupName={alert.title}
+            //       alertText={alert.content}
+            //       imageSrc={alert.imageSrc}
+            //       descriptionText={getDescriptionText(alert.type)}
+            //       onClick={
+            //         shouldMoveToDetail(alert.type)
+            //           ? () => handleDetail(alert.groupId)
+            //           : undefined
+            //       }
+            //     />
+            //   );
+            // }
+            return alert.type === "invite" ? (
+              <AlertInvite
+                key={alert.notificationId}
+                groupName={alert.title}
+                alertText={alert.content}
+                imageSrc={alert.imageSrc}
+                onAccept={() => handleAccept(alert.notificationId)}
+                onReject={() => handleReject(alert.notificationId)}
+              />
+            ) : (
+              <AlertTest1
+                key={alert.notificationId}
+                groupName={alert.title}
+                alertText={alert.content}
+                imageSrc={alert.imageSrc}
+                descriptionText={getDescriptionText(alert.type)}
+                onClick={
+                  shouldMoveToDetail(alert.type)
+                    ? () => handleDetail(alert.groupId)
+                    : undefined
+                }
+              />
+            );
           })
         )}
       </div>

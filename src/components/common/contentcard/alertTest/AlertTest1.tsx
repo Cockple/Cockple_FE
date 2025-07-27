@@ -1,8 +1,9 @@
 interface AlertTest1Props {
   groupName: string;
   alertText: string;
-  descriptionText: string;
+  descriptionText?: string;
   imageSrc: string;
+  onClick?: () => void;
 }
 
 const AlertTest1 = ({
@@ -10,9 +11,13 @@ const AlertTest1 = ({
   alertText,
   imageSrc,
   descriptionText,
+  onClick,
 }: AlertTest1Props) => {
   return (
-    <div className="flex w-[21.4375rem] flex-col gap-3 border-soft bg-white p-2">
+    <div
+      className="flex w-[21.4375rem] flex-col gap-3 border-soft bg-white p-2"
+      onClick={onClick}
+    >
       {/* 상단 정보 영역 */}
       <div className="flex w-full gap-3">
         <img
@@ -26,9 +31,14 @@ const AlertTest1 = ({
             <span className="line-clamp-2 w-full self-stretch overflow-hidden body-rg-500 text-black">
               {alertText}
             </span>
-            <span className="line-clamp-2 w-full self-stretch overflow-hidden body-sm-500 text-[#9195a1]">
+            {/* <span className="line-clamp-2 w-full self-stretch overflow-hidden body-sm-500 text-[#9195a1]">
               {descriptionText}
-            </span>
+            </span> */}
+            {descriptionText && (
+              <span className="line-clamp-2 w-full self-stretch overflow-hidden body-sm-500 text-[#9195a1]">
+                {descriptionText}
+              </span>
+            )}
           </div>
         </div>
       </div>
