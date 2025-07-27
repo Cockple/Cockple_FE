@@ -105,11 +105,11 @@ export const LocationList = ({
         </p>
       </div>
 
-      <div
-        className="flex justify-end w-full cursor-pointer"
-        onClick={handleViewOnMapClick}
-      >
-        <div className="w-[6.6875rem] h-[1.75rem] flex items-center gap-[0.625rem] overflow-hidden">
+      <div className="flex justify-end w-full cursor-pointer">
+        <div
+          className="w-[6.6875rem] h-[1.75rem] flex items-center gap-[0.625rem] overflow-hidden"
+          onClick={handleViewOnMapClick}
+        >
           <p
             className={`body-rg-400 truncate ${textColor} w-full`}
             title={showOnMapText}

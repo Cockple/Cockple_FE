@@ -6,6 +6,7 @@ import axios from "axios";
 import MyLocation from "@/assets/icons/mylocation.svg";
 import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import { LocationList } from "../../components/common/contentcard/LocationList";
+import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 
 interface Place {
   id: string;
@@ -23,6 +24,7 @@ export const LocationSearchPage = () => {
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const observer = useRef<IntersectionObserver | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
@@ -89,7 +91,10 @@ export const LocationSearchPage = () => {
               type="text"
               placeholder="시설명, 도로명으로 검색"
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => {
+                setInput(e.target.value);
+                setSelectedId(null);
+              }}
             />
             <button>
               <Search />
@@ -111,6 +116,8 @@ export const LocationSearchPage = () => {
                   id={idx}
                   isMainAddr={item.place_name}
                   streetAddr={item.address_name}
+                  initialClicked={selectedId === idx}
+                  onClick={(id, clicked) => setSelectedId(clicked ? id : null)}
                 />
               </div>
             );
@@ -120,6 +127,11 @@ export const LocationSearchPage = () => {
             <div className="py-4 text-center text-gy-400">불러오는 중...</div>
           )}
         </div>
+        {selectedId !== null && (
+          <div className="fixed bottom-0 -ml-4">
+            <Grad_GR400_L label="이 위치로 위치 등록" />
+          </div>
+        )}
       </div>
     </div>
   );
