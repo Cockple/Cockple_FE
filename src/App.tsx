@@ -51,6 +51,8 @@ import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
+import { LocationSearchPage } from "./pages/location/LocationSearchPage";
+import { LocationMapPage } from "./pages/location/LocationMapPage";
 
 const router = createBrowserRouter([
   {
@@ -121,6 +123,8 @@ const router = createBrowserRouter([
       { path: "/chat/group/:chatId", element: <GroupChatDetailPage /> },
       { path: "/chat/personal/:chatId", element: <PersonalChatDetailPage /> },
       { path: "/alert", element: <AlertPage /> },
+      { path: "/location/search", element: <LocationSearchPage /> },
+      { path: "/location/map", element: <LocationMapPage /> },
       { path: "/group/recommend", element: <GroupRecommendPage /> },
       {
         path: "/group/recommend-filter",

@@ -47,7 +47,8 @@ export const LocationList = ({
   const handleViewOnMapClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
-      navigate("/mypage/edit/location/address");
+      // navigate("/mypage/edit/location/address");
+      navigate("/location/map");
       console.log(`지도에서 보기 클릭: ${isMainAddr}, ${streetAddr}`);
     }
   };
@@ -91,13 +92,13 @@ export const LocationList = ({
     >
       <div className="flex flex-col items-start w-full overflow-hidden">
         <p
-          className={`body-md-500 truncate w-full ${textColor}`}
+          className={`body-md-500 truncate w-full text-left ${textColor}`}
           title={isMainAddr}
         >
           {isMainAddr}
         </p>
         <p
-          className={`body-rg-500 truncate w-full ${textColor}`}
+          className={`body-rg-500 truncate w-full text-left ${textColor}`}
           title={streetAddr}
         >
           {streetAddr}
