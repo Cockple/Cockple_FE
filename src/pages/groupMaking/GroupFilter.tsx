@@ -1,27 +1,50 @@
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import { useGroupMakingFilterStore } from "../../zustand/useGroupMakingFilter";
-import { CheckBox_Long } from "../../components/common/CheckBox_Long";
-import { CheckBox_dismiss_truncate } from "../../components/common/CheckBox_dismiss_truncate";
 import InputSlider from "../../components/common/Search_Filed/InputSlider";
+import InputField from "../../components/common/Search_Filed/InputField";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
-
-  //store
-  const { weekly, time } = useGroupMakingFilterStore();
-  //정보
-
-  //초기화
 
   const isFormValid = "";
 
   const handleNext = () => {
     navigate("/group/level");
+  };
+  const [kock, setKock] = useState("");
+  const [joinMoney, setJoinMoney] = useState<string>("");
+  const [money, setMoney] = useState<string>("");
+  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value;
+    //한글,영어만 입력되도록, 공백포함 17글자
+    input = input.slice(0, 20);
+    const filtered = input.replace(
+      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
+      "",
+    );
+    setKock(filtered);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const filtered = e.target.value.replace(/[^0-9]/g, "");
+    const commaMoney = Number(filtered).toLocaleString();
+    setMoney(commaMoney);
+  };
+
+  const handleBlur = () => {
+    if (money) {
+      setMoney(prev => `${prev}원`);
+    }
+  };
+
+  const handleFocus = () => {
+    // 원 제거
+    if (money.endsWith("원")) {
+      setMoney(money.replace("원", ""));
+    }
   };
 
   return (
@@ -36,15 +59,33 @@ export const GroupFilter = () => {
           </p>
           {/* 첫번째 */}
           <div>
-            <CheckBox_Long maxLength={20} title="지정콕" />
+            <InputField
+              labelName="지정콕"
+              InputMaxLength={20}
+              InputLength={kock.length}
+              value={kock}
+              onChange={handleInputDetected}
+            />
           </div>
           {/* 두번째 */}
-          <div className="mb-4">
-            <CheckBox_dismiss_truncate title="가입비" />
+          <div className="">
+            <InputField
+              labelName="가입비"
+              onChange={handleChange}
+              value={joinMoney}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+            />
           </div>
           {/* 세번째 */}
-          <div className="mb-4">
-            <CheckBox_dismiss_truncate title="회비" />
+          <div className="">
+            <InputField
+              labelName="회비"
+              onChange={handleChange}
+              value={money}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+            />
           </div>
           {/* 네번째 */}
           <InputSlider title="나이대" />

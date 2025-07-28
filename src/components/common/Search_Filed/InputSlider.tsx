@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { Range } from "react-range";
 interface InputSliderProps {
   title: string;
 }
@@ -9,16 +9,8 @@ export default function InputSlider({ title }: InputSliderProps) {
 
   const minYear = currentYear - 75;
   const maxYear = currentYear - 10;
-  const [range, setRange] = useState<[number, number]>([minYear, maxYear]);
+  const [values, setValues] = useState<number[]>([minYear, maxYear]);
 
-  const handleChange = (value: number, index: number) => {
-    // 최소/최대 범위가 서로 엇갈리지 않게 보정
-    if (index === 0 && value >= range[1]) return;
-    if (index === 1 && value <= range[0]) return;
-    const newRange = [...range] as [number, number];
-    newRange[index] = value;
-    setRange(newRange);
-  };
   return (
     <div>
       <div className=" flex items-center mb-2 justify-between">
@@ -27,43 +19,37 @@ export default function InputSlider({ title }: InputSliderProps) {
           <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
         </div>
         <p className="body-rg-500">
-          {range[0]} ~ {range[1]}년생
+          {values[0]} ~ {values[1]}년생
         </p>
       </div>
-
-      {/* 슬라이더 */}
-      <div className="relative h-6">
-        {/* Custom slider bar */}
-        <div className="absolute top-1/2 left-0 w-full h-1 bg-gy-100 rounded-full -translate-y-1/2" />
-        <div
-          className="absolute top-1/2 h-1 bg-gr-600 rounded-full -translate-y-1/2"
-          style={{
-            left: `${((range[0] - minYear) / (maxYear - minYear)) * 100}%`,
-            width: `${((range[1] - range[0]) / (maxYear - minYear)) * 100}%`,
-          }}
-        />
-
-        <input
-          type="range"
-          min={minYear}
-          max={maxYear}
-          value={range[0]}
-          onChange={e => handleChange(Number(e.target.value), 0)}
-          className="absolute w-full h-6 bg-transparent appearance-none pointer-events-auto z-10"
-          style={{
-            pointerEvents: range[0] === range[1] - 1 ? "none" : "auto",
-          }}
-        />
-
-        <input
-          type="range"
-          min={minYear}
-          max={maxYear}
-          value={range[1]}
-          onChange={e => handleChange(Number(e.target.value), 1)}
-          className="absolute w-full h-6 bg-transparent appearance-none pointer-events-auto z-20"
-        />
-      </div>
+      <Range
+        step={1}
+        min={minYear}
+        max={maxYear}
+        values={values}
+        onChange={setValues}
+        renderTrack={({ props, children }) => (
+          <div
+            {...props}
+            className="h-1 bg-gray-200 relative rounded-full mx-2"
+          >
+            <div
+              className="absolute h-1 bg-gr-600 rounded-full "
+              style={{
+                left: `${((values[0] - minYear) / (maxYear - minYear)) * 100}%`,
+                width: `${((values[1] - values[0]) / (maxYear - minYear)) * 100}%`,
+              }}
+            />
+            {children}
+          </div>
+        )}
+        renderThumb={({ props }) => (
+          <div
+            {...props}
+            className="w-4 h-4 bg-green-600 border-white border-2 rounded-full shadow-md cursor-default"
+          />
+        )}
+      />
     </div>
   );
 }
