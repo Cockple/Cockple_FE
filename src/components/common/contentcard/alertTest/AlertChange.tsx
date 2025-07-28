@@ -1,4 +1,3 @@
-import React from "react";
 import TextIconBtnS from "../../DynamicBtn/TextIconBtnS";
 
 interface AlertChangeProps {

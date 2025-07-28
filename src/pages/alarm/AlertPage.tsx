@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Clear_M from "../../components/common/Btn_Static/Icon_Btn/Clear_M";
 import AlertInvite from "../../components/common/contentcard/alertTest/AlertInvite";
 import AlertInviteApproved from "../../components/common/contentcard/alertTest/AlertInviteApproved";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
@@ -10,7 +9,8 @@ import AlertChange from "../../components/common/contentcard/alertTest/AlertChan
 import AlertShadow from "../../components/common/contentcard/alertTest/AlertShadow";
 import { alertList } from "../../components/alert/alertList";
 // 아이콘
-import ArrowLeft from "../../assets/icons/arrow_left.svg";
+import { PageHeader } from "../../components/common/system/header/PageHeader";
+import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
 
 export const AlertPage = () => {
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ export const AlertPage = () => {
   return (
     <div className="flex flex-col h-screen overflow-y-scroll [&::-webkit-scrollbar]:hidden relative">
       {/* 헤더 */}
-      <div className="h-[3.5rem] flex items-center gap-3 shrink-0 bg-white">
+      {/* <div className="h-[3.5rem] flex items-center gap-3 shrink-0 bg-white">
         <Clear_M
           iconMap={{
             disabled: ArrowLeft,
@@ -73,60 +73,65 @@ export const AlertPage = () => {
           onClick={() => navigate("/")}
         />
         <div className="header-h4">알림</div>
-      </div>
+      </div> */}
+      <PageHeader title="알림" onBackClick={() => navigate("/")} />
 
       {/* 알림 카드들 */}
       <div className="flex flex-col items-center gap-4">
-        {alertList.map(alert => {
-          // 이미 승인된 경우 → AlertInviteApproved 렌더링
-          const approved = approvedList.find(a => a.id === alert.id);
-          if (alert.type === "invite" && approved) {
-            return (
-              <AlertInviteApproved
-                key={alert.id}
-                groupName={alert.groupName}
-                alertText={alert.alertText}
-                imageSrc={alert.imageSrc}
-                approvedDate={approved.date}
-              />
-            );
-          }
+        {alertList.length === 0 ? (
+          <NoAlertMessage />
+        ) : (
+          alertList.map(alert => {
+            // 이미 승인된 경우 → AlertInviteApproved 렌더링
+            const approved = approvedList.find(a => a.id === alert.id);
+            if (alert.type === "invite" && approved) {
+              return (
+                <AlertInviteApproved
+                  key={alert.id}
+                  groupName={alert.groupName}
+                  alertText={alert.alertText}
+                  imageSrc={alert.imageSrc}
+                  approvedDate={approved.date}
+                />
+              );
+            }
 
-          switch (alert.type) {
-            case "invite":
-              return (
-                <AlertInvite
-                  key={alert.id}
-                  groupName={alert.groupName}
-                  alertText={alert.alertText}
-                  imageSrc={alert.imageSrc}
-                  onAccept={() => handleAccept(alert.id)}
-                  onReject={() => handleReject(alert.id)}
-                />
-              );
-            case "change":
-              return (
-                <AlertChange
-                  key={alert.id}
-                  groupName={alert.groupName}
-                  alertText={alert.alertText}
-                  imageSrc={alert.imageSrc}
-                  onClick={() => handleDetail(alert.id)}
-                />
-              );
-            case "simple":
-              return (
-                <AlertShadow
-                  key={alert.id}
-                  groupName={alert.groupName}
-                  alertText={alert.alertText}
-                  imageSrc={alert.imageSrc}
-                />
-              );
-            default:
-              return null;
-          }
-        })}
+            switch (alert.type) {
+              case "invite":
+                return (
+                  <AlertInvite
+                    key={alert.id}
+                    groupName={alert.groupName}
+                    alertText={alert.alertText}
+                    imageSrc={alert.imageSrc}
+                    onAccept={() => handleAccept(alert.id)}
+                    onReject={() => handleReject(alert.id)}
+                  />
+                );
+              case "change":
+                return (
+                  <AlertChange
+                    key={alert.id}
+                    groupName={alert.groupName}
+                    alertText={alert.alertText}
+                    imageSrc={alert.imageSrc}
+                    onClick={() => handleDetail(alert.id)}
+                  />
+                );
+              case "simple":
+                return (
+                  <AlertShadow
+                    key={alert.id}
+                    groupName={alert.groupName}
+                    alertText={alert.alertText}
+                    imageSrc={alert.imageSrc}
+                  />
+                );
+              default:
+                return null;
+            }
+          })
+        )}
       </div>
 
       {/* 승인 모달 */}

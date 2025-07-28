@@ -1,5 +1,4 @@
 // 채팅 메인페이지 채팅방 카드 리스트
-import React from "react";
 import { GroupChat } from "../common/contentcard/GroupChat";
 import { PersonalChat } from "../common/contentcard/PersonalChat";
 

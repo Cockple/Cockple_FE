@@ -1,22 +1,26 @@
 import { useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { MyExerciseSort } from "../../components/MyPage/MyExerciseSort";
+import { SortBottomSheet } from "../../components/common/SortBottomSheet";
+import Sort from "../../components/common/Sort";
 import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
-import { useLocation } from "react-router-dom"; 
+import { useLocation } from "react-router-dom";
 import type { ContentCardLProps } from "../../components/common/contentcard/ContentCardL";
 
-interface MyPageMyExercisePageProps {
-  myActivityCount: ContentCardLProps[];
-}
+// interface MyPageMyExercisePageProps {
+//   myActivityCount: ContentCardLProps[];
+// }
 
 // export const MyPageMyExercisePage = ({ myActivityCount }: MyPageMyExercisePageProps) => {
 export const MyPageMyExercisePage = () => {
   const location = useLocation();
   const myActivityCount = location.state?.myActivityCount ?? [];
 
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
-  const [selectedTab, setSelectedTab] = useState<"전체" | "참여 예정" | "참여 완료">("전체");
+  const [selectedTab, setSelectedTab] = useState<
+    "전체" | "참여 예정" | "참여 완료"
+  >("전체");
 
   const sortActivities = (list: ContentCardLProps[], option: string) => {
     return [...list].sort((a, b) => {
@@ -27,28 +31,29 @@ export const MyPageMyExercisePage = () => {
   };
 
   const filteredList = sortActivities(
-    (myActivityCount ?? []).filter((item) => {
+    (myActivityCount ?? []).filter((item: ContentCardLProps) => {
       if (selectedTab === "전체") return true;
       if (selectedTab === "참여 예정") return !item.isCompleted;
       if (selectedTab === "참여 완료") return item.isCompleted;
       return true;
     }),
-    sortOption
+    sortOption,
   );
 
   return (
-    <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto"> 
- 
-      <div className="sticky top-0 z-20 bg-white"> 
+    <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
+      <div className={`sticky top-0 ${isSortOpen ? "z-0" : "z-20"}`}>
         <PageHeader title="내 운동" />
 
         <div className="mb-5 px-4">
           <div className="flex gap-4 relative h-10">
             <div className="absolute bottom-0 left-0 right-0 h-[0.125rem] bg-[#F4F5F6]" />
-            {["전체", "참여 예정", "참여 완료"].map((tab) => (
+            {["전체", "참여 예정", "참여 완료"].map(tab => (
               <button
                 key={tab}
-                onClick={() => setSelectedTab(tab as "전체" | "참여 예정" | "참여 완료")}
+                onClick={() =>
+                  setSelectedTab(tab as "전체" | "참여 예정" | "참여 완료")
+                }
                 className="flex flex-col items-center w-max relative"
               >
                 <span className="header-h5 inline-block">{tab}</span>
@@ -68,7 +73,11 @@ export const MyPageMyExercisePage = () => {
         {filteredList.length > 0 ? (
           <>
             <div className="flex justify-end mb-3">
-              <MyExerciseSort selected={sortOption} onChange={setSortOption} />
+              <Sort
+                label={sortOption}
+                isOpen={isSortOpen}
+                onClick={() => setIsSortOpen(!isSortOpen)}
+              />
             </div>
             {filteredList.map((group, idx) => (
               <ContentCardL key={idx} {...group} />
@@ -80,6 +89,13 @@ export const MyPageMyExercisePage = () => {
           </div>
         )}
       </div>
+      <SortBottomSheet
+        isOpen={isSortOpen}
+        onClose={() => setIsSortOpen(false)}
+        selected={sortOption}
+        onSelect={option => setSortOption(option)}
+        options={["최신순", "오래된 순"]}
+      />
     </div>
   );
 };

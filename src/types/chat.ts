@@ -5,6 +5,7 @@ export interface Chatting {
   profile: string; // 프로필 이미지 URL
   chatting: string;
   time: string; // HH:MM 형식 문자열
+  createdAt: string; // yyyy.mm.dd
   isMe: boolean;
   unreadCount: number;
   imageUrls?: string[]; // 첨부 이미지 (선택)

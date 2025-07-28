@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "src/types/svg.d.ts"]
+  "include": ["src", "src/types/svg.d.ts", "global.d.ts"]
 }

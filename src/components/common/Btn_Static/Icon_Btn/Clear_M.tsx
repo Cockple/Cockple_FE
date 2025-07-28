@@ -1,5 +1,4 @@
 // components/Btn_Static/Text/RD500_M.tsx
-import React, { useState } from "react";
 import ArrowLeft from "../../../../assets/icons/arrow_left.svg";
 import ArrowLeftGY400 from "../../../../assets/icons/arrow_left-gy-400.svg";
 
@@ -68,7 +67,7 @@ const Clear_M = ({
       <img
         src={`${currentIcon ? currentIcon : getIcon()}`}
         alt="icon"
-        className="w-[1.5rem] h-[1.5rem] aspect-square"
+        className="w-[1.5rem] h-[1.5rem] min-w-[1.5rem] min-h-[1.5rem] aspect-square"
       />
     </button>
   );

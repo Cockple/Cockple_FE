@@ -1,4 +1,3 @@
-import React from "react";
 import Btn_Static from "../Btn_Static";
 import type { BtnStatus } from "../types";
 

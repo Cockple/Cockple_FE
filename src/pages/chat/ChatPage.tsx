@@ -94,7 +94,7 @@ export const ChatPage = () => {
   );
 
   return (
-    <div className="flex flex-col w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden pt-14">
+    <div className="flex flex-col w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden">
       <MainHeader />
       <div>
         {/* 네비게이션 탭 */}
