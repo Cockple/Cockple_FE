@@ -50,6 +50,7 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
+import { InviteGuest } from "./pages/Grop_SUNA/InviteGuest";
 
 const router = createBrowserRouter([
   {
@@ -134,6 +135,11 @@ const router = createBrowserRouter([
           { path: "calendar", element: <GroupCalendarPage /> },
           { path: "member", element: <GroupMemberPage /> },
         ],
+      },
+      //일단 임시방편..
+      {
+        path: "/grop/deatil/inviteGuest",
+        element: <InviteGuest />,
       },
     ],
   },
