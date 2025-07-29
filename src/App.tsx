@@ -56,7 +56,7 @@ import { GroupActivity } from "./pages/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/groupMaking/GroupFilter";
 import { GroupSelect } from "./pages/groupMaking/GroupSelect";
 import { ConfirmPage } from "./pages/onboarding/OnboardingConfirmPage";
-import GroupMember from "./pages/groupMaking/GroupMember";
+import { GroupMember } from "./pages/groupMaking/GroupMember";
 
 const router = createBrowserRouter([
   {
