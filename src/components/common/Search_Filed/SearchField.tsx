@@ -2,7 +2,7 @@ import type { UseFormRegisterReturn } from "react-hook-form";
 import SearchFieldBtn from "./SearchFieldBtn";
 
 interface SearchFieldProps {
-  register: UseFormRegisterReturn;
+  register?: UseFormRegisterReturn;
   onSearchClick?: () => void; //검색과 input
   onCurrentLocationClick?: () => void; //현재 위치
   showLabel?: boolean;
@@ -28,7 +28,7 @@ export default function SearchField({
         <div className="relative ">
           <input
             type="text"
-            className="w-full rounded-xl border-gy-200 border py-[0.625rem] px-3 focus:outline-none cursor-pointer "
+            className="w-full rounded-xl border-gy-200 border py-[0.625rem] px-3 focus:outline-none cursor-pointer placeholder:text-gy-400"
             placeholder="건물명,도로명으로 검색"
             {...register}
             onClick={onSearchClick}
