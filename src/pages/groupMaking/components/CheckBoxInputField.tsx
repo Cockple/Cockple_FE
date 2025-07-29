@@ -1,5 +1,5 @@
-import CheckBoxBtn from "../DynamicBtn/CheckBoxBtn";
-import InputField from "./InputField";
+import CheckBoxBtn from "../../../components/common/DynamicBtn/CheckBoxBtn";
+import InputField from "../../../components/common/Search_Filed/InputField";
 
 interface CheckBoxInputFiledProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
