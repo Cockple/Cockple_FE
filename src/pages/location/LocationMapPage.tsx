@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import Search from "@/assets/icons/search.svg?react";
+import type { Place } from "./LocationSearchPage";
 
 declare global {
   interface Window {
@@ -21,6 +22,22 @@ export const LocationMapPage = () => {
   const place = searchParams.get("place");
   const address = searchParams.get("address");
   const query = searchParams.get("query");
+
+  const location = useLocation();
+  const returnPath = location.state?.returnPath ?? "/";
+
+  const handleSelect = (place: Place) => {
+    navigate(returnPath, {
+      state: {
+        selectedPlace: {
+          name: place.place_name,
+          address: place.address_name,
+          x: place.x,
+          y: place.y,
+        },
+      },
+    });
+  };
 
   useEffect(() => {
     const kakao = window.kakao;
@@ -72,7 +89,17 @@ export const LocationMapPage = () => {
           <span className="body-md-500">{place}</span>
           <span className="body-rg-500">{address}</span>
         </div>
-        <GR400_L label="이 위치로 위치 등록" />
+        <GR400_L
+          label="이 위치로 위치 등록"
+          onClick={() =>
+            handleSelect({
+              place_name: place ?? "",
+              address_name: address ?? "",
+              x: x ?? "",
+              y: y ?? "",
+            })
+          }
+        />
       </div>
     </div>
   );

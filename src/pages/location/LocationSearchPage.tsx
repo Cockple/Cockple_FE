@@ -10,7 +10,7 @@ import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 export interface Place {
-  id: string;
+  id?: string;
   place_name: string;
   address_name: string;
   x: string;
@@ -31,7 +31,6 @@ export const LocationSearchPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
-  console.log(returnPath);
 
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
@@ -186,6 +185,7 @@ export const LocationSearchPage = () => {
                   input={debouncedInput}
                   initialClicked={selectedId === idx}
                   onClick={(id, clicked) => setSelectedId(clicked ? id : null)}
+                  returnPath={returnPath}
                 />
               </div>
             );

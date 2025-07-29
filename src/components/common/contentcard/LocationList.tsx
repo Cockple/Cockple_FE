@@ -13,6 +13,7 @@ interface LocationListProps {
   disabled?: boolean;
   initialClicked?: boolean;
   onClick?: (id: number, clicked: boolean) => void;
+  returnPath?: string;
 }
 
 export const LocationList = ({
@@ -26,6 +27,7 @@ export const LocationList = ({
   disabled = false,
   initialClicked = false,
   onClick,
+  returnPath,
 }: LocationListProps) => {
   const navigate = useNavigate();
   const [isPressing, setIsPressing] = useState(false);
@@ -56,6 +58,11 @@ export const LocationList = ({
       // navigate("/mypage/edit/location/address");
       navigate(
         `/location/map?x=${x}&y=${y}&place=${encodeURIComponent(isMainAddr)}&address=${encodeURIComponent(streetAddr)}&query=${encodeURIComponent(input ?? "")}`,
+        {
+          state: {
+            returnPath: returnPath,
+          },
+        },
       );
       console.log(`지도에서 보기 클릭: ${isMainAddr}, ${streetAddr}`);
     }
