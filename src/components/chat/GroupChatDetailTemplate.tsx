@@ -128,7 +128,7 @@ export const GroupChatDetailTemplate = ({
 
   return (
     <div
-      className="relative flex flex-col min-h-[100dvh] -mb-8"
+      className="relative flex flex-col min-h-[86dvh] -mb-8 -mt-4"
       style={{
         width: "calc(100% + 2rem)",
         marginLeft: "-1rem",
@@ -153,7 +153,7 @@ export const GroupChatDetailTemplate = ({
           </div>
         )} */}
 
-        <div className="flex flex-col gap-5 shrink-0 p-4">
+        <div className="flex flex-col gap-5 shrink-0 p-4 pb-[3rem]">
           {/* {chattings.map(chat => (
             <ChattingComponent
               key={chat.id}
@@ -196,20 +196,22 @@ export const GroupChatDetailTemplate = ({
       </div>
 
       {/* 입력창 */}
-      <BottomChatInput
-        input={input}
-        isComposing={isComposing}
-        onInputChange={setInput}
-        onKeyDown={handleKeyDown}
-        onCompositionStart={() => setIsComposing(true)}
-        onCompositionEnd={e => {
-          setIsComposing(false);
-          setInput(e.currentTarget.value);
-        }}
-        onSendMessage={handleSendMessage}
-        onImageUpload={handleImageUpload}
-        fileInputRef={fileInputRef}
-      />
+      <div className="fixed bottom-0 w-full">
+        <BottomChatInput
+          input={input}
+          isComposing={isComposing}
+          onInputChange={setInput}
+          onKeyDown={handleKeyDown}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={e => {
+            setIsComposing(false);
+            setInput(e.currentTarget.value);
+          }}
+          onSendMessage={handleSendMessage}
+          onImageUpload={handleImageUpload}
+          fileInputRef={fileInputRef}
+        />
+      </div>
     </div>
   );
 };

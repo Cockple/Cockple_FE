@@ -191,7 +191,7 @@ export const ChatDetailTemplate = ({
           </div>
         )}
 
-        <div className="flex flex-col gap-5 shrink-0 p-4">
+        <div className="flex flex-col gap-5 shrink-0 p-4 pb-[3rem]">
           {/* {chattings.map(chat => (
             <ChattingComponent
               key={chat.id}
@@ -235,20 +235,22 @@ export const ChatDetailTemplate = ({
       </div>
 
       {/* 입력창 */}
-      <BottomChatInput
-        input={input}
-        isComposing={isComposing}
-        onInputChange={setInput}
-        onKeyDown={handleKeyDown}
-        onCompositionStart={() => setIsComposing(true)}
-        onCompositionEnd={e => {
-          setIsComposing(false);
-          setInput(e.currentTarget.value);
-        }}
-        onSendMessage={handleSendMessage}
-        onImageUpload={handleImageUpload}
-        fileInputRef={fileInputRef}
-      />
+      <div className="fixed bottom-0 w-full">
+        <BottomChatInput
+          input={input}
+          isComposing={isComposing}
+          onInputChange={setInput}
+          onKeyDown={handleKeyDown}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={e => {
+            setIsComposing(false);
+            setInput(e.currentTarget.value);
+          }}
+          onSendMessage={handleSendMessage}
+          onImageUpload={handleImageUpload}
+          fileInputRef={fileInputRef}
+        />
+      </div>
     </div>
   );
 };
