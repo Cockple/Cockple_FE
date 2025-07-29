@@ -7,9 +7,9 @@ import MyLocation from "@/assets/icons/mylocation.svg";
 import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import { LocationList } from "../../components/common/contentcard/LocationList";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-interface Place {
+export interface Place {
   id: string;
   place_name: string;
   address_name: string;
@@ -29,6 +29,9 @@ export const LocationSearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const observer = useRef<IntersectionObserver | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const location = useLocation();
+  const returnPath = location.state?.returnPath ?? "/";
+  console.log(returnPath);
 
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
@@ -124,6 +127,19 @@ export const LocationSearchPage = () => {
     });
   };
 
+  const handleSelect = (place: Place) => {
+    navigate(returnPath, {
+      state: {
+        selectedPlace: {
+          name: place.place_name,
+          address: place.address_name,
+          x: place.x,
+          y: place.y,
+        },
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col">
       <PageHeader title="주소 검색" />
@@ -148,6 +164,7 @@ export const LocationSearchPage = () => {
             icon={MyLocation}
             label="현재 위치 불러오기"
             onClick={onClickCurrent}
+            className="w-full"
           />
         </div>
 
@@ -179,7 +196,10 @@ export const LocationSearchPage = () => {
           )}
         </div>
         {selectedId !== null && (
-          <div className="fixed bottom-0 w-full max-w-[444px] flex justify-center -ml-4 bg-white">
+          <div
+            className="fixed bottom-0 w-full max-w-[444px] flex justify-center -ml-4 bg-white"
+            onClick={() => handleSelect(results[selectedId])}
+          >
             <Grad_GR400_L label="이 위치로 위치 등록" />
           </div>
         )}

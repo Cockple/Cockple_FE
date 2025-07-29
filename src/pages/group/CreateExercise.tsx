@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import SearchField from "../../components/common/Search_Filed/SearchField";
+import { useEffect, useRef, useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { TimeInputField } from "../../components/group/main/create_exercise/TimeInputField";
 import DateAndTimePicker, {
@@ -10,6 +9,15 @@ import { DropBox } from "../../components/common/DropBox";
 import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
+import { LocationField } from "../../components/common/LocationField";
+import { useLocation } from "react-router-dom";
+
+type SelectedPlace = {
+  name: string;
+  address: string;
+  x: string;
+  y: string;
+};
 
 export const CreateExercise = () => {
   const [startTime, setStartTime] = useState("");
@@ -20,6 +28,19 @@ export const CreateExercise = () => {
   const [allowGuestInvite, setAllowGuestInvite] = useState(true);
   const [allowExternalGuest, setAllowExternalGuest] = useState(true);
   const [notice, setNotice] = useState("");
+  const [locationDetail, setLocationDetail] = useState<SelectedPlace | null>(
+    null,
+  );
+  const location = useLocation();
+  const selectedPlace = location.state?.selectedPlace;
+
+  useEffect(() => {
+    if (selectedPlace) {
+      setLocationDetail(selectedPlace);
+      console.log(locationDetail);
+      console.log(selectedPlace);
+    }
+  }, [selectedPlace]);
 
   const pickerRef = useRef<DateAndTimePickerHandle>(null);
 
@@ -53,7 +74,7 @@ export const CreateExercise = () => {
       <PageHeader title="운동 만들기" />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">{/* 캘린더 */}</div>
-        <SearchField label="위치" />
+        <LocationField label="위치" />
         <TimeInputField
           label="시간"
           startTime={startTime}

@@ -8,6 +8,7 @@ interface WhiteLThinProps {
   label?: string;
   onClick?: () => void;
   icon?: string;
+  className?: string;
 }
 
 const White_L_Thin = ({
@@ -15,6 +16,7 @@ const White_L_Thin = ({
   label = "Text",
   onClick,
   icon,
+  className,
 }: WhiteLThinProps) => {
   return (
     <Btn_Static
@@ -30,6 +32,7 @@ const White_L_Thin = ({
       initialStatus={initialStatus}
       onClick={onClick}
       gap="gap-3"
+      className={className}
     />
   );
 };
