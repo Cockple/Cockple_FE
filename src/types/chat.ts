@@ -1,4 +1,38 @@
-// API 응답 기반 메시지 타입
+// API 데이터 형태에 맞춘 타입
+export interface GroupChatRoom {
+  chatRoomId: number;
+  partyId: number;
+  partyName: string;
+  memberCount: number;
+  unreadCount: number;
+  lastMessage: {
+    messageId: number;
+    content: string;
+    senderName: string;
+    timestamp: string;
+    messageType: "TEXT" | "IMAGE";
+  };
+}
+
+export interface PersonalChatRoom {
+  chatRoomId: number;
+  chatRoomName: string;
+  memberCount: number;
+  unreadCount: number;
+  lastMessage: {
+    messageId: number;
+    content: string;
+    senderName: string;
+    timestamp: string;
+    messageType: "TEXT" | "IMAGE";
+  };
+  otherMember: {
+    memberId: number;
+    memberName: string;
+    profileImageUrl: string;
+  };
+}
+
 export interface ChatMessageResponse {
   messageId: number;
   chatRoomId: number;

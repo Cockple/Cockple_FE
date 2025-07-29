@@ -164,7 +164,11 @@ export const GroupChatDetailTemplate = ({
           {chattings.map((chat, index) => {
             const currentDate = chat.createdAt;
             const prevDate = index > 0 ? chattings[index - 1].createdAt : null;
-            const showDate = index === 0 || currentDate !== prevDate;
+            const getDateOnly = (isoString: string) =>
+              new Date(isoString).toISOString().split("T")[0];
+            const showDate =
+              index === 0 ||
+              (prevDate && getDateOnly(currentDate) !== getDateOnly(prevDate));
 
             return (
               <React.Fragment key={chat.messageId}>
