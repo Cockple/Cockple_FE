@@ -1,16 +1,19 @@
-import { useState } from "react";
 import { Range } from "react-range";
 interface InputSliderProps {
   title: string;
+  minYear: number;
+  maxYear: number;
+  values: number[];
+  onChange: (values: number[]) => void;
 }
 
-export default function InputSlider({ title }: InputSliderProps) {
-  const currentYear = new Date().getFullYear();
-
-  const minYear = currentYear - 75;
-  const maxYear = currentYear - 10;
-  const [values, setValues] = useState<number[]>([minYear, maxYear]);
-
+export default function InputSlider({
+  title,
+  minYear,
+  maxYear,
+  values,
+  onChange,
+}: InputSliderProps) {
   return (
     <div>
       <div className=" flex items-center mb-2 justify-between">
@@ -27,7 +30,7 @@ export default function InputSlider({ title }: InputSliderProps) {
         min={minYear}
         max={maxYear}
         values={values}
-        onChange={setValues}
+        onChange={onChange}
         renderTrack={({ props, children }) => (
           <div
             {...props}
