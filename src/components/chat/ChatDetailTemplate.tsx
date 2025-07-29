@@ -174,7 +174,7 @@ export const ChatDetailTemplate = ({
       }}
     >
       {/* 헤더 */}
-      <div className="px-2">
+      <div className="sticky top-0 px-2 bg-white">
         <PageHeader title={chatName} onBackClick={onBack} />
       </div>
 
