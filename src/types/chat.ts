@@ -65,17 +65,17 @@ export interface FileInfo {
 }
 
 // 프론트에서 사용하는 메시지 타입 (ChattingComponent에 맞춤)
-export interface Chatting {
-  id: number;
-  nickname: string;
-  profile: string;
-  chatting: string;
-  time: string;
-  createdAt: string; // YYYY.MM.DD
-  isMe: boolean;
-  unreadCount: number;
-  imageUrls?: string[];
-}
+// export interface Chatting {
+//   id: number;
+//   nickname: string;
+//   profile: string;
+//   chatting: string;
+//   time: string;
+//   createdAt: string; // YYYY.MM.DD
+//   isMe: boolean;
+//   unreadCount: number;
+//   imageUrls?: string[];
+// }
 
 // // 채팅 메시지 하나의 기본 구조
 // export interface Chatting {
