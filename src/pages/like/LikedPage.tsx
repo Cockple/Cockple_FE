@@ -115,7 +115,7 @@ export const LikedPage = () => {
         </div>
 
         {/* 카드 목록 */}
-        <div>
+        <div className="flex justify-center">
           <LikedList
             activeTab={activeTab}
             groupCards={groupCards}
