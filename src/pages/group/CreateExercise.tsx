@@ -9,6 +9,7 @@ import RedCircle from "@/assets/icons/cicle_s_red.svg?react";
 import { DropBox } from "../../components/common/DropBox";
 import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
+import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 
 export const CreateExercise = () => {
   const [startTime, setStartTime] = useState("");
@@ -37,6 +38,15 @@ export const CreateExercise = () => {
   const headCountOptions = Array.from({ length: 44 }, (_, i) => ({
     value: String(i + 1),
   }));
+
+  const isFormValid = () => {
+    return (
+      startTime.trim() !== "" &&
+      endTime.trim() !== "" &&
+      headCount.trim() !== "" &&
+      notice.replace(/\s/g, "").length > 0
+    );
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -78,6 +88,13 @@ export const CreateExercise = () => {
         </div>
 
         <TextField maxLength={45} value={notice} onChange={setNotice} />
+      </div>
+
+      <div className="mt-32 flex justify-center">
+        <GR400_L
+          label="운동 만들기"
+          initialStatus={!isFormValid() ? "disabled" : "default"}
+        />
       </div>
 
       {openModal && (
