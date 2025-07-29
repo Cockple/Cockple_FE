@@ -50,7 +50,11 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
+import { InviteGuest } from "./pages/group/InviteGuest";
+import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import { GroupBasicInfo } from "./pages/groupMaking/GroupBasicInfo";
+import { GroupActivity } from "./pages/groupMaking/GroupActivity";
+import { GroupFilter } from "./pages/groupMaking/GroupFilter";
 
 const router = createBrowserRouter([
   {
@@ -138,8 +142,20 @@ const router = createBrowserRouter([
       },
       //일단 임시방편..
       {
-        path: "/grop/deatil/inviteGuest",
+        path: "/group/deatil/inviteGuest",
         element: <InviteGuest />,
+      },
+      {
+        path: "/group/making/basic",
+        element: <GroupBasicInfo />,
+      },
+      {
+        path: "/group/making/activity",
+        element: <GroupActivity />,
+      },
+      {
+        path: "/group/making/filter",
+        element: <GroupFilter />,
       },
     ],
   },
