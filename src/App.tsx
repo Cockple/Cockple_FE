@@ -11,7 +11,6 @@ import { AlertPage } from "./pages/alarm/AlertPage";
 import { HomePage } from "./pages/home/HomePage";
 import {
   OnboardingAddressPage,
-  OnboardingConfirmPage,
   OnboardingInfoPage,
   OnboardingLevelPage,
   OnboardingPage,
@@ -55,6 +54,9 @@ import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 import { GroupBasicInfo } from "./pages/groupMaking/GroupBasicInfo";
 import { GroupActivity } from "./pages/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/groupMaking/GroupFilter";
+import { GroupSelect } from "./pages/groupMaking/GroupSelect";
+import { ConfirmPage } from "./pages/onboarding/OnboardingConfirmPage";
+import GroupMember from "./pages/groupMaking/GroupMember";
 
 const router = createBrowserRouter([
   {
@@ -72,7 +74,6 @@ const router = createBrowserRouter([
       // { path: "address/search", element: <OnboardingAddressSearchPage /> },
       { path: "profile", element: <OnboardingProfilePage /> },
       // { path: "profile/input", element: <OnboardingProfileInputPage /> },
-      { path: "confirm", element: <OnboardingConfirmPage /> },
       { path: "confirm/start", element: <OnboardingConfirmStartPage /> },
     ],
   },
@@ -157,6 +158,15 @@ const router = createBrowserRouter([
         path: "/group/making/filter",
         element: <GroupFilter />,
       },
+      {
+        path: "/group/making/select",
+        element: <GroupSelect />,
+      },
+      {
+        path: "/group/making/member",
+        element: <GroupMember />,
+      },
+      { path: "/confirm", element: <ConfirmPage /> },
     ],
   },
 ]);

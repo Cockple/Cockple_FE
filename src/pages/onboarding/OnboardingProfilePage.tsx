@@ -22,7 +22,7 @@ export const OnboardingProfilePage = () => {
   const navigate = useNavigate();
   const handleClick = () => {
     if (setProfile) {
-      navigate("/onboarding/confirm");
+      navigate("/confirm");
     } else {
       setIsProfile(true);
     }

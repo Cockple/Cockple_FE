@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import InputSlider from "../../components/common/Search_Filed/InputSlider";
-import CheckBoxInputFiled from "../../components/common/Search_Filed/CheckBoxInputField";
+import CheckBoxInputFiled from "./components/CheckBoxInputField";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
 
   const handleNext = () => {
-    navigate("/group/level");
+    navigate("/group/making/select");
   };
   const currentYear = new Date().getFullYear();
 
@@ -85,7 +85,7 @@ export const GroupFilter = () => {
     <>
       <div className="flex flex-col -mb-8">
         <PageHeader title="회원 정보 입력" />
-        <ProgressBar width={!isFormValid ? "28" : "48"} />
+        <ProgressBar width={!isFormValid ? "52" : "72"} />
 
         <section className="text-left flex flex-col  gap-4 w-full mb-6">
           <p className="header-h4 pt-8 pb-5">

@@ -80,7 +80,7 @@ export const GroupActivity = () => {
   return (
     <>
       <div className="flex flex-col -mb-8">
-        <PageHeader title="회원 정보 입력" />
+        <PageHeader title="모임 만들기" />
         <ProgressBar width={!isFormValid ? "28" : "48"} />
 
         <section className="text-left flex flex-col  gap-8 w-full mb-6">

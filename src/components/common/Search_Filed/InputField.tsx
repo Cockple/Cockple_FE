@@ -8,6 +8,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   InputLength?: number | null;
   InputMaxLength?: number | null;
+  isRequired?: boolean;
   onClick?: () => void;
   register?: UseFormRegister<FieldValues>;
   disabled?: boolean;
@@ -22,6 +23,7 @@ export default function InputField({
   InputLength,
   InputMaxLength = 17,
   disabled,
+  isRequired = true,
   ...props
 }: InputFieldProps) {
   return (
@@ -34,7 +36,9 @@ export default function InputField({
             {labelName}
           </p>
         )}
-        <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+        {isRequired && (
+          <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+        )}
       </div>
       <div className="relative">
         <input

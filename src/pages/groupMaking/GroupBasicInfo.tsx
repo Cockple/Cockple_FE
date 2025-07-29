@@ -20,7 +20,6 @@ export const GroupBasicInfo = () => {
 
   //초기화
 
-  console.log(maleLevel.length);
   const isFormValid =
     localName.length > 0 &&
     selected !== null &&
@@ -41,7 +40,6 @@ export const GroupBasicInfo = () => {
   const handleNext = () => {
     navigate("/group/making/activity");
   };
-  console.log(selected);
 
   return (
     <>
