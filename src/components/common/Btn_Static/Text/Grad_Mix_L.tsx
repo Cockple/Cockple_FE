@@ -70,7 +70,7 @@ const Grad_Mix_L = ({
 
   return (
     <div
-      className="w-full h-[6rem] pt-[0.5rem] pr-[1rem] pb-[2.25rem] pl-[1rem] gap-[0.5625rem] flex"
+      className="w-full h-[6rem] pt-[0.5rem] pr-[1rem] pb-[2.25rem] pl-[1rem] gap-[0.5625rem] flex justify-center"
       style={{
         background:
           "linear-gradient(180deg, rgba(252, 252, 255, 0) 0%, rgba(252, 252, 255, 0.8) 50%, #FCFCFF 90%)",

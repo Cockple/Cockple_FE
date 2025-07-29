@@ -6,6 +6,8 @@ import { useParams, useNavigate } from "react-router-dom";
 //import type { ChatMessageResponse } from "../../types/chat";
 import { groupChatDataMap } from "../../components/chat/groupChatMessageDummy";
 import { GroupChatDetailTemplate } from "../../components/chat/GroupChatDetailTemplate";
+import { myGroups } from "../../components/chat/myGroupsDummy";
+import GroupChatLockedView from "../../components/common/chat/GroupChatLock";
 
 export const GroupChatPage = () => {
   const { groupId } = useParams();
@@ -50,13 +52,32 @@ export const GroupChatPage = () => {
 
   if (!groupId) return null;
 
+  const numericGroupId = parseInt(groupId, 10); // groupId는 string → number로 변환
+
+  // 내가 속한 모임인지 확인 (partyId 목록과 비교)
+  const isMember = myGroups.some(group => group.partyId === numericGroupId);
+
+  // 내가 멤버인 경우
+  if (isMember) {
+    return (
+      <GroupChatDetailTemplate
+        chatId={groupId}
+        //chatName={chatName}
+        chatType="group"
+        chatData={groupChatDataMap}
+        onBack={() =>
+          navigate(`/group/${groupId}`, { state: { tab: "group" } })
+        }
+      />
+    );
+  }
+
+  // 내가 멤버가 아닌 경우
   return (
-    <GroupChatDetailTemplate
-      chatId={groupId}
-      //chatName={chatName}
-      chatType="group"
-      chatData={groupChatDataMap}
-      onBack={() => navigate(`/group/${groupId}`, { state: { tab: "group" } })}
+    <GroupChatLockedView
+      onJoin={() => {
+        navigate(`/group/${groupId}`);
+      }}
     />
   );
 };
