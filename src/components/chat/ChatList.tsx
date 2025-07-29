@@ -1,14 +1,15 @@
 // 채팅 메인페이지 채팅방 카드 리스트
 import { GroupChat } from "../common/contentcard/GroupChat";
 import { PersonalChat } from "../common/contentcard/PersonalChat";
-import type { GroupChatProps } from "../common/contentcard/GroupChat";
-import type { PersonalChatProps } from "../common/contentcard/PersonalChat";
+//import type { GroupChatProps } from "../common/contentcard/GroupChat";
+//import type { PersonalChatProps } from "../common/contentcard/PersonalChat";
 import type { NavigateFunction } from "react-router-dom";
+import type { GroupChatRoom, PersonalChatRoom } from "../../types/chat";
 
 interface Props {
   tab: "group" | "personal";
-  groupChats: (GroupChatProps & { id: number })[];
-  personalChats: (PersonalChatProps & { id: number })[];
+  groupChats: GroupChatRoom[];
+  personalChats: PersonalChatRoom[];
   isValidSearch: boolean;
   searchTerm: string;
   navigate: NavigateFunction;
@@ -41,28 +42,44 @@ const ChatList = ({
       {tab === "group"
         ? groupChats.map(chat => (
             <div
-              key={chat.id}
+              key={chat.chatRoomId}
               onClick={() =>
-                navigate(`/chat/group/${chat.id}`, {
-                  state: { tab: "group", chatName: chat.chatName },
+                navigate(`/chat/group/${chat.chatRoomId}`, {
+                  state: { tab: "group", chatName: chat.partyName },
                 })
               }
               className="border-b border-gy-200 pb-1"
             >
-              <GroupChat {...chat} />
+              <GroupChat
+                imageSrc="src/assets/images/base_profile_img.png"
+                chatName={chat.partyName}
+                memberCount={chat.memberCount}
+                lastMessage={chat.lastMessage.content}
+                lastMessageTime={chat.lastMessage.timestamp}
+                unreadCount={chat.unreadCount}
+              />
             </div>
           ))
         : personalChats.map(chat => (
             <div
-              key={chat.id}
+              key={chat.chatRoomId}
               onClick={() =>
-                navigate(`/chat/personal/${chat.id}`, {
-                  state: { tab: "personal", chatName: chat.userName },
+                navigate(`/chat/personal/${chat.chatRoomId}`, {
+                  state: {
+                    tab: "personal",
+                    chatName: chat.otherMember.memberName,
+                  },
                 })
               }
               className="border-b border-gy-200 pb-1"
             >
-              <PersonalChat {...chat} />
+              <PersonalChat
+                imageSrc="src/assets/images/base_profile_img.png"
+                userName={chat.otherMember.memberName}
+                lastMessage={chat.lastMessage.content}
+                lastMessageTime={chat.lastMessage.timestamp}
+                unreadCount={chat.unreadCount}
+              />
             </div>
           ))}
     </div>
