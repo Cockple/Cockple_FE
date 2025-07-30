@@ -5,6 +5,7 @@ import { ProgressBar } from "../../components/common/ProgressBar";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import InputSlider from "../../components/common/Search_Filed/InputSlider";
 import CheckBoxInputFiled from "./components/CheckBoxInputField";
+import { useGroupMakingFilterStore } from "../../zustand/useGroupMakingFilter";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
@@ -14,14 +15,23 @@ export const GroupFilter = () => {
   };
   const currentYear = new Date().getFullYear();
 
+  const setFilter = useGroupMakingFilterStore(state => state.setFilter);
+  const {
+    money,
+    joinMoney,
+    kock,
+    ageRange: storeAgeRange,
+  } = useGroupMakingFilterStore();
   const minYear = currentYear - 75;
   const maxYear = currentYear - 10;
-  const [kock, setKock] = useState("");
-  const [joinMoney, setJoinMoney] = useState<string>("");
-  const [money, setMoney] = useState<string>("");
-  const [ageRange, setAgeRange] = useState<number[]>([minYear, maxYear]);
+  const isAgeRangeFilled = storeAgeRange.length === 2;
+
+  const [ageRange, setAgeRange] = useState<number[]>(
+    isAgeRangeFilled ? storeAgeRange : [minYear, maxYear],
+  );
+
   //슬라이드
-  const [ageTouched, setAgeTouched] = useState(false);
+  const [ageTouched, setAgeTouched] = useState(isAgeRangeFilled);
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value;
     //한글,영어만 입력되도록, 공백포함 17글자
@@ -30,49 +40,51 @@ export const GroupFilter = () => {
       /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
       "",
     );
-    setKock(filtered);
+    setFilter("kock", filtered);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const filtered = e.target.value.replace(/[^0-9]/g, "");
     if (filtered === "") {
-      setJoinMoney(""); // 비우기
+      setFilter("money", "");
       return;
     }
     const commaMoney = Number(filtered).toLocaleString();
-    setMoney(commaMoney);
+    setFilter("money", commaMoney);
   };
 
   const handleJoinMoneyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const filtered = e.target.value.replace(/[^0-9]/g, "");
     if (filtered === "") {
-      setJoinMoney(""); // 비우기
+      setFilter("joinMoney", "");
       return;
     }
     const commaMoney = Number(filtered).toLocaleString();
-    setJoinMoney(commaMoney);
+    setFilter("joinMoney", commaMoney);
   };
 
   const handleMoneyBlur = () => {
     if (money !== "0" && money) {
-      setMoney(prev => `${prev}원`);
+      setFilter("money", `${money}원`);
     }
   };
 
   const handleMoneyFocus = () => {
     if (money.endsWith("원")) {
-      setMoney(money.replace("원", ""));
+      const plain = money.replace("원", "").replaceAll(",", "");
+      setFilter("money", Number(plain).toLocaleString());
     }
   };
   const handleJoinMoneyBlur = () => {
     if (joinMoney !== "0" && joinMoney) {
-      setJoinMoney(prev => `${prev}원`);
+      setFilter("joinMoney", `${joinMoney}원`);
     }
   };
 
   const handleJoinMoneyFocus = () => {
     if (joinMoney.endsWith("원")) {
-      setJoinMoney(joinMoney.replace("원", ""));
+      const plain = joinMoney.replace("원", "").replaceAll(",", "");
+      setFilter("joinMoney", Number(plain).toLocaleString());
     }
   };
   const isFormValid =
@@ -102,7 +114,7 @@ export const GroupFilter = () => {
               InputLength={kock.length}
               checked={kock === "disabled"}
               onCheckChange={checked => {
-                setKock(checked ? "disabled" : "");
+                setFilter("kock", checked ? "disabled" : "");
               }}
             />
           </div>
@@ -116,7 +128,7 @@ export const GroupFilter = () => {
             labelName={"가입비"}
             checked={joinMoney === "disabled"}
             onCheckChange={checked => {
-              setJoinMoney(checked ? "disabled" : "");
+              setFilter("joinMoney", checked ? "disabled" : "");
             }}
           />
           {/* 세번째 */}
@@ -129,7 +141,7 @@ export const GroupFilter = () => {
             labelName={"회비"}
             checked={money === "disabled"}
             onCheckChange={checked => {
-              setMoney(checked ? "disabled" : "");
+              setFilter("money", checked ? "disabled" : "");
             }}
           />
           {/* 네번째 */}
@@ -140,6 +152,7 @@ export const GroupFilter = () => {
             values={ageRange}
             onChange={vals => {
               setAgeRange(vals);
+              setFilter("ageRange", vals);
               if (!ageTouched) setAgeTouched(true);
             }}
           />

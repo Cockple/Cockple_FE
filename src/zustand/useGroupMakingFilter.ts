@@ -4,18 +4,26 @@ export type FilterKey =
   | "region"
   | "FemaleLevel"
   | "maleLevel"
-  | "style"
-  | "time"
-  | "weekly";
+  | "name"
+  | "type"
+  | "kock"
+  | "joinMoney"
+  | "money"
+  | "ageRange";
 
 export interface ExerciseFilterState {
   region: string[];
   FemaleLevel: string[];
   maleLevel: string[];
-  style: string;
-  time: string;
+  name: string;
+  level: string;
   weekly: string[];
-  setFilter: (key: FilterKey, value: string[] | string) => void;
+  kock: string;
+  joinMoney: string;
+  money: string;
+  ageRange: number[];
+  type: "mixed" | "female" | "";
+  setFilter: (key: FilterKey, value: string[] | string | number[]) => void;
   resetFilter: () => void;
 }
 
@@ -24,25 +32,30 @@ export const useGroupMakingFilterStore = create<ExerciseFilterState>(set => ({
   FemaleLevel: [],
   maleLevel: [],
   weekly: [],
-  style: "",
+  level: "",
+  type: "",
+  kock: "",
+  joinMoney: "",
+  money: "",
   time: "",
+  ageRange: [],
+  name: "",
   setFilter: (key, value) => set(state => ({ ...state, [key]: value })),
   resetFilter: () =>
     set(() => ({
       region: [],
-      level: [],
-      style: "",
+      level: "",
       time: "",
+      name: "",
     })),
 }));
 
-export const isFilterDirty = (filter: Pick<ExerciseFilterState, FilterKey>) => {
-  return (
-    filter.region.length > 0 ||
-    filter.FemaleLevel.length > 0 ||
-    filter.maleLevel.length > 0 ||
-    filter.weekly.length > 0 ||
-    filter.style !== "" ||
-    filter.time !== ""
-  );
-};
+// export const isFilterDirty = (filter: Pick<ExerciseFilterState, FilterKey>) => {
+//   return (
+//     filter.region.length > 0 ||
+//     filter.FemaleLevel.length > 0 ||
+//     filter.maleLevel.length > 0 ||
+//     filter.kock.length > 0 ||
+//     filter.name.length > 0 ||
+//   );
+// }
