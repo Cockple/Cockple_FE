@@ -24,21 +24,27 @@ interface MemberProps {
 
 const members: MemberProps[] = [
   {
-    name: "홍길동",
+    name: "누구겡",
     gender: "male",
     level: "D조",
     status: "approved",
   },
   {
-    name: "김영희",
+    name: "누구겡",
     gender: "female",
     level: "C조",
     status: "approved",
   },
   {
-    name: "이철수",
+    name: "누구겡",
     gender: "male",
     level: "B조",
+    status: "approved",
+  },
+  {
+    name: "누구겡",
+    gender: "male",
+    level: "초급",
     status: "approved",
   },
 ];
@@ -63,8 +69,12 @@ export const GroupMember = () => {
   const handleCloseLeave = () => {
     setIsOpenModal(false);
   };
-
   const [search, setSearch] = useState("");
+
+  const filteredMembers = members.filter(member =>
+    member.level.includes(search.trim()),
+  );
+
   return (
     <>
       <div className="flex flex-col -mb-8">
@@ -80,7 +90,7 @@ export const GroupMember = () => {
           </div>
           {/* 두번째 */}
           <div>
-            {members.map((member, idx) => (
+            {filteredMembers.map((member, idx) => (
               <MemberCard
                 key={idx}
                 member={member}
