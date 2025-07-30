@@ -37,9 +37,7 @@ export const GroupSelect = () => {
         <ProgressBar width={!isFormValid ? "76" : "96"} />
 
         <section className="text-left flex flex-col  gap-4 w-full mb-6">
-          <p className="header-h4 pt-8 pb-5">
-            모임 지정콕,조건 정보를 입력해주세요
-          </p>
+          <p className="header-h4 pt-8 pb-5">모임 선택 정보를 입력해주세요.</p>
           {/* 첫번째 */}
           <div className="flex flex-col gap-8">
             <SingleImageUploadBtn />

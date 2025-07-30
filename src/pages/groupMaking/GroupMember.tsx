@@ -5,6 +5,8 @@ import ProfileImage from "../../assets/icons/ProfileImage.svg?react";
 import Female from "../../assets/icons/female.svg?react";
 import Male from "../../assets/icons/male.svg?react";
 import Message from "../../assets/icons/message.svg?react";
+import { useState } from "react";
+import InviteModal from "./components/InviteModal";
 
 type MemberStatus =
   | "waiting"
@@ -73,6 +75,19 @@ export const GroupMember = () => {
     navigate("/group/1"); //임시 하드코딩
   };
 
+  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const openModal = () => {
+    setIsOpenModal(true);
+  };
+
+  const handleInviteLeave = () => {
+    setIsOpenModal(false);
+  };
+
+  const handleCloseLeave = () => {
+    setIsOpenModal(false);
+  };
   return (
     <>
       <div className="flex flex-col -mb-8">
@@ -98,17 +113,26 @@ export const GroupMember = () => {
             <div className="w-full h-[4.75rem] bg-white  px-4 py-2 flex items-center gap-3 border-b border-gy-200">
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo {...sampleMember} />
-              <Message className="w-[2rem] h-[2rem] ml-auto" />
+              <Message
+                className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                onClick={openModal}
+              />
             </div>
             <div className="w-full h-[4.75rem] bg-white  px-4 py-2 flex items-center gap-3 border-b border-gy-200">
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo {...sampleMember} />
-              <Message className="w-[2rem] h-[2rem] ml-auto" />
+              <Message
+                className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                onClick={openModal}
+              />
             </div>
             <div className="w-full h-[4.75rem] bg-white  px-4 py-2 flex items-center gap-3 border-b border-gy-200">
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo {...sampleMember} />
-              <Message className="w-[2rem] h-[2rem] ml-auto" />
+              <Message
+                className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                onClick={openModal}
+              />
             </div>
           </div>
         </section>
@@ -125,6 +149,14 @@ export const GroupMember = () => {
             initialStatus={"default"}
           />
         </div>
+        {isOpenModal && (
+          <div className="fixed inset-0 flex justify-center items-center z-50">
+            <InviteModal
+              onInvite={handleInviteLeave}
+              onClose={handleCloseLeave}
+            />
+          </div>
+        )}
       </div>
     </>
   );
