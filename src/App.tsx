@@ -143,7 +143,7 @@ const router = createBrowserRouter([
       },
       //일단 임시방편..
       {
-        path: "/group/deatil/inviteGuest",
+        path: "/group/detail/inviteGuest",
         element: <InviteGuest />,
       },
       {
