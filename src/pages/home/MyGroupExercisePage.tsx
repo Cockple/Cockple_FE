@@ -4,6 +4,7 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { groupExerciseData } from "../../components/home/mock/homeMock";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import Sort from "../../components/common/Sort";
+import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 
 export const MyGroupExercisePage = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -13,7 +14,9 @@ export const MyGroupExercisePage = () => {
     <div className="flex flex-col -mx-4 px-4 bg-white">
       <PageHeader title="내 모임 운동" />
       <div className="flex flex-col gap-3 my-2">
-        <div className="h-17">{/* 달력 */}</div>
+        <div className="h-17">
+          <WeeklyCalendar shadow={false} />
+        </div>
         <div className="flex justify-end w-full  h-7">
           <Sort
             label={sortOption}

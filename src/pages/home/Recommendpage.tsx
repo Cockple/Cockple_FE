@@ -11,6 +11,7 @@ import {
   isFilterDirty,
   useExerciseFilterStore,
 } from "../../store/useExerciseFilterStore";
+import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 
 export const RecommendPage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,9 @@ export const RecommendPage = () => {
     <div className="flex flex-col gap-2 -mx-4 px-4 bg-white">
       <PageHeader title="운동 추천" onBackClick={() => navigate("/")} />
       <div className="flex flex-col gap-3">
-        <div className="w-full h-17">{/* 달력 */}</div>
+        <div className="w-full h-17">
+          <WeeklyCalendar shadow={false} />
+        </div>
         <div className="flex justify-between w-full h-7">
           <CheckBoxBtn>
             <span>콕플 추천</span>

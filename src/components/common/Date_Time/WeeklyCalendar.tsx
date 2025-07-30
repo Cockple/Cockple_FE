@@ -59,10 +59,10 @@ export default function WeeklyCalendar({
                 hasDot={exerciseDays.includes(d.full)}
                 color={
                   d.dayNumber === 0
-                    ? shadow
+                    ? !shadow
                       ? "Nred"
                       : "red"
-                    : shadow
+                    : !shadow
                       ? "Nblack"
                       : "black"
                 } // 일요일
