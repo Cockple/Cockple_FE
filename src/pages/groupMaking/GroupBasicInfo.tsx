@@ -8,22 +8,39 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import InputField from "../../components/common/Search_Filed/InputField";
 import { MultiSelectButtonGroup } from "../../components/common/MultiSelectButtonGroup";
 import { useGroupMakingFilterStore } from "../../zustand/useGroupMakingFilter";
+import { Modal_Caution } from "../../components/MyPage/Modal_Caution";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
   const { FemaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
+
+  const name = useGroupMakingFilterStore(state => state.name);
+  const selected = useGroupMakingFilterStore(state => state.type);
   //정보
   const [localName, setLocalName] = useState(name ?? "");
-  const [selected, isSelected] = useState<"girl" | "mixed" | null>(null);
+  // const [selected, isSelected] = useState<"female" | "mixed" | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleConfirmLeave = () => {
+    setIsModalOpen(false);
+    navigate("/");
+  };
+
+  const handleCancelLeave = () => {
+    setIsModalOpen(false);
+  };
+
+  const onBackClick = () => {
+    setIsModalOpen(true);
+  };
   //초기화
 
   const isFormValid =
     localName.length > 0 &&
     selected !== null &&
-    ((selected === "girl" && FemaleLevel.length > 0) ||
+    ((selected === "female" && FemaleLevel.length > 0) ||
       (selected === "mixed" && FemaleLevel.length > 0 && maleLevel.length > 0));
 
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +52,7 @@ export const GroupBasicInfo = () => {
       "",
     );
     setLocalName(filtered);
+    setFilter("name", filtered);
   };
 
   const handleNext = () => {
@@ -44,8 +62,16 @@ export const GroupBasicInfo = () => {
   return (
     <>
       <div className="flex flex-col -mb-8">
-        <PageHeader title="모임 만들기" />
+        <PageHeader title="모임 만들기" onBackClick={onBackClick} />
         <ProgressBar width={!isFormValid ? "4" : "24"} />
+        {isModalOpen && (
+          <div className="fixed inset-0 flex justify-center items-center z-50">
+            <Modal_Caution
+              onConfirm={handleConfirmLeave}
+              onCancel={handleCancelLeave}
+            />
+          </div>
+        )}
 
         <section className="text-left flex flex-col  gap-3 w-full mb-6">
           <p className="header-h4 pt-8 pb-5">모임 기본 정보를 입력해주세요.</p>
@@ -66,22 +92,24 @@ export const GroupBasicInfo = () => {
             <div className="flex gap-[13px]">
               <TextBox
                 children="여복"
-                isSelected={selected === "girl"}
-                onClick={() => isSelected(selected === "girl" ? null : "girl")}
+                isSelected={selected === "female"}
+                onClick={() =>
+                  setFilter("type", selected === "female" ? "" : "female")
+                }
                 className="w-19"
               />
               <TextBox
                 children="혼복"
                 isSelected={selected === "mixed"}
                 onClick={() =>
-                  isSelected(selected === "mixed" ? null : "mixed")
+                  setFilter("type", selected === "mixed" ? "" : "mixed")
                 }
                 className="w-19"
               />
             </div>
           </div>
           {/* 세번째1 */}
-          {selected === "girl" && (
+          {selected === "female" && (
             <div>
               <div className="flex px-1 gap-[2px] items-center mb-2">
                 <p className="header-h5">여자 급수</p>
