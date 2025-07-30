@@ -1,12 +1,15 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import Search from "../../assets/icons/search.svg?react";
-import Female from "../../assets/icons/female.svg?react";
-import Male from "../../assets/icons/male.svg?react";
-import { Member } from "../../components/common/contentcard/Member";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
+import Search from "../../../assets/icons/search.svg?react";
+import Female from "../../../assets/icons/female.svg?react";
+import Male from "../../../assets/icons/male.svg?react";
+import { Member } from "../../../components/common/contentcard/Member";
 import { useNavigate } from "react-router-dom";
-import type { MemberProps } from "../../components/common/contentcard/Member";
+import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { useState } from "react";
-import TabSelector from "../../components/common/TabSelector";
+import TabSelector from "../../../components/common/TabSelector";
+import { getModalConfig } from "../../../components/group/modalConfig";
+import type { ModalConfig } from "../../../components/group/modalConfig";
+import { useLocation } from "react-router-dom"; 
 
 interface MyPageExerciseDetailPageProps {
   notice?: string;
@@ -27,17 +30,19 @@ export const MyGroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps)
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
-      { status: "Participating", name: "홍길동", gender: "male", level: "A조", isMe: true },
-      { status: "Participating", name: "김민수", gender: "male", level: "B조" },
-      { status: "Participating", name: "이지은", gender: "female", level: "C조" },
-      { status: "Participating", name: "박서준", gender: "male", level: "D조" },
+      { status: "Participating", name: "홍길동", gender: "male", level: "A조", isMe: false, isLeader: true, position: "leader"}, 
+      { status: "Participating", name: "김민수", gender: "male", level: "B조", isMe: true,isLeader: false, position: "sub_leader" },
+      { status: "Participating", name: "이지은", gender: "female", level: "C조", isMe: false, isLeader: false, position: null },
+      { status: "Participating", name: "박서준", gender: "male", level: "D조", isMe: false, isLeader: false, position: null },
     ],
   } = props;
 
   const [members, setMembers] = useState<MemberProps[]>(participantMembers);
   
   const [participantsCountState, setParticipantsCount] = useState(participantsCount);
-
+  
+  const location = useLocation(); 
+  const navigate = useNavigate();
 
   //검색 기능
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,13 +63,34 @@ export const MyGroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps)
     setParticipantsCount(updated.length);
   };
 
-const initialTab = (location.state?.tab ?? "home") as "home" | "chat" | "Calendar" | "member";
+  const status = "Participating"; 
+  const isLeader = false;         
+  const isMe = true;     
+  const currentUser = members.find(m => m.isMe);
+  const isCurrentUserLeader = currentUser?.isLeader;
+
+ const modalConfig = getModalConfig(
+  status,
+  isLeader,
+  isMe,
+  "", 
+  {
+    title: "정말 모임을 탈퇴하시겠어요?",
+    messages: [
+      "'탈퇴하기'를 누르시면, 복구할 수 없으니",
+      "신중한 선택 부탁드려요."
+    ],
+    confirmLabel: "탈퇴하기",
+  }
+);
+
+
+  const initialTab = (location.state?.tab ?? "home") as "home" | "chat" | "Calendar" | "member";
   const [activeTab, setActiveTab] = useState<"home" | "chat" | "Calendar" | "member">(initialTab);
 
-  const navigate = useNavigate();
   return (
     <>
-      <PageHeader title="운동 상세" />
+      <PageHeader title="민턴클로버(운동 이름)" />
       <div className="flex flex-col ">
        <TabSelector
         selected={activeTab}
@@ -109,12 +135,17 @@ const initialTab = (location.state?.tab ?? "home") as "home" | "chat" | "Calenda
 
         {filteredMembers.map((member, idx) => (
           <div key={`participant-${idx}`}>
-            <Member
-              {...member}
-              number={idx + 1}
-              onClick={() => navigate("/mypage/profile")}
-              onDelete={() => handleDeleteMember(idx)}
-            />
+              <Member
+                {...member}
+                number={idx + 1}
+                position={member.position}
+                onClick={() => navigate("/mypage/profile")}
+                onDelete={() => handleDeleteMember(idx)}
+                showDeleteButton={
+                  !!isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
+                }
+                modalConfig={modalConfig as ModalConfig}
+              />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>
         ))}

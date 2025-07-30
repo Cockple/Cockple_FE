@@ -2,21 +2,16 @@ import Dismiss from "../../assets/icons/dismiss.svg?react";
 import GR600_S from "../common/Btn_Static/Text/GR600_S";
 import Message from "../../assets/icons/message.svg?react";
 
-interface ModalApplyBaseProps {
-  title: string;
-  messages: string[];
-  confirmLabel: string;
+interface ModalInViteBaseProps {
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export const Modal_Apply = ({
-  title,
-  messages,
-  confirmLabel,
+export const Modal_Invite = ({
+
   onConfirm,
   onCancel,
-}: ModalApplyBaseProps) => {
+}: ModalInViteBaseProps) => {
   return (
     <div
       className="fixed inset-0 flex justify-center items-center z-50"
@@ -33,14 +28,16 @@ export const Modal_Apply = ({
 
         <div className="flex flex-col items-center text-center gap-1 mb-4 leading-snug">
           <Message className="w-8 h-8" />
-         <p className="header-h4">{title}</p>
-          {messages.map((msg, idx) => (
+          <p className="header-h4">멤버 초대를 보내시겠어요?</p>
+          <p className="body-rg-500">초대받은 분께서 초대를 수락해주시면</p>
+          <p className="body-rg-500">바로 모임 멤버로 추가돼요.</p>
+          {/* {messages.map((msg, idx) => (
             <p key={idx} className="body-rg-500">{msg}</p>
-          ))}
+          ))} */}
         </div>
 
         <div className="flex justify-center gap-2">
-          <GR600_S label={confirmLabel}  onClick={onConfirm} />
+          <GR600_S label="초대 보내기" onClick={onConfirm} />
         </div>
       </div>
     </div>

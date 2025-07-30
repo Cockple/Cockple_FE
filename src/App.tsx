@@ -10,7 +10,10 @@ import {
   GroupPage,
   GroupDetailMemberDefault,
   MyGroupDetailMemberDefault,
-  GroupMyExerciseDetail
+  GroupMyExerciseDetail,
+  ViceLeaderDefault,
+  EditGroupInfoDefault,
+  InviteDefault,
 } from "./pages/group";
 
 import { ExerciseMapPage } from "./pages/home/ExerciseMapPage";
@@ -108,10 +111,10 @@ const router = createBrowserRouter([
       },
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
-      {
-        path: "/mypage/myexercise/:exerciseId",
-        element: <MyPageExerciseDetailPage />,
-      },
+      // {
+      //   path: "/mypage/myexercise/:exerciseId",
+      //   element: <MyPageExerciseDetailPage />,
+      // },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
@@ -129,10 +132,15 @@ const router = createBrowserRouter([
       { path: "/chat/personal/:chatId", element: <PersonalChatDetailPage /> },
       { path: "/alert", element: <AlertPage /> },
       // { path: "/group/recommend", element: <GroupRecommendPage /> },
+      //여기부터 추가함
       { path: "/group/recommend", element: <GroupRecommendPage /> },
-      { path: "/group/GroupDetailMemberDefault", element: <GroupDetailMemberDefault /> },
-      { path: "/group/MyGroupDetailMemberDefault", element: <MyGroupDetailMemberDefault /> },
-      { path: "/group/GroupMyExerciseDetail", element: <GroupMyExerciseDetail /> },
+      { path: "/group/detail", element: <GroupDetailMemberDefault /> },
+      { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
+      { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> },
+      { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
+      { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
+      { path: "/group/admin/invite", element: <InviteDefault /> },
+
 
       {
         path: "/group/recommend-filter",

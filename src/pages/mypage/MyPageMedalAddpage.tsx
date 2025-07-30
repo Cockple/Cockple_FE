@@ -29,7 +29,6 @@ export const MyPageMedalAddPage = () => {
 
   // ‼️ 배포 오류를 위한 임시 코드
   const selectedGrade = "";
-  // const [selectedGrade, setSelectedGrade] = useState<string>(""); // 급수 선택 상태
   const [tournamentName, setTournamentName] = useState(""); // 대화명 상태
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -392,7 +391,7 @@ export const MyPageMedalAddPage = () => {
           {/* 대회 기록 */}
           <div>
             <div className="flex justify-between items-start">
-              <CheckBox_Long_noButton title="대회 기록" maxLength={100} />
+              <CheckBox_Long_noButton title="대회 기록" maxLength={100} Label="비공개" />
             </div>
           </div>
 

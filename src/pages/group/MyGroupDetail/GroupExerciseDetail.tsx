@@ -1,19 +1,14 @@
-//수정할 부분
-//1. 삭제 버튼클릭 시 나오는 모달창 화면 가운데로 이동
-// 2. 신청 -> 삭제 -> 다시 신청 누르면 이미 신청한 값으로 나옴
-// 3. 성별수 및 참여 인원 수 카운드 이상함
-
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import Vector from "../../assets/icons/Vector.svg?react";
-import Caution from "../../assets/icons/Caution.svg?react";
-import Female from "../../assets/icons/female.svg?react";
-import Male from "../../assets/icons/male.svg?react";
-import { Member } from "../../components/common/contentcard/Member";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
+import Vector from "../../../assets/icons/Vector.svg?react";
+import Caution from "../../../assets/icons/Caution.svg?react";
+import Female from "../../../assets/icons/female.svg?react";
+import Male from "../../../assets/icons/male.svg?react";
+import { Member } from "../../../components/common/contentcard/Member";
 import { useNavigate } from "react-router-dom";
-import type { MemberProps } from "../../components/common/contentcard/Member";
+import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { useState } from "react";
-import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { Modal_Apply } from "../../components/group/Modal_Apply";
+import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
+import { Modal_Apply } from "../../../components/group/Modal_Apply";
 
 interface MyPageExerciseDetailPageProps {
   notice?: string;

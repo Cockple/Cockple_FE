@@ -1,14 +1,15 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import Vector from "../../assets/icons/Vector.svg?react";
-import Caution from "../../assets/icons/Caution.svg?react";
-import Female from "../../assets/icons/female.svg?react";
-import Male from "../../assets/icons/male.svg?react";
-import { Member } from "../../components/common/contentcard/Member";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
+import Vector from "../../../assets/icons/Vector.svg?react";
+import Caution from "../../../assets/icons/Caution.svg?react";
+import Female from "../../../assets/icons/female.svg?react";
+import Male from "../../../assets/icons/male.svg?react";
+import { Member } from "../../../components/common/contentcard/Member";
 import { useNavigate } from "react-router-dom";
-import type { MemberProps } from "../../components/common/contentcard/Member";
+import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { useState } from "react";
-import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { Modal_Apply } from "../../components/group/Modal_Apply";
+import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
+import { Modal_Apply } from "../../../components/group/Modal_Apply";
+import { getModalConfig } from "../../../components/group/modalConfig";
 
 interface MyPageExerciseDetailPageProps {
   notice?: string;
@@ -24,34 +25,23 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 };
 
-// export const MyPageExerciseDetailPage = ({
-//   notice = "",
-//   placeName = "",
-//   placeAddress = "",
-
-//   participantsCount = 0,
-//   participantGenderCount = { male: 0, female: 0 },
-//   participantMembers = [],
-
-//   waitingCount = 0,
-//   waitingGenderCount = { male: 0, female: 0 },
-//   waitingMembers = [],
-// }: MyPageExerciseDetailPageProps) => {
-
-// export const MyPageExerciseDetailPage = ({
 export const GroupMyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
- const {
+  const navigate = useNavigate();
+
+  const {
     notice = "명찰을 위한 신분증",
     placeName = "산성 배드민턴장",
     placeAddress = "수정로456번길 19",
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
+    
     participantMembers = [
-      { status: "Participating", name: "홍길동", gender: "male", level: "A조", isMe: true },
-      { status: "Participating", name: "김민수", gender: "male", level: "B조" },
-      { status: "Participating", name: "이지은", gender: "female", level: "C조" },
-      { status: "Participating", name: "박서준", gender: "male", level: "D조" },
+      { status: "Participating", name: "홍길동", gender: "male", level: "A조", isMe: false, isLeader: true, position: "leader"}, 
+      { status: "Participating", name: "김민수", gender: "male", level: "B조", isMe: true,isLeader: false, position: "sub_leader" },
+      { status: "Participating", name: "이지은", gender: "female", level: "C조", isMe: false, isLeader: false, position: null },
+      { status: "Participating", name: "박서준", gender: "male", level: "D조", isMe: false, isLeader: false, position: null },
     ],
+
   } = props;
 
   const [members, setMembers] = useState<MemberProps[]>(participantMembers);
@@ -69,8 +59,9 @@ export const GroupMyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
     setMembers(updated);
     setParticipantsCount(updated.length);
   };
+  const currentUser = members.find(m => m.isMe);
+  const isCurrentUserLeader = currentUser?.isLeader;
 
-  const navigate = useNavigate();
   return (
     <>
       <PageHeader title="운동 상세" />
@@ -109,21 +100,32 @@ export const GroupMyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
           </div>
         </div>
       </div>
+        {members.map((member, idx) => {
+          const modalConfig = getModalConfig(
+            member.status,
+            isCurrentUserLeader ?? false,
+            member.isMe ?? false,
+            member.name
+          );
 
-        {members.map((member, idx) => (
-          <div key={`participant-${idx}`}>
-            <Member
-              {...member}
-              number={idx + 1}
-              onClick={() => navigate("/mypage/profile")}
-              onDelete={() => handleDeleteMember(idx)}
-            />
-            <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-          </div>
-        ))}
-      
-
-        
+          return (
+            <div key={`participant-${idx}`}>
+              <Member
+                {...member}
+                number={idx + 1}
+                position={member.position}
+                onClick={() => navigate("/mypage/profile")}
+                onDelete={() => handleDeleteMember(idx)}
+                showDeleteButton={
+                  !!isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
+                }
+                modalConfig={modalConfig ?? undefined}
+              />
+              <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+            </div>
+          );
+        })}
+   
        {/* 대기 인원 */}
         {waitingMembers.length > 0 && (
           <div className="flex flex-col gap-2">
