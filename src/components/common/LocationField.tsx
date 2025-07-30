@@ -5,13 +5,19 @@ import SearchFieldBtn from "./Search_Filed/SearchFieldBtn";
 interface LocationFieldProps {
   register?: UseFormRegisterReturn;
   showLabel?: boolean;
-  label?: string;
+  label: string;
+  icon?: boolean;
+  returnPath?: string;
+  mode?: "fill-only" | "call-api";
 }
 
 export const LocationField = ({
   register,
   label,
   showLabel = true,
+  icon = true,
+  mode = "fill-only",
+  returnPath,
 }: LocationFieldProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,7 +25,8 @@ export const LocationField = ({
   const handleClick = () => {
     navigate("/location/search", {
       state: {
-        returnPath: location.pathname,
+        returnPath: returnPath || location.pathname,
+        mode,
       },
     });
   };
@@ -29,7 +36,9 @@ export const LocationField = ({
         {showLabel && (
           <div className="flex px-1 gap-[2px] items-center">
             <p className="header-h5">{label}</p>
-            <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+            {icon && (
+              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+            )}
           </div>
         )}
 

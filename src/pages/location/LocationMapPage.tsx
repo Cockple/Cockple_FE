@@ -25,18 +25,24 @@ export const LocationMapPage = () => {
 
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
+  const mode = location.state?.mode ?? "fill-only";
 
   const handleSelect = (place: Place) => {
-    navigate(returnPath, {
-      state: {
-        selectedPlace: {
-          name: place.place_name,
-          address: place.address_name,
-          x: place.x,
-          y: place.y,
-        },
-      },
-    });
+    const selectedPlace = {
+      name: place.place_name,
+      address: place.address_name,
+      x: place.x,
+      y: place.y,
+    };
+
+    if (mode === "call-api") {
+      // api 요청
+      navigate(returnPath);
+    } else {
+      navigate(returnPath, {
+        state: { selectedPlace },
+      });
+    }
   };
 
   useEffect(() => {

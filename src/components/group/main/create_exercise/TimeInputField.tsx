@@ -21,7 +21,8 @@ export const TimeInputField = ({
         <span className="header-h5 ml-1">{label}</span>
         <RedCircle />
       </div>
-      <div className="flex gap-1 items-center">
+
+      <div className="flex items-center justify-between">
         <input
           className="border-soft outline-none w-40 h-11 py-2.5 px-3 border-1 border-gy-200 cursor-pointer"
           value={startTime}

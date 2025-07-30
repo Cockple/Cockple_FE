@@ -31,6 +31,7 @@ export const LocationSearchPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
+  const mode = location.state?.mode ?? "fill-only";
 
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
@@ -127,16 +128,21 @@ export const LocationSearchPage = () => {
   };
 
   const handleSelect = (place: Place) => {
-    navigate(returnPath, {
-      state: {
-        selectedPlace: {
-          name: place.place_name,
-          address: place.address_name,
-          x: place.x,
-          y: place.y,
-        },
-      },
-    });
+    const selectedPlace = {
+      name: place.place_name,
+      address: place.address_name,
+      x: place.x,
+      y: place.y,
+    };
+
+    if (mode === "call-api") {
+      // api 요청
+      navigate(returnPath);
+    } else {
+      navigate(returnPath, {
+        state: { selectedPlace },
+      });
+    }
   };
 
   return (

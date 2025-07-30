@@ -11,6 +11,7 @@ import { TextField } from "../../components/group/main/create_exercise/TextField
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import { LocationField } from "../../components/common/LocationField";
 import { useLocation } from "react-router-dom";
+import { Location } from "../../components/common/contentcard/Location";
 
 type SelectedPlace = {
   name: string;
@@ -37,8 +38,6 @@ export const CreateExercise = () => {
   useEffect(() => {
     if (selectedPlace) {
       setLocationDetail(selectedPlace);
-      console.log(locationDetail);
-      console.log(selectedPlace);
     }
   }, [selectedPlace]);
 
@@ -69,12 +68,29 @@ export const CreateExercise = () => {
     );
   };
 
+  const onDeleteLocation = () => {
+    setLocationDetail(null);
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <PageHeader title="운동 만들기" />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">{/* 캘린더 */}</div>
-        <LocationField label="위치" />
+        <div className="flex flex-col gap-4">
+          <LocationField label="위치" icon={true} />
+
+          {locationDetail && (
+            <Location
+              isMainAddr={locationDetail.name}
+              streetAddr={locationDetail.address}
+              editMode={true}
+              onDelete={onDeleteLocation}
+              className="w-full"
+            />
+          )}
+        </div>
+
         <TimeInputField
           label="시간"
           startTime={startTime}

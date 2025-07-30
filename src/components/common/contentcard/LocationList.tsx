@@ -14,6 +14,7 @@ interface LocationListProps {
   initialClicked?: boolean;
   onClick?: (id: number, clicked: boolean) => void;
   returnPath?: string;
+  mode?: "fill-only" | "call-api";
 }
 
 export const LocationList = ({
@@ -28,6 +29,7 @@ export const LocationList = ({
   initialClicked = false,
   onClick,
   returnPath,
+  mode,
 }: LocationListProps) => {
   const navigate = useNavigate();
   const [isPressing, setIsPressing] = useState(false);
@@ -61,6 +63,7 @@ export const LocationList = ({
         {
           state: {
             returnPath: returnPath,
+            mode,
           },
         },
       );
