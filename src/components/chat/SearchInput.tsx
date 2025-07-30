@@ -5,14 +5,19 @@ import Search from "../../assets/icons/search.svg";
 interface Props {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
 }
 
-const SearchInput = ({ value, onChange }: Props) => (
+const SearchInput = ({
+  value,
+  onChange,
+  placeholder = "모임명으로 검색",
+}: Props) => (
   <div className="relative w-full h-[2.75rem] gap-2">
     <input
       type="text"
-      placeholder="모임명으로 검색"
-      className="w-full h-full pl-[0.625rem] pr-[2.5rem] rounded-[0.75rem] header-h5 placeholder:text-gy-400 border border-gy-400"
+      placeholder={placeholder}
+      className="w-full h-full pl-[0.625rem] pr-[2.5rem] rounded-xl header-h5 placeholder:text-gy-400 border border-gy-200 focus:outline-none"
       value={value}
       onChange={onChange}
     />
