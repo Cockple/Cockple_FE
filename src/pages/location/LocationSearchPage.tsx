@@ -8,6 +8,7 @@ import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import { LocationList } from "../../components/common/contentcard/LocationList";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { ProgressBar } from "../../components/common/ProgressBar";
 
 export interface Place {
   id?: string;
@@ -32,6 +33,8 @@ export const LocationSearchPage = () => {
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
   const mode = location.state?.mode ?? "fill-only";
+
+  const user = false;
 
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
@@ -148,6 +151,9 @@ export const LocationSearchPage = () => {
   return (
     <div className="flex flex-col">
       <PageHeader title="주소 검색" />
+
+      {user && <ProgressBar width={selectedId !== null ? "72" : "52"} />}
+
       <div className="flex flex-col mt-5 gap-6">
         <div className="flex flex-col w-full gap-2">
           <div className="w-full flex py-2.5 px-3 border-1 border-gy-200 border-soft">

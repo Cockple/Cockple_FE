@@ -4,6 +4,7 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import Search from "@/assets/icons/search.svg?react";
 import type { Place } from "./LocationSearchPage";
+import { ProgressBar } from "../../components/common/ProgressBar";
 
 declare global {
   interface Window {
@@ -26,6 +27,8 @@ export const LocationMapPage = () => {
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
   const mode = location.state?.mode ?? "fill-only";
+
+  const user = false;
 
   const handleSelect = (place: Place) => {
     const selectedPlace = {
@@ -73,12 +76,14 @@ export const LocationMapPage = () => {
     });
   }, [x, y]);
   return (
-    <div className="flex flex-col h-screen -mx-4">
+    <div className="flex flex-col h-dvh -mx-4 overflow-y-hidden relativ -mb-8">
       <PageHeader
         title="주소 검색"
         className="px-4"
         onBackClick={() => navigate(`/location/search?query=${query}`)}
       />
+
+      {user && <ProgressBar width="72" className="mx-4" />}
 
       <div ref={mapRef} className="w-full flex-1 relative">
         <div
@@ -90,7 +95,7 @@ export const LocationMapPage = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 w-full max-w-[444px] pt-5 pb-10 flex flex-col items-center gap-5 bg-white z-20 rounded-t-2xl">
+      <div className="absolute bottom-0 w-full max-w-[444px] pt-5 pb-10 flex flex-col items-center gap-5 bg-white z-20 rounded-t-2xl">
         <div className="flex flex-col px-2 w-86.75 items-start gap-1">
           <span className="body-md-500">{place}</span>
           <span className="body-rg-500">{address}</span>
