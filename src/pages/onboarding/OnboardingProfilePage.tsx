@@ -4,7 +4,7 @@ import ProfileImg from "../../components/common/Etc/ProfileImg";
 import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 export const OnboardingProfilePage = () => {
@@ -22,7 +22,7 @@ export const OnboardingProfilePage = () => {
   const navigate = useNavigate();
   const handleClick = () => {
     if (setProfile) {
-      navigate("/onboarding/confirm");
+      navigate("/confirm");
     } else {
       setIsProfile(true);
     }
@@ -115,7 +115,7 @@ export const OnboardingProfilePage = () => {
       </section>
       <div
         className="items-center px-3 py-1 flex justify-center mb-2"
-        onClick={() => navigate("/onboarding/confirm")}
+        onClick={() => navigate("/confirm")}
       >
         <p className="text-gy-700 body-rg-500 border-b w-fit cursor-pointer">
           기본 프로필 사용하기

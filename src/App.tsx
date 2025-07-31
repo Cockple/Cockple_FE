@@ -5,23 +5,12 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-// import { GroupPage } from "./pages/group";
-import { 
-  GroupPage,
-  GroupDetailMemberDefault,
-  MyGroupDetailMemberDefault,
-  GroupMyExerciseDetail,
-  ViceLeaderDefault,
-  EditGroupInfoDefault,
-  InviteDefault,
-} from "./pages/group";
-
+import { GroupPage } from "./pages/group";
 import { ExerciseMapPage } from "./pages/home/ExerciseMapPage";
 import { AlertPage } from "./pages/alarm/AlertPage";
 import { HomePage } from "./pages/home/HomePage";
 import {
   OnboardingAddressPage,
-  OnboardingConfirmPage,
   OnboardingInfoPage,
   OnboardingLevelPage,
   OnboardingPage,
@@ -49,7 +38,7 @@ import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";
 import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
 import useSplashStore from "./zustand/useSplashStore";
-import SplashScreen from "./pages/login/SplashScreen";
+import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
 // import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
 import { ExerciseFilterPage } from "./pages/home/ExerciseFilterPage";
@@ -60,7 +49,17 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
+import { InviteGuest } from "./pages/group/InviteGuest";
+import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
+import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
+import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
+import { GroupSelect } from "./pages/group/groupMaking/GroupSelect";
+import { ConfirmPage } from "./pages/onboarding/OnboardingConfirmPage";
+import { GroupMember } from "./pages/group/groupMaking/GroupMember";
+import { LocationSearchPage } from "./pages/location/LocationSearchPage";
+import { LocationMapPage } from "./pages/location/LocationMapPage";
+import { CreateExercise } from "./pages/group/CreateExercise";
 
 const router = createBrowserRouter([
   {
@@ -78,7 +77,6 @@ const router = createBrowserRouter([
       // { path: "address/search", element: <OnboardingAddressSearchPage /> },
       { path: "profile", element: <OnboardingProfilePage /> },
       // { path: "profile/input", element: <OnboardingProfileInputPage /> },
-      { path: "confirm", element: <OnboardingConfirmPage /> },
       { path: "confirm/start", element: <OnboardingConfirmStartPage /> },
     ],
   },
@@ -111,10 +109,10 @@ const router = createBrowserRouter([
       },
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
-      // {
-      //   path: "/mypage/myexercise/:exerciseId",
-      //   element: <MyPageExerciseDetailPage />,
-      // },
+      {
+        path: "/mypage/myexercise/:exerciseId",
+        element: <MyPageExerciseDetailPage />,
+      },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
@@ -131,20 +129,16 @@ const router = createBrowserRouter([
       { path: "/chat/group/:chatId", element: <GroupChatDetailPage /> },
       { path: "/chat/personal/:chatId", element: <PersonalChatDetailPage /> },
       { path: "/alert", element: <AlertPage /> },
-      // { path: "/group/recommend", element: <GroupRecommendPage /> },
-      //여기부터 추가함
+      { path: "/location/search", element: <LocationSearchPage /> },
+      { path: "/location/map", element: <LocationMapPage /> },
       { path: "/group/recommend", element: <GroupRecommendPage /> },
-      { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
-      { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> },
-      { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
-      { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
-      { path: "/group/admin/invite", element: <InviteDefault /> },
-
-
       {
         path: "/group/recommend-filter",
         element: <GroupRecommendFilterPage />,
+      },
+      {
+        path: "group/exercise/create",
+        element: <CreateExercise />,
       },
       {
         path: "/group/:groupId",
@@ -156,6 +150,14 @@ const router = createBrowserRouter([
           { path: "member", element: <GroupMemberPage /> },
         ],
       },
+
+      { path: "/group/detail/inviteGuest", element: <InviteGuest /> },
+      { path: "/group/making/basic", element: <GroupBasicInfo /> },
+      { path: "/group/making/activity", element: <GroupActivity /> },
+      { path: "/group/making/filter", element: <GroupFilter /> },
+      { path: "/group/making/select", element: <GroupSelect /> },
+      { path: "/group/making/member", element: <GroupMember /> },
+      { path: "/confirm", element: <ConfirmPage /> }, //onboarding과 making동시 사용
     ],
   },
 ]);

@@ -1,27 +1,44 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
-import SearchFieldBtn from "./SearchFieldBtn";
+import { useLocation, useNavigate } from "react-router-dom";
+import SearchFieldBtn from "./Search_Filed/SearchFieldBtn";
 
-interface SearchFieldProps {
+interface LocationFieldProps {
   register?: UseFormRegisterReturn;
-  onSearchClick?: () => void; //검색과 input
-  onCurrentLocationClick?: () => void; //현재 위치
   showLabel?: boolean;
-  label?: string;
+  label: string;
+  icon?: boolean;
+  returnPath?: string;
+  mode?: "fill-only" | "call-api";
 }
-export default function SearchField({
+
+export const LocationField = ({
   register,
-  onSearchClick,
-  onCurrentLocationClick,
   label,
   showLabel = true,
-}: SearchFieldProps) {
+  icon = true,
+  mode = "fill-only",
+  returnPath,
+}: LocationFieldProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleClick = () => {
+    navigate("/location/search", {
+      state: {
+        returnPath: returnPath || location.pathname,
+        mode,
+      },
+    });
+  };
   return (
     <>
       <div className="text-left flex flex-col gap-2">
         {showLabel && (
           <div className="flex px-1 gap-[2px] items-center">
             <p className="header-h5">{label}</p>
-            <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+            {icon && (
+              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+            )}
           </div>
         )}
 
@@ -31,7 +48,8 @@ export default function SearchField({
             className="w-full rounded-xl border-gy-200 border py-[0.625rem] px-3 focus:outline-none cursor-pointer placeholder:text-gy-400"
             placeholder="건물명,도로명으로 검색"
             {...register}
-            onClick={onSearchClick}
+            readOnly
+            onClick={handleClick}
           />
           <button className="cursor-pointer absolute right-2 top-3">
             <img
@@ -42,9 +60,9 @@ export default function SearchField({
           </button>
         </div>
         <div className="flex items-center justify-center ">
-          <SearchFieldBtn onClick={onCurrentLocationClick} />
+          <SearchFieldBtn onClick={handleClick} />
         </div>
       </div>
     </>
   );
-}
+};
