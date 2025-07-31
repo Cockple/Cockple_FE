@@ -141,6 +141,7 @@ export const AlertPage = () => {
                 groupName={alert.title}
                 alertText={alert.content}
                 imageSrc={alert.imgKey}
+                alertType={alert.type}
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={
                   shouldMoveToDetail(alert.type)

@@ -94,7 +94,7 @@ const BottomChatInput = ({
           onCompositionStart={onCompositionStart}
           onCompositionEnd={onCompositionEnd}
           //className="w-full max-h-[72px] resize-none overflow-auto outline-none body-md-500 leading-[24px] border-0 focus:ring-0"
-          className={`outline-0 w-full body-md-500 overflow-hidden ${isMultiLine ? "h-auto h-min-14 h-max-32" : ""}`}
+          className={`outline-0 w-full body-md-500 overflow-hidden resize-none ${isMultiLine ? "h-auto h-min-14 h-max-32" : ""}`}
           rows={1}
         />
         <Clear_M
