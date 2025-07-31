@@ -55,7 +55,7 @@ export const GroupChatDetailPage = () => {
       chatName={chatName}
       chatType="group"
       chatData={groupChatDataMap}
-      onBack={() => navigate(`/group`, { state: { tab: "group" } })}
+      onBack={() => navigate(`/chat`, { state: { tab: "group" } })}
       showHomeButton
     />
   );
