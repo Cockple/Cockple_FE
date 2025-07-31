@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
 import { useForm } from "react-hook-form";
 import { useOnboardingState } from "../../zustand/useOnboardingStore";
 

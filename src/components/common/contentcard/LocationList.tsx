@@ -6,20 +6,30 @@ interface LocationListProps {
   id: number;
   isMainAddr: string;
   streetAddr: string;
+  x?: string;
+  y?: string;
+  input?: string;
   showOnMapText?: string;
   disabled?: boolean;
   initialClicked?: boolean;
   onClick?: (id: number, clicked: boolean) => void;
+  returnPath?: string;
+  mode?: "fill-only" | "call-api";
 }
 
 export const LocationList = ({
   id,
   isMainAddr,
   streetAddr,
+  x,
+  y,
+  input,
   showOnMapText = "지도에서 보기",
   disabled = false,
   initialClicked = false,
   onClick,
+  returnPath,
+  mode,
 }: LocationListProps) => {
   const navigate = useNavigate();
   const [isPressing, setIsPressing] = useState(false);
@@ -47,7 +57,16 @@ export const LocationList = ({
   const handleViewOnMapClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
-      navigate("/mypage/edit/location/address");
+      // navigate("/mypage/edit/location/address");
+      navigate(
+        `/location/map?x=${x}&y=${y}&place=${encodeURIComponent(isMainAddr)}&address=${encodeURIComponent(streetAddr)}&query=${encodeURIComponent(input ?? "")}`,
+        {
+          state: {
+            returnPath: returnPath,
+            mode,
+          },
+        },
+      );
       console.log(`지도에서 보기 클릭: ${isMainAddr}, ${streetAddr}`);
     }
   };
@@ -91,24 +110,24 @@ export const LocationList = ({
     >
       <div className="flex flex-col items-start w-full overflow-hidden">
         <p
-          className={`body-md-500 truncate w-full ${textColor}`}
+          className={`body-md-500 truncate w-full text-left ${textColor}`}
           title={isMainAddr}
         >
           {isMainAddr}
         </p>
         <p
-          className={`body-rg-500 truncate w-full ${textColor}`}
+          className={`body-rg-500 truncate w-full text-left ${textColor}`}
           title={streetAddr}
         >
           {streetAddr}
         </p>
       </div>
 
-      <div
-        className="flex justify-end w-full cursor-pointer"
-        onClick={handleViewOnMapClick}
-      >
-        <div className="w-[6.6875rem] h-[1.75rem] flex items-center gap-[0.625rem] overflow-hidden">
+      <div className="flex justify-end w-full cursor-pointer">
+        <div
+          className="w-[6.6875rem] h-[1.75rem] flex items-center gap-[0.625rem] overflow-hidden"
+          onClick={handleViewOnMapClick}
+        >
           <p
             className={`body-rg-400 truncate ${textColor} w-full`}
             title={showOnMapText}
