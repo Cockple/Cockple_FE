@@ -45,6 +45,8 @@ export const AlertPage = () => {
     navigate(`/group/${groupId}`); // 필요 시 id 기반 라우팅
   };
 
+  //모임 초대 수락 api
+  //알림 invite_accept patch
   const confirmApprove = () => {
     if (targetId !== null) {
       //     try {
