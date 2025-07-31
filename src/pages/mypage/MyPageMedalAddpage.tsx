@@ -178,7 +178,7 @@ export const MyPageMedalAddPage = () => {
   };
   console.log(tournamentName, selectedDate, selectedForm);
   return (
-    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-14">
+    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-2">
       <div className="flex-shrink-0 sticky top-0 z-20 bg-white ">
         <PageHeader title="대회 기록 추가하기" onBackClick={onBackClick} />
         {isModalOpen && (
