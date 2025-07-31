@@ -39,7 +39,11 @@ export const MainHeader = ({
           </span>
         </DropDownBtn>
 
-        <button type="button" className="p-1">
+        <button
+          type="button"
+          className="p-1"
+          onClick={() => navigate("/alert")}
+        >
           <img
             src={alertIcon}
             className="w-6 cursor-pointer"

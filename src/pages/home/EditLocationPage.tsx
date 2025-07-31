@@ -3,6 +3,8 @@ import DynamicBtn from "../../components/common/DynamicBtn/DynamicBtn";
 import { LocationField } from "../../components/common/LocationField";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { Location } from "../../components/common/contentcard/Location";
+import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
+import { useNavigate } from "react-router-dom";
 
 const testData = [
   {
@@ -29,8 +31,9 @@ const testData = [
 
 export const EditLocationPage = () => {
   const [edit, setEdit] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(1);
   const [locationList, setLocationList] = useState(testData);
+  const navigate = useNavigate();
 
   const handleDelete = (id: number) => {
     setLocationList(prev => prev.filter(item => item.id !== id));
@@ -72,6 +75,12 @@ export const EditLocationPage = () => {
           ))}
         </div>
       </div>
+
+      {!edit && (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
+          <Grad_GR400_L label="수정 완료" onClick={() => navigate(-1)} />
+        </div>
+      )}
     </div>
   );
 };
