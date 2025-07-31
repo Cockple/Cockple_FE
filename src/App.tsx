@@ -141,32 +141,14 @@ const router = createBrowserRouter([
           { path: "member", element: <GroupMemberPage /> },
         ],
       },
-      //일단 임시방편..
-      {
-        path: "/group/detail/inviteGuest",
-        element: <InviteGuest />,
-      },
-      {
-        path: "/group/making/basic",
-        element: <GroupBasicInfo />,
-      },
-      {
-        path: "/group/making/activity",
-        element: <GroupActivity />,
-      },
-      {
-        path: "/group/making/filter",
-        element: <GroupFilter />,
-      },
-      {
-        path: "/group/making/select",
-        element: <GroupSelect />,
-      },
-      {
-        path: "/group/making/member",
-        element: <GroupMember />,
-      },
-      { path: "/confirm", element: <ConfirmPage /> },
+
+      { path: "/group/detail/inviteGuest", element: <InviteGuest /> },
+      { path: "/group/making/basic", element: <GroupBasicInfo /> },
+      { path: "/group/making/activity", element: <GroupActivity /> },
+      { path: "/group/making/filter", element: <GroupFilter /> },
+      { path: "/group/making/select", element: <GroupSelect /> },
+      { path: "/group/making/member", element: <GroupMember /> },
+      { path: "/confirm", element: <ConfirmPage /> }, //onboarding과 making동시 사용
     ],
   },
 ]);
