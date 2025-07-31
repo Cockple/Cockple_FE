@@ -5,7 +5,15 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-import { GroupPage } from "./pages/group";
+import { 
+  GroupPage,
+  GroupDetailMemberDefault,
+  MyGroupDetailMemberDefault,
+  GroupMyExerciseDetail,
+  ViceLeaderDefault,
+  EditGroupInfoDefault,
+  InviteDefault,
+} from "./pages/group";
 import { ExerciseMapPage } from "./pages/home/ExerciseMapPage";
 import { AlertPage } from "./pages/alarm/AlertPage";
 import { HomePage } from "./pages/home/HomePage";
@@ -109,10 +117,10 @@ const router = createBrowserRouter([
       },
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
-      {
-        path: "/mypage/myexercise/:exerciseId",
-        element: <MyPageExerciseDetailPage />,
-      },
+      // {
+      //   path: "/mypage/myexercise/:exerciseId",
+      //   element: <MyPageExerciseDetailPage />,
+      // },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
@@ -132,6 +140,15 @@ const router = createBrowserRouter([
       { path: "/location/search", element: <LocationSearchPage /> },
       { path: "/location/map", element: <LocationMapPage /> },
       { path: "/group/recommend", element: <GroupRecommendPage /> },
+
+      // 연두 모임 여기부터 추가함 제발~~~ 올라가ㅏ아아
+      { path: "/group/detail", element: <GroupDetailMemberDefault /> },
+      { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
+      { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> },
+      { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
+      { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
+      { path: "/group/admin/invite", element: <InviteDefault /> },
+
       {
         path: "/group/recommend-filter",
         element: <GroupRecommendFilterPage />,

@@ -403,10 +403,12 @@ export const MyPageEditPage = ({
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4"
                 />
               </button>
-
               {open && !disabled && (
                 <div className="absolute mt-1 z-10 w-40">
-                  <ul className="border rounded-xl border-gy-200 bg-white shadow text-left">
+                  <ul
+                    className="border rounded-xl border-gy-200 bg-white shadow text-left"
+                    style={{ maxHeight: '8.5rem', overflowY: 'auto' }} 
+                  >
                     {level.map((item, idx) => (
                       <li
                         key={idx}
@@ -422,6 +424,7 @@ export const MyPageEditPage = ({
                   </ul>
                 </div>
               )}
+
             </div>
 
             {/* 급수 없음 토글 */}

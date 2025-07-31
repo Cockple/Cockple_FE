@@ -368,7 +368,10 @@ export const MyPageMedalAddPage = () => {
 
                 {open && !disabled && (
                   <div className="absolute mt-1 z-10 w-40">
-                    <ul className="border rounded-xl border-gy-200 bg-white shadow text-left">
+                    <ul
+                      className="border rounded-xl border-gy-200 bg-white shadow text-left"
+                      style={{ maxHeight: '8.5rem', overflowY: 'auto' }}
+                    >
                       {level.map((item, idx) => (
                         <li
                           key={idx}
