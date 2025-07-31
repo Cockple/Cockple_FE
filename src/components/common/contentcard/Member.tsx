@@ -1,11 +1,18 @@
 import ProfileImage from "../../../assets/icons/ProfileImage.svg?react";
 import Prohibition from "../../../assets/icons/prohibition.svg?react";
-import StarIcon  from "../../../assets/icons/star_filled_GR.svg?react";
+import StarIcon from "../../../assets/icons/star_filled_GR.svg?react";
+import YEStarIcon from "../../../assets/icons/star_filled_YE.svg?react";
+import Star from "../../../assets/icons/star.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Message from "../../../assets/icons/message.svg?react";
-import { Modal_Subtract_Leader } from "../../MyPage/Modal_Subtract_Leader";
+import { Modal_Apply } from "../../group/Modal_Apply";
+import { Modal_Invite } from "../../group/Modal_Invite";
+
+import { Modal_Subtract } from "../../group/Modal_Subtract";
 import { useState } from "react";
+import type { ModalConfig } from "../../group/modalConfig";
+import { getModalConfig } from "../../group/modalConfig";
 
 type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
 
@@ -18,21 +25,42 @@ interface MemberProps {
   showStar?: boolean;
   isGuest?: boolean;
   guestName?: string;
+  number?: number;
+  isMe?: boolean;
+  isLeader?: boolean;
+
   onAccept?: () => void;
   onReject?: () => void;
   onClick?: () => void;
   onDelete?: () => void;
+  imgUrl?: string | null;
+  position?: string | null;
+  canCancel?: boolean;
+//모달창 나오는 글 화면에 따라 다르게 나오게
+  showDeleteButton?: boolean;
+  modalConfig?: {
+    title: string;
+    messages: string[];
+    confirmLabel: string;
+    onConfirm?: () => void;
+  };
+//부모임장 지정
+  onAppointClick?: () => void;
+  selectMode?: boolean;
+
 }
 
-export type { MemberProps };  
+export type { MemberProps };
 
 const MemberInfo = ({
   name,
   gender,
   level,
-  isGuest = false,
+  isGuest,
   guestName,
-  showStar = false,
+  showStar,
+  isLeader,
+  position,
 }: {
   name: string;
   gender: "male" | "female";
@@ -40,13 +68,17 @@ const MemberInfo = ({
   isGuest?: boolean;
   guestName?: string;
   showStar?: boolean;
-
+  isLeader?: boolean;
+  position?: string | null;
 }) => {
   return (
     <div className="flex flex-col justify-center gap-[0.25rem] w-[9.75rem] h-[2.75rem]">
       <div className="flex items-center gap-1">
         <p className="header-h5 text-black">{name}</p>
-        {showStar && <StarIcon className="w-[1rem] h-[1rem]" />}
+          {isLeader && <StarIcon className="w-[1rem] h-[1rem]" />}
+          {!isLeader && position === "sub_leader" && (
+          <YEStarIcon className="w-[1rem] h-[1rem]" />
+        )}      
       </div>
       <div className="flex items-center gap-[0.25rem] body-sm-500">
         {gender === "female" ? (
@@ -58,9 +90,7 @@ const MemberInfo = ({
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
-            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
-              {guestName}
-            </p>
+            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">{guestName}</p>
           </>
         )}
       </div>
@@ -77,66 +107,120 @@ export const Member = ({
   showStar,
   isGuest,
   guestName,
+  number,
   onAccept,
   onReject,
   onClick,
-  onDelete, 
-}: MemberProps) => {
-  //모달창 ->  서버장일때에만 가능하도록 수정
+  onDelete,
+  isMe = false,
+  isLeader = false,
+  position = null,  
+  showDeleteButton = false,
+  modalConfig: propModalConfig,
+//부모임장 선택시
+  selectMode,
+  onAppointClick,
+
+}: MemberProps & { modalConfig?: ModalConfig }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const modalConfig = propModalConfig ?? getModalConfig(status, isLeader, isMe, name);
+
+  const handleConfirm = () => {
+    if (modalConfig?.onConfirm) {
+      modalConfig.onConfirm(); 
+    } else {
+      onDelete?.(); 
+    }
+    setIsModalOpen(false); 
+  };
+
+
+  const renderModal = () => {
+    if (!isModalOpen || !modalConfig) return null;
+
+    return (
+        <Modal_Subtract
+          title={modalConfig.title}
+          messages={modalConfig.messages}
+          confirmLabel={modalConfig.confirmLabel}
+          onCancel={() => setIsModalOpen(false)}
+          onConfirm={handleConfirm}
+        />
+    );
+  };
 
   const renderContent = () => {
     switch (status) {
       case "Participating":
+      case "waiting":
         return (
-
           <div className="relative">
             <div
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">No. 00</p>
+              <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
-              <MemberInfo {...{ name, gender, level, showStar, isGuest, guestName }} />
-              <Prohibition
-                className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsModalOpen(true);
-                }}
-              />
-            </div>
-
-            {isModalOpen && (
-              <div className="absolute z-50 top-[5rem] left-1/2 -translate-x-1/2">
-                <Modal_Subtract_Leader
-                  onClose={() => setIsModalOpen(false)}
-                  onConfirm={() => {
-                    setIsModalOpen(false);
-                    onDelete?.(); // 삭제
+              <MemberInfo
+                name={name}
+                gender={gender}
+                level={level}
+                isGuest={isGuest}
+                guestName={guestName}
+                showStar={showStar}
+                isLeader={isLeader}        
+                position={position ?? null}  
+                />
+              {selectMode && !isLeader && (
+                <Star
+                  className="w-6 h-6 ml-auto cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAppointClick?.();
                   }}
                 />
-              </div>
-            )}
-          </div>
-        );
+              )}
+              {showDeleteButton && (
+                  <Prohibition
+                    className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsModalOpen(true);
+                        console.log("삭제 버튼 클릭됨, 모달 상태:", true);
+                    }}
+                  />
+                )}
 
-      case "waiting":
-        return (
-          <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
-            <p className="body-md-500">대기00</p>
-            <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
-            <MemberInfo {...{ name, gender, level, isGuest }} />
-            <Prohibition className="w-[2rem] h-[2rem] ml-auto" />
-          </div>
-        );
+                </div>
+                {renderModal()}
+              </div>
+            );
 
       case "invite":
         return (
           <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
             <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
             <MemberInfo {...{ name, gender, level }} />
-            <Message className="w-[2rem] h-[2rem] ml-auto" />
+            <Message 
+              className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsApplyModalOpen(true);
+                console.log("삭제 버튼 클릭됨, 모달 상태:", true);
+              }}
+              />
+              {isApplyModalOpen && (
+                <Modal_Invite
+                  onConfirm={() => {
+                    setIsApplyModalOpen(false);
+                  }}
+                  onCancel={() => {
+                    setIsApplyModalOpen(false);
+                  }}
+                />
+              )}
+
           </div>
         );
 
@@ -151,7 +235,11 @@ export const Member = ({
                 </div>
                 <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
                   <div className="flex items-center gap-[0.25rem]">
-                    <Female className="w-[1rem] h-[1rem]" />
+                    {gender === "female" ? (
+                      <Female className="w-[1rem] h-[1rem]" />
+                    ) : (
+                      <Male className="w-[1rem] h-[1rem]" />
+                    )}
                     <p className="whitespace-nowrap">{level}</p>
                   </div>
                   <p className="whitespace-nowrap">{birth}</p>
@@ -186,7 +274,11 @@ export const Member = ({
                 </div>
                 <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
                   <div className="flex items-center gap-[0.25rem]">
-                    <Female className="w-[1rem] h-[1rem]" />
+                    {gender === "female" ? (
+                      <Female className="w-[1rem] h-[1rem]" />
+                    ) : (
+                      <Male className="w-[1rem] h-[1rem]" />
+                    )}
                     <p className="whitespace-nowrap">{level}</p>
                   </div>
                   <p className="whitespace-nowrap">{birth}</p>

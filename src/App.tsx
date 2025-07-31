@@ -20,7 +20,7 @@ import {
   MyPage,
   MyPageEditLocationPage,
   MyPageEditPage,
-  MyPageExerciseDetailPage,
+  // MyPageExerciseDetailPage,
   MyPageMedalAddPage,
   MyPageMedalDetailPage,
   MyPageMyExercisePage,
