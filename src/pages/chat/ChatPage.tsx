@@ -27,52 +27,6 @@ export const ChatPage = () => {
     { label: "개인채팅", value: "personal" },
   ];
 
-  // 더미 데이터
-  // const groupChats = [
-  //   {
-  //     id: 1,
-  //     imageSrc: ChatImg,
-  //     chatName: "민턴콕콕",
-  //     memberCount: 10,
-  //     lastMessage:
-  //       "오늘 운동 오실래요???오늘 운동 오실래요???오늘 운동 오실래요??",
-  //     lastMessageTime: "10:00 am",
-  //     unreadCount: 10,
-  //   },
-
-  //   {
-  //     id: 2,
-  //     imageSrc: ChatImg,
-  //     chatName: "민턴콱콱",
-  //     memberCount: 10,
-  //     lastMessage:
-  //       "오늘 운동 오실래요???오늘 운동 오실래요???오늘 운동 오실래요??",
-  //     lastMessageTime: "10:00 am",
-  //     unreadCount: 10,
-  //   },
-  //   {
-  //     id: 3,
-  //     imageSrc: ChatImg,
-  //     chatName: "민턴콱콱!",
-  //     memberCount: 10,
-  //     lastMessage:
-  //       "오늘 운동 오실래요???오늘 운동 오실래요???오늘 운동 오실래요??",
-  //     lastMessageTime: "10:00 am",
-  //     unreadCount: 10,
-  //   },
-  // ];
-
-  // const personalChats = [
-  //   {
-  //     id: 100,
-  //     imageSrc: ChatImg,
-  //     userName: "김세익스피어",
-  //     lastMessage: "민턴클로버",
-  //     lastMessageTime: "08:00 am",
-  //     unreadCount: 12,
-  //   },
-  // ];
-
   // 전체 사용 문자
   const allChatNames = [
     ...groupChats.map((c: GroupChatRoom) => c.partyName),

@@ -18,18 +18,7 @@ export const AlertPage = () => {
 
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  // const [approvedList, setApprovedList] = useState<
-  //   { id: number; date: string }[]
-  // >([]);
   const [targetId, setTargetId] = useState<number | null>(null);
-
-  // const getTodayDate = (): string => {
-  //   const today = new Date();
-  //   const year = today.getFullYear();
-  //   const month = String(today.getMonth() + 1).padStart(2, "0");
-  //   const date = String(today.getDate()).padStart(2, "0");
-  //   return `${year}.${month}.${date} 승인 완료`;
-  // };
 
   const [notifications, setNotifications] = useState(alertList); // 상태 관리, 승인 클릭시 type=invite->simple
 
@@ -109,87 +98,12 @@ export const AlertPage = () => {
           </div>
         ) : (
           notifications.map(alert => {
-            // 이미 승인된 경우 → AlertInviteApproved 렌더링
-            // const approved = approvedList.find(a => a.id === alert.id);
-            // if (alert.type === "invite" && approved) {
-            //   return (
-            //     <AlertInviteApproved
-            //       key={alert.id}
-            //       groupName={alert.groupName}
-            //       alertText={alert.alertText}
-            //       imageSrc={alert.imageSrc}
-            //       approvedDate={approved.date}
-            //     />
-            //   );
-            // }
-
-            // switch (alert.type) {
-            //   case "invite":
-            //     return (
-            //       <AlertInvite
-            //         key={alert.id}
-            //         groupName={alert.groupName}
-            //         alertText={alert.alertText}
-            //         imageSrc={alert.imageSrc}
-            //         onAccept={() => handleAccept(alert.id)}
-            //         onReject={() => handleReject(alert.id)}
-            //       />
-            //     );
-            //   case "change":
-            //     return (
-            //       <AlertChange
-            //         key={alert.id}
-            //         groupName={alert.groupName}
-            //         alertText={alert.alertText}
-            //         imageSrc={alert.imageSrc}
-            //         onClick={() => handleDetail(alert.id)}
-            //       />
-            //     );
-            //   case "simple":
-            //     return (
-            //       <AlertShadow
-            //         key={alert.id}
-            //         groupName={alert.groupName}
-            //         alertText={alert.alertText}
-            //         imageSrc={alert.imageSrc}
-            //       />
-            //     );
-            //   default:
-            //     return null;
-            // }
-            // if (alert.type === "invite") {
-            //   return (
-            //     <AlertInvite
-            //       key={alert.notificationId}
-            //       groupName={alert.title}
-            //       alertText={alert.content}
-            //       imageSrc={alert.imageSrc}
-            //       onAccept={() => handleAccept(alert.notificationId)}
-            //       onReject={() => handleReject(alert.notificationId)}
-            //     />
-            //   );
-            // } else {
-            //   return (
-            //     <AlertTest1
-            //       key={alert.notificationId}
-            //       groupName={alert.title}
-            //       alertText={alert.content}
-            //       imageSrc={alert.imageSrc}
-            //       descriptionText={getDescriptionText(alert.type)}
-            //       onClick={
-            //         shouldMoveToDetail(alert.type)
-            //           ? () => handleDetail(alert.groupId)
-            //           : undefined
-            //       }
-            //     />
-            //   );
-            // }
             return alert.type === "invite" ? (
               <AlertInvite
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imageSrc}
+                imageSrc={alert.imgKey}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -198,7 +112,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imageSrc}
+                imageSrc={alert.imgKey}
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={
                   shouldMoveToDetail(alert.type)

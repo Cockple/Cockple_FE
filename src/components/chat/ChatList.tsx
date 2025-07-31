@@ -74,7 +74,7 @@ const ChatList = ({
               className="border-b border-gy-200 pb-1"
             >
               <PersonalChat
-                imageSrc="src/assets/images/base_profile_img.png"
+                imageSrc={chat.otherMember.profileImageUrl}
                 userName={chat.otherMember.memberName}
                 lastMessage={chat.lastMessage.content}
                 lastMessageTime={chat.lastMessage.timestamp}
