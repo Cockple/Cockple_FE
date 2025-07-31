@@ -16,7 +16,7 @@ export default function WeeklyCalendar({
   // selectedDate,
   onClick,
   exerciseDays = [],
-  shadow = false,
+  shadow = true,
 }: WeeklyCalendarProps) {
   const today = new Date();
   const range = 90;

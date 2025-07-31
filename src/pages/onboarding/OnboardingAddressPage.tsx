@@ -16,7 +16,7 @@ export const OnboardingAddressPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col mt-14">
       <PageHeader title="회원 정보 입력" />
       <ProgressBar width="52" />
 

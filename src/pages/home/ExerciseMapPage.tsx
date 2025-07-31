@@ -243,7 +243,7 @@ export const ExerciseMapPage = () => {
 
   return (
     <div className="flex flex-col items-center h-screen -mx-4 -mb-8">
-      <PageHeader title="지도로 운동 찾기" className="px-4" />
+      <PageHeader title="지도로 운동 찾기" />
       <div className="relative w-full flex-1 bg-gy-400" ref={mapRef}>
         <div className="absolute flex items-center gap-2 top-3 left-1/2 -translate-x-1/2 w-25 h-7 py-1 pl-2 pr-1.5 border-hard bg-white z-10">
           <span className="body-rg-500">05.05 (월)</span>

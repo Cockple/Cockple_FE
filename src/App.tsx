@@ -68,6 +68,7 @@ import { GroupMember } from "./pages/group/groupMaking/GroupMember";
 import { LocationSearchPage } from "./pages/location/LocationSearchPage";
 import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
+import { EditLocationPage } from "./pages/home/EditLocationPage";
 
 const router = createBrowserRouter([
   {
@@ -105,10 +106,13 @@ const router = createBrowserRouter([
   {
     element: (
       <PrivateRoute>
-        <Outlet />
+        <div className="pt-14">
+          <Outlet />
+        </div>
       </PrivateRoute>
     ), // 로그인 필요하지만 navbar 없는 layout
     children: [
+      { path: "/edit/location", element: <EditLocationPage /> },
       { path: "/mypage/edit", element: <MyPageEditPage /> },
       { path: "/mypage/edit/location", element: <MyPageEditLocationPage /> },
       {
