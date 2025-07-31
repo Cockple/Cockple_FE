@@ -1,6 +1,6 @@
 import { SwiperSlide, Swiper } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import LoginSwiping from "./LoginSwiping";
+import LoginSwiping from "../../components/login/LoginSwiping";
 
 export const LoginPage = () => {
   const TextMap = [
@@ -47,7 +47,7 @@ export const LoginPage = () => {
         </Swiper>
       </div>
 
-      <div className="mb-6 mt-17">
+      <div className="mb-2 mt-20">
         <button className="bg-[#FEE500] w-full rounded-lg py-3 px-4 relative">
           카카오 로그인
           <img
