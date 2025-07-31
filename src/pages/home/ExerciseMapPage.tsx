@@ -264,7 +264,7 @@ export const ExerciseMapPage = () => {
         </div>
       </div>
       {calendar && (
-        <div className="z-10">
+        <div className="z-50">
           <ExerciseMapCalendar onClose={() => setCalendar(false)} />
         </div>
       )}
