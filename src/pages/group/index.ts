@@ -7,4 +7,6 @@ export { GroupMyExerciseDetail } from "./MyGroupDetail/GroupMyExerciseDetail";
 export { ViceLeaderDefault } from "./AdminMenu/ViceLeaderDefault";
 export { EditGroupInfoDefault } from "./AdminMenu/EditGroupInfoDefault";
 export { InviteDefault } from "./AdminMenu/InviteDefault";
+export { GroupExerciseDetail } from "./MyGroupDetail/GroupExerciseDetail";
+
 

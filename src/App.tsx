@@ -7,6 +7,7 @@ import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
 import { 
   GroupPage,
+  GroupExerciseDetail,
   GroupDetailMemberDefault,
   MyGroupDetailMemberDefault,
   GroupMyExerciseDetail,
@@ -144,10 +145,12 @@ const router = createBrowserRouter([
       // 연두 모임 여기부터 추가함 제발~~~ 올라가ㅏ아아
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
       { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
-      { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> },
+      { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> }, 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
       { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
       { path: "/group/admin/invite", element: <InviteDefault /> },
+      // 누락된 부분 발견
+      { path: "/group/GroupExerciseDetail", element: <GroupExerciseDetail /> },
 
       {
         path: "/group/recommend-filter",

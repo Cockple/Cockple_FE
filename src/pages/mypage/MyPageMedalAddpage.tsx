@@ -4,7 +4,7 @@ import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { ImageBox } from "../../components/common/ImageBox";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import Camera from "../../assets/icons/camera.svg?react";
-import VectorRed from "../../assets/icons/Vector_red.svg?react";
+import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import Kitty from "../../assets/images/Image Carousel.png";
 import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import { Modal_Add_Caution } from "../../components/MyPage/Modal_Add_Caution";
@@ -196,7 +196,7 @@ export const MyPageMedalAddPage = () => {
         )}
       </div>
 
-      <div className="flex-grow min-h-0 overflow-y-auto">
+      <div className="flex-grow min-h-0 overflow-y-auto scrollbar-hide">
         <div className="flex flex-col gap-8">
           <>
             <input
@@ -245,7 +245,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               대회명
-              <VectorRed className="ml-1 w-2 h-2" />
+              <CicleSRED/>
             </label>
             <div className="relative">
               <input
@@ -268,7 +268,7 @@ export const MyPageMedalAddPage = () => {
             <label className="flex items-center text-left header-h5 mb-1">
               수상
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full items-center justify-center">
               {images.map((_, i) => (
                 <ImageBox
                   key={i}
@@ -324,7 +324,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               참여 형태
-              <VectorRed className="ml-1 w-2 h-2" />
+              <CicleSRED/>
             </label>
             <div className="flex gap-4">
               {formOptions.map(item => (

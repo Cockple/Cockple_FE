@@ -1,6 +1,6 @@
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import { useState, useEffect, useRef } from "react";
-import VectorRed from "../../../assets/icons/Vector_red.svg?react";
+import CicleSRED from "../../../assets/icons/cicle_s_red.svg?react";
 import Camera from "../../../assets/icons/camera.svg?react"; 
 import Dismiss_Gy800 from "../../../assets/icons/dismiss_gy800.svg?react"; 
 import { CheckBox_Long_noButton } from "../../../components/MyPage/CheckBox_Long_noButton";
@@ -121,7 +121,7 @@ export const EditGroupInfoDefault = () => {
       <div>
         <label className="flex items-center text-left header-h5 mb-1">
           활동 요일
-          <VectorRed className="ml-1 w-2 h-2" />
+          <CicleSRED/>
         </label>
         <MultiSelectButtonGroup
           options={dayOptions}
@@ -134,7 +134,7 @@ export const EditGroupInfoDefault = () => {
       <div>
         <label className="flex items-center text-left header-h5 mb-1">
           활동 시간
-          <VectorRed className="ml-1 w-2 h-2" />
+          <CicleSRED/>
         </label>
         <MultiSelectButtonGroup
           options={timeOptions}
@@ -146,7 +146,7 @@ export const EditGroupInfoDefault = () => {
       
     <div>
         <div className="flex justify-between items-start">
-            <CheckBox_Long_noButton title="지정콕" maxLength={20} Label="없음" showIcon={true}    onChange={(checked, value) => setDesignatedText(value)}/>
+            <CheckBox_Long_noButton title="지정콕" maxLength={20} Label="없음" showIcon={true} showLengthIndicator={true} onChange={(checked, value) => setDesignatedText(value)}/>
         </div>
         <div className="flex justify-between items-start">
             <CheckBox_Long_noButton title="가입비" maxLength={100} Label="없음" showIcon={true} onChange={(checked, value) => setJoinFeeText(value)}/>
