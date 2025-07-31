@@ -17,6 +17,7 @@ export const RecommendPage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+  const [recommend, setRecommend] = useState(false);
   const data = groupExerciseData;
   const { region, level, style, time } = useExerciseFilterStore();
   const filterState = { region, level, style, time };
@@ -29,7 +30,10 @@ export const RecommendPage = () => {
           <WeeklyCalendar shadow={false} />
         </div>
         <div className="flex justify-between w-full h-7">
-          <CheckBoxBtn>
+          <CheckBoxBtn
+            checked={recommend}
+            onClick={() => setRecommend(!recommend)}
+          >
             <span>콕플 추천</span>
           </CheckBoxBtn>
 
@@ -37,6 +41,7 @@ export const RecommendPage = () => {
             <FilterBtn
               onClick={() => navigate("/recommend/filter")}
               forceStatus={filterStatus}
+              disabled={recommend}
             >
               <span>필터</span>
             </FilterBtn>
@@ -46,6 +51,7 @@ export const RecommendPage = () => {
               label={sortOption}
               isOpen={isSortOpen}
               onClick={() => setIsSortOpen(!isSortOpen)}
+              disabled={recommend}
             />
           </div>
         </div>

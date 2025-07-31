@@ -16,7 +16,7 @@ export const GroupRecommendPage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
-  const [recommend, setRecommend] = useState(true);
+  const [recommend, setRecommend] = useState(false);
   const { region, level, style, day, time, keyword } =
     useGroupRecommendFilterState();
   const filterState = { region, level, style, day, time, keyword };

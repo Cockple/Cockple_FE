@@ -3,14 +3,12 @@ import { useNavigate } from "react-router-dom";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import LocationIcon from "../../assets/icons/mylocation.svg";
 import Camer_gy_400 from "../../assets/icons/camera_gy_400.svg?react";
 import VectorRed from "../../assets/icons/Vector_red.svg?react";
 import Female from "../../assets/icons/female.svg?react";
 import Male from "../../assets/icons/male.svg?react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
-import Search from "../../assets/icons/search.svg?react";
 import { Location } from "../../components/common/contentcard/Location";
 import { Modal_Caution } from "../../components/MyPage/Modal_Caution";
 import TextBox from "../../components/common/Text_Box/TextBox";
@@ -46,7 +44,6 @@ export const MyPageEditPage = ({
   rank: initialRankProp,
   hasNoRank: initialHasNoRankProp,
   locations: initialLocationsProp = [],
-  location,
   // isMainAddr="ㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
   // streetAddr="ㅈ돋ㅁㅎㄱ",
   // isMainAddr,

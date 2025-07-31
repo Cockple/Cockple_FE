@@ -273,6 +273,7 @@ export const ExerciseMapPage = () => {
       {selectedLocationId && (
         <motion.div
           drag={enableDrag ? "y" : false}
+          dragElastic={0.2}
           initial={false}
           dragConstraints={{ top: 0, bottom: 0 }}
           onDragEnd={handleDragEnd}
