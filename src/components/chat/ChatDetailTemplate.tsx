@@ -13,6 +13,7 @@ import { formatTime } from "../../utils/formatDate";
 //import { getLocalDateString } from "../../utils/getLocalDateString";
 
 import type { ChatMessageResponse } from "../../types/chat";
+import { useNavigate } from "react-router-dom";
 
 interface ChatDetailTemplateProps {
   chatId: string;
@@ -21,6 +22,7 @@ interface ChatDetailTemplateProps {
   chatData: Record<string, ChatMessageResponse[]>;
   onBack: () => void;
   showHomeButton?: boolean;
+  partyId?: number;
 }
 
 export const ChatDetailTemplate = ({
@@ -29,6 +31,7 @@ export const ChatDetailTemplate = ({
   chatData,
   onBack,
   showHomeButton = false,
+  partyId,
 }: ChatDetailTemplateProps) => {
   const [chattings, setChattings] = useState<ChatMessageResponse[]>([]);
   const [input, setInput] = useState("");
@@ -39,6 +42,8 @@ export const ChatDetailTemplate = ({
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const currentUserId = 999;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (chatId && chatData[chatId]) {
@@ -184,14 +189,17 @@ export const ChatDetailTemplate = ({
           <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
             <ChatBtn
               imgSrc={ProfileImg}
-              onClick={() => console.log("모임 홈으로 이동")}
+              onClick={() => {
+                navigate(`/group/${partyId}`);
+                console.log(`/group/${partyId}로 이동`);
+              }}
             >
               모임 홈으로
             </ChatBtn>
           </div>
         )}
 
-        <div className="flex flex-col gap-5 shrink-0 p-4 pb-[3rem]">
+        <div className="flex flex-col gap-5 shrink-0 p-4">
           {/* {chattings.map(chat => (
             <ChattingComponent
               key={chat.id}

@@ -3,7 +3,7 @@ import type { GroupChatRoom } from "../../types/chat";
 export const groupChats: GroupChatRoom[] = [
   {
     chatRoomId: 1,
-    partyId: 101,
+    partyId: 1,
     partyName: "민턴콕콕",
     memberCount: 10,
     unreadCount: 10,
@@ -17,7 +17,7 @@ export const groupChats: GroupChatRoom[] = [
   },
   {
     chatRoomId: 2,
-    partyId: 102,
+    partyId: 2,
     partyName: "민턴콱콱",
     memberCount: 10,
     unreadCount: 10,
