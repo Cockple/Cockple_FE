@@ -15,6 +15,7 @@ import { Location } from "../../components/common/contentcard/Location";
 import { Modal_Caution } from "../../components/MyPage/Modal_Caution";
 import TextBox from "../../components/common/Text_Box/TextBox";
 import { useForm } from "react-hook-form";
+import { LocationField } from "../../components/common/LocationField";
 
 interface LocationType {
   id: number;
@@ -407,7 +408,7 @@ export const MyPageEditPage = ({
                 <div className="absolute mt-1 z-10 w-40">
                   <ul
                     className="border rounded-xl border-gy-200 bg-white shadow text-left"
-                    style={{ maxHeight: '8.5rem', overflowY: 'auto' }} 
+                    style={{ maxHeight: "8.5rem", overflowY: "auto" }}
                   >
                     {level.map((item, idx) => (
                       <li
@@ -424,7 +425,6 @@ export const MyPageEditPage = ({
                   </ul>
                 </div>
               )}
-
             </div>
 
             {/* 급수 없음 토글 */}
@@ -451,38 +451,7 @@ export const MyPageEditPage = ({
         </div>
 
         {/* 위치 */}
-        <div className="mb-2">
-          <label className="flex items-center text-left mb-1 header-h5">
-            위치
-            <VectorRed className="ml-1 w-2 h-2" />
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={location}
-              placeholder="건물명, 도로명으로 검색"
-              className="w-full border rounded-xl	p-2 pr-14 body-md-500  text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
-              onClick={() => navigate("/myPage/edit/location")}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Search className="w-6 h-6" />
-            </span>
-          </div>
-        </div>
-
-        {/* 위치 버튼 */}
-        <Btn_Static
-          kind="GY100"
-          size="L_Thin"
-          label="현재 위치 불러오기"
-          iconMap={{
-            default: LocationIcon,
-            pressing: LocationIcon,
-            clicked: LocationIcon,
-          }}
-          iconSize="w-[1.125rem] h-[1.125rem]"
-          onClick={() => navigate("/myPage/edit/location/address")}
-        />
+        <LocationField label="위치" />
 
         {/* 등록된 위치 */}
         <div className="mt-8">
