@@ -115,7 +115,7 @@ export const OnboardingProfilePage = () => {
       </section>
       <div
         className="items-center px-3 py-1 flex justify-center mb-2"
-        onClick={() => navigate("/onboarding/confirm")}
+        onClick={() => navigate("/confirm")}
       >
         <p className="text-gy-700 body-rg-500 border-b w-fit cursor-pointer">
           기본 프로필 사용하기
