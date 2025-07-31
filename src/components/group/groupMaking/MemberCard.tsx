@@ -1,4 +1,4 @@
-import type { MemberProps } from "../../../components/common/contentcard/Member";
+import type { MemberProps } from "../../common/contentcard/Member";
 import Message from "../../../assets/icons/message.svg?react";
 import MemberInfo from "./MemberInfo";
 import ProfileImage from "../../../assets/icons/ProfileImage.svg?react";

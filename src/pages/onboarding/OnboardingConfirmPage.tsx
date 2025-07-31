@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import TagBtn from "../../components/common/DynamicBtn/TagBtn";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();

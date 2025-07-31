@@ -1,8 +1,8 @@
 //아이콘
 import Dismiss from "../../../assets/icons/dismiss.svg";
 import Message from "../../../assets/icons/message.svg";
-import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
-import GY800_S from "../../../components/common/Btn_Static/Text/GY800_S";
+import Btn_Static from "../../common/Btn_Static/Btn_Static";
+import GY800_S from "../../common/Btn_Static/Text/GY800_S";
 
 interface InviteModalProps {
   onClose: () => void;

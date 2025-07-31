@@ -38,7 +38,7 @@ import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";
 import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
 import useSplashStore from "./zustand/useSplashStore";
-import SplashScreen from "./pages/login/SplashScreen";
+import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
 // import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
 import { ExerciseFilterPage } from "./pages/home/ExerciseFilterPage";
@@ -51,12 +51,12 @@ import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
 import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
-import { GroupBasicInfo } from "./pages/groupMaking/GroupBasicInfo";
-import { GroupActivity } from "./pages/groupMaking/GroupActivity";
-import { GroupFilter } from "./pages/groupMaking/GroupFilter";
-import { GroupSelect } from "./pages/groupMaking/GroupSelect";
+import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
+import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
+import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
+import { GroupSelect } from "./pages/group/groupMaking/GroupSelect";
 import { ConfirmPage } from "./pages/onboarding/OnboardingConfirmPage";
-import { GroupMember } from "./pages/groupMaking/GroupMember";
+import { GroupMember } from "./pages/group/groupMaking/GroupMember";
 
 const router = createBrowserRouter([
   {

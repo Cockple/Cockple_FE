@@ -1,14 +1,14 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import TextBox from "../../components/common/Text_Box/TextBox";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
+import TextBox from "../../../components/common/Text_Box/TextBox";
 import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
-import { ProgressBar } from "../../components/common/ProgressBar";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import InputField from "../../components/common/Search_Filed/InputField";
-import { MultiSelectButtonGroup } from "../../components/common/MultiSelectButtonGroup";
-import { useGroupMakingFilterStore } from "../../zustand/useGroupMakingFilter";
-import { Modal_Caution } from "../../components/MyPage/Modal_Caution";
+import { ProgressBar } from "../../../components/common/ProgressBar";
+import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
+import InputField from "../../../components/common/Search_Filed/InputField";
+import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
+import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
+import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();

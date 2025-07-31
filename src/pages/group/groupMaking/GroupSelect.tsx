@@ -1,9 +1,9 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { useNavigate } from "react-router-dom";
-import { ProgressBar } from "../../components/common/ProgressBar";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import SingleImageUploadBtn from "./components/SingleImgUploadBtn";
-import InputField from "../../components/common/Search_Filed/InputField";
+import { ProgressBar } from "../../../components/common/ProgressBar";
+import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
+import SingleImageUploadBtn from "../../../components/group/groupMaking/SingleImgUploadBtn";
+import InputField from "../../../components/common/Search_Filed/InputField";
 import { useState } from "react";
 
 export const GroupSelect = () => {

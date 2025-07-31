@@ -1,11 +1,11 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { useNavigate } from "react-router-dom";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
+import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 
 import { useState } from "react";
-import InviteModal from "./components/InviteModal";
-import SearchInput from "../../components/chat/SearchInput";
-import MemberCard from "./components/MemberCard";
+import InviteModal from "../../../components/group/groupMaking/InviteModal";
+import SearchInput from "../../../components/chat/SearchInput";
+import MemberCard from "../../../components/group/groupMaking/MemberCard";
 
 type MemberStatus =
   | "waiting"

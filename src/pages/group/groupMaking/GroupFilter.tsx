@@ -1,11 +1,11 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
+import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ProgressBar } from "../../components/common/ProgressBar";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import InputSlider from "../../components/common/Search_Filed/InputSlider";
-import CheckBoxInputFiled from "./components/CheckBoxInputField";
-import { useGroupMakingFilterStore } from "../../zustand/useGroupMakingFilter";
+import { ProgressBar } from "../../../components/common/ProgressBar";
+import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
+import InputSlider from "../../../components/common/Search_Filed/InputSlider";
+import CheckBoxInputFiled from "../../../components/group/groupMaking/CheckBoxInputField";
+import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
