@@ -75,7 +75,7 @@ export const GroupChatDetailTemplate = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -128,7 +128,7 @@ export const GroupChatDetailTemplate = ({
 
   return (
     <div
-      className="relative flex flex-col min-h-[86dvh] -mb-8 -mt-4"
+      className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-4"
       style={{
         width: "calc(100% + 2rem)",
         marginLeft: "-1rem",
@@ -196,7 +196,7 @@ export const GroupChatDetailTemplate = ({
       </div>
 
       {/* 입력창 */}
-      <div className="fixed bottom-0 w-full">
+      <div className="sticky bottom-0">
         <BottomChatInput
           input={input}
           isComposing={isComposing}

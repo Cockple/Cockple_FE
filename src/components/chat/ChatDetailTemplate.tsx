@@ -102,7 +102,7 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -235,7 +235,7 @@ export const ChatDetailTemplate = ({
       </div>
 
       {/* 입력창 */}
-      <div className="fixed bottom-0 w-full">
+      <div className="sticky bottom-0">
         <BottomChatInput
           input={input}
           isComposing={isComposing}
