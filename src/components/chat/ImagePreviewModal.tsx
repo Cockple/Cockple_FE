@@ -53,7 +53,7 @@ const ImagePreviewModal = ({ imageUrl, onClose }: ImagePreviewModalProps) => {
         <img
           src={imageUrl}
           alt="preview"
-          className={`object-contain rounded-lg shadow-lg ${isStandalone ? "max-h-[40rem]" : "max-h-[35rem]"}`}
+          className={`object-contain rounded-lg shadow-lg max-w-[21.4375rem] ${isStandalone ? "max-h-[40rem]" : "max-h-[35rem]"}`}
         />
       </div>
     </div>
