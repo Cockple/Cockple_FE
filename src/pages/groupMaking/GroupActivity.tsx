@@ -1,5 +1,4 @@
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
@@ -62,16 +61,18 @@ export const GroupActivity = () => {
   const navigate = useNavigate();
 
   //store
-  const { setFilter, weekly, time } = useGroupMakingFilterStore();
+  const { setFilter, weekly, time, region } = useGroupMakingFilterStore();
   //정보
 
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("전체");
-
+  const selectedCity = region[0] || "";
+  const selectedDistrict = region[1] || "전체";
   //초기화
 
   const isFormValid =
-    selectedCity.length > 0 && time.length > 0 && weekly.length > 0;
+    selectedCity.length > 0 &&
+    time.length > 0 &&
+    weekly.length > 0 &&
+    region.length > 0;
 
   const handleNext = () => {
     navigate("/group/making/filter");
@@ -97,8 +98,6 @@ export const GroupActivity = () => {
                 value={selectedCity}
                 placeholder="시/도 선택"
                 onChange={city => {
-                  setSelectedCity(city);
-                  setSelectedDistrict("전체");
                   setFilter("region", [city, "전체"]);
                 }}
               />
@@ -109,7 +108,6 @@ export const GroupActivity = () => {
                 }))}
                 value={selectedDistrict}
                 onChange={gu => {
-                  setSelectedDistrict(gu);
                   setFilter("region", [selectedCity, gu]);
                 }}
                 disabled={!selectedCity}

@@ -7,12 +7,15 @@ export type FilterKey =
   | "name"
   | "type"
   | "kock"
+  | "weekly"
   | "joinMoney"
   | "money"
+  | "time"
   | "ageRange";
 
 export interface ExerciseFilterState {
   region: string[];
+  time: string[];
   FemaleLevel: string[];
   maleLevel: string[];
   name: string;
@@ -37,7 +40,7 @@ export const useGroupMakingFilterStore = create<ExerciseFilterState>(set => ({
   kock: "",
   joinMoney: "",
   money: "",
-  time: "",
+  time: [],
   ageRange: [],
   name: "",
   setFilter: (key, value) => set(state => ({ ...state, [key]: value })),
@@ -45,7 +48,7 @@ export const useGroupMakingFilterStore = create<ExerciseFilterState>(set => ({
     set(() => ({
       region: [],
       level: "",
-      time: "",
+      time: [],
       name: "",
     })),
 }));
