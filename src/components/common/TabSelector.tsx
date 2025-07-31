@@ -20,7 +20,7 @@ const TabSelector = <T extends string>({
   onChange,
 }: TabSelectorProps<T>) => {
   return (
-    <div className="flex flex-col mb-4">
+    <div className="w-full -ml-4 px-4 max-w-[444px] flex flex-col mb-4 fixed top-14 z-50 bg-white">
       <div className="flex text-black items-center gap-x-3">
         {options.map(option => (
           <TabBtn

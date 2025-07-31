@@ -43,7 +43,7 @@ export default function TabBtn({
 
   return (
     <button
-      className={`header-h5 inline-flex  flex-col justify-center items-start  rounded-lg relative py-2 gap-1 px-3 ${bg}`}
+      className={`header-h5 inline-flex  flex-col justify-center items-start rounded-lg relative py-2 gap-1 px-3 ${bg}`}
       onMouseDown={() => setIsPressing(true)}
       onMouseUp={() => setIsPressing(false)}
       onMouseLeave={() => setIsPressing(false)}

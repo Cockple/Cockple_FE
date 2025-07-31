@@ -5,7 +5,7 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-import { 
+import {
   GroupPage,
   GroupDetailMemberDefault,
   MyGroupDetailMemberDefault,
@@ -54,7 +54,6 @@ import { GroupLayout } from "./layout/GroupLayout";
 import { GroupHomePage } from "./pages/group/GroupHomePage";
 import { GroupChatPage } from "./pages/group/GroupChatPage";
 import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
-import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
@@ -147,7 +146,7 @@ const router = createBrowserRouter([
 
       // 연두 모임 여기부터 추가함 제발~~~ 올라가ㅏ아아
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
+      // { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
       { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> },
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
       { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
@@ -168,7 +167,7 @@ const router = createBrowserRouter([
           { index: true, element: <GroupHomePage /> },
           { path: "chat", element: <GroupChatPage /> },
           { path: "calendar", element: <GroupCalendarPage /> },
-          { path: "member", element: <GroupMemberPage /> },
+          { path: "member", element: <MyGroupDetailMemberDefault /> },
         ],
       },
 
