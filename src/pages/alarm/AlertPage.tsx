@@ -114,7 +114,7 @@ export const AlertPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-y-scroll [&::-webkit-scrollbar]:hidden relative">
+    <div className="flex flex-col min-h-[100dvh] -mb-8 overflow-hidden relative">
       {/* 헤더 */}
       <PageHeader title="알림" onBackClick={() => navigate("/")} />
 
