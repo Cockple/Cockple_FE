@@ -4,32 +4,32 @@ import React, { useState, useEffect, useRef } from "react";
 import ChattingComponent from "../common/chat/ChattingComponent";
 //import FileSendModal from "./FileSendModal";
 import ImagePreviewModal from "./ImagePreviewModal";
-import ChatBtn from "../common/DynamicBtn/ChatBtn";
+//import ChatBtn from "../common/DynamicBtn/ChatBtn";
 import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
-import { PageHeader } from "../common/system/header/PageHeader";
+//import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
 import { formatTime } from "../../utils/formatDate";
 //import { getLocalDateString } from "../../utils/getLocalDateString";
 
 import type { ChatMessageResponse } from "../../types/chat";
 
-interface ChatDetailTemplateProps {
+interface GroupChatDetailTemplateProps {
   chatId: string;
-  chatName: string;
+  //chatName: string;
   chatType: "group" | "personal";
   chatData: Record<string, ChatMessageResponse[]>;
   onBack: () => void;
-  showHomeButton?: boolean;
+  //showHomeButton?: boolean;
 }
 
-export const ChatDetailTemplate = ({
+export const GroupChatDetailTemplate = ({
   chatId,
-  chatName,
+  //chatName,
   chatData,
-  onBack,
-  showHomeButton = false,
-}: ChatDetailTemplateProps) => {
+  //onBack,
+  //showHomeButton = false,
+}: GroupChatDetailTemplateProps) => {
   const [chattings, setChattings] = useState<ChatMessageResponse[]>([]);
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
@@ -45,23 +45,6 @@ export const ChatDetailTemplate = ({
       setChattings(chatData[chatId]);
     }
   }, [chatId, chatData]);
-  // useEffect(() => {
-  //   if (chatId && chatData[chatId]) {
-  //     const response: ChatMessageResponse[] = chatData[chatId];
-  //     const mapped = response.map(msg => ({
-  //       id: msg.messageId,
-  //       nickname: msg.senderName,
-  //       profile: msg.senderProfileImage,
-  //       chatting: msg.messageType === "TEXT" ? msg.content : "",
-  //       imageUrls: msg.messageType === "IMAGE" ? [msg.content] : [],
-  //       time: formatTime(msg.createdAt),
-  //       createdAt: formatChatDate(msg.createdAt),
-  //       isMe: msg.senderId === currentUserId,
-  //       unreadCount: 0,
-  //     }));
-  //     setChattings(mapped);
-  //   }
-  // }, [chatId, chatData]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,16 +54,6 @@ export const ChatDetailTemplate = ({
     if (input.trim()) {
       const now = new Date().toISOString();
 
-      // const newChat: Chatting = {
-      //   id: Date.now(),
-      //   nickname: "나",
-      //   profile: ProfileImg,
-      //   chatting: input,
-      //   time: formatTime(now.toISOString()),
-      //   createdAt: formatChatDate(now.toISOString()),
-      //   isMe: true,
-      //   unreadCount: 0,
-      // };
       const newMessage: ChatMessageResponse = {
         messageId: Date.now(),
         chatRoomId: Number(chatId),
@@ -116,17 +89,6 @@ export const ChatDetailTemplate = ({
     const fileUrl = URL.createObjectURL(file);
     const now = new Date().toISOString();
 
-    // const newChat: Chatting = {
-    //   id: Date.now(),
-    //   nickname: "나",
-    //   profile: ProfileImg,
-    //   chatting: "",
-    //   time: formatTime(now.toISOString()),
-    //   createdAt: formatChatDate(now.toISOString()),
-    //   isMe: true,
-    //   unreadCount: 0,
-    //   imageUrls: [fileUrl],
-    // };
     const newImageMessage: ChatMessageResponse = {
       messageId: Date.now(),
       chatRoomId: Number(chatId),
@@ -166,7 +128,7 @@ export const ChatDetailTemplate = ({
 
   return (
     <div
-      className="relative flex flex-col min-h-[100dvh] -mb-8"
+      className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-4"
       style={{
         width: "calc(100% + 2rem)",
         marginLeft: "-1rem",
@@ -174,13 +136,13 @@ export const ChatDetailTemplate = ({
       }}
     >
       {/* 헤더 */}
-      <div className="sticky top-0 px-2 bg-white">
+      {/* <div className="px-2">
         <PageHeader title={chatName} onBackClick={onBack} />
-      </div>
+      </div> */}
 
       {/* 메시지 영역 */}
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200">
-        {showHomeButton && (
+        {/* {showHomeButton && (
           <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
             <ChatBtn
               imgSrc={ProfileImg}
@@ -189,7 +151,7 @@ export const ChatDetailTemplate = ({
               모임 홈으로
             </ChatBtn>
           </div>
-        )}
+        )} */}
 
         <div className="flex flex-col gap-5 shrink-0 p-4 pb-[3rem]">
           {/* {chattings.map(chat => (
@@ -202,7 +164,6 @@ export const ChatDetailTemplate = ({
           {chattings.map((chat, index) => {
             const currentDate = chat.createdAt;
             const prevDate = index > 0 ? chattings[index - 1].createdAt : null;
-            //const showDate = index === 0 || currentDate !== prevDate;
             const getDateOnly = (isoString: string) =>
               new Date(isoString).toISOString().split("T")[0];
             const showDate =
