@@ -4,6 +4,8 @@ import ArrowDown from "@/assets/icons/arrow_down.svg";
 import ArrowUp from "@/assets/icons/arrow_up.svg";
 import { ExerciseMapCalendar } from "../../components/home/ExerciseMapCalendar";
 import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
+import myLocationIcon from "@/assets/icons/map_mylocation.svg?url";
+import markerIcon from "@/assets/icons/map_marker.svg?url";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 
@@ -196,7 +198,7 @@ export const ExerciseMapPage = () => {
     const myLocationMarker = new kakao.maps.Marker({
       position: currentPos,
       image: new kakao.maps.MarkerImage(
-        "/src/assets/icons/map_mylocation.svg",
+        myLocationIcon,
         new kakao.maps.Size(40, 40),
         { offset: new kakao.maps.Point(20, 20) },
       ),
@@ -208,7 +210,7 @@ export const ExerciseMapPage = () => {
       const marker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(loc.latitude, loc.longitude),
         image: new kakao.maps.MarkerImage(
-          "/src/assets/icons/map_marker.svg",
+          markerIcon,
           new kakao.maps.Size(28.8, 35.2),
           {
             offset: new kakao.maps.Point(20, 20),
