@@ -175,56 +175,62 @@ export const ExerciseMapPage = () => {
   };
 
   useEffect(() => {
-    const kakao = window.kakao;
-    const container = mapRef.current;
+    if (!window.kakao || !window.kakao.maps || !window.kakao.maps.load) {
+      console.error("카카오 지도 스크립트가 아직 로드되지 않았습니다.");
+      return;
+    }
 
-    if (!container) return;
+    window.kakao.maps.load(() => {
+      const kakao = window.kakao;
+      const container = mapRef.current;
 
-    const { latitude, longitude } = dummyResponse.currentLocation;
-    const currentPos = new kakao.maps.LatLng(latitude, longitude);
+      if (!container) return;
 
-    // 지도를 생성할 때 필요한 기본 옵션
-    const options = {
-      center: currentPos, // 지도의 중심좌표.
-      level: 3, // 지도의 레벨(확대, 축소 정도)
-      draggable: true,
-      scrollwheel: true,
-    };
+      const { latitude, longitude } = dummyResponse.currentLocation;
+      const currentPos = new kakao.maps.LatLng(latitude, longitude);
 
-    const map = new kakao.maps.Map(container, options);
+      // 지도를 생성할 때 필요한 기본 옵션
+      const options = {
+        center: currentPos, // 지도의 중심좌표.
+        level: 3, // 지도의 레벨(확대, 축소 정도)
+        draggable: true,
+        scrollwheel: true,
+      };
 
-    map.setCenter(currentPos);
+      const map = new kakao.maps.Map(container, options);
 
-    const myLocationMarker = new kakao.maps.Marker({
-      position: currentPos,
-      image: new kakao.maps.MarkerImage(
-        myLocationIcon,
-        new kakao.maps.Size(40, 40),
-        { offset: new kakao.maps.Point(20, 20) },
-      ),
-    });
+      map.setCenter(currentPos);
 
-    myLocationMarker.setMap(map);
-
-    dummyResponse.exerciseLocations.forEach(loc => {
-      const marker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(loc.latitude, loc.longitude),
+      const myLocationMarker = new kakao.maps.Marker({
+        position: currentPos,
         image: new kakao.maps.MarkerImage(
-          markerIcon,
-          new kakao.maps.Size(28.8, 35.2),
-          {
-            offset: new kakao.maps.Point(20, 20),
-          },
+          myLocationIcon,
+          new kakao.maps.Size(40, 40),
+          { offset: new kakao.maps.Point(20, 20) },
         ),
-        map,
       });
 
-      // 마커 클릭 이벤트 등록
-      kakao.maps.event.addListener(marker, "click", () => {
-        setSelectedLocationId(dummyExerciseDetail);
+      myLocationMarker.setMap(map);
+
+      dummyResponse.exerciseLocations.forEach(loc => {
+        const marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(loc.latitude, loc.longitude),
+          image: new kakao.maps.MarkerImage(
+            markerIcon,
+            new kakao.maps.Size(28.8, 35.2),
+            {
+              offset: new kakao.maps.Point(20, 20),
+            },
+          ),
+          map,
+        });
+
+        // 마커 클릭 이벤트 등록
+        kakao.maps.event.addListener(marker, "click", () => {
+          setSelectedLocationId(dummyExerciseDetail);
+        });
       });
     });
-    // });
   }, []);
 
   useEffect(() => {
