@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -7,6 +7,7 @@ import People from "../../../assets/icons/people.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
+import { useNavigate } from "react-router-dom";
 
 interface ContentCardLProps {
   id: number;
@@ -42,6 +43,7 @@ export const ContentCardL = ({
   like = false,
   onToggleFavorite,
 }: ContentCardLProps) => {
+  const navigate = useNavigate();
   const [isStarted, setIsStarted] = useState(false);
   const [isStartPressing, setIsStartPressing] = useState(false);
   const [isGuestPressing, setIsGuestPressing] = useState(false);
@@ -78,7 +80,7 @@ export const ContentCardL = ({
             onClick={() => handleToggleFavorite()}
           />
         </div>
-        <RightAngle className="w-4 h-4" />
+        <RightAngle className="w-4 h-4" onClick={() => navigate("/mypage/myexercise/:exerciseId")}/>
       </div>
 
       {/* 정보 */}

@@ -56,8 +56,10 @@ export const PersonalChat = ({
         </span>
       </div>
 
-      <div className="flex flex-col justify-between w-[3rem] h-[4rem] items-center">
-        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p>
+
+      <div className="flex flex-col justify-between w-[4rem] h-[4rem] items-center">
+        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p> 
+
         <div className="flex items-center justify-center w-full">
           {unreadCount > 0 && <Num_Noti unreadCount={unreadCount} />}
         </div>

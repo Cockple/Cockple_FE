@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import type { GroupMProps } from "./MyPageMyGroupPage";
 import type { ContentCardLProps } from "../../components/common/contentcard/ContentCardL";
 
+
 interface MyPageProps {
   name?: string;
   gender?: "female" | "male";

@@ -1,15 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
+import VectorRed from "../../assets/icons/Vector_red.svg?react";
 
 interface CheckBoxLongnoButton {
   title?: string;
+  Label? : string;
   maxLength?: number;
+  showIcon?: boolean;
+  onChange?: (checked: boolean, value: string) => void;
 }
 
 export const CheckBox_Long_noButton = ({
   title,
+  Label,
   maxLength,
+  showIcon = false,
+  onChange,
 }: CheckBoxLongnoButton) => {
   const [recordTexts, setRecordTexts] = useState<string[]>([""]);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -41,6 +48,8 @@ export const CheckBox_Long_noButton = ({
     if (isRecordFocused.length < recordTexts.length) {
       setIsRecordFocused(prev => [...prev, false]);
     }
+      onChange?.(false, newTexts[0] || "");
+
   };
 
   const onFocus = (idx: number) => {
@@ -65,10 +74,17 @@ export const CheckBox_Long_noButton = ({
             >
               {title}
             </label>
+            {showIcon && <VectorRed className="ml-1 w-2 h-2" />} 
+
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsPrivate(prev => !prev)}
+              // onClick={() => setIsPrivate(prev => !prev)}
+            onClick={() => {
+              const newChecked = !isPrivate;
+              setIsPrivate(newChecked);
+              onChange?.(newChecked, recordTexts[0] || "");
+            }}
               type="button"
               className="focus:outline-none"
             >
@@ -78,7 +94,7 @@ export const CheckBox_Long_noButton = ({
                 <CheckCircled className="w-4 h-4" />
               )}
             </button>
-            <label className={`body-rg-500`}>비공개</label>
+            <label className={`body-rg-500`}>{Label}</label>
           </div>
         </div>
       </div>
