@@ -20,7 +20,12 @@ export const AlertPage = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [targetId, setTargetId] = useState<number | null>(null);
 
-  const [notifications, setNotifications] = useState(alertList); // 상태 관리, 승인 클릭시 type=invite->simple
+  const [notifications, setNotifications] = useState(alertList);
+
+  // 알림 리스트 필터링된 상태로 보여주기
+  const visibleNotifications = notifications.filter(alert =>
+    ["invite", "change", "simple"].includes(alert.type),
+  );
 
   const handleAccept = (id: number) => {
     setTargetId(id);
@@ -42,23 +47,25 @@ export const AlertPage = () => {
 
   const confirmApprove = () => {
     if (targetId !== null) {
-      // const formattedDate = getTodayDate();
-      // setApprovedList(prev => [...prev, { id: targetId, date: formattedDate }]);
-      // 추후 API 연동 시 아래 코드 추가 예정
-      // await axios.patch(`/api/notifications/${targetId}`, {
-      //   type: "simple",
-      //   isRead: true,
-      // });
+      //     try {
+      //     const response = await axios.patch(`/api/notifications/${targetId}`, {
+      //       type: "invite_accept",
+      //     });
+
+      //     console.log("승인 성공:", response.data);
+
+      //     // 알림에서 제거
+      //     setNotifications(prev =>
+      //       prev.filter(alert => alert.notificationId !== targetId)
+      //     );
+      //   } catch (error) {
+      //     console.error("승인 처리 중 오류:", error);
+      //   }
+      // }
+
+      // 알림에서 제거
       setNotifications(prev =>
-        prev.map(alert =>
-          alert.notificationId === targetId
-            ? {
-                ...alert,
-                type: "invite_accept",
-                content: "모임 가입이 승인되었어요!",
-              }
-            : alert,
-        ),
+        prev.filter(alert => alert.notificationId !== targetId),
       );
       console.log("승인 처리", targetId);
     }
@@ -67,7 +74,26 @@ export const AlertPage = () => {
 
   const confirmReject = () => {
     if (targetId !== null) {
-      //추후 reject 관련 처리
+      //     try {
+      //     const response = await axios.patch(`/api/notifications/${targetId}`, {
+      //       type: "invite_reject",
+      //     });
+
+      //     console.log("거절 성공:", response.data);
+
+      //     // 알림에서 제거
+      //     setNotifications(prev =>
+      //       prev.filter(alert => alert.notificationId !== targetId)
+      //     );
+      //   } catch (error) {
+      //     console.error("거절 처리 중 오류:", error);
+      //   }
+      // }
+      // 알림에서 제거
+      setNotifications(prev =>
+        prev.filter(alert => alert.notificationId !== targetId),
+      );
+
       console.log("거절 처리", targetId); // 실제 로직 대체 가능
     }
     setShowRejectModal(false);
@@ -92,12 +118,12 @@ export const AlertPage = () => {
 
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
-        {notifications.length === 0 ? (
+        {visibleNotifications.length === 0 ? (
           <div className="flex flex-1 justify-center items-center">
             <NoAlertMessage />
           </div>
         ) : (
-          notifications.map(alert => {
+          visibleNotifications.map(alert => {
             return alert.type === "invite" ? (
               <AlertInvite
                 key={alert.notificationId}
