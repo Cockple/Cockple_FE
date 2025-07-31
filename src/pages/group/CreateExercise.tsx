@@ -140,7 +140,7 @@ export const CreateExercise = () => {
       {openModal && (
         <div
           id="date-picker-overlay"
-          className="fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full flex items-center"
+          className="fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full flex items-center z-50"
           onClick={e => {
             const target = e.target as HTMLElement;
             if (target.id === "date-picker-overlay") {

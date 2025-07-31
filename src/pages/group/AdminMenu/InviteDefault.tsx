@@ -19,33 +19,69 @@ interface MyPageExerciseDetailPageProps {
   waitingCount?: number;
   waitingGenderCount?: { male: number; female: number };
   waitingMembers?: MemberProps[];
-};
+}
 
 export const InviteDefault = (props: MyPageExerciseDetailPageProps) => {
- const {
-
+  const {
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
-      { status: "invite", name: "홍길동", gender: "male", level: "A조", isMe: false, isLeader: true, position: "leader"}, 
-      { status: "invite", name: "김민수", gender: "male", level: "B조", isMe: true,isLeader: false, position: "sub_leader" },
-      { status: "invite", name: "이지은", gender: "female", level: "C조", isMe: false, isLeader: false, position: null },
-      { status: "invite", name: "박서준", gender: "male", level: "D조", isMe: false, isLeader: false, position: null },
+      {
+        status: "invite",
+        name: "홍길동",
+        gender: "male",
+        level: "A조",
+        isMe: false,
+        isLeader: true,
+        position: "leader",
+      },
+      {
+        status: "invite",
+        name: "김민수",
+        gender: "male",
+        level: "B조",
+        isMe: true,
+        isLeader: false,
+        position: "sub_leader",
+      },
+      {
+        status: "invite",
+        name: "이지은",
+        gender: "female",
+        level: "C조",
+        isMe: false,
+        isLeader: false,
+        position: null,
+      },
+      {
+        status: "invite",
+        name: "박서준",
+        gender: "male",
+        level: "D조",
+        isMe: false,
+        isLeader: false,
+        position: null,
+      },
     ],
   } = props;
 
   const [members, setMembers] = useState<MemberProps[]>(participantMembers);
-  
-  const [participantsCountState, setParticipantsCount] = useState(participantsCount);
+
+  const [participantsCountState, setParticipantsCount] =
+    useState(participantsCount);
 
   //검색 기능
   const [searchTerm, setSearchTerm] = useState("");
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-  const filteredMembers = members.filter((member) => {
-    const nameMatch = member.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const levelMatch = member.level?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredMembers = members.filter(member => {
+    const nameMatch = member.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const levelMatch = member.level
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return nameMatch || levelMatch;
   });
 
@@ -55,9 +91,9 @@ export const InviteDefault = (props: MyPageExerciseDetailPageProps) => {
     setMembers(updated);
     setParticipantsCount(updated.length);
   };
-useEffect(() => {
-  console.log("Members state updated:", members);
-}, [members]);
+  useEffect(() => {
+    console.log("Members state updated:", members);
+  }, [members]);
   const navigate = useNavigate();
   return (
     <>
@@ -68,8 +104,8 @@ useEffect(() => {
             <input
               type="text"
               placeholder="급수로 검색"
-              className="w-full border rounded-xl	p-2 pr-14 body-md-500  text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
-              onChange={handleSearchChange} 
+              className="w-full border rounded-xl	p-2 pr-14 body-md-500  placeholder:text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
+              onChange={handleSearchChange}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2">
               <Search className="w-6 h-6" />
@@ -106,8 +142,7 @@ useEffect(() => {
             </div>
           );
         })}
-       </div>
-
+      </div>
     </>
   );
 };
