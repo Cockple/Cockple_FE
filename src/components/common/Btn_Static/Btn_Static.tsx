@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { BtnKind, BtnSize, BtnStatus } from "./types";
 import { buttonPresets, sizePresets } from "./presets";
+import clsx from "clsx";
 
 interface Btn_StaticProps {
   kind?: BtnKind;
@@ -26,6 +27,8 @@ interface Btn_StaticProps {
   gap?: string;
   shadow?: string;
   justify?: string;
+
+  className?: string;
 }
 
 const Btn_Static = ({
@@ -48,6 +51,7 @@ const Btn_Static = ({
   gap,
   shadow,
   justify = "justify-center",
+  className,
 }: Btn_StaticProps) => {
   const [status, setStatus] = useState<BtnStatus>(initialStatus);
 
@@ -92,7 +96,7 @@ const Btn_Static = ({
 
   return (
     <button
-      className={classes}
+      className={clsx(classes, className)}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       disabled={isDisabled}
