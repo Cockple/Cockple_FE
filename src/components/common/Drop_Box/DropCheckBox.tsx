@@ -72,8 +72,8 @@ export default function DropCheckBox({
             />
           </button>
           {open && !disabled && (
-            <div className="absolute mt-1">
-              <ul className=" border rounded-xl border-gy-200 max-h-32 overflow-y-auto w-40 overflow-x-hidden">
+            <div className="absolute mt-1 bg-white">
+              <ul className=" border rounded-xl border-gy-200 max-h-32 overflow-y-auto w-40 overflow-x-hidden ">
                 {options.map((item, idx) => {
                   return (
                     <li

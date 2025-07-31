@@ -3,7 +3,7 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { useNavigate } from "react-router-dom";
 import SearchField from "../../components/common/Search_Filed/SearchField";
 import { ProgressBar } from "../../components/common/ProgressBar";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
 
 export const OnboardingAddressPage = () => {
   const {
