@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -80,7 +80,7 @@ export const ContentCardL = ({
             onClick={() => handleToggleFavorite()}
           />
         </div>
-        <RightAngle className="w-4 h-4" onClick={() => navigate("/mypage/myexercise/:exerciseId")}/>
+        <RightAngle className="w-4 h-4" onClick={() => navigate("/group/Mygroup/MyExerciseDetail")}/>
       </div>
 
       {/* 정보 */}

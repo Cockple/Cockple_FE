@@ -30,8 +30,8 @@ export const ViceLeaderDefault = (props: MyPageExerciseDetailPageProps) => {
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
  participantMembers = [
-      { status: "Participating", name: "홍길동", gender: "male", level: "A조", isMe: false, isLeader: true, position: "leader"}, 
-      { status: "Participating", name: "김민수", gender: "male", level: "B조", isMe: true,isLeader: false, position: "sub_leader" },
+      { status: "Participating", name: "홍길동", gender: "male", level: "A조", isMe: true, isLeader: true, position: "leader"}, 
+      { status: "Participating", name: "김민수", gender: "male", level: "B조", isMe: false,isLeader: false, position: "sub_leader" },
       { status: "Participating", name: "이지은", gender: "female", level: "C조", isMe: false, isLeader: false, position: null },
       { status: "Participating", name: "박서준", gender: "male", level: "D조", isMe: false, isLeader: false, position: null },
     ],

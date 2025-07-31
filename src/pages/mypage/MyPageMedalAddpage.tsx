@@ -349,6 +349,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               급수
+              <CicleSRED/>
             </label>
             <div className="flex items-center gap-4">
               <div className="relative w-40">

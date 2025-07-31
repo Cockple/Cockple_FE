@@ -2,11 +2,12 @@ export { GroupPage } from "./GroupPage";
 
 //연두
 export { GroupDetailMemberDefault } from "./JoinableGroup/GroupDetailMemberDefault";
-export { MyGroupDetailMemberDefault } from "./MyGroupDetail/MyGroupDetailMemberDefault";
-export { GroupMyExerciseDetail } from "./MyGroupDetail/GroupMyExerciseDetail";
+export { MemberDefault } from "./MyGroupDetail/MemberDefault";
+export { ExerciseDetailApply } from "./MyGroupDetail/ExerciseDetailApply";
 export { ViceLeaderDefault } from "./AdminMenu/ViceLeaderDefault";
 export { EditGroupInfoDefault } from "./AdminMenu/EditGroupInfoDefault";
 export { InviteDefault } from "./AdminMenu/InviteDefault";
-export { GroupExerciseDetail } from "./MyGroupDetail/GroupExerciseDetail";
+export { ExerciseDetail } from "./MyGroupDetail/ExerciseDetail";
+export { MyExerciseDetail } from "./MyGroupDetail/MyExerciseDetail";
 
 

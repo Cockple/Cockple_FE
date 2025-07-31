@@ -103,7 +103,7 @@ export const CheckBox_Long_noButton = ({
       </div>
 
       {Texts.map((text, idx) => (
-        <div key={idx} className="relative mb-4">
+        <div key={idx} className="relative">
           <textarea
             ref={el => {
               textAreaRefs.current[idx] = el;

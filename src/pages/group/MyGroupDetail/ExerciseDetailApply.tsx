@@ -1,4 +1,4 @@
-//내 운동 상세 페이지
+//운동 상세 페이지 -> 신청하기 (이게 뭐지???)
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import Caution from "../../../assets/icons/Caution.svg?react";
@@ -27,7 +27,7 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 };
 
-export const GroupMyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
+export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
   const navigate = useNavigate();
 
   const {
@@ -74,7 +74,7 @@ export const GroupMyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
   return (
     <>
       <PageHeader
-        title="내 운동 상세"
+        title="운동 상세"
         onMoreClick={() => setIsSortOpen(true)}
       />
       <div className="flex flex-col gap-8">
