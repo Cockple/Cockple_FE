@@ -64,22 +64,22 @@ const BottomChatInput = ({
     onSendMessage(); // 외부 로직 실행
 
     // 입력창 초기화
-    //onInputChange("");
+    onInputChange("");
     setIsMultiLine(false);
 
-    // const textarea = textareaRef.current;
-    // if (textarea) {
-    //   textarea.style.height = "2px"; // 초기화
-    // }
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "24px"; // 초기화
+    }
   };
 
   // 외부에서 input이 비어졌을 때에도 높이 초기화
   useEffect(() => {
     if (input === "") {
       setIsMultiLine(false);
-      // if (textareaRef.current) {
-      //   textareaRef.current.style.height = "2px";
-      // }
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "24px";
+      }
     }
   }, [input]);
 
