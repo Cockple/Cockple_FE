@@ -34,7 +34,7 @@ const BottomChatInput = ({
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    textarea.style.height = "2px"; // 기본 높이 (h-14)
+    textarea.style.height = "2px"; // 기본 높이
     const height = textarea.scrollHeight;
     textarea.style.height = `${Math.min(height, 72)}px`; // 최대 3줄(72px)까지
 
@@ -64,22 +64,22 @@ const BottomChatInput = ({
     onSendMessage(); // 외부 로직 실행
 
     // 입력창 초기화
-    onInputChange("");
+    //onInputChange("");
     setIsMultiLine(false);
 
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "2px"; // 초기화
-    }
+    // const textarea = textareaRef.current;
+    // if (textarea) {
+    //   textarea.style.height = "2px"; // 초기화
+    // }
   };
 
   // 외부에서 input이 비어졌을 때에도 높이 초기화
   useEffect(() => {
     if (input === "") {
       setIsMultiLine(false);
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "2px";
-      }
+      // if (textareaRef.current) {
+      //   textareaRef.current.style.height = "2px";
+      // }
     }
   }, [input]);
 
@@ -112,7 +112,7 @@ const BottomChatInput = ({
         <textarea
           value={input}
           ref={textareaRef}
-          onChange={handleInput}
+          onInput={handleInput}
           onKeyDown={handleKeyDown}
           onCompositionStart={onCompositionStart}
           onCompositionEnd={onCompositionEnd}
