@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -68,8 +68,8 @@ export const ContentCardL = ({
 
   return (
     <div
-      className={`w-[21.4375rem] rounded-[1rem] p-3 mb-3 space-y-3 transition-colors duration-150
-        ${containerPressed ? "bg-[#F4F5F6]" : "bg-white"} shadow`}
+      className={`w-full rounded-[1rem] p-3 mb-3 space-y-3 transition-colors duration-150
+        ${containerPressed ? "bg-[#F4F5F6]" : "bg-white"} shadow-ds100`}
     >
       {/* 상단 */}
       <div className="flex items-center justify-between">
@@ -80,7 +80,10 @@ export const ContentCardL = ({
             onClick={() => handleToggleFavorite()}
           />
         </div>
-        <RightAngle className="w-4 h-4" onClick={() => navigate("/mypage/myexercise/:exerciseId")}/>
+        <RightAngle
+          className="w-4 h-4"
+          onClick={() => navigate("/mypage/myexercise/:exerciseId")}
+        />
       </div>
 
       {/* 정보 */}

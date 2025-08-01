@@ -11,11 +11,11 @@ interface GroupInfoListProps {
 export const GroupInfoList = ({ items }: GroupInfoListProps) => {
   return (
     <div className="flex gap-1 body-sm-400">
-      <span>{items.label}</span>
+      <span className="shrink-0">{items.label}</span>
 
-      <span className="h-4 w-px bg-gray-200 mx-1 "></span>
+      <span className="h-2.5 w-px bg-gray-200 mx-1 break-all mt-0.5"></span>
 
-      <div>{items.value}</div>
+      <div className="text-left max-w-full min-w-0">{items.value}</div>
     </div>
   );
 };
