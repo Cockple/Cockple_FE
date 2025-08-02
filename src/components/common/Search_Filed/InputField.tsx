@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from "react";
 import type { FieldValues, UseFormRegister } from "react-hook-form";
+import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   labelName?: string;
@@ -36,9 +37,7 @@ export default function InputField({
             {labelName}
           </p>
         )}
-        {isRequired && (
-          <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
-        )}
+        {isRequired && <img src={Circle_RedIcon} alt="icon-cicle" />}
       </div>
       <div className="relative">
         <input

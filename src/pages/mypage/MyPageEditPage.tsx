@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import { LocationField } from "../../components/common/LocationField";
 import { Location } from "../../components/common/contentcard/Location";
+import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 interface LocationType {
   id: number;
   location?: string;
@@ -398,7 +399,7 @@ export const MyPageEditPage = ({
                   {selectedLevel}
                 </span>
                 <img
-                  src="/src/assets/icons/arrow_down.svg"
+                  src={ArrowDown}
                   alt="Dropdown arrow"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4"
                 />

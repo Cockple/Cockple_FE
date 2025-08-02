@@ -7,6 +7,9 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
+import ProfileImgIcon from "@/assets/images/profile_Image.png?url";
+import Basic_ProfileImg from "@/assets/images/base_profile_img.png?url";
+
 export const OnboardingProfilePage = () => {
   const [setProfile, setIsProfile] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -94,11 +97,7 @@ export const OnboardingProfilePage = () => {
             size="XL"
             edit={setProfile}
             src={
-              preview
-                ? preview
-                : setProfile
-                  ? "/src/assets/images/profile_Image.png"
-                  : "/src/assets/images/base_profile_img.png"
+              preview ? preview : setProfile ? ProfileImgIcon : Basic_ProfileImg
             }
           />
         </label>

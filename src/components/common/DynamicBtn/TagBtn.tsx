@@ -1,5 +1,7 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
+import DissMissIcon from "@/assets/icons/dismiss_fill.svg?url";
+import HashIcon from "@/assets/icons/hash.svg?url";
 
 export default function TagBtn({
   children,
@@ -15,23 +17,23 @@ export default function TagBtn({
   const statusMap: Record<IconTextStatus, { bg: string; icon: string }> = {
     clicked: {
       bg: "bg-white border-gr-500",
-      icon: "/src/assets/icons/dismiss_fill.svg",
+      icon: DissMissIcon,
     },
     CLpressing: {
       bg: "bg-gy-100 border-gr-500",
-      icon: "/src/assets/icons/dismiss_fill.svg",
+      icon: DissMissIcon,
     },
     pressing: {
       bg: "bg-gy-100 border-gr-500",
-      icon: "/src/assets/icons/hash.svg",
+      icon: HashIcon,
     },
     default: {
       bg: "bg-white border-gy-200",
-      icon: "/src/assets/icons/hash.svg",
+      icon: HashIcon,
     },
     disabled: {
       bg: "bg-white border-gy-200",
-      icon: "/src/assets/icons/hash.svg",
+      icon: HashIcon,
     },
   };
 

@@ -1,3 +1,5 @@
+import KittyImg from "@/assets/images/image.png?url";
+
 interface LoginProps {
   title: string;
   title2?: string;
@@ -21,7 +23,7 @@ export default function LoginSwiping({
       </div>
 
       <img
-        src="/src/assets/images/image.png"
+        src={KittyImg}
         alt="캐릭터img"
         className="size-45  aspect-square object-cover"
       />

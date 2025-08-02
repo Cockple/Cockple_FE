@@ -1,5 +1,8 @@
 import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
+import Filter_Fill from "@/assets/icons/filter_fill.svg?url";
+import FilterIcon from "@/assets/icons/filter.svg?url";
+import Filter_G from "@/assets/icons/filterG.svg?url";
 
 interface FilterBtnProps extends BaseBtnProps {
   forceStatus?: IconTextStatus; // 외부에서 상태를 강제 지정할 수 있도록
@@ -25,23 +28,23 @@ export default function FilterBtn({
   const statusMap: Record<IconTextStatus, { bg: string; icon: string }> = {
     clicked: {
       bg: "bg-white text-gr-600",
-      icon: "/src/assets/icons/filter_fill.svg",
+      icon: Filter_Fill,
     },
     CLpressing: {
       bg: "bg-gy-100 text-gr-600",
-      icon: "/src/assets/icons/filter_fill.svg",
+      icon: Filter_Fill,
     },
     pressing: {
       bg: "bg-gy-100",
-      icon: "/src/assets/icons/filter.svg",
+      icon: FilterIcon,
     },
     default: {
       bg: "bg-white",
-      icon: "/src/assets/icons/filter.svg",
+      icon: FilterIcon,
     },
     disabled: {
       bg: "bg-white text-gy-400",
-      icon: "/src/assets/icons/filterG.svg",
+      icon: Filter_G,
     },
   };
 

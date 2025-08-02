@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
+import ProfileImg from "@/assets/images/profile_Image.png?url";
 
 export const OnboardingPage = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export const OnboardingPage = () => {
           />
           <div>
             <img
-              src="/src/assets/images/profile_Image.png"
+              src={ProfileImg}
               alt="프로필 이미지"
               className="size-25 mb-5"
             />
