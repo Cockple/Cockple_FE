@@ -56,7 +56,7 @@ export const GroupSelect = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-22 shrink-0 `}
+          className={`flex items-center justify-center mb-3 pt-19 mt-[3px] shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
