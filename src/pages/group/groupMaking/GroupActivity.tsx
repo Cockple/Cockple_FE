@@ -146,7 +146,7 @@ export const GroupActivity = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-6 shrink-0 `}
+          className={`flex items-center justify-center mb-2 mt-6 pt-[1px] shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

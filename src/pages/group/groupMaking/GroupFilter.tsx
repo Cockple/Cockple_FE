@@ -160,7 +160,7 @@ export const GroupFilter = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-2 shrink-0 `}
+          className={`flex items-center justify-center mb-4 pt-2 mt-[1px] shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

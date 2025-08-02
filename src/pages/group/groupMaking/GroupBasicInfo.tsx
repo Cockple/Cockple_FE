@@ -186,7 +186,7 @@ export const GroupBasicInfo = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 ${selected ? "mt-20" : "mt-42"} shrink-0 `}
+          className={`flex items-center justify-center mb-4 ${selected ? "mt-20" : "mt-42 pt-[3px]"} shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
