@@ -4,17 +4,16 @@ import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import Camer_gy_400 from "../../assets/icons/camera_gy_400.svg?react";
-import VectorRed from "../../assets/icons/Vector_red.svg?react";
 import Female from "../../assets/icons/female.svg?react";
 import Male from "../../assets/icons/male.svg?react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
-import { Location } from "../../components/common/contentcard/Location";
 import { Modal_Caution } from "../../components/MyPage/Modal_Caution";
 import TextBox from "../../components/common/Text_Box/TextBox";
 import { useForm } from "react-hook-form";
+import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import { LocationField } from "../../components/common/LocationField";
-
+import { Location } from "../../components/common/contentcard/Location";
 interface LocationType {
   id: number;
   location?: string;
@@ -48,7 +47,7 @@ export const MyPageEditPage = ({
   // streetAddr="ㅈ돋ㅁㅎㄱ",
   // isMainAddr,
   // streetAddr,
-  keywords = ["브랜드 스폰", "친목", "운영진이 게임을 짜드려요", "가입비 무료"],
+  keywords = ["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"],
 }: MyPageEditProps) => {
   const navigate = useNavigate();
 
@@ -63,7 +62,10 @@ export const MyPageEditPage = ({
   const [name, setName] = useState(initialNameProp ?? "");
   //키워드
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
-  // const [selected, setSelected] = useState(false);
+  const keywordLines = [
+    ["브랜드 스폰", "가입비 무료"],
+    ["친목", "운영진이 게임을 짜드려요"],
+  ];
 
   const level = [
     "왕초심",
@@ -283,7 +285,7 @@ export const MyPageEditPage = ({
         )}
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col ">
         {/* 프로필 사진 */}
         <div className="flex justify-center mb-8 relative">
           <img
@@ -309,7 +311,7 @@ export const MyPageEditPage = ({
         <div className="mb-8">
           <label className="flex items-center text-left header-h5 mb-1">
             이름
-            <VectorRed className="ml-1 w-2 h-2" />
+            <CicleSRED />
           </label>
           <div className="relative">
             <input
@@ -345,11 +347,11 @@ export const MyPageEditPage = ({
 
         {/* 생년월일 -> 값을 받아오게 해야하는뎁*/}
         <div className="mb-8 flex flex-col items-start">
-          <div>
+          <div className="w-full">
             <div className="text-left flex flex-col gap-2">
               <div className="flex px-1 gap-[2px] items-center">
                 <p className="header-h5">생년월일</p>
-                <VectorRed className="ml-1 w-2 h-2" />
+                <CicleSRED />
               </div>
 
               <input
@@ -384,7 +386,7 @@ export const MyPageEditPage = ({
         <div className="mb-8">
           <label className="flex items-center text-left header-h5 mb-1">
             전국 급수
-            <VectorRed className="ml-1 w-2 h-2" />
+            <CicleSRED />
           </label>
           <div className="flex items-center gap-4">
             <div className="relative w-40">
@@ -393,7 +395,7 @@ export const MyPageEditPage = ({
                 onClick={() => !disabled && setOpen(!open)}
               >
                 <span className={disabled ? "text-gy-500" : "text-black"}>
-                  {selectedLevel || "급수를 선택하세요"}
+                  {selectedLevel}
                 </span>
                 <img
                   src="/src/assets/icons/arrow_down.svg"
@@ -449,7 +451,6 @@ export const MyPageEditPage = ({
 
         {/* 위치 */}
         <LocationField label="위치" />
-
         {/* 등록된 위치 */}
         <div className="mt-8">
           <div className="flex justify-between items-center mb-1">
@@ -472,6 +473,7 @@ export const MyPageEditPage = ({
               .map((loc, index) => (
                 <div className="relative" key={loc.id}>
                   <Location
+                    className="w-full"
                     isMainAddr={loc.isMainAddr}
                     streetAddr={loc.streetAddr}
                     initialClicked={loc.id === selectedId}
@@ -493,29 +495,35 @@ export const MyPageEditPage = ({
           <label className="flex items-center text-left header-h5 mb-1">
             키워드
           </label>
-          <div className="flex flex-wrap gap-2">
-            {keywords.map(keyword => {
-              const isSelected = selectedKeywords.includes(keyword);
-              return (
-                <TextBox
-                  key={keyword}
-                  isSelected={isSelected}
-                  onClick={() => {
-                    setSelectedKeywords(prev =>
-                      isSelected
-                        ? prev.filter(k => k !== keyword)
-                        : [...prev, keyword],
-                    );
-                  }}
-                >
-                  {keyword}
-                </TextBox>
-              );
-            })}
+          <div className="flex flex-col gap-3">
+            {keywordLines.map((line, i) => (
+              <div key={i} className="flex gap-4 flex-wrap">
+                {line.map(keyword => {
+                  const isSelected = selectedKeywords.includes(keyword);
+                  return (
+                    <TextBox
+                      key={keyword}
+                      isSelected={isSelected}
+                      className={`py-2 rounded-xl whitespace-nowrap w-auto max-w-full ${
+                        keyword === "친목" ? "px-[1.4rem]" : "px-[2.7rem]"
+                      }`}
+                      onClick={() => {
+                        setSelectedKeywords(prev =>
+                          isSelected
+                            ? prev.filter(k => k !== keyword)
+                            : [...prev, keyword],
+                        );
+                      }}
+                    >
+                      {keyword}
+                    </TextBox>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
-
-        <div className="mt-8 mb-8">
+        <div className="mt-8 mb-8 flex justify-center">
           <Btn_Static
             kind="GR400"
             size="L"

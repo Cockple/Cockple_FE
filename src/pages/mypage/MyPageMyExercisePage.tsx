@@ -157,8 +157,7 @@ export const MyPageMyExercisePage = () => {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-6 mt-14">
-        {/* mt값은 TabSelector의 fixed height 보정용 (top-14 + margin 등 고려) */}
+      <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide">
         {filteredList.length > 0 ? (
           <>
             <div className="flex justify-end mb-3 px-4">
@@ -168,9 +167,11 @@ export const MyPageMyExercisePage = () => {
                 onClick={() => setIsSortOpen(!isSortOpen)}
               />
             </div>
-            {filteredList.map((group, idx) => (
-              <ContentCardL key={idx} {...group} />
-            ))}
+            <div className="flex flex-col items-center justify-center">
+              {filteredList.map((group, idx) => (
+                <ContentCardL key={idx} {...group} />
+              ))}
+            </div>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center">

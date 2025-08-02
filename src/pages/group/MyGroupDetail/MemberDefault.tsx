@@ -22,10 +22,15 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 }
 
+<<<<<<< HEAD:src/pages/group/MyGroupDetail/MyGroupDetailMemberDefault.tsx
 export const MyGroupDetailMemberDefault = (
   props: MyPageExerciseDetailPageProps,
 ) => {
   const {
+=======
+export const MemberDefault = (props: MyPageExerciseDetailPageProps) => {
+ const {
+>>>>>>> develop:src/pages/group/MyGroupDetail/MemberDefault.tsx
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [

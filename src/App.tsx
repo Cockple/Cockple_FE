@@ -7,9 +7,11 @@ import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
 import {
   GroupPage,
+  ExerciseDetail,
   GroupDetailMemberDefault,
-  MyGroupDetailMemberDefault,
-  GroupMyExerciseDetail,
+  MemberDefault,
+  ExerciseDetailApply,
+  MyExerciseDetail,
   ViceLeaderDefault,
   EditGroupInfoDefault,
   InviteDefault,
@@ -144,10 +146,19 @@ const router = createBrowserRouter([
       { path: "/location/map", element: <LocationMapPage /> },
       { path: "/group/recommend", element: <GroupRecommendPage /> },
 
-      // 연두 모임 여기부터 추가함 제발~~~ 올라가ㅏ아아
+      // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      // { path: "/group/my-detail", element: <MyGroupDetailMemberDefault /> },
-      { path: "/group/my-exercise", element: <GroupMyExerciseDetail /> },
+      { path: "/group/MemberDefault", element: <MemberDefault /> },
+      {
+        path: "/group/Mygroup/MyExerciseDetail",
+        element: <MyExerciseDetail />,
+      },
+      {
+        path: "/group/Mygroup/ExerciseDetailApplye",
+        element: <ExerciseDetailApply />,
+      },
+      { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
+
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
       { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
       { path: "/group/admin/invite", element: <InviteDefault /> },
