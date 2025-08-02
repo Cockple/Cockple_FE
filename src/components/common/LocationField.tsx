@@ -1,6 +1,8 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchFieldBtn from "./Search_Filed/SearchFieldBtn";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
+import SearchIcon from "@/assets/icons/search.svg?url";
 
 interface LocationFieldProps {
   register?: UseFormRegisterReturn;
@@ -36,9 +38,7 @@ export const LocationField = ({
         {showLabel && (
           <div className="flex px-1 gap-[2px] items-center">
             <p className="header-h5">{label}</p>
-            {icon && (
-              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
-            )}
+            {icon && <img src={Circle_Red} alt="icon-circle" />}
           </div>
         )}
 
@@ -52,11 +52,7 @@ export const LocationField = ({
             onClick={handleClick}
           />
           <button className="cursor-pointer absolute right-2 top-3">
-            <img
-              src="/src/assets/icons/search.svg"
-              alt="검색"
-              className="size-6"
-            />
+            <img src={SearchIcon} alt="검색" className="size-6" />
           </button>
         </div>
         <div className="flex items-center justify-center ">

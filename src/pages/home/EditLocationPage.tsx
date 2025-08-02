@@ -46,7 +46,7 @@ export const EditLocationPage = () => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pb-27">
       <PageHeader title="위치 수정하기" />
 
       <div className="flex flex-col mt-5 gap-8">

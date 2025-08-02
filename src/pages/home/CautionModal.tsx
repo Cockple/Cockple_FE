@@ -26,7 +26,7 @@ export const CautionModal = ({ onClose, initialFilter }: CautionModalProps) => {
     navigate(-1);
   };
   return (
-    <div className="flex justify-center items-center fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full">
+    <div className="flex justify-center items-center fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full z-50">
       <div className="w-86 h-63 p-3 bg-white shadow-ds200 border-round">
         <ModalBar onClick={onClose} />
         <div className="flex flex-col gap-vertical-section-s">

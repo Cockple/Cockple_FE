@@ -8,6 +8,7 @@ import InputField from "../../components/common/Search_Filed/InputField";
 import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import { useForm } from "react-hook-form";
 import { Member } from "../../components/common/contentcard/Member";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 
 type MemberStatus =
   | "waiting"
@@ -110,7 +111,7 @@ export const InviteGuest = () => {
             <div className="text-left flex flex-col gap-2 pb-5">
               <div className="flex px-1 gap-[2px] items-center">
                 <p className="header-h5">성별</p>
-                <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+                <img src={Circle_Red} alt="icon-cicle" />
               </div>
               <div className="flex gap-[13px]">
                 <TextBox

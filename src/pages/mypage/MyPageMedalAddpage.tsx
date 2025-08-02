@@ -15,6 +15,8 @@ import { useLocation } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
+import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 
 export const MyPageMedalAddPage = () => {
   const {
@@ -245,7 +247,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               대회명
-              <CicleSRED/>
+              <CicleSRED />
             </label>
             <div className="relative">
               <input
@@ -290,7 +292,7 @@ export const MyPageMedalAddPage = () => {
             <div className="text-left flex flex-col gap-2">
               <div className="flex px-1 gap-[2px] items-center">
                 <p className="header-h5">날짜</p>
-                <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+                <img src={Circle_Red} alt="icon-cicle" />
               </div>
 
               <input
@@ -324,7 +326,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               참여 형태
-              <CicleSRED/>
+              <CicleSRED />
             </label>
             <div className="flex gap-4">
               {formOptions.map(item => (
@@ -349,7 +351,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               급수
-              <CicleSRED/>
+              <CicleSRED />
             </label>
             <div className="flex items-center gap-4">
               <div className="relative w-40">
@@ -361,7 +363,7 @@ export const MyPageMedalAddPage = () => {
                     {selectedLevel}
                   </span>
                   <img
-                    src="/src/assets/icons/arrow_down.svg"
+                    src={ArrowDown}
                     alt="Dropdown arrow"
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4"
                   />

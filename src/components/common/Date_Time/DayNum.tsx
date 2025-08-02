@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { useState } from "react";
+import Circle_Fill from "@/assets/icons/cicle_s_fill.svg?url";
 
 type ColorType = "black" | "red" | "blue" | "Nblack" | "Nred" | "Nblue";
 type StatusType = "default" | "pressing" | "clicked";
@@ -89,7 +90,7 @@ export default function DayNum({
         <p>{date}</p>
         {hasDot && (
           <img
-            src="/src/assets/icons/cicle_s_fill.svg"
+            src={Circle_Fill}
             alt=""
             className="size-3 absolute bottom-0.5 left-4"
           />

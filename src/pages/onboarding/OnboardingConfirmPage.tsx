@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import TagBtn from "../../components/common/DynamicBtn/TagBtn";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
+import KittyImg from "@/assets/images/kitty.png?url";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();
@@ -34,11 +35,7 @@ export const ConfirmPage = () => {
         />
 
         <div>
-          <img
-            src="/src/assets/images/kitty.png"
-            alt="프로필 이미지"
-            className="size-40"
-          />
+          <img src={KittyImg} alt="프로필 이미지" className="size-40" />
         </div>
         <div className="flex flex-wrap gap-[0.625rem] items-center justify-center">
           {tagMap.map(item => {

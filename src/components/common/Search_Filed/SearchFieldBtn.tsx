@@ -1,5 +1,7 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
+import MyLocationIcon_G from "@/assets/icons/mylocation_g.svg?url";
 
 export default function SearchFieldBtn({
   children,
@@ -15,19 +17,19 @@ export default function SearchFieldBtn({
   const statusMap: Record<TextIconStatus, { bg?: string; icon: string }> = {
     clicked: {
       bg: "bg-gy-100",
-      icon: "/src/assets/icons/mylocation.svg",
+      icon: MyLocationIcon,
     },
     pressing: {
       bg: "bg-gy-200",
-      icon: "/src/assets/icons/mylocation.svg",
+      icon: MyLocationIcon,
     },
     default: {
       bg: "bg-gy-100",
-      icon: "/src/assets/icons/mylocation.svg",
+      icon: MyLocationIcon,
     },
     disabled: {
       bg: "bg-gy-100 text-gy-400",
-      icon: "/src/assets/icons/mylocation_g.svg",
+      icon: MyLocationIcon_G,
     },
   };
 

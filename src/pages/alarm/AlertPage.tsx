@@ -156,7 +156,7 @@ export const AlertPage = () => {
 
       {/* 승인 모달 */}
       {showApproveModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-10">
+        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
           <ApproveModal
             onClose={() => setShowApproveModal(false)}
             onApprove={confirmApprove}
@@ -166,7 +166,7 @@ export const AlertPage = () => {
 
       {/* 거절 모달 */}
       {showRejectModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-10">
+        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
           <RejectModal
             onClose={() => setShowRejectModal(false)}
             onReject={confirmReject}

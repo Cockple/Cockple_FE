@@ -5,6 +5,7 @@ import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import Search from "@/assets/icons/search.svg?react";
 import type { Place } from "./LocationSearchPage";
 import { ProgressBar } from "../../components/common/ProgressBar";
+import Marker from "@/assets/icons/map_marker.svg?url";
 
 declare global {
   interface Window {
@@ -68,11 +69,9 @@ export const LocationMapPage = () => {
     new kakao.maps.Marker({
       position: centerPos,
       map,
-      image: new kakao.maps.MarkerImage(
-        "/src/assets/icons/map_marker.svg",
-        new kakao.maps.Size(40, 40),
-        { offset: new kakao.maps.Point(20, 20) },
-      ),
+      image: new kakao.maps.MarkerImage(Marker, new kakao.maps.Size(40, 40), {
+        offset: new kakao.maps.Point(20, 20),
+      }),
     });
   }, [x, y]);
   return (
