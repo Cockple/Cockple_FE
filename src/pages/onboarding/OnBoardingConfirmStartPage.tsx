@@ -3,6 +3,7 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import KittyImg from "@/assets/images/kitty.png?url";
+import AddIcon from "@/assets/icons/add.svg";
 
 export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export const OnboardingConfirmStartPage = () => {
             className="flex py-2 px-4 rounded-lg gap-2 items-center justify-center bg-gy-100 cursor-pointer"
             onClick={() => navigate("/mypage/mymedal/add")}
           >
-            <img src="/src/assets/icons/add.svg" alt="" />
+            <img src={AddIcon} alt="" />
             대회기록 추가하기
           </button>
         </div>
