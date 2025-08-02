@@ -145,7 +145,7 @@ const router = createBrowserRouter([
 
       // 연두 모임 
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/MemberDefault", element: <MemberDefault /> },
+      { path: "/group/MemberDefault", element: <MemberDefault /> },//지영님 경로 수정 받아서 확인해야함
       { path: "/group/Mygroup/MyExerciseDetail", element: <MyExerciseDetail /> },
       { path: "/group/Mygroup/ExerciseDetailApplye", element: <ExerciseDetailApply /> }, 
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
