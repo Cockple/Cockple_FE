@@ -6,7 +6,7 @@ export const personalChats: PersonalChatRoom[] = [
     chatRoomId: 100,
     chatRoomName: "김세익스피어",
     memberCount: 2,
-    unreadCount: 12,
+    unreadCount: 1,
     lastMessage: {
       messageId: 1000,
       content: "내일 운동 참석 가능한 분들 손!",

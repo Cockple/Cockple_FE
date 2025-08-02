@@ -89,7 +89,13 @@ const ChattingComponent = ({
                     id="chatting"
                     className="flex max-w-[15rem] px-3 py-2 text-left items-start gap-[0.625rem] bg-white border-round"
                   >
-                    <span className="body-rg-500 text-black">
+                    <span
+                      className="body-rg-500 break-words"
+                      style={{
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                      }}
+                    >
                       {formatMessage(message.content)}
                     </span>
                   </div>
@@ -141,7 +147,13 @@ const ChattingComponent = ({
                       id="chatting"
                       className="flex max-w-[15rem] px-3 py-2 items-start text-left gap-[0.625rem] bg-white border-round"
                     >
-                      <span className="body-rg-500">
+                      <span
+                        className="body-rg-500 break-words"
+                        style={{
+                          wordBreak: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         {formatMessage(message.content)}
                       </span>
                     </div>

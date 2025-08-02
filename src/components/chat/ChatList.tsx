@@ -43,11 +43,15 @@ const ChatList = ({
         ? groupChats.map(chat => (
             <div
               key={chat.chatRoomId}
-              onClick={() =>
+              onClick={() => {
                 navigate(`/chat/group/${chat.chatRoomId}`, {
-                  state: { tab: "group", chatName: chat.partyName },
-                })
-              }
+                  state: {
+                    tab: "group",
+                    chatName: chat.partyName,
+                    partyId: chat.partyId,
+                  },
+                });
+              }}
               className="border-b border-gy-200 pb-1"
             >
               <GroupChat

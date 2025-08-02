@@ -1,6 +1,7 @@
 interface AlertTest1Props {
   groupName: string;
   alertText: string;
+  alertType: string;
   descriptionText?: string;
   imageSrc: string;
   onClick?: () => void;
@@ -10,12 +11,13 @@ const AlertTest1 = ({
   groupName,
   alertText,
   imageSrc,
+  alertType,
   descriptionText,
   onClick,
 }: AlertTest1Props) => {
   return (
     <div
-      className="flex w-[21.4375rem] flex-col gap-3 border-soft bg-white p-2"
+      className={`flex w-[21.4375rem] flex-col gap-3 border-soft bg-white p-2 ${alertType === "change" ? "cursor-pointer" : ""}`}
       onClick={onClick}
     >
       {/* 상단 정보 영역 */}
