@@ -27,7 +27,7 @@ export const PageHeader = ({
   return (
     <div
       className={clsx(
-        "flex items-center justify-between gap-3 w-full h-14",
+        "fixed top-0 left-1/2 -translate-x-1/2 px-4 flex items-center justify-between gap-3 w-full max-w-[444px] h-14 bg-white z-40",
         className,
       )}
     >

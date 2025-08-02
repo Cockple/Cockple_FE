@@ -46,7 +46,7 @@ export const OnboardingLevelPage = () => {
   };
 
   return (
-    <div className="w-full flex flex-col -mb-8">
+    <div className="w-full flex flex-col -mb-8 pt-14">
       <PageHeader title="회원 정보 입력" />
       <ProgressBar width={!isFormValid ? "28" : "48"} />
 

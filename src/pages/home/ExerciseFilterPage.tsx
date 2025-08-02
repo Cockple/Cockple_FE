@@ -86,7 +86,7 @@ export const ExerciseFilterPage = () => {
     }
   };
   return (
-    <div className="min-h-screen -mb-8 flex flex-col justify-between">
+    <div className="pb-24 flex flex-col">
       <div className="flex flex-col gap-5">
         <PageHeader title="필터" onBackClick={handleBack} />
 
@@ -153,12 +153,16 @@ export const ExerciseFilterPage = () => {
           </Toggle>
         </div>
       </div>
-      <Grad_Mix_L
-        type="refresh"
-        label="필터 적용"
-        onImageClick={resetFilter}
-        onClick={() => navigate(-1)}
-      />
+
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2">
+        <Grad_Mix_L
+          type="refresh"
+          label="필터 적용"
+          onImageClick={resetFilter}
+          onClick={() => navigate(-1)}
+        />
+      </div>
+
       {showModal && (
         <CautionModal
           onClose={() => setShowModal(false)}

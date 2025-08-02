@@ -16,7 +16,7 @@ export default function WeeklyCalendar({
   // selectedDate,
   onClick,
   exerciseDays = [],
-  shadow = false,
+  shadow = true,
 }: WeeklyCalendarProps) {
   const today = new Date();
   const range = 90;
@@ -59,10 +59,10 @@ export default function WeeklyCalendar({
                 hasDot={exerciseDays.includes(d.full)}
                 color={
                   d.dayNumber === 0
-                    ? shadow
+                    ? !shadow
                       ? "Nred"
                       : "red"
-                    : shadow
+                    : !shadow
                       ? "Nblack"
                       : "black"
                 } // 일요일

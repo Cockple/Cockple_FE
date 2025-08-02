@@ -16,6 +16,7 @@ export const GroupRecommendPage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+  const [recommend, setRecommend] = useState(false);
   const { region, level, style, day, time, keyword } =
     useGroupRecommendFilterState();
   const filterState = { region, level, style, day, time, keyword };
@@ -26,7 +27,10 @@ export const GroupRecommendPage = () => {
       <PageHeader title="모임 추천" />
       <div className="flex flex-col gap-3">
         <div className="flex justify-between w-full h-7">
-          <CheckBoxBtn>
+          <CheckBoxBtn
+            checked={recommend}
+            onClick={() => setRecommend(!recommend)}
+          >
             <span>콕플 추천</span>
           </CheckBoxBtn>
 
@@ -34,6 +38,7 @@ export const GroupRecommendPage = () => {
             <FilterBtn
               onClick={() => navigate("/group/recommend-filter")}
               forceStatus={filterStatus}
+              disabled={recommend}
             >
               <span>필터</span>
             </FilterBtn>
@@ -43,6 +48,7 @@ export const GroupRecommendPage = () => {
               label={sortOption}
               isOpen={isSortOpen}
               onClick={() => setIsSortOpen(!isSortOpen)}
+              disabled={recommend}
             />
           </div>
         </div>

@@ -7,7 +7,7 @@ export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full  flex flex-col -mb-8">
+    <div className="w-full  flex flex-col -mb-8 pt-14">
       <PageHeader title="가입 완료" />
       <section className="flex items-center flex-col  gap-15 pb-24 ">
         <IntroText

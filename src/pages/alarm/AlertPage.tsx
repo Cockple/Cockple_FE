@@ -116,7 +116,7 @@ export const AlertPage = () => {
   return (
     <div className="flex flex-col min-h-[100dvh] -mb-8 overflow-hidden relative">
       {/* 헤더 */}
-      <PageHeader title="알림" onBackClick={() => navigate("/")} />
+      <PageHeader title="알림" />
 
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">

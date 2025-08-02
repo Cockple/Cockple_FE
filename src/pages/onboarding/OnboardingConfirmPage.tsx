@@ -22,7 +22,7 @@ export const ConfirmPage = () => {
     "운영진이 게임을 짜드려요",
   ];
   return (
-    <div className="w-full  flex flex-col -mb-8">
+    <div className="w-full flex flex-col -mb-8 -mt-14">
       <section className="flex items-center flex-col gap-10 ">
         <IntroText
           title={

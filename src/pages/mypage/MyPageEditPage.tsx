@@ -43,12 +43,11 @@ export const MyPageEditPage = ({
   rank: initialRankProp,
   hasNoRank: initialHasNoRankProp,
   locations: initialLocationsProp = [],
-  location,
   // isMainAddr="ㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
   // streetAddr="ㅈ돋ㅁㅎㄱ",
   // isMainAddr,
   // streetAddr,
-  keywords = ["브랜드 스폰", "가입비 무료","친목", "운영진이 게임을 짜드려요"],
+  keywords = ["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"],
 }: MyPageEditProps) => {
   const navigate = useNavigate();
 
@@ -67,7 +66,6 @@ export const MyPageEditPage = ({
     ["브랜드 스폰", "가입비 무료"],
     ["친목", "운영진이 게임을 짜드려요"],
   ];
-  
 
   const level = [
     "왕초심",
@@ -313,7 +311,7 @@ export const MyPageEditPage = ({
         <div className="mb-8">
           <label className="flex items-center text-left header-h5 mb-1">
             이름
-            <CicleSRED/>
+            <CicleSRED />
           </label>
           <div className="relative">
             <input
@@ -388,7 +386,7 @@ export const MyPageEditPage = ({
         <div className="mb-8">
           <label className="flex items-center text-left header-h5 mb-1">
             전국 급수
-            <CicleSRED/>
+            <CicleSRED />
           </label>
           <div className="flex items-center gap-4">
             <div className="relative w-40">
@@ -409,7 +407,7 @@ export const MyPageEditPage = ({
                 <div className="absolute mt-1 z-10 w-40">
                   <ul
                     className="border rounded-xl border-gy-200 bg-white shadow text-left"
-                    style={{ maxHeight: '8.5rem', overflowY: 'auto' }} 
+                    style={{ maxHeight: "8.5rem", overflowY: "auto" }}
                   >
                     {level.map((item, idx) => (
                       <li
@@ -426,7 +424,6 @@ export const MyPageEditPage = ({
                   </ul>
                 </div>
               )}
-
             </div>
 
             {/* 급수 없음 토글 */}
@@ -453,8 +450,8 @@ export const MyPageEditPage = ({
         </div>
 
         {/* 위치 */}
-        <LocationField label="위치"/>
-         {/* 등록된 위치 */}
+        <LocationField label="위치" />
+        {/* 등록된 위치 */}
         <div className="mt-8">
           <div className="flex justify-between items-center mb-1">
             <label className="text-left header-h5">등록된 위치</label>
@@ -495,7 +492,9 @@ export const MyPageEditPage = ({
 
         {/* 키워드 */}
         <div className="mt-8">
-          <label className="flex items-center text-left header-h5 mb-1">키워드</label>
+          <label className="flex items-center text-left header-h5 mb-1">
+            키워드
+          </label>
           <div className="flex flex-col gap-3">
             {keywordLines.map((line, i) => (
               <div key={i} className="flex gap-4 flex-wrap">
@@ -508,12 +507,11 @@ export const MyPageEditPage = ({
                       className={`py-2 rounded-xl whitespace-nowrap w-auto max-w-full ${
                         keyword === "친목" ? "px-[1.4rem]" : "px-[2.7rem]"
                       }`}
-
                       onClick={() => {
                         setSelectedKeywords(prev =>
                           isSelected
                             ? prev.filter(k => k !== keyword)
-                            : [...prev, keyword]
+                            : [...prev, keyword],
                         );
                       }}
                     >

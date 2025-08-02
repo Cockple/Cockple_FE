@@ -123,18 +123,9 @@ export const ChatDetailTemplate = ({
   };
 
   return (
-    <div
-      className="relative flex flex-col min-h-[100dvh] -mb-8"
-      style={{
-        width: "calc(100% + 2rem)",
-        marginLeft: "-1rem",
-        marginRight: "-1rem",
-      }}
-    >
+    <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
       {/* 헤더 */}
-      <div className="sticky top-0 px-2 bg-white">
-        <PageHeader title={chatName} onBackClick={onBack} />
-      </div>
+      <PageHeader title={chatName} onBackClick={onBack} />
 
       {/* 메시지 영역 */}
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200">

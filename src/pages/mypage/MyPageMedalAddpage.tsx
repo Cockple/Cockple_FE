@@ -178,7 +178,7 @@ export const MyPageMedalAddPage = () => {
   };
   console.log(tournamentName, selectedDate, selectedForm);
   return (
-    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col">
+    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-2">
       <div className="flex-shrink-0 sticky top-0 z-20 bg-white ">
         <PageHeader title="대회 기록 추가하기" onBackClick={onBackClick} />
         {isModalOpen && (
@@ -371,7 +371,7 @@ export const MyPageMedalAddPage = () => {
                   <div className="absolute mt-1 z-10 w-40">
                     <ul
                       className="border rounded-xl border-gy-200 bg-white shadow text-left"
-                      style={{ maxHeight: '8.5rem', overflowY: 'auto' }}
+                      style={{ maxHeight: "8.5rem", overflowY: "auto" }}
                     >
                       {level.map((item, idx) => (
                         <li
@@ -395,7 +395,11 @@ export const MyPageMedalAddPage = () => {
           {/* 대회 기록 */}
           <div>
             <div className="flex justify-between items-start">
-              <CheckBox_Long_noButton title="대회 기록" maxLength={100} Label="비공개" />
+              <CheckBox_Long_noButton
+                title="대회 기록"
+                maxLength={100}
+                Label="비공개"
+              />
             </div>
           </div>
 

@@ -33,7 +33,9 @@ export const GroupLayout = () => {
         selected={select}
         onChange={handleChange}
       />
-      <Outlet />
+      <div className="pt-14">
+        <Outlet />
+      </div>
     </div>
   );
 };
