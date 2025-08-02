@@ -145,7 +145,7 @@ export const MyPageMyExercisePage = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
+    <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto pt-14">
       <div className={`sticky top-0 z-20 bg-white`}>
         <PageHeader title="내 운동" />
         <TabSelector
