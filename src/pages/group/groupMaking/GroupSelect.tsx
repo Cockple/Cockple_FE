@@ -41,6 +41,7 @@ export const GroupSelect = () => {
           {/* 첫번째 */}
           <div className="flex flex-col gap-8">
             <SingleImageUploadBtn />
+
             <InputField
               isRequired={false}
               labelName="멤버에게 하고 싶은 말 / 소개"
@@ -48,13 +49,14 @@ export const GroupSelect = () => {
               InputLength={text?.length}
               onChange={handleInputDetected}
               value={text}
+              isTextArea={true}
             />
           </div>
         </section>
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-38 shrink-0 `}
+          className={`flex items-center justify-center mb-4 mt-22 shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
