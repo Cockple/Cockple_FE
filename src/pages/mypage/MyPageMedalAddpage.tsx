@@ -4,7 +4,7 @@ import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { ImageBox } from "../../components/common/ImageBox";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import Camera from "../../assets/icons/camera.svg?react";
-import VectorRed from "../../assets/icons/Vector_red.svg?react";
+import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import Kitty from "../../assets/images/Image Carousel.png";
 import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import { Modal_Add_Caution } from "../../components/MyPage/Modal_Add_Caution";
@@ -29,7 +29,6 @@ export const MyPageMedalAddPage = () => {
 
   // ‼️ 배포 오류를 위한 임시 코드
   const selectedGrade = "";
-  // const [selectedGrade, setSelectedGrade] = useState<string>(""); // 급수 선택 상태
   const [tournamentName, setTournamentName] = useState(""); // 대화명 상태
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -179,7 +178,7 @@ export const MyPageMedalAddPage = () => {
   };
   console.log(tournamentName, selectedDate, selectedForm);
   return (
-    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col">
+    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-2">
       <div className="flex-shrink-0 sticky top-0 z-20 bg-white ">
         <PageHeader title="대회 기록 추가하기" onBackClick={onBackClick} />
         {isModalOpen && (
@@ -197,7 +196,7 @@ export const MyPageMedalAddPage = () => {
         )}
       </div>
 
-      <div className="flex-grow min-h-0 overflow-y-auto">
+      <div className="flex-grow min-h-0 overflow-y-auto scrollbar-hide">
         <div className="flex flex-col gap-8">
           <>
             <input
@@ -246,7 +245,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               대회명
-              <VectorRed className="ml-1 w-2 h-2" />
+              <CicleSRED/>
             </label>
             <div className="relative">
               <input
@@ -269,7 +268,7 @@ export const MyPageMedalAddPage = () => {
             <label className="flex items-center text-left header-h5 mb-1">
               수상
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full items-center justify-center">
               {images.map((_, i) => (
                 <ImageBox
                   key={i}
@@ -325,7 +324,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               참여 형태
-              <VectorRed className="ml-1 w-2 h-2" />
+              <CicleSRED/>
             </label>
             <div className="flex gap-4">
               {formOptions.map(item => (
@@ -350,6 +349,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               급수
+              <CicleSRED/>
             </label>
             <div className="flex items-center gap-4">
               <div className="relative w-40">
@@ -369,7 +369,10 @@ export const MyPageMedalAddPage = () => {
 
                 {open && !disabled && (
                   <div className="absolute mt-1 z-10 w-40">
-                    <ul className="border rounded-xl border-gy-200 bg-white shadow text-left">
+                    <ul
+                      className="border rounded-xl border-gy-200 bg-white shadow text-left"
+                      style={{ maxHeight: "8.5rem", overflowY: "auto" }}
+                    >
                       {level.map((item, idx) => (
                         <li
                           key={idx}
@@ -392,7 +395,11 @@ export const MyPageMedalAddPage = () => {
           {/* 대회 기록 */}
           <div>
             <div className="flex justify-between items-start">
-              <CheckBox_Long_noButton title="대회 기록" maxLength={100} />
+              <CheckBox_Long_noButton
+                title="대회 기록"
+                maxLength={100}
+                Label="비공개"
+              />
             </div>
           </div>
 

@@ -3,6 +3,7 @@ import CheckCircled from "../../../assets/icons/check_circled.svg?react";
 import Check_circled_filled from "../../../assets/icons/check_circled_filled.svg?react";
 import Dismiss from "../../../assets/icons/dismiss.svg?react";
 import Dismiss_GY from "../../../assets/icons/dismiss_GY.svg?react";
+import clsx from "clsx";
 
 interface LocationProps {
   isMainAddr: string;
@@ -12,8 +13,8 @@ interface LocationProps {
   editMode?: boolean;
   onClick?: (clicked: boolean) => void;
   onDelete?: () => void;
+  className?: string;
 }
-
 
 export const Location = ({
   isMainAddr,
@@ -23,6 +24,7 @@ export const Location = ({
   editMode = false,
   onClick,
   onDelete,
+  className,
 }: LocationProps) => {
   const [isPressing, setIsPressing] = useState(false);
   const [isClicked, setIsClicked] = useState(initialClicked);
@@ -53,13 +55,15 @@ export const Location = ({
   const bgClass = isPressing && !disabled ? "bg-[#F4F5F6]" : "bg-white";
   const borderClass = "border-[#E4E7EA]";
   const textColor = disabled ? "text-[#C0C4CD]" : "text-black";
-  const cursorStyle = disabled ? "cursor-not-allowed pointer-events-none" : "cursor-pointer";
+  const cursorStyle = disabled
+    ? "cursor-not-allowed pointer-events-none"
+    : "cursor-pointer";
 
   let rightIcon = null;
   if (editMode && !disabled) {
     rightIcon = (
       <Dismiss
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           onDelete?.();
         }}
@@ -79,7 +83,10 @@ export const Location = ({
 
   return (
     <div
-      className={`${baseClasses} ${bgClass} ${borderClass} ${cursorStyle}`}
+      className={clsx(
+        `${baseClasses} ${bgClass} ${borderClass} ${cursorStyle}`,
+        className,
+      )}
       onMouseDown={handlePressStart}
       onMouseUp={handlePressEnd}
       onMouseLeave={handlePressEnd}
@@ -90,10 +97,10 @@ export const Location = ({
       <div
         className={`w-[16.9375rem] h-[3rem] flex flex-col justify-center items-start overflow-hidden ${textColor}`}
       >
-        <p className="body-md-500 truncate w-full" title={isMainAddr}>
+        <p className="body-md-500 truncate w-full text-left" title={isMainAddr}>
           {isMainAddr}
         </p>
-        <p className="body-rg-500 truncate w-full" title={streetAddr}>
+        <p className="body-rg-500 truncate w-full text-left" title={streetAddr}>
           {streetAddr}
         </p>
       </div>

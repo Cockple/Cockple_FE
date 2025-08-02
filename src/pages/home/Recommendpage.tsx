@@ -11,11 +11,13 @@ import {
   isFilterDirty,
   useExerciseFilterStore,
 } from "../../store/useExerciseFilterStore";
+import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 
 export const RecommendPage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+  const [recommend, setRecommend] = useState(false);
   const data = groupExerciseData;
   const { region, level, style, time } = useExerciseFilterStore();
   const filterState = { region, level, style, time };
@@ -24,9 +26,14 @@ export const RecommendPage = () => {
     <div className="flex flex-col gap-2 -mx-4 px-4 bg-white">
       <PageHeader title="운동 추천" onBackClick={() => navigate("/")} />
       <div className="flex flex-col gap-3">
-        <div className="w-full h-17">{/* 달력 */}</div>
+        <div className="w-full h-17">
+          <WeeklyCalendar shadow={false} />
+        </div>
         <div className="flex justify-between w-full h-7">
-          <CheckBoxBtn>
+          <CheckBoxBtn
+            checked={recommend}
+            onClick={() => setRecommend(!recommend)}
+          >
             <span>콕플 추천</span>
           </CheckBoxBtn>
 
@@ -34,6 +41,7 @@ export const RecommendPage = () => {
             <FilterBtn
               onClick={() => navigate("/recommend/filter")}
               forceStatus={filterStatus}
+              disabled={recommend}
             >
               <span>필터</span>
             </FilterBtn>
@@ -43,6 +51,7 @@ export const RecommendPage = () => {
               label={sortOption}
               isOpen={isSortOpen}
               onClick={() => setIsSortOpen(!isSortOpen)}
+              disabled={recommend}
             />
           </div>
         </div>

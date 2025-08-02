@@ -1,22 +1,11 @@
-import { useForm } from "react-hook-form";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { useNavigate } from "react-router-dom";
-import SearchField from "../../components/common/Search_Filed/SearchField";
 import { ProgressBar } from "../../components/common/ProgressBar";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
+import { LocationField } from "../../components/common/LocationField";
 
 export const OnboardingAddressPage = () => {
-  const {
-    // data,
-    register,
-    // handleSubmit,
-    // setValue,
-    // formState: { errors },
-  } = useForm();
-  const navigate = useNavigate();
-
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col mt-14">
       <PageHeader title="회원 정보 입력" />
       <ProgressBar width="52" />
 
@@ -28,11 +17,7 @@ export const OnboardingAddressPage = () => {
           isBar={true}
         />
 
-        <SearchField
-          register={register("location")}
-          label="위치"
-          onSearchClick={() => navigate("/myPage/edit/location")}
-        />
+        <LocationField label="위치" returnPath="/onboarding/profile" />
       </section>
     </div>
   );

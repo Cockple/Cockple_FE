@@ -85,8 +85,8 @@ export const MyPageProfile = ({
   // const [groups, setGroups] = useState<GroupMProps[]>(dummyGroups);
 
   return (
-    <div className="flex flex-col pb-26 overflow-auto">
-      <div className="gap-[1.25rem]">
+    <div className="flex flex-col overflow-hidden w-full">
+      <div className="flex flex-col gap-[1.25rem] w-full">
         <PageHeader title="프로필" />
         <Profile
           name={name}
@@ -97,7 +97,7 @@ export const MyPageProfile = ({
         />
       </div>
 
-      <div className="my-8 flex flex-col gap-4">
+      <div className="my-8 flex flex-col gap-4 w-full flex flex-col items-center">
         <MyPage_Text
           textLabel="내 모임"
           numberValue={groups.length}

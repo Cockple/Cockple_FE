@@ -4,6 +4,7 @@ interface GroupSProps {
   location: string;
   imageSrc: string;
   disabled?: boolean; 
+  className?: string; 
 }
 
 export const Group_S = ({
@@ -11,6 +12,7 @@ export const Group_S = ({
   location,
   imageSrc,
   disabled = false, 
+  className = "",
 }: GroupSProps) => {
   const [isPressing, setIsPressing] = useState(false);
 
@@ -38,7 +40,10 @@ export const Group_S = ({
         ${bgColor} 
         ${cursorStyle}
         ${disabled ? 'pointer-events-none' : ''} 
-        flex flex-col items-center gap-[0.75rem] transition-colors duration-150`}
+        flex flex-col items-center gap-[0.75rem] transition-colors duration-150
+         ${className}
+        `}
+        
     >
       {/* 이미지 영역 */}
       <div>

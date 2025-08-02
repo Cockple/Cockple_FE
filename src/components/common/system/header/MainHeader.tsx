@@ -3,6 +3,7 @@ import Alert from "@/assets/icons/alert.svg";
 import AlertNoti from "@/assets/icons/alert_noti.svg";
 import clsx from "clsx";
 import DropDownBtn from "../../DynamicBtn/DropDownBtn";
+import { useNavigate } from "react-router-dom";
 
 interface MainHeaderProps {
   hasNotification?: boolean;
@@ -15,6 +16,7 @@ export const MainHeader = ({
   background = "white",
   className,
 }: MainHeaderProps) => {
+  const navigate = useNavigate();
   const alertIcon = hasNotification ? AlertNoti : Alert;
 
   return (
@@ -29,10 +31,19 @@ export const MainHeader = ({
 
       <div className="flex gap-3">
         <DropDownBtn>
-          <span className="header-h4">사1동</span>
+          <span
+            className="header-h4"
+            onClick={() => navigate("/edit/location")}
+          >
+            사1동
+          </span>
         </DropDownBtn>
 
-        <button type="button" className="p-1">
+        <button
+          type="button"
+          className="p-1"
+          onClick={() => navigate("/alert")}
+        >
           <img
             src={alertIcon}
             className="w-6 cursor-pointer"

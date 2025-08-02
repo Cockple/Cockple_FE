@@ -2,12 +2,17 @@ import SubtractPerson from "../../assets/icons/subtract_person.svg?react";
 import Dismiss from "../../assets/icons/dismiss.svg?react";
 import Btn_Static from "../common/Btn_Static/Btn_Static";
 
-export const Modal_Subtract = () => {
+interface ModalSubtractProps {
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+export const Modal_Subtract = ({ onClose, onConfirm }: ModalSubtractProps) => {
   return (
     <div className="bg-white w-[21.4375rem] h-[14.25rem] flex flex-col p-3 shadow-ds300 rounded-2xl">
     
         <div className="flex justify-end mb-2">
-            <Dismiss className="w-8 h-8" />
+            <Dismiss className="w-8 h-8" onClick={onClose} />
         </div>
 
         <div className="flex flex-col items-center text-center gap-1 mb-4 leading-snug">
@@ -24,6 +29,7 @@ export const Modal_Subtract = () => {
             label="취소하기"
             textColor="text-[#F62D2D]"
             justify="justify-center"
+            onClick={onConfirm}
             />
         </div>
     </div>

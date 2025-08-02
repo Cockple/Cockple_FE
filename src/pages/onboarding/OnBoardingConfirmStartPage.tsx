@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
 
 export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full  flex flex-col -mb-8">
+    <div className="w-full  flex flex-col -mb-8 pt-14">
       <PageHeader title="가입 완료" />
       <section className="flex items-center flex-col  gap-15 pb-24 ">
         <IntroText

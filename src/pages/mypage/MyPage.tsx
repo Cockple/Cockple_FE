@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import type { GroupMProps } from "./MyPageMyGroupPage";
 import type { ContentCardLProps } from "../../components/common/contentcard/ContentCardL";
 
+
 interface MyPageProps {
   name?: string;
   gender?: "female" | "male";
@@ -204,100 +205,90 @@ export const MyPage = ({
 
   console.log(goldCount);
   return (
-    <div className="flex flex-col overflow-auto">
-      <div className="flex flex-col gap-[1.25rem]">
-        <div className="max-w-full w-full">
+    <div className="flex flex-col overflow-hidden w-full">
+      <div className="flex flex-col gap-[1.25rem] w-full">
+        <div className="w-full">
           <MainHeader hasNotification={true} />
         </div>
-        <Profile
-          name={name}
-          gender={gender}
-          level={level}
-          birth={birth}
-          profileImage={profileImage}
-        />
-      </div>
+        <div className="w-full flex flex-col items-center overflow-y-auto overflow-x-hidden px-4">
+          <Profile
+            name={name}
+            gender={gender}
+            level={level}
+            birth={birth}
+            profileImage={profileImage}
+          />
+          <div className="mt-4">
+            <White_L_Thin
+              label="정보 수정하기"
+              initialStatus="clicked"
+              onClick={() => navigate("/myPage/edit")}
+            />
+          </div>
 
-      <div className="mt-4">
-        <White_L_Thin
-          label="정보 수정하기"
-          initialStatus="clicked"
-          onClick={() => navigate("/myPage/edit")}
-        />
-      </div>
+          <div className="my-8 flex flex-col gap-4">
+            <MyPage_Text
+              textLabel="내 모임"
+              numberValue={groups.length}
+              onClick={() => navigate("/mypage/mygroup", { state: { groups } })}
+            />
+            <MyPage_Text
+              textLabel="내 운동"
+              numberValue={exercises.length}
+              onClick={() =>
+                navigate("/myPage/myexercise", {
+                  state: { myActivityCount: exercises },
+                })
+              }
+            />
+            <MyPageContentcard
+              myMedalTotal={totalMedals}
+              goldCount={gold}
+              silverCount={silver}
+              bronzeCount={bronze}
+              disabled={disabled}
+              onClick={() => {
+                console.log("navigate with state:", {
+                  medals: dummyMedals,
+                  goldCount: gold,
+                  silverCount: silver,
+                  bronzeCount: bronze,
+                  myMedalTotal: totalMedals,
+                  disabled,
+                });
+                navigate("/myPage/mymedal", {
+                  state: {
+                    medals: dummyMedals,
+                    goldCount: gold,
+                    silverCount: silver,
+                    bronzeCount: bronze,
+                    myMedalTotal: totalMedals,
+                    disabled,
+                  },
+                });
+              }}
+            />
+          </div>
 
-      <div className="my-8 flex flex-col gap-4">
-        <MyPage_Text
-          textLabel="내 모임"
-          numberValue={groups.length}
-          onClick={() => navigate("/mypage/mygroup", { state: { groups } })}
-        />
-        <MyPage_Text
-          textLabel="내 운동"
-          numberValue={exercises.length}
-          onClick={() =>
-            navigate("/myPage/myexercise", {
-              state: { myActivityCount: exercises },
-            })
-          }
-        />
-
-        {/* <MyPage_Text textLabel="내 모임" numberValue={myGroupCount} onClick={() => navigate("/myPage/mygroup")} /> */}
-        {/* <MyPage_Text textLabel="내 운동" numberValue={myExerciseCount} onClick={() => navigate("/myPage/myexercise")}/> */}
-        {/* <MyPageContentcard
-          myMedalTotal={myMedalTotal}
-          goldCount={goldCount}
-          silverCount={silverCount}
-          bronzeCount={bronzeCount}
-          disabled={disabled}
-          onClick={() => navigate("/myPage/mymedal")}  
-        /> */}
-        <MyPageContentcard
-          myMedalTotal={totalMedals}
-          goldCount={gold}
-          silverCount={silver}
-          bronzeCount={bronze}
-          disabled={disabled}
-          onClick={() => {
-            console.log("navigate with state:", {
-              medals: dummyMedals,
-              goldCount: gold,
-              silverCount: silver,
-              bronzeCount: bronze,
-              myMedalTotal: totalMedals,
-              disabled,
-            });
-            navigate("/myPage/mymedal", {
-              state: {
-                medals: dummyMedals,
-                goldCount: gold,
-                silverCount: silver,
-                bronzeCount: bronze,
-                myMedalTotal: totalMedals,
-                disabled,
-              },
-            });
-          }}
-        />
-      </div>
-
-      <div className="gap-[0.25rem]">
-        <White_L
-          initialStatus="clicked"
-          label="공지사항"
-          onClick={() => alert("공지사항 클릭")}
-        />
-        <White_L
-          initialStatus="clicked"
-          label="이용약관"
-          onClick={() => alert("이용약관 클릭")}
-        />
-        <White_L
-          initialStatus="clicked"
-          label=" 설정"
-          onClick={() => alert("설정 클릭")}
-        />
+          <div className="gap-[0.25rem]">
+            <White_L
+              initialStatus="clicked"
+              label="공지사항"
+              onClick={() => alert("공지사항 클릭")}
+            />
+            <White_L
+              initialStatus="clicked"
+              label="이용약관"
+              onClick={() => alert("이용약관 클릭")}
+            />
+            <White_L
+              initialStatus="clicked"
+              label=" 설정"
+              onClick={() => alert("설정 클릭")}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}

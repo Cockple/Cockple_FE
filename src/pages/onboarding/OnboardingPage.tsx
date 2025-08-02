@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import IntroText from "./components/IntroText";
+import IntroText from "../../components/onboarding/IntroText";
 
 export const OnboardingPage = () => {
   const navigate = useNavigate();

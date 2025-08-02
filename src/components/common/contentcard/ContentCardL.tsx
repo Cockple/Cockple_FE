@@ -7,6 +7,7 @@ import People from "../../../assets/icons/people.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
+import { useNavigate } from "react-router-dom";
 
 interface ContentCardLProps {
   id: number;
@@ -42,6 +43,7 @@ export const ContentCardL = ({
   like = false,
   onToggleFavorite,
 }: ContentCardLProps) => {
+  const navigate = useNavigate();
   const [isStarted, setIsStarted] = useState(false);
   const [isStartPressing, setIsStartPressing] = useState(false);
   const [isGuestPressing, setIsGuestPressing] = useState(false);
@@ -66,8 +68,8 @@ export const ContentCardL = ({
 
   return (
     <div
-      className={`w-[21.4375rem] rounded-[1rem] p-3 mb-3 space-y-3 transition-colors duration-150
-        ${containerPressed ? "bg-[#F4F5F6]" : "bg-white"} shadow`}
+      className={`w-full rounded-[1rem] p-3 mb-3 space-y-3 transition-colors duration-150
+        ${containerPressed ? "bg-[#F4F5F6]" : "bg-white"} shadow-ds100`}
     >
       {/* 상단 */}
       <div className="flex items-center justify-between">
@@ -78,7 +80,10 @@ export const ContentCardL = ({
             onClick={() => handleToggleFavorite()}
           />
         </div>
-        <RightAngle className="w-4 h-4" />
+        <RightAngle
+          className="w-4 h-4"
+          onClick={() => navigate("/group/Mygroup/MyExerciseDetail")}
+        />
       </div>
 
       {/* 정보 */}

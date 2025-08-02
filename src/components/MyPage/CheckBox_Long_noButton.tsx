@@ -1,17 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
+import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 
 interface CheckBoxLongnoButton {
   title?: string;
+  Label? : string;
   maxLength?: number;
+  showIcon?: boolean;
+  onChange?: (checked: boolean, value: string) => void;
+  showLengthIndicator?: boolean; 
 }
 
 export const CheckBox_Long_noButton = ({
   title,
+  Label,
   maxLength,
+  showIcon = false,
+  showLengthIndicator = false, 
+  onChange,
 }: CheckBoxLongnoButton) => {
-  const [recordTexts, setRecordTexts] = useState<string[]>([""]);
+  const [Texts, setTexts] = useState<string[]>([""]);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isRecordFocused, setIsRecordFocused] = useState<boolean[]>([false]);
 
@@ -26,21 +35,24 @@ export const CheckBox_Long_noButton = ({
   };
 
   useEffect(() => {
-    recordTexts.forEach((_, idx) => {
+    Texts.forEach((_, idx) => {
       adjustHeight(idx);
     });
-  }, [recordTexts]);
+  }, [Texts]);
 
   const onChangeText = (idx: number, value: string) => {
     if (isPrivate) return;
+    if (maxLength && value.length > maxLength) return;
 
-    const newTexts = [...recordTexts];
+    const newTexts = [...Texts];
     newTexts[idx] = value;
-    setRecordTexts(newTexts);
+    setTexts(newTexts);
 
-    if (isRecordFocused.length < recordTexts.length) {
+    if (isRecordFocused.length < Texts.length) {
       setIsRecordFocused(prev => [...prev, false]);
     }
+      onChange?.(false, newTexts[0] || "");
+
   };
 
   const onFocus = (idx: number) => {
@@ -65,10 +77,17 @@ export const CheckBox_Long_noButton = ({
             >
               {title}
             </label>
+            {showIcon && <CicleSRED/>} 
+
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsPrivate(prev => !prev)}
+              // onClick={() => setIsPrivate(prev => !prev)}
+            onClick={() => {
+              const newChecked = !isPrivate;
+              setIsPrivate(newChecked);
+              onChange?.(newChecked, Texts[0] || "");
+            }}
               type="button"
               className="focus:outline-none"
             >
@@ -78,13 +97,13 @@ export const CheckBox_Long_noButton = ({
                 <CheckCircled className="w-4 h-4" />
               )}
             </button>
-            <label className={`body-rg-500`}>비공개</label>
+            <label className={`body-rg-500 px-1`}>{Label}</label>
           </div>
         </div>
       </div>
 
-      {recordTexts.map((text, idx) => (
-        <div key={idx} className="relative mb-4">
+      {Texts.map((text, idx) => (
+        <div key={idx} className="relative">
           <textarea
             ref={el => {
               textAreaRefs.current[idx] = el;
@@ -108,9 +127,11 @@ export const CheckBox_Long_noButton = ({
               focus:outline-none
             `}
           />
-          <div className="body-rg-500 absolute bottom-5 right-3 text-[#D6DAE0]">
-            {/* ({text.length}/{maxLength}) */}
-          </div>
+            {showLengthIndicator && (
+              <div className="body-rg-500 absolute bottom-5 right-3 text-[#D6DAE0]">
+                ({text.length}/{maxLength})
+              </div>
+            )}
         </div>
       ))}
     </div>

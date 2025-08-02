@@ -18,7 +18,9 @@ export default function FilterBtn({
     disabled,
     true,
   );
-  const actualStatus = forceStatus ?? status;
+  const actualStatus: IconTextStatus = disabled
+    ? "disabled"
+    : (forceStatus ?? status);
 
   const statusMap: Record<IconTextStatus, { bg: string; icon: string }> = {
     clicked: {
@@ -53,6 +55,7 @@ export default function FilterBtn({
       onMouseLeave={onMouseLeave}
       onClick={onClick}
       type={type ? type : "button"}
+      disabled={disabled}
     >
       <img src={icon} alt="필터 설정" className="size-4" />
       {children}

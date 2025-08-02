@@ -53,7 +53,7 @@ export const DropBox = ({
         />
       </button>
       {open && (
-        <ul className="absolute z-10 mt-1 max-h-31 w-full overflow-auto rounded border-1 border-gy-200 border-soft bg-white">
+        <ul className="absolute z-10 mt-1 max-h-31 w-full overflow-auto rounded border-1 border-gy-200 border-soft bg-white scrollbar-hide">
           {options.map(opt => {
             const isEnabled = opt.enabled ?? true;
             return (
