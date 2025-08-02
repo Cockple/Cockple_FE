@@ -69,7 +69,7 @@ export const MyPageMyExercisePage = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-6">
+      <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide">
         {filteredList.length > 0 ? (
           <>
             <div className="flex justify-end mb-3">
@@ -79,9 +79,11 @@ export const MyPageMyExercisePage = () => {
                 onClick={() => setIsSortOpen(!isSortOpen)}
               />
             </div>
-            {filteredList.map((group, idx) => (
-              <ContentCardL key={idx} {...group} />
-            ))}
+            <div className="flex flex-col items-center justify-center">
+              {filteredList.map((group, idx) => (
+                <ContentCardL key={idx} {...group} />
+              ))}
+            </div>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center">
@@ -89,6 +91,7 @@ export const MyPageMyExercisePage = () => {
           </div>
         )}
       </div>
+
       <SortBottomSheet
         isOpen={isSortOpen}
         onClose={() => setIsSortOpen(false)}

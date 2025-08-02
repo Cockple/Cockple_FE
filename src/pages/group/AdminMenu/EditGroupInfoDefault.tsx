@@ -1,6 +1,6 @@
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import { useState, useEffect, useRef } from "react";
-import VectorRed from "../../../assets/icons/Vector_red.svg?react";
+import CicleSRED from "../../../assets/icons/cicle_s_red.svg?react";
 import Camera from "../../../assets/icons/camera.svg?react"; 
 import Dismiss_Gy800 from "../../../assets/icons/dismiss_gy800.svg?react"; 
 import { CheckBox_Long_noButton } from "../../../components/MyPage/CheckBox_Long_noButton";
@@ -121,7 +121,7 @@ export const EditGroupInfoDefault = () => {
       <div>
         <label className="flex items-center text-left header-h5 mb-1">
           활동 요일
-          <VectorRed className="ml-1 w-2 h-2" />
+          <CicleSRED/>
         </label>
         <MultiSelectButtonGroup
           options={dayOptions}
@@ -134,7 +134,7 @@ export const EditGroupInfoDefault = () => {
       <div>
         <label className="flex items-center text-left header-h5 mb-1">
           활동 시간
-          <VectorRed className="ml-1 w-2 h-2" />
+          <CicleSRED/>
         </label>
         <MultiSelectButtonGroup
           options={timeOptions}
@@ -144,77 +144,99 @@ export const EditGroupInfoDefault = () => {
         />
       </div>
       
-    <div>
-        <div className="flex justify-between items-start">
-            <CheckBox_Long_noButton title="지정콕" maxLength={20} Label="없음" showIcon={true}    onChange={(checked, value) => setDesignatedText(value)}/>
-        </div>
-        <div className="flex justify-between items-start">
-            <CheckBox_Long_noButton title="가입비" maxLength={100} Label="없음" showIcon={true} onChange={(checked, value) => setJoinFeeText(value)}/>
-        </div>
-           <div className="flex justify-between items-start">
-            <CheckBox_Long_noButton title="회비" maxLength={100} Label="없음" showIcon={true} onChange={(checked, value)=> setMonthlyFeeText(value)}/>
-        </div>
-    </div>
-
-    {/* 사진 업로드 */}
-      <div className=" flex-grow min-h-0 overflow-y-auto">
-         <label className="flex items-center text-left header-h5 mb-1">
-          대표 이미지
-        </label>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-        <div
-          ref={containerRef}
-          className="flex gap-2 overflow-x-auto no-scrollbar"
-        >
-          <button
-            onClick={handlePhotoClick}
-            className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
-            type="button"
-          >
-            <div className="flex flex-col text-center justify-center">
-              <Camera />
-              <label>{`${photos.length} / 3`}</label>
-            </div>
-          </button>
-
-          {photos.map((src, i) => (
-            <div
-              key={i}
-              className="relative w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] overflow-hidden"
-            >
-              <img
-                src={src}
-                alt={`uploaded-${i}`}
-                className="w-full h-full object-cover rounded-xl"
-              />
-              <Dismiss_Gy800
-                onClick={() => handleRemovePhoto(i)}
-                className="absolute top-1 right-1 w-6 h-6 p-1 cursor-pointer"
-              />
-            </div>
-          ))}
+      <div>
+        {/* 체크박스 그룹 */}
+        <div className="flex flex-col gap-8"> 
+          <div className="flex justify-between items-start">
+            <CheckBox_Long_noButton
+              title="지정콕"
+              maxLength={20}
+              Label="없음"
+              showIcon={true}
+              showLengthIndicator={true}
+              onChange={(checked, value) => setDesignatedText(value)}
+            />
+          </div>
+          <div className="flex justify-between items-start">
+            <CheckBox_Long_noButton
+              title="가입비"
+              maxLength={100}
+              Label="없음"
+              showIcon={true}
+              onChange={(checked, value) => setJoinFeeText(value)}
+            />
+          </div>
+          <div className="flex justify-between items-start">
+            <CheckBox_Long_noButton
+              title="회비"
+              maxLength={100}
+              Label="없음"
+              showIcon={true}
+              onChange={(checked, value) => setMonthlyFeeText(value)}
+            />
+          </div>
         </div>
 
-        {/* 소개 글 및 키워드 */}
-        <div className="mt-8">
-          <InputField title="멤버에게 하고 싶은 말 / 소개" maxLength={45}/>
-        </div>
+      {/* 사진 업로드 */}
+        <div className=" flex-grow min-h-0 overflow-y-auto mt-8">
           <label className="flex items-center text-left header-h5 mb-1">
-            키워드
+            대표 이미지
           </label>
-          <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
-              <TagBtn>브랜드 스폰</TagBtn>
-              <TagBtn>가입비 무료</TagBtn>
-              <TagBtn>친목</TagBtn>
-              <TagBtn>운영진이 게임을 짜드려요</TagBtn>
-          </div>  
-          <Grad_GR400_L label="수정하기"  initialStatus={isFormValid ? "default" : "disabled"}/>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <div
+            ref={containerRef}
+            className="flex gap-2 overflow-x-auto no-scrollbar"
+          >
+            <button
+              onClick={handlePhotoClick}
+              className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
+              type="button"
+            >
+              <div className="flex flex-col text-center justify-center">
+                <Camera />
+                <label>{`${photos.length} / 3`}</label>
+              </div>
+            </button>
+
+            {photos.map((src, i) => (
+              <div
+                key={i}
+                className="relative w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] overflow-hidden"
+              >
+                <img
+                  src={src}
+                  alt={`uploaded-${i}`}
+                  className="w-full h-full object-cover rounded-xl"
+                />
+                <Dismiss_Gy800
+                  onClick={() => handleRemovePhoto(i)}
+                  className="absolute top-1 right-1 w-6 h-6 p-1 cursor-pointer"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* 소개 글 및 키워드 */}
+          <div className="mt-8">
+            <InputField title="멤버에게 하고 싶은 말 / 소개" maxLength={45}/>
+          </div>
+            <label className="flex items-center text-left header-h5 mb-1 mt-5">
+              키워드
+            </label>
+            <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
+                <TagBtn>브랜드 스폰</TagBtn>
+                <TagBtn>가입비 무료</TagBtn>
+                <TagBtn>친목</TagBtn>
+                <TagBtn>운영진이 게임을 짜드려요</TagBtn>
+            </div>  
+            <Grad_GR400_L label="수정하기"  initialStatus={isFormValid ? "default" : "disabled"}/>
+        </div>
       </div>
     </div>
   );

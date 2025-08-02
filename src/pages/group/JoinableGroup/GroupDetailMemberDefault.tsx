@@ -25,7 +25,7 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 };
 
-export const GroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) => {
+export const  GroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) => {
  const {
     notice = "명찰을 위한 신분증",
     placeName = "산성 배드민턴장",

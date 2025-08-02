@@ -25,7 +25,7 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 };
 
-export const MyGroupDetailMemberDefault = (props: MyPageExerciseDetailPageProps) => {
+export const MemberDefault = (props: MyPageExerciseDetailPageProps) => {
  const {
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
