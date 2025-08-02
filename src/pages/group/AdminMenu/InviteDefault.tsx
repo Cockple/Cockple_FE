@@ -95,6 +95,10 @@ export const InviteDefault = (props: MyPageExerciseDetailPageProps) => {
     console.log("Members state updated:", members);
   }, [members]);
   const navigate = useNavigate();
+
+  // ‼️ 배포 오류를 위한 임시 코드
+  console.log(participantsCountState);
+
   return (
     <>
       <PageHeader title="신규 멤버 초대하기" />

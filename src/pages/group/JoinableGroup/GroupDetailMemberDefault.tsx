@@ -29,9 +29,9 @@ export const GroupDetailMemberDefault = (
   props: MyPageExerciseDetailPageProps,
 ) => {
   const {
-    notice = "명찰을 위한 신분증",
-    placeName = "산성 배드민턴장",
-    placeAddress = "수정로456번길 19",
+    // notice = "명찰을 위한 신분증",
+    // placeName = "산성 배드민턴장",
+    // placeAddress = "수정로456번길 19",
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
@@ -79,10 +79,17 @@ export const GroupDetailMemberDefault = (
   const [participantsCountState, setParticipantsCount] =
     useState(participantsCount);
 
+  // ‼️ 배포 오류를 위한 임시 코드
+  console.log(participantsCountState);
+
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false); // 신청 여부
-  const [isApproved, setIsApproved] = useState(false); // 모임장이 승인했는지 여부 -> 서버
+
+  // ‼️ 배포 오류를 위한 임시 코드
+  const isApproved = false;
+  // const [isApproved, setIsApproved] = useState(false); // 모임장이 승인했는지 여부 -> 서버
+
   //검색 기능
   const [searchTerm, setSearchTerm] = useState("");
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

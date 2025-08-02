@@ -9,7 +9,7 @@ import {
   GroupPage,
   ExerciseDetail,
   GroupDetailMemberDefault,
-  MemberDefault,
+  // MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
   ViceLeaderDefault,
@@ -59,7 +59,7 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
 import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
@@ -70,6 +70,7 @@ import { LocationSearchPage } from "./pages/location/LocationSearchPage";
 import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
+import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
 
 const router = createBrowserRouter([
   {
@@ -148,7 +149,7 @@ const router = createBrowserRouter([
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/MemberDefault", element: <MemberDefault /> },
+      // { path: "/group/MemberDefault", element: <MemberDefault /> },
       {
         path: "/group/Mygroup/MyExerciseDetail",
         element: <MyExerciseDetail />,

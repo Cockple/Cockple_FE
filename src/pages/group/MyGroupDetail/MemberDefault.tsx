@@ -22,15 +22,10 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 }
 
-<<<<<<< HEAD:src/pages/group/MyGroupDetail/MyGroupDetailMemberDefault.tsx
 export const MyGroupDetailMemberDefault = (
   props: MyPageExerciseDetailPageProps,
 ) => {
   const {
-=======
-export const MemberDefault = (props: MyPageExerciseDetailPageProps) => {
- const {
->>>>>>> develop:src/pages/group/MyGroupDetail/MemberDefault.tsx
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
@@ -77,6 +72,9 @@ export const MemberDefault = (props: MyPageExerciseDetailPageProps) => {
 
   const [participantsCountState, setParticipantsCount] =
     useState(participantsCount);
+
+  // ‼️ 배포 오류를 위한 임시 코드
+  console.log(participantsCountState);
 
   const navigate = useNavigate();
 
