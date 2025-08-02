@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ChattingComponent from "../common/chat/ChattingComponent";
-//import FileSendModal from "./FileSendModal";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
 import ProfileImg from "../../assets/images/Profile_Image.png";
@@ -10,9 +9,9 @@ import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
 import { formatTime } from "../../utils/formatDate";
-//import { getLocalDateString } from "../../utils/getLocalDateString";
 
 import type { ChatMessageResponse } from "../../types/chat";
+import { useNavigate } from "react-router-dom";
 
 interface ChatDetailTemplateProps {
   chatId: string;
@@ -21,6 +20,7 @@ interface ChatDetailTemplateProps {
   chatData: Record<string, ChatMessageResponse[]>;
   onBack: () => void;
   showHomeButton?: boolean;
+  partyId?: number;
 }
 
 export const ChatDetailTemplate = ({
@@ -29,6 +29,7 @@ export const ChatDetailTemplate = ({
   chatData,
   onBack,
   showHomeButton = false,
+  partyId,
 }: ChatDetailTemplateProps) => {
   const [chattings, setChattings] = useState<ChatMessageResponse[]>([]);
   const [input, setInput] = useState("");
@@ -40,28 +41,13 @@ export const ChatDetailTemplate = ({
 
   const currentUserId = 999;
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (chatId && chatData[chatId]) {
       setChattings(chatData[chatId]);
     }
   }, [chatId, chatData]);
-  // useEffect(() => {
-  //   if (chatId && chatData[chatId]) {
-  //     const response: ChatMessageResponse[] = chatData[chatId];
-  //     const mapped = response.map(msg => ({
-  //       id: msg.messageId,
-  //       nickname: msg.senderName,
-  //       profile: msg.senderProfileImage,
-  //       chatting: msg.messageType === "TEXT" ? msg.content : "",
-  //       imageUrls: msg.messageType === "IMAGE" ? [msg.content] : [],
-  //       time: formatTime(msg.createdAt),
-  //       createdAt: formatChatDate(msg.createdAt),
-  //       isMe: msg.senderId === currentUserId,
-  //       unreadCount: 0,
-  //     }));
-  //     setChattings(mapped);
-  //   }
-  // }, [chatId, chatData]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,16 +57,6 @@ export const ChatDetailTemplate = ({
     if (input.trim()) {
       const now = new Date().toISOString();
 
-      // const newChat: Chatting = {
-      //   id: Date.now(),
-      //   nickname: "나",
-      //   profile: ProfileImg,
-      //   chatting: input,
-      //   time: formatTime(now.toISOString()),
-      //   createdAt: formatChatDate(now.toISOString()),
-      //   isMe: true,
-      //   unreadCount: 0,
-      // };
       const newMessage: ChatMessageResponse = {
         messageId: Date.now(),
         chatRoomId: Number(chatId),
@@ -102,13 +78,6 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -116,17 +85,6 @@ export const ChatDetailTemplate = ({
     const fileUrl = URL.createObjectURL(file);
     const now = new Date().toISOString();
 
-    // const newChat: Chatting = {
-    //   id: Date.now(),
-    //   nickname: "나",
-    //   profile: ProfileImg,
-    //   chatting: "",
-    //   time: formatTime(now.toISOString()),
-    //   createdAt: formatChatDate(now.toISOString()),
-    //   isMe: true,
-    //   unreadCount: 0,
-    //   imageUrls: [fileUrl],
-    // };
     const newImageMessage: ChatMessageResponse = {
       messageId: Date.now(),
       chatRoomId: Number(chatId),
@@ -165,18 +123,9 @@ export const ChatDetailTemplate = ({
   };
 
   return (
-    <div
-      className="relative flex flex-col min-h-[100dvh] -mb-8"
-      style={{
-        width: "calc(100% + 2rem)",
-        marginLeft: "-1rem",
-        marginRight: "-1rem",
-      }}
-    >
+    <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
       {/* 헤더 */}
-      <div className="sticky top-0 px-2 bg-white">
-        <PageHeader title={chatName} onBackClick={onBack} />
-      </div>
+      <PageHeader title={chatName} onBackClick={onBack} />
 
       {/* 메시지 영역 */}
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200">
@@ -184,21 +133,17 @@ export const ChatDetailTemplate = ({
           <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
             <ChatBtn
               imgSrc={ProfileImg}
-              onClick={() => console.log("모임 홈으로 이동")}
+              onClick={() => {
+                navigate(`/group/${partyId}`);
+                console.log(`/group/${partyId}로 이동`);
+              }}
             >
               모임 홈으로
             </ChatBtn>
           </div>
         )}
 
-        <div className="flex flex-col gap-5 shrink-0 p-4 pb-[3rem]">
-          {/* {chattings.map(chat => (
-            <ChattingComponent
-              key={chat.id}
-              {...chat}
-              onImageClick={setPreviewImage}
-            />
-          ))} */}
+        <div className="flex flex-col gap-5 shrink-0 p-4">
           {chattings.map((chat, index) => {
             const currentDate = chat.createdAt;
             const prevDate = index > 0 ? chattings[index - 1].createdAt : null;
@@ -240,7 +185,6 @@ export const ChatDetailTemplate = ({
           input={input}
           isComposing={isComposing}
           onInputChange={setInput}
-          onKeyDown={handleKeyDown}
           onCompositionStart={() => setIsComposing(true)}
           onCompositionEnd={e => {
             setIsComposing(false);

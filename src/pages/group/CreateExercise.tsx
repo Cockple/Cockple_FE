@@ -12,6 +12,7 @@ import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import { LocationField } from "../../components/common/LocationField";
 import { useLocation } from "react-router-dom";
 import { Location } from "../../components/common/contentcard/Location";
+import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 
 type SelectedPlace = {
   name: string;
@@ -76,7 +77,9 @@ export const CreateExercise = () => {
     <div className="flex flex-col gap-2">
       <PageHeader title="운동 만들기" />
       <div className="flex flex-col gap-8">
-        <div className="w-full h-17">{/* 캘린더 */}</div>
+        <div className="w-full h-17">
+          <WeeklyCalendar shadow={false} />
+        </div>
         <div className="flex flex-col gap-4">
           <LocationField label="위치" icon={true} />
 
@@ -137,7 +140,7 @@ export const CreateExercise = () => {
       {openModal && (
         <div
           id="date-picker-overlay"
-          className="fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full flex items-center"
+          className="fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full flex items-center z-50"
           onClick={e => {
             const target = e.target as HTMLElement;
             if (target.id === "date-picker-overlay") {

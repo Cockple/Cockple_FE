@@ -128,7 +128,7 @@ export const GroupChatDetailTemplate = ({
 
   return (
     <div
-      className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-4"
+      className="relative flex flex-col min-h-[86dvh] -mb-8 -mt-4"
       style={{
         width: "calc(100% + 2rem)",
         marginLeft: "-1rem",

@@ -22,7 +22,10 @@ const ImagePreviewModal = ({ imageUrl, onClose }: ImagePreviewModalProps) => {
   const isStandalone = useIsStandalone();
 
   return (
-    <div className="absolute inset-0 z-50 flex justify-center items-center bg-black-60">
+    <div
+      // className={`absolute inset-0 z-50 flex justify-center items-center bg-black-60`}
+      className="fixed inset-0 z-50 bg-black-60 flex justify-center items-center"
+    >
       <div className="flex flex-col gap-[0.625rem]">
         {/* 상단 버튼 (오른쪽 상단에 고정) */}
         <div className="flex justify-end w-full gap-4">
@@ -50,7 +53,7 @@ const ImagePreviewModal = ({ imageUrl, onClose }: ImagePreviewModalProps) => {
         <img
           src={imageUrl}
           alt="preview"
-          className={`${isStandalone ? "max-h-[40rem]" : "max-h-[35rem]"} object-contain rounded-lg shadow-lg`}
+          className={`object-contain rounded-lg shadow-lg max-w-[21.4375rem] ${isStandalone ? "max-h-[40rem]" : "max-h-[35rem]"}`}
         />
       </div>
     </div>

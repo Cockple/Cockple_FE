@@ -1,4 +1,6 @@
 import { Range } from "react-range";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
+
 interface InputSliderProps {
   title: string;
   minYear: number;
@@ -19,7 +21,7 @@ export default function InputSlider({
       <div className=" flex items-center mb-2 justify-between">
         <div className="flex px-1 gap-[2px] items-center">
           <p className="header-h5">{title}</p>
-          <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+          <img src={Circle_Red} alt="icon-cicle" />
         </div>
         <p className="body-rg-500">
           {values[0]} ~ {values[1]}년생

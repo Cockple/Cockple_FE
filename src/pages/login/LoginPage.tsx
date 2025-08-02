@@ -1,6 +1,7 @@
 import { SwiperSlide, Swiper } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import LoginSwiping from "../../components/login/LoginSwiping";
+import KakaoIcon from "@/assets/icons/kakao.svg?url";
 
 export const LoginPage = () => {
   const TextMap = [
@@ -51,7 +52,7 @@ export const LoginPage = () => {
         <button className="bg-[#FEE500] w-full rounded-lg py-3 px-4 relative">
           카카오 로그인
           <img
-            src="/src/assets/icons/kakao.svg"
+            src={KakaoIcon}
             alt="카카오 아이콘"
             className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5"
           />

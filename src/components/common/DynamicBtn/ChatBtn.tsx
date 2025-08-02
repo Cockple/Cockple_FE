@@ -1,5 +1,7 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import ArrowRight from "@/assets/icons/arrow_right.svg?url";
+import ArrowRight_G from "@/assets/icons/arrow_rightG.svg?url";
 
 export default function ChatBtn({
   children,
@@ -16,19 +18,19 @@ export default function ChatBtn({
   const statusMap: Record<TextIconStatus, { bg?: string; icon: string }> = {
     clicked: {
       bg: "bg-white",
-      icon: "/src/assets/icons/arrow_right.svg",
+      icon: ArrowRight,
     },
     pressing: {
       bg: "bg-gy-100",
-      icon: "/src/assets/icons/arrow_right.svg",
+      icon: ArrowRight,
     },
     default: {
       bg: "bg-white",
-      icon: "/src/assets/icons/arrow_right.svg",
+      icon: ArrowRight,
     },
     disabled: {
       bg: "bg-white text-gy-400",
-      icon: "/src/assets/icons/arrow_rightG.svg",
+      icon: ArrowRight_G,
     },
   };
 

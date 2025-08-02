@@ -5,7 +5,7 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-import { 
+import {
   GroupPage,
   ExerciseDetail,
   GroupDetailMemberDefault,
@@ -56,11 +56,10 @@ import { GroupLayout } from "./layout/GroupLayout";
 import { GroupHomePage } from "./pages/group/GroupHomePage";
 import { GroupChatPage } from "./pages/group/GroupChatPage";
 import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
-import { GroupMemberPage } from "./pages/group/GroupMemberPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
 import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
@@ -70,6 +69,8 @@ import { GroupMember } from "./pages/group/groupMaking/GroupMember";
 import { LocationSearchPage } from "./pages/location/LocationSearchPage";
 import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
+import { EditLocationPage } from "./pages/home/EditLocationPage";
+// import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
 
 const router = createBrowserRouter([
   {
@@ -107,10 +108,13 @@ const router = createBrowserRouter([
   {
     element: (
       <PrivateRoute>
-        <Outlet />
+        <div className="pt-14">
+          <Outlet />
+        </div>
       </PrivateRoute>
     ), // 로그인 필요하지만 navbar 없는 layout
     children: [
+      { path: "/edit/location", element: <EditLocationPage /> },
       { path: "/mypage/edit", element: <MyPageEditPage /> },
       { path: "/mypage/edit/location", element: <MyPageEditLocationPage /> },
       {
@@ -143,9 +147,9 @@ const router = createBrowserRouter([
       { path: "/location/map", element: <LocationMapPage /> },
       { path: "/group/recommend", element: <GroupRecommendPage /> },
 
-      // 연두 모임 
+      // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/MemberDefault", element: <MemberDefault /> },//지영님 경로 수정 받아서 확인해야함
+      // { path: "/group/MemberDefault", element: <MemberDefault /> },//지영님 경로 수정 받아서 확인해야함
       { path: "/group/Mygroup/MyExerciseDetail", element: <MyExerciseDetail /> },
       { path: "/group/Mygroup/ExerciseDetailApplye", element: <ExerciseDetailApply /> }, 
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
@@ -169,7 +173,7 @@ const router = createBrowserRouter([
           { index: true, element: <GroupHomePage /> },
           { path: "chat", element: <GroupChatPage /> },
           { path: "calendar", element: <GroupCalendarPage /> },
-          { path: "member", element: <GroupMemberPage /> },
+          { path: "member", element: <MemberDefault /> },
         ],
       },
 

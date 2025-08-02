@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Clear_M from "../Btn_Static/Icon_Btn/Clear_M";
 import Camera from "../../../assets/icons/camera.svg";
 import Imogi from "../../../assets/icons/emoji_smile.svg";
@@ -9,18 +9,17 @@ interface BottomChatInputProps {
   input: string;
   isComposing: boolean;
   onInputChange: (value: string) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onCompositionStart: () => void;
   onCompositionEnd: (e: React.CompositionEvent<HTMLTextAreaElement>) => void;
   onSendMessage: () => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 const BottomChatInput = ({
   input,
   onInputChange,
-  onKeyDown,
   onCompositionStart,
   onCompositionEnd,
   onSendMessage,
@@ -30,11 +29,13 @@ const BottomChatInput = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMultiLine, setIsMultiLine] = useState(false);
 
+  const isMobile = /iPhone|Android|iPad|iPod/i.test(navigator.userAgent);
+
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    textarea.style.height = "2px"; // 기본 높이 (h-14)
+    textarea.style.height = "2px"; // 기본 높이
     const height = textarea.scrollHeight;
     textarea.style.height = `${Math.min(height, 72)}px`; // 최대 3줄(72px)까지
 
@@ -49,6 +50,39 @@ const BottomChatInput = ({
     console.log("scrollHeight:", textareaRef.current?.scrollHeight);
     console.log("isMultiline: ", isMultiLine);
   };
+
+  // -----> 추가
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!isMobile && e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleSend = () => {
+    if (input.trim() === "") return;
+
+    onSendMessage(); // 외부 로직 실행
+
+    // 입력창 초기화
+    onInputChange("");
+    setIsMultiLine(false);
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "24px"; // 초기화
+    }
+  };
+
+  // 외부에서 input이 비어졌을 때에도 높이 초기화
+  useEffect(() => {
+    if (input === "") {
+      setIsMultiLine(false);
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "24px";
+      }
+    }
+  }, [input]);
 
   return (
     <div
@@ -76,25 +110,14 @@ const BottomChatInput = ({
       <div
         className={`flex px-3 flex-end items-center gap-2 border border-gy-200 border-soft ${isMultiLine ? "h-auto min-h-14 max-h-32" : "h-14 py-[0.625rem]"}`}
       >
-        {/* <input
-          type="text"
-          value={input}
-          onChange={e => onInputChange(e.target.value)}
-          onKeyDown={onKeyDown}
-          onCompositionStart={onCompositionStart}
-          onCompositionEnd={onCompositionEnd}
-          className="outline-0 w-full"
-        /> */}
         <textarea
           value={input}
           ref={textareaRef}
-          //onChange={e => onInputChange(e.target.value)};
           onInput={handleInput}
-          onKeyDown={onKeyDown}
+          onKeyDown={handleKeyDown}
           onCompositionStart={onCompositionStart}
           onCompositionEnd={onCompositionEnd}
-          //className="w-full max-h-[72px] resize-none overflow-auto outline-none body-md-500 leading-[24px] border-0 focus:ring-0"
-          className={`outline-0 w-full body-md-500 overflow-hidden ${isMultiLine ? "h-auto h-min-14 h-max-32" : ""}`}
+          className={`outline-0 w-full body-md-500 overflow-hidden resize-none ${isMultiLine ? "h-auto h-min-14 h-max-32" : ""}`}
           rows={1}
         />
         <Clear_M

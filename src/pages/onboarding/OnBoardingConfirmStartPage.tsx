@@ -2,12 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
+import KittyImg from "@/assets/images/kitty.png?url";
 
 export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full  flex flex-col -mb-8">
+    <div className="w-full  flex flex-col -mb-8 pt-14">
       <PageHeader title="가입 완료" />
       <section className="flex items-center flex-col  gap-15 pb-24 ">
         <IntroText
@@ -26,27 +27,15 @@ export const OnboardingConfirmStartPage = () => {
 
           <div className="flex gap-5">
             <div className="flex gap-3 py-2 flex-col">
-              <img
-                src="/src/assets/images/kitty.png"
-                alt=""
-                className="size-15"
-              />
+              <img src={KittyImg} alt="" className="size-15" />
               <p>금메달</p>
             </div>
             <div className="flex gap-3 py-2 flex-col">
-              <img
-                src="/src/assets/images/kitty.png"
-                alt=""
-                className="size-15"
-              />
+              <img src={KittyImg} alt="" className="size-15" />
               <p>은메달</p>
             </div>
             <div className="flex gap-3 py-2 flex-col">
-              <img
-                src="/src/assets/images/kitty.png"
-                alt=""
-                className="size-15"
-              />
+              <img src={KittyImg} alt="" className="size-15" />
               <p>동메달</p>
             </div>
           </div>

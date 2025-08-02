@@ -1,5 +1,7 @@
 import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
+import arrowDown from "@/assets/icons/arrow_down.svg?url";
+import arrowDownG from "@/assets/icons/arrow_downG.svg?url";
 
 export default function DropDownBtn({
   children,
@@ -16,18 +18,18 @@ export default function DropDownBtn({
 
   const statusMap: Record<TextIconStatus, { bg?: string; icon: string }> = {
     clicked: {
-      icon: "/src/assets/icons/arrow_down.svg",
+      icon: arrowDown,
     },
     pressing: {
       bg: "bg-gy-100",
-      icon: "/src/assets/icons/arrow_down.svg",
+      icon: arrowDown,
     },
     default: {
-      icon: "/src/assets/icons/arrow_down.svg",
+      icon: arrowDown,
     },
     disabled: {
       bg: "text-gy-400",
-      icon: "/src/assets/icons/arrow_downG.svg",
+      icon: arrowDownG,
     },
   };
   const { bg, icon } = statusMap[status as TextIconStatus];

@@ -9,5 +9,3 @@ export { EditGroupInfoDefault } from "./AdminMenu/EditGroupInfoDefault";
 export { InviteDefault } from "./AdminMenu/InviteDefault";
 export { ExerciseDetail } from "./MyGroupDetail/ExerciseDetail";
 export { MyExerciseDetail } from "./MyGroupDetail/MyExerciseDetail";
-
-

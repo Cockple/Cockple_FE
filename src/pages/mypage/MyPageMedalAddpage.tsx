@@ -15,6 +15,8 @@ import { useLocation } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
+import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 
 export const MyPageMedalAddPage = () => {
   const {
@@ -178,7 +180,7 @@ export const MyPageMedalAddPage = () => {
   };
   console.log(tournamentName, selectedDate, selectedForm);
   return (
-    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col">
+    <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-2">
       <div className="flex-shrink-0 sticky top-0 z-20 bg-white ">
         <PageHeader title="대회 기록 추가하기" onBackClick={onBackClick} />
         {isModalOpen && (
@@ -245,7 +247,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               대회명
-              <CicleSRED/>
+              <CicleSRED />
             </label>
             <div className="relative">
               <input
@@ -290,7 +292,7 @@ export const MyPageMedalAddPage = () => {
             <div className="text-left flex flex-col gap-2">
               <div className="flex px-1 gap-[2px] items-center">
                 <p className="header-h5">날짜</p>
-                <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+                <img src={Circle_Red} alt="icon-cicle" />
               </div>
 
               <input
@@ -324,7 +326,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               참여 형태
-              <CicleSRED/>
+              <CicleSRED />
             </label>
             <div className="flex gap-4">
               {formOptions.map(item => (
@@ -349,7 +351,7 @@ export const MyPageMedalAddPage = () => {
           <div>
             <label className="flex items-center text-left header-h5 mb-1">
               급수
-              <CicleSRED/>
+              <CicleSRED />
             </label>
             <div className="flex items-center gap-4">
               <div className="relative w-40">
@@ -361,7 +363,7 @@ export const MyPageMedalAddPage = () => {
                     {selectedLevel}
                   </span>
                   <img
-                    src="/src/assets/icons/arrow_down.svg"
+                    src={ArrowDown}
                     alt="Dropdown arrow"
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4"
                   />
@@ -371,7 +373,7 @@ export const MyPageMedalAddPage = () => {
                   <div className="absolute mt-1 z-10 w-40">
                     <ul
                       className="border rounded-xl border-gy-200 bg-white shadow text-left"
-                      style={{ maxHeight: '8.5rem', overflowY: 'auto' }}
+                      style={{ maxHeight: "8.5rem", overflowY: "auto" }}
                     >
                       {level.map((item, idx) => (
                         <li
@@ -395,7 +397,11 @@ export const MyPageMedalAddPage = () => {
           {/* 대회 기록 */}
           <div>
             <div className="flex justify-between items-start">
-              <CheckBox_Long_noButton title="대회 기록" maxLength={100} Label="비공개" />
+              <CheckBox_Long_noButton
+                title="대회 기록"
+                maxLength={100}
+                Label="비공개"
+              />
             </div>
           </div>
 
