@@ -1,7 +1,7 @@
 // 운동 상세 페이지 -> 대기 신청
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
-import Caution from "../../../assets/icons/Caution.svg?react";
+import Caution from "../../../assets/icons/caution.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import { Member } from "../../../components/common/contentcard/Member";
