@@ -90,9 +90,9 @@ export const ViceLeaderDefault = (props: MyPageExerciseDetailPageProps) => {
     return nameMatch || levelMatch;
   });
 
-  const status = "Participating";
-  const isLeader = false;
-  const isMe = true;
+  // const status = "Participating";
+  // const isLeader = false;
+  // const isMe = true;
 
   // 참여 멤버 삭제 함수
   const handleDeleteMember = (idx: number) => {
@@ -106,6 +106,9 @@ export const ViceLeaderDefault = (props: MyPageExerciseDetailPageProps) => {
   >(null);
 
   const navigate = useNavigate();
+
+  // ‼️ 배포 오류를 위한 임시 코드
+  console.log(participantsCountState);
   return (
     <>
       <PageHeader title="부모임장 설정" />
