@@ -86,7 +86,7 @@ export const GroupActivity = () => {
         <ProgressBar width={!isFormValid ? "28" : "48"} />
 
         <section className="text-left flex flex-col  gap-8 w-full mb-6">
-          <p className="header-h4 pt-8 pb-5">모임 활동 정보를 입력해주세요.</p>
+          <p className="header-h4 pt-8">모임 활동 정보를 입력해주세요.</p>
           {/* 첫번째 */}
           <div>
             <div className="flex px-1 gap-[2px] items-center mb-2">
@@ -146,7 +146,7 @@ export const GroupActivity = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-1 shrink-0 `}
+          className={`flex items-center justify-center mb-4 mt-6 shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
