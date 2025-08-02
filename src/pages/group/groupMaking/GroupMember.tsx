@@ -106,7 +106,7 @@ export const GroupMember = () => {
           onClick={handleNext}
         >
           <Btn_Static
-            label="다음"
+            label="만든 모임 보러가기"
             kind="GR400"
             size="L"
             initialStatus={"default"}

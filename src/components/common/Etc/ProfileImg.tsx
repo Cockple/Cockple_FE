@@ -1,3 +1,5 @@
+import ProfileEditImg from "@/assets/icons/img_Edit.svg";
+
 interface ProfileImgProps {
   size?: "XL" | "L" | "M" | "S";
   src?: string;
@@ -29,7 +31,7 @@ export default function ProfileImg({
           />
           {edit && (
             <img
-              src="/src/assets/icons/img_Edit.svg"
+              src={ProfileEditImg}
               alt="프로필 이미지 수정"
               className="absolute right-0 bottom-0 size-8"
             />
