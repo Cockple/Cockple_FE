@@ -154,7 +154,11 @@ export const EditGroupInfoDefault = () => {
             maxLength={20}
             Label="없음"
             showIcon={true}
-            onChange={(checked, value) => setDesignatedText(value)}
+            onChange={(checked, value) => {
+              // ‼️ 배포 오류를 위한 임시 코드
+              console.log(checked);
+              setDesignatedText(value);
+            }}
           />
         </div>
         <div className="flex justify-between items-start">
@@ -163,7 +167,11 @@ export const EditGroupInfoDefault = () => {
             maxLength={100}
             Label="없음"
             showIcon={true}
-            onChange={(checked, value) => setJoinFeeText(value)}
+            onChange={(checked, value) => {
+              // ‼️ 배포 오류를 위한 임시 코드
+              console.log(checked);
+              setJoinFeeText(value);
+            }}
           />
         </div>
         <div className="flex justify-between items-start">
@@ -172,7 +180,11 @@ export const EditGroupInfoDefault = () => {
             maxLength={100}
             Label="없음"
             showIcon={true}
-            onChange={(checked, value) => setMonthlyFeeText(value)}
+            onChange={(checked, value) => {
+              // ‼️ 배포 오류를 위한 임시 코드
+              console.log(checked);
+              setMonthlyFeeText(value);
+            }}
           />
         </div>
       </div>

@@ -6,7 +6,6 @@ import Star from "../../../assets/icons/star.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Message from "../../../assets/icons/message.svg?react";
-import { Modal_Apply } from "../../group/Modal_Apply";
 import { Modal_Invite } from "../../group/Modal_Invite";
 
 import { Modal_Subtract } from "../../group/Modal_Subtract";
@@ -14,7 +13,12 @@ import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
 import { getModalConfig } from "../../group/modalConfig";
 
-type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
+type MemberStatus =
+  | "Participating"
+  | "waiting"
+  | "invite"
+  | "request"
+  | "approved";
 
 interface MemberProps {
   status: MemberStatus;
@@ -36,7 +40,7 @@ interface MemberProps {
   imgUrl?: string | null;
   position?: string | null;
   canCancel?: boolean;
-//모달창 나오는 글 화면에 따라 다르게 나오게
+  //모달창 나오는 글 화면에 따라 다르게 나오게
   showDeleteButton?: boolean;
   modalConfig?: {
     title: string;
@@ -44,10 +48,9 @@ interface MemberProps {
     confirmLabel: string;
     onConfirm?: () => void;
   };
-//부모임장 지정
+  //부모임장 지정
   onAppointClick?: () => void;
   selectMode?: boolean;
-
 }
 
 export type { MemberProps };
@@ -58,7 +61,7 @@ const MemberInfo = ({
   level,
   isGuest,
   guestName,
-  showStar,
+  // showStar,
   isLeader,
   position,
 }: {
@@ -75,10 +78,10 @@ const MemberInfo = ({
     <div className="flex flex-col justify-center gap-[0.25rem] w-[9.75rem] h-[2.75rem]">
       <div className="flex items-center gap-1">
         <p className="header-h5 text-black">{name}</p>
-          {isLeader && <StarIcon className="w-[1rem] h-[1rem]" />}
-          {!isLeader && position === "sub_leader" && (
+        {isLeader && <StarIcon className="w-[1rem] h-[1rem]" />}
+        {!isLeader && position === "sub_leader" && (
           <YEStarIcon className="w-[1rem] h-[1rem]" />
-        )}      
+        )}
       </div>
       <div className="flex items-center gap-[0.25rem] body-sm-500">
         {gender === "female" ? (
@@ -90,7 +93,9 @@ const MemberInfo = ({
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
-            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">{guestName}</p>
+            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
+              {guestName}
+            </p>
           </>
         )}
       </div>
@@ -114,39 +119,38 @@ export const Member = ({
   onDelete,
   isMe = false,
   isLeader = false,
-  position = null,  
+  position = null,
   showDeleteButton = false,
   modalConfig: propModalConfig,
-//부모임장 선택시
+  //부모임장 선택시
   selectMode,
   onAppointClick,
-
 }: MemberProps & { modalConfig?: ModalConfig }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
-  const modalConfig = propModalConfig ?? getModalConfig(status, isLeader, isMe, name);
+  const modalConfig =
+    propModalConfig ?? getModalConfig(status, isLeader, isMe, name);
 
   const handleConfirm = () => {
     if (modalConfig?.onConfirm) {
-      modalConfig.onConfirm(); 
+      modalConfig.onConfirm();
     } else {
-      onDelete?.(); 
+      onDelete?.();
     }
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
   };
-
 
   const renderModal = () => {
     if (!isModalOpen || !modalConfig) return null;
 
     return (
-        <Modal_Subtract
-          title={modalConfig.title}
-          messages={modalConfig.messages}
-          confirmLabel={modalConfig.confirmLabel}
-          onCancel={() => setIsModalOpen(false)}
-          onConfirm={handleConfirm}
-        />
+      <Modal_Subtract
+        title={modalConfig.title}
+        messages={modalConfig.messages}
+        confirmLabel={modalConfig.confirmLabel}
+        onCancel={() => setIsModalOpen(false)}
+        onConfirm={handleConfirm}
+      />
     );
   };
 
@@ -160,7 +164,9 @@ export const Member = ({
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">No. {number?.toString().padStart(2, "0")}</p>
+              <p className="body-md-500">
+                No. {number?.toString().padStart(2, "0")}
+              </p>
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo
                 name={name}
@@ -169,58 +175,56 @@ export const Member = ({
                 isGuest={isGuest}
                 guestName={guestName}
                 showStar={showStar}
-                isLeader={isLeader}        
-                position={position ?? null}  
-                />
+                isLeader={isLeader}
+                position={position ?? null}
+              />
               {selectMode && !isLeader && (
                 <Star
                   className="w-6 h-6 ml-auto cursor-pointer"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onAppointClick?.();
                   }}
                 />
               )}
               {showDeleteButton && (
-                  <Prohibition
-                    className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsModalOpen(true);
-                        console.log("삭제 버튼 클릭됨, 모달 상태:", true);
-                    }}
-                  />
-                )}
-
-                </div>
-                {renderModal()}
-              </div>
-            );
+                <Prohibition
+                  className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                    console.log("삭제 버튼 클릭됨, 모달 상태:", true);
+                  }}
+                />
+              )}
+            </div>
+            {renderModal()}
+          </div>
+        );
 
       case "invite":
         return (
           <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
             <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
             <MemberInfo {...{ name, gender, level }} />
-            <Message 
+            <Message
               className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 setIsApplyModalOpen(true);
                 console.log("삭제 버튼 클릭됨, 모달 상태:", true);
               }}
+            />
+            {isApplyModalOpen && (
+              <Modal_Invite
+                onConfirm={() => {
+                  setIsApplyModalOpen(false);
+                }}
+                onCancel={() => {
+                  setIsApplyModalOpen(false);
+                }}
               />
-              {isApplyModalOpen && (
-                <Modal_Invite
-                  onConfirm={() => {
-                    setIsApplyModalOpen(false);
-                  }}
-                  onCancel={() => {
-                    setIsApplyModalOpen(false);
-                  }}
-                />
-              )}
-
+            )}
           </div>
         );
 
