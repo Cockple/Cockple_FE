@@ -148,7 +148,7 @@ export const OnboardingInfoPage = () => {
 
         {/* 버튼 */}
         <div
-          className="flex items-center justify-center pt-21 mt-[3px] shrink-0 "
+          className="flex items-center justify-center mt-21 pt-[3px] shrink-0 "
           onClick={handleNext}
         >
           <Btn_Static
