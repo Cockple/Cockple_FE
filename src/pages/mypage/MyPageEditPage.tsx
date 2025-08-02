@@ -496,7 +496,7 @@ export const MyPageEditPage = ({
           <label className="flex items-center text-left header-h5 mb-1">
             키워드
           </label>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3  items-center">
             {keywordLines.map((line, i) => (
               <div key={i} className="flex gap-4 flex-wrap">
                 {line.map(keyword => {
@@ -524,6 +524,7 @@ export const MyPageEditPage = ({
             ))}
           </div>
         </div>
+        
         <div className="mt-8 mb-8 flex justify-center">
           <Btn_Static
             kind="GR400"
