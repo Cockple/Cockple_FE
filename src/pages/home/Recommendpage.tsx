@@ -69,6 +69,7 @@ export const RecommendPage = () => {
                 time={item.time}
                 location={item.location}
                 imageSrc={item.imgSrc}
+                onClick={() => navigate(`/group/${item.id}`)}
               />
             </div>
           ))}

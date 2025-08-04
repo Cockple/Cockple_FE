@@ -36,6 +36,7 @@ export const MyGroupWorkoutSection = () => {
               time={item.time}
               location={item.location}
               imageSrc={item.imgSrc}
+              onClick={() => navigate(`/group/${item.id}`)}
             />
           ))}
         </div>
