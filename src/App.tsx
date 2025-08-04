@@ -59,7 +59,6 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
 import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
@@ -72,6 +71,7 @@ import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
 import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
 import MemberRequestPage from "./pages/group/MemberRequest";
+import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 
 const router = createBrowserRouter([
   {
