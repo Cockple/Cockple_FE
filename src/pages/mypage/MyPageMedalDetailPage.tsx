@@ -30,8 +30,10 @@ export const MyPageMedalDetailPage = ({
   title = "콕",
   date = "2025.05.23",
   participationType = "D조",
-  record = "ㅇㅇㅇㅇ",
-  videoUrl = ["http://dd"],
+  // record = "Lorem ipsum dolor sit amet consectetur. Dui justo aliquet sit eu nec enim elit quis vestibulum.",
+  record = " vestibulum.",
+
+  videoUrl = ["https://www.youtube.com/watch?v=TpPwI_Lo0YY&list=PLGa3uxog5E0vn3sJ7abmZNysTye6pSbn6"],
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -47,44 +49,49 @@ export const MyPageMedalDetailPage = ({
   const urls = videoUrl ?? [];
 
   return (
-    <div className="w-full max-w-[23.4375rem] mx-auto h-screen bg-white relative">
+    <div className="w-full max-w-[444px] mx-auto min-h-screen bg-white relative overflow-x-hidden">
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[23.4375rem] z-20 bg-white">
         <PageHeader title="내 메달" />
       </div>
 
       {/* 스크롤 영역 */}
       <div
-        className="relative mt-2 overflow-visible w-full"
+        className="relative mt-2 w-full "
         style={{
-          width: "100vw",
-          position: "relative",
-          left: "50%",
-          marginLeft: "-50vw",
-          padding: 0, // 패딩 제거
+          padding: 0,
         }}
-      >
+      > 
         <Swiper
           modules={[Pagination]}
           pagination={{ clickable: true }}
           slidesPerView={1}
-          spaceBetween={0} // 간격 제거
-          style={{ width: "100vw" }}
+          spaceBetween={0}
+          style={{ width: "100%" }}
         >
           {images.map((img, idx) => (
-            <SwiperSlide key={idx} style={{ padding: 0 }}>
-              {" "}
-              {/* 슬라이드 패딩 제거 */}
+            <SwiperSlide
+              key={idx}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: 0,
+              }}
+            >
               <img
                 src={img}
                 alt={`메달 이미지 ${idx + 1}`}
                 style={{
-                  width: "100vw",
+                  width:"100%",
+                  // width: "23.4375rem", 
+                  height: "23.4375rem",
                   objectFit: "cover",
                 }}
               />
             </SwiperSlide>
           ))}
         </Swiper>
+
+
 
         {/* 오버레이 영역 */}
         <div className="absolute -bottom-8 left-4 right-4 flex items-start justify-between gap-4 z-10">

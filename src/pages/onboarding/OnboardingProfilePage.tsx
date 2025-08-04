@@ -7,6 +7,9 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
+import ProfileImgIcon from "@/assets/images/profile_Image.png?url";
+import Basic_ProfileImg from "@/assets/images/base_profile_img.png?url";
+
 export const OnboardingProfilePage = () => {
   const [setProfile, setIsProfile] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -24,7 +27,7 @@ export const OnboardingProfilePage = () => {
     if (setProfile) {
       navigate("/confirm");
     } else {
-      setIsProfile(true);
+      fileInput.current?.click();
     }
   };
 
@@ -72,12 +75,12 @@ export const OnboardingProfilePage = () => {
 
   return (
     <div
-      className={` flex flex-col relative -mb-8 min-h-[100dvh] ${isCropping ? "-mx-4" : ""}`}
-      style={{ maxWidth: "444px" }}
+      className={` flex flex-col relative -mb-8 min-h-[100dvh] pt-14 ${isCropping ? "-mx-4" : ""}`}
+      style={{ maxWidth: "444px", minHeight: "100dvh" }}
     >
       <PageHeader title="회원 정보 입력" />
       {isCropping ? "" : <ProgressBar width={setProfile ? "96" : "76"} />}
-      <section className=" flex flex-col gap-[6.25rem] text-left pb-34 mb-[3px] ">
+      <section className=" flex flex-col gap-[6.25rem] text-left flex-1 ">
         <div>
           <IntroText
             title="프로필을 등록해주세요."
@@ -94,11 +97,7 @@ export const OnboardingProfilePage = () => {
             size="XL"
             edit={setProfile}
             src={
-              preview
-                ? preview
-                : setProfile
-                  ? "/src/assets/images/profile_Image.png"
-                  : "/src/assets/images/base_profile_img.png"
+              preview ? preview : setProfile ? ProfileImgIcon : Basic_ProfileImg
             }
           />
         </label>
@@ -121,8 +120,12 @@ export const OnboardingProfilePage = () => {
           기본 프로필 사용하기
         </p>
       </div>
-      <div className="flex justify-center" onClick={handleClick}>
-        <Btn_Static label="다음" kind="GR400" size="L" />
+      <div className="flex justify-center mb-4" onClick={handleClick}>
+        <Btn_Static
+          label={preview ? "다음" : "프로필 등록"}
+          kind="GR400"
+          size="L"
+        />
       </div>
 
       {/* 이미지 모달 */}

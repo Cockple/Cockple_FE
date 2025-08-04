@@ -116,7 +116,7 @@ export const AlertPage = () => {
   return (
     <div className="flex flex-col min-h-[100dvh] -mb-8 overflow-hidden relative">
       {/* 헤더 */}
-      <PageHeader title="알림" onBackClick={() => navigate("/")} />
+      <PageHeader title="알림" />
 
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
@@ -156,7 +156,7 @@ export const AlertPage = () => {
 
       {/* 승인 모달 */}
       {showApproveModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-10">
+        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
           <ApproveModal
             onClose={() => setShowApproveModal(false)}
             onApprove={confirmApprove}
@@ -166,7 +166,7 @@ export const AlertPage = () => {
 
       {/* 거절 모달 */}
       {showRejectModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-10">
+        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
           <RejectModal
             onClose={() => setShowRejectModal(false)}
             onReject={confirmReject}

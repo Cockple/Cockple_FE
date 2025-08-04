@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import CameraIcon from "@/assets/icons/camera.svg?url";
+import DissMiss_GY from "@/assets/icons/dismiss_gy800.svg?url";
 
 export default function SingleImageUploadBtn() {
   const [image, setImage] = useState<string | null>(null);
@@ -24,9 +26,7 @@ export default function SingleImageUploadBtn() {
         htmlFor="image-upload"
         className={`relative flex flex-col justify-center items-center gap-1 w-[100px] h-[100px] rounded-xl border ${"cursor-pointer border-gray-300"} flex-shrink-0`}
       >
-        {!image && (
-          <img src="/src/assets/icons/camera.svg" alt="" className="absolute" />
-        )}
+        {!image && <img src={CameraIcon} alt="" className="absolute" />}
         {/* 이미지 있 */}
         {image && (
           <>
@@ -36,11 +36,7 @@ export default function SingleImageUploadBtn() {
               className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
             />
             <div className="absolute top-1 right-0 z-10" onClick={handleRemove}>
-              <img
-                src="/src/assets/icons/dismiss_gy800.svg"
-                alt="삭제"
-                className="w-6 h-6"
-              />
+              <img src={DissMiss_GY} alt="삭제" className="w-6 h-6" />
             </div>
           </>
         )}

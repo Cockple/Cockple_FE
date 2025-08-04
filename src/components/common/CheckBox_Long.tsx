@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import White_L_Thin_Add from "../../components/MyPage/White_L_Thin_Add";
-import VectorRed from "../../assets/icons/Vector_red.svg?react";
+import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 
 interface CheckBoxLongProps {
   title?: string;
@@ -87,7 +87,7 @@ export const CheckBox_Long = ({
             >
               {title}
             </label>
-            <VectorRed className="ml-1 w-2 h-2" />
+            <CicleSRED />
           </div>
           <div className="flex items-center gap-2">
             <button

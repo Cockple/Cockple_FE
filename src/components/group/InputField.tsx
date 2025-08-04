@@ -6,12 +6,13 @@ interface CheckBoxLongnoButton {
   maxLength?: number;
 }
 
-export const InputField = ({
-  title,
-  maxLength,
-}: CheckBoxLongnoButton) => {
+export const InputField = ({ title, maxLength }: CheckBoxLongnoButton) => {
   const [recordTexts, setRecordTexts] = useState<string[]>([""]);
-  const [isPrivate, setIsPrivate] = useState(false);
+
+  // ‼️ 배포 오류를 위한 임시 코드
+  const isPrivate = false;
+  // const [isPrivate, setIsPrivate] = useState(false);
+
   const [isRecordFocused, setIsRecordFocused] = useState<boolean[]>([false]);
 
   const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);

@@ -27,7 +27,7 @@ export const SortBottomSheet = ({
   return (
     <div
       className={clsx(
-        "fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full",
+        "fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full z-50",
         className,
       )}
       onClick={onClose}

@@ -6,6 +6,7 @@ import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
 import { DropBox } from "../../../components/common/DropBox";
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 
 const cities = [
   { value: "서울특별시", enabled: true },
@@ -80,17 +81,17 @@ export const GroupActivity = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8">
+      <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
         <PageHeader title="모임 만들기" />
         <ProgressBar width={!isFormValid ? "28" : "48"} />
 
-        <section className="text-left flex flex-col  gap-8 w-full mb-6">
-          <p className="header-h4 pt-8 pb-5">모임 활동 정보를 입력해주세요.</p>
+        <section className="text-left flex flex-col  gap-8 w-full mb-6 flex-1">
+          <p className="header-h4 pt-8">모임 활동 정보를 입력해주세요.</p>
           {/* 첫번째 */}
           <div>
             <div className="flex px-1 gap-[2px] items-center mb-2">
               <p className="header-h5">활동 지역</p>
-              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+              <img src={Circle_Red} alt="icon-cicle" />
             </div>
             <div className="flex justify-between">
               <DropBox
@@ -120,7 +121,7 @@ export const GroupActivity = () => {
           <div className="text-left flex flex-col gap-2">
             <div className="flex px-1 gap-[2px] items-center">
               <p className="header-h5">활동 요일</p>
-              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+              <img src={Circle_Red} alt="icon-cicle" />
             </div>
             <MultiSelectButtonGroup
               options={["전체", "월", "화", "수", "목", "금", "토", "일"]}
@@ -132,7 +133,7 @@ export const GroupActivity = () => {
           <div className="text-left flex flex-col gap-2 pb-5">
             <div className="flex px-1 gap-[2px] items-center">
               <p className="header-h5">활동 시간</p>
-              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+              <img src={Circle_Red} alt="icon-cicle" />
             </div>
             <MultiSelectButtonGroup
               options={["상시", "오전", "오후"]}
@@ -145,7 +146,7 @@ export const GroupActivity = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-1 shrink-0 `}
+          className={`flex items-center justify-center mb-4  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

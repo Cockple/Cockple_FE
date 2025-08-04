@@ -4,6 +4,8 @@ import ArrowDown from "@/assets/icons/arrow_down.svg";
 import ArrowUp from "@/assets/icons/arrow_up.svg";
 import { ExerciseMapCalendar } from "../../components/home/ExerciseMapCalendar";
 import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
+import myLocationIcon from "@/assets/icons/map_mylocation.svg?url";
+import markerIcon from "@/assets/icons/map_marker.svg?url";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 
@@ -173,56 +175,62 @@ export const ExerciseMapPage = () => {
   };
 
   useEffect(() => {
-    const kakao = window.kakao;
-    const container = mapRef.current;
+    if (!window.kakao || !window.kakao.maps || !window.kakao.maps.load) {
+      console.error("카카오 지도 스크립트가 아직 로드되지 않았습니다.");
+      return;
+    }
 
-    if (!container) return;
+    window.kakao.maps.load(() => {
+      const kakao = window.kakao;
+      const container = mapRef.current;
 
-    const { latitude, longitude } = dummyResponse.currentLocation;
-    const currentPos = new kakao.maps.LatLng(latitude, longitude);
+      if (!container) return;
 
-    // 지도를 생성할 때 필요한 기본 옵션
-    const options = {
-      center: currentPos, // 지도의 중심좌표.
-      level: 3, // 지도의 레벨(확대, 축소 정도)
-      draggable: true,
-      scrollwheel: true,
-    };
+      const { latitude, longitude } = dummyResponse.currentLocation;
+      const currentPos = new kakao.maps.LatLng(latitude, longitude);
 
-    const map = new kakao.maps.Map(container, options);
+      // 지도를 생성할 때 필요한 기본 옵션
+      const options = {
+        center: currentPos, // 지도의 중심좌표.
+        level: 3, // 지도의 레벨(확대, 축소 정도)
+        draggable: true,
+        scrollwheel: true,
+      };
 
-    map.setCenter(currentPos);
+      const map = new kakao.maps.Map(container, options);
 
-    const myLocationMarker = new kakao.maps.Marker({
-      position: currentPos,
-      image: new kakao.maps.MarkerImage(
-        "/src/assets/icons/map_mylocation.svg",
-        new kakao.maps.Size(40, 40),
-        { offset: new kakao.maps.Point(20, 20) },
-      ),
-    });
+      map.setCenter(currentPos);
 
-    myLocationMarker.setMap(map);
-
-    dummyResponse.exerciseLocations.forEach(loc => {
-      const marker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(loc.latitude, loc.longitude),
+      const myLocationMarker = new kakao.maps.Marker({
+        position: currentPos,
         image: new kakao.maps.MarkerImage(
-          "/src/assets/icons/map_marker.svg",
-          new kakao.maps.Size(28.8, 35.2),
-          {
-            offset: new kakao.maps.Point(20, 20),
-          },
+          myLocationIcon,
+          new kakao.maps.Size(40, 40),
+          { offset: new kakao.maps.Point(20, 20) },
         ),
-        map,
       });
 
-      // 마커 클릭 이벤트 등록
-      kakao.maps.event.addListener(marker, "click", () => {
-        setSelectedLocationId(dummyExerciseDetail);
+      myLocationMarker.setMap(map);
+
+      dummyResponse.exerciseLocations.forEach(loc => {
+        const marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(loc.latitude, loc.longitude),
+          image: new kakao.maps.MarkerImage(
+            markerIcon,
+            new kakao.maps.Size(28.8, 35.2),
+            {
+              offset: new kakao.maps.Point(20, 20),
+            },
+          ),
+          map,
+        });
+
+        // 마커 클릭 이벤트 등록
+        kakao.maps.event.addListener(marker, "click", () => {
+          setSelectedLocationId(dummyExerciseDetail);
+        });
       });
     });
-    // });
   }, []);
 
   useEffect(() => {
@@ -243,7 +251,7 @@ export const ExerciseMapPage = () => {
 
   return (
     <div className="flex flex-col items-center h-screen -mx-4 -mb-8">
-      <PageHeader title="지도로 운동 찾기" className="px-4" />
+      <PageHeader title="지도로 운동 찾기" />
       <div className="relative w-full flex-1 bg-gy-400" ref={mapRef}>
         <div className="absolute flex items-center gap-2 top-3 left-1/2 -translate-x-1/2 w-25 h-7 py-1 pl-2 pr-1.5 border-hard bg-white z-10">
           <span className="body-rg-500">05.05 (월)</span>
@@ -256,7 +264,7 @@ export const ExerciseMapPage = () => {
         </div>
       </div>
       {calendar && (
-        <div className="z-10">
+        <div className="z-50">
           <ExerciseMapCalendar onClose={() => setCalendar(false)} />
         </div>
       )}
@@ -265,6 +273,7 @@ export const ExerciseMapPage = () => {
       {selectedLocationId && (
         <motion.div
           drag={enableDrag ? "y" : false}
+          dragElastic={0.2}
           initial={false}
           dragConstraints={{ top: 0, bottom: 0 }}
           onDragEnd={handleDragEnd}

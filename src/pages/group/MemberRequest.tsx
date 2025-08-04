@@ -83,7 +83,7 @@ const MemberRequestPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-[100dvh]">
+    <div className="flex flex-col min-h-[100dvh] pt-14">
       <PageHeader title="멤버 신청 관리" />
       <TabSelector
         options={[

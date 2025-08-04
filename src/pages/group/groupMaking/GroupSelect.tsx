@@ -32,15 +32,16 @@ export const GroupSelect = () => {
   // const isFormValid = "";
   return (
     <>
-      <div className="flex flex-col -mb-8">
+      <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
         <PageHeader title="모임 만들기" />
         <ProgressBar width={"96"} />
 
-        <section className="text-left flex flex-col  gap-4 w-full mb-6">
+        <section className="text-left flex flex-col  gap-4 w-full mb-6 flex-1">
           <p className="header-h4 pt-8 pb-5">모임 선택 정보를 입력해주세요.</p>
           {/* 첫번째 */}
           <div className="flex flex-col gap-8">
             <SingleImageUploadBtn />
+
             <InputField
               isRequired={false}
               labelName="멤버에게 하고 싶은 말 / 소개"
@@ -48,13 +49,14 @@ export const GroupSelect = () => {
               InputLength={text?.length}
               onChange={handleInputDetected}
               value={text}
+              isTextArea={true}
             />
           </div>
         </section>
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-38 shrink-0 `}
+          className={`flex items-center justify-center mb-4 shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

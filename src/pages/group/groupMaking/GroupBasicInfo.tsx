@@ -9,6 +9,7 @@ import InputField from "../../../components/common/Search_Filed/InputField";
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
+import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export const GroupBasicInfo = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8">
+      <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
         <PageHeader title="모임 만들기" onBackClick={onBackClick} />
         <ProgressBar width={!isFormValid ? "4" : "24"} />
         {isModalOpen && (
@@ -73,7 +74,7 @@ export const GroupBasicInfo = () => {
           </div>
         )}
 
-        <section className="text-left flex flex-col  gap-3 w-full mb-6">
+        <section className="text-left flex flex-col  gap-3 w-full mb-6 flex-1">
           <p className="header-h4 pt-8 pb-5">모임 기본 정보를 입력해주세요.</p>
           {/* 첫번째 */}
           <InputField
@@ -87,7 +88,7 @@ export const GroupBasicInfo = () => {
           <div className="text-left flex flex-col gap-2 pb-5">
             <div className="flex px-1 gap-[2px] items-center">
               <p className="header-h5">모임 유형</p>
-              <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+              <img src={Circle_Red} alt="icon-cicle" />
             </div>
             <div className="flex gap-[13px]">
               <TextBox
@@ -113,7 +114,7 @@ export const GroupBasicInfo = () => {
             <div>
               <div className="flex px-1 gap-[2px] items-center mb-2">
                 <p className="header-h5">여자 급수</p>
-                <img src="/src/assets/icons/cicle_s_red.svg" alt="icon-cicle" />
+                <img src={Circle_Red} alt="icon-cicle" />
               </div>
               <MultiSelectButtonGroup
                 options={[
@@ -139,10 +140,7 @@ export const GroupBasicInfo = () => {
                 <div>
                   <div className="flex px-1 gap-[2px] items-center shrink-0 mb-2">
                     <p className="header-h5">여자 급수</p>
-                    <img
-                      src="/src/assets/icons/cicle_s_red.svg"
-                      alt="icon-cicle"
-                    />
+                    <img src={Circle_Red} alt="icon-cicle" />
                   </div>
                   <MultiSelectButtonGroup
                     options={[
@@ -163,10 +161,7 @@ export const GroupBasicInfo = () => {
                 <div>
                   <div className="flex px-1 gap-[2px] items-center mb-2">
                     <p className="header-h5">남자 급수</p>
-                    <img
-                      src="/src/assets/icons/cicle_s_red.svg"
-                      alt="icon-cicle"
-                    />
+                    <img src={Circle_Red} alt="icon-cicle" />
                   </div>
                   <MultiSelectButtonGroup
                     options={[
@@ -191,7 +186,7 @@ export const GroupBasicInfo = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 ${selected ? "mt-20" : "mt-42"} shrink-0 `}
+          className={`flex items-center justify-center mb-4 mt-20  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

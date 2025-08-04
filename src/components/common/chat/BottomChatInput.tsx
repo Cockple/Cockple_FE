@@ -14,6 +14,7 @@ interface BottomChatInputProps {
   onSendMessage: () => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 const BottomChatInput = ({

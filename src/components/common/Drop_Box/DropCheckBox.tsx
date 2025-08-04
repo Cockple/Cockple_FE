@@ -1,5 +1,9 @@
 import { useState } from "react";
 import CheckBoxBtn from "../DynamicBtn/CheckBoxBtn";
+import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
+import ArrowUp from "@/assets/icons/arrow_up.svg?url";
+import ArrowDown from "@/assets/icons/arrow_down.svg?url";
+import ArrowDown_GY from "@/assets/icons/arrow_down_gy.svg?url";
 
 interface DropBoxCheckBoxProps {
   title: string;
@@ -47,7 +51,7 @@ export default function DropCheckBox({
         >
           {title}
         </p>
-        <img src="/src/assets/icons/cicle_s_red.svg" alt="" />
+        <img src={Circle_RedIcon} alt="" />
       </div>
 
       <div className="flex items-center gap-3">
@@ -60,19 +64,13 @@ export default function DropCheckBox({
               {value && value !== "disabled" ? value : ""}
             </span>
             <img
-              src={
-                disabled
-                  ? "/src/assets/icons/arrow_down_gy.svg"
-                  : open
-                    ? "/src/assets/icons/arrow_up.svg"
-                    : "/src/assets/icons/arrow_down.svg"
-              }
+              src={disabled ? ArrowDown_GY : open ? ArrowUp : ArrowDown}
               alt="Dropdown arrow"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 "
             />
           </button>
           {open && !disabled && (
-            <div className="absolute mt-1 bg-white">
+            <div className="absolute mt-1 bg-white z-10">
               <ul className=" border rounded-xl border-gy-200 max-h-32 overflow-y-auto w-40 overflow-x-hidden ">
                 {options.map((item, idx) => {
                   return (
