@@ -23,8 +23,11 @@ export const ConfirmPage = () => {
     "운영진이 게임을 짜드려요",
   ];
   return (
-    <div className="w-full flex flex-col -mb-8 -mt-14">
-      <section className="flex items-center flex-col gap-10 ">
+    <div
+      className="w-full flex flex-col -mb-8 -mt-14"
+      style={{ minHeight: "100dvh" }}
+    >
+      <section className="flex items-center flex-col gap-10 flex-1">
         <IntroText
           title={
             onboarding ? "가입이 완료되었어요!" : "멋진 모임이 만들어졌어요!"
@@ -44,7 +47,7 @@ export const ConfirmPage = () => {
         </div>
       </section>
       <div
-        className="flex items-center justify-center header-h4 pt-12 mt-[2px] "
+        className="flex items-center justify-center header-h4 mb-4 "
         onClick={handleNext}
       >
         <Btn_Static

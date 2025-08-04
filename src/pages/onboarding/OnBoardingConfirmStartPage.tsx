@@ -9,9 +9,12 @@ export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full  flex flex-col -mb-8 pt-14">
+    <div
+      className="w-full  flex flex-col -mb-8 pt-14"
+      style={{ minHeight: "100dvh" }}
+    >
       <PageHeader title="가입 완료" />
-      <section className="flex items-center flex-col  gap-15 pb-24 ">
+      <section className="flex items-center flex-col  gap-15 flex-1 ">
         <IntroText
           title="입상 기록이 나를 더 잘 보여줄거에요!"
           text1="마이페이지에서 대회 경력을 등록해보세요."
@@ -51,7 +54,7 @@ export const OnboardingConfirmStartPage = () => {
         </div>
       </section>
       <div
-        className="flex items-center justify-center header-h4 "
+        className="flex items-center justify-center header-h4 mb-4"
         onClick={() => navigate("/")}
       >
         <Btn_Static label="시작하기" kind="GR400" size="L" />
