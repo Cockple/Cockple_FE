@@ -47,7 +47,7 @@ export const ConfirmPage = () => {
         </div>
       </section>
       <div
-        className="flex items-center justify-center header-h4 mb-4 "
+        className="flex items-center justify-center header-h4 mb-5 lg:mb-4"
         onClick={handleNext}
       >
         <Btn_Static

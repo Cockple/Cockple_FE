@@ -95,11 +95,11 @@ export const GroupFilter = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8">
+      <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
         <PageHeader title="회원 정보 입력" />
         <ProgressBar width={!isFormValid ? "52" : "72"} />
 
-        <section className="text-left flex flex-col  gap-3 w-full mb-6">
+        <section className="text-left flex flex-col  gap-3 w-full mb-6 flex-1">
           <p className="header-h4 pt-8 pb-5">
             모임 지정콕,조건 정보를 입력해주세요
           </p>
@@ -160,7 +160,7 @@ export const GroupFilter = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 pt-2 mt-[1px] shrink-0 `}
+          className={`flex items-center justify-center mb-4  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
