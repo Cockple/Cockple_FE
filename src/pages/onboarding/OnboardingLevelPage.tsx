@@ -46,11 +46,14 @@ export const OnboardingLevelPage = () => {
   };
 
   return (
-    <div className="w-full flex flex-col -mb-8 pt-14">
+    <div
+      className="w-full flex flex-col -mb-8 pt-14"
+      style={{ minHeight: "100dvh" }}
+    >
       <PageHeader title="회원 정보 입력" />
       <ProgressBar width={!isFormValid ? "28" : "48"} />
 
-      <section className="flex gap-8 text-left flex-col pb-67 ">
+      <section className="flex gap-8 text-left flex-col flex-1 ">
         <IntroText
           title="전국 급수를 입력해주세요."
           text1="급수를 입력하면,"
@@ -70,7 +73,7 @@ export const OnboardingLevelPage = () => {
         />
       </section>
       <div
-        className="flex items-center justify-center pt-[1px]"
+        className="flex items-center justify-center mb-4"
         onClick={handleNext}
       >
         <Btn_Static
