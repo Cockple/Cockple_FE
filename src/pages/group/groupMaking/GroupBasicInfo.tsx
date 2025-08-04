@@ -62,7 +62,7 @@ export const GroupBasicInfo = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8">
+      <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
         <PageHeader title="모임 만들기" onBackClick={onBackClick} />
         <ProgressBar width={!isFormValid ? "4" : "24"} />
         {isModalOpen && (
@@ -74,7 +74,7 @@ export const GroupBasicInfo = () => {
           </div>
         )}
 
-        <section className="text-left flex flex-col  gap-3 w-full mb-6">
+        <section className="text-left flex flex-col  gap-3 w-full mb-6 flex-1">
           <p className="header-h4 pt-8 pb-5">모임 기본 정보를 입력해주세요.</p>
           {/* 첫번째 */}
           <InputField
@@ -186,7 +186,7 @@ export const GroupBasicInfo = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 ${selected ? "mt-20" : "mt-42"} shrink-0 `}
+          className={`flex items-center justify-center mb-4 mt-20  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

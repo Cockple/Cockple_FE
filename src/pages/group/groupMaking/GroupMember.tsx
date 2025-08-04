@@ -29,24 +29,24 @@ const members: MemberProps[] = [
     level: "D조",
     status: "approved",
   },
-  {
-    name: "누구겡",
-    gender: "female",
-    level: "C조",
-    status: "approved",
-  },
-  {
-    name: "누구겡",
-    gender: "male",
-    level: "B조",
-    status: "approved",
-  },
-  {
-    name: "누구겡",
-    gender: "male",
-    level: "초급",
-    status: "approved",
-  },
+  // {
+  //   name: "누구겡",
+  //   gender: "female",
+  //   level: "C조",
+  //   status: "approved",
+  // },
+  // {
+  //   name: "누구겡",
+  //   gender: "male",
+  //   level: "B조",
+  //   status: "approved",
+  // },
+  // {
+  //   name: "누구겡",
+  //   gender: "male",
+  //   level: "초급",
+  //   status: "approved",
+  // },
 ];
 
 export const GroupMember = () => {
@@ -77,9 +77,9 @@ export const GroupMember = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8">
+      <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
         <PageHeader title="신규 멤버 추천" />
-        <section className="text-left flex flex-col  gap-5 w-full mb-6 min-h-80">
+        <section className="text-left flex flex-col  gap-5 w-full mb-6 flex-1">
           {/* 첫번째 */}
           <div className="mt-4">
             <SearchInput
@@ -106,7 +106,7 @@ export const GroupMember = () => {
           onClick={handleNext}
         >
           <Btn_Static
-            label="다음"
+            label="만든 모임 보러가기"
             kind="GR400"
             size="L"
             initialStatus={"default"}

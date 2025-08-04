@@ -51,6 +51,7 @@ interface MemberProps {
   //부모임장 지정
   onAppointClick?: () => void;
   selectMode?: boolean;
+  useDeleteModal?: boolean;
 }
 
 export type { MemberProps };
@@ -117,6 +118,7 @@ export const Member = ({
   onReject,
   onClick,
   onDelete,
+  useDeleteModal = true,
   isMe = false,
   isLeader = false,
   position = null,
@@ -153,7 +155,15 @@ export const Member = ({
       />
     );
   };
-
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (useDeleteModal) {
+      setIsModalOpen(true);
+    } else {
+      onDelete?.();
+    }
+    console.log("삭제 버튼 클릭됨, 모달 상태:", true);
+  };
   const renderContent = () => {
     switch (status) {
       case "Participating":
@@ -190,11 +200,7 @@ export const Member = ({
               {showDeleteButton && (
                 <Prohibition
                   className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setIsModalOpen(true);
-                    console.log("삭제 버튼 클릭됨, 모달 상태:", true);
-                  }}
+                  onClick={handleDeleteClick}
                 />
               )}
             </div>
