@@ -1,13 +1,27 @@
 import { createJSONStorage, persist } from "zustand/middleware";
 import { create } from "zustand";
+import type { StateCreator } from "zustand";
 
-const UserStore = set => ({
+interface UserData {
+  memberId: number;
+  nickname: string;
+  accessToken: string;
+  refreshToken: string | null;
+}
+
+interface UserStoreType {
+  user: UserData | null;
+  setUser: (user: UserData) => void;
+  resetUser: () => void;
+}
+
+const UserStore: StateCreator<UserStoreType> = set => ({
   user: null,
   setUser: user => set({ user }),
   resetUser: () => set({ user: null }),
 });
 
-const useUserStore = create(
+const useUserStore = create<UserStoreType>()(
   persist(UserStore, {
     name: "user",
     storage: createJSONStorage(() => sessionStorage),

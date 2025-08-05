@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 import { useMutation } from "@tanstack/react-query";
 import api from "../../api/api";
+import type { KakaoLoginResponseDTO } from "../../types/auth";
 
 export default function KakaoLogin() {
   const navigate = useNavigate();
@@ -20,19 +21,19 @@ export default function KakaoLogin() {
   const axios = api;
   const sendKakaoRequest = useMutation({
     mutationFn: ({ code }: { code: string }) => {
-      return axios.post("/api/oauth/login", { code });
+      return axios.post<KakaoLoginResponseDTO>("/api/oauth/login", { code });
     },
-    onSuccess: data => {
+    onSuccess: ({ data }) => {
       console.log("성공");
       console.log(data);
       const newUserData = {
-        memberId: data.data.mamberId,
-        nickname: data.data.nickname,
-        accessToken: data.data.accessToken,
-        refreshToken: data.data.refreshToken,
+        memberId: data.memberId,
+        nickname: data.nickname,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
       };
       setUser(newUserData);
-      if (data.data.isNewMember) {
+      if (data.isNewMember) {
         //미사용자
         navigate("/onboarding");
       } else {
@@ -44,4 +45,5 @@ export default function KakaoLogin() {
       console.log(error);
     },
   });
+  return <div></div>;
 }
