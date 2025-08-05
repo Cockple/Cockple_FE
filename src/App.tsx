@@ -70,8 +70,8 @@ import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
 import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
-import KakaoLogin from "./pages/login/kakaoLogin";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
+import KakaoLogin from "./pages/login/KakaoLogin";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
