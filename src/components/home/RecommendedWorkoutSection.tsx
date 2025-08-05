@@ -4,6 +4,7 @@ import { Exercise_M } from "../common/contentcard/Exercise_M";
 import type { GroupExerciseItem } from "../../pages/home/HomePage";
 import { groupExerciseData } from "./mock/homeMock";
 import { useNavigate } from "react-router-dom";
+
 export const RecommendedWorkoutSection = () => {
   const navigate = useNavigate();
   const data: GroupExerciseItem[] = groupExerciseData;
@@ -33,6 +34,7 @@ export const RecommendedWorkoutSection = () => {
             time={item.time}
             location={item.location}
             imageSrc={item.imgSrc}
+            onClick={() => navigate(`/group/${item.id}`)}
           />
         ))}
       </div>

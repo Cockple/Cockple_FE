@@ -6,7 +6,8 @@ interface ExerciseSProps {
   date: string;
   time: string;
   location: string;
-  imageSrc: string; 
+  imageSrc: string;
+  onClick?: () => void;
 }
 
 export const Exercise_S = ({
@@ -15,8 +16,8 @@ export const Exercise_S = ({
   time,
   location,
   imageSrc,
+  onClick,
 }: ExerciseSProps) => {
-
   const [isPressing, setIsPressing] = useState(false);
 
   return (
@@ -29,12 +30,13 @@ export const Exercise_S = ({
       className={`p-[0.5rem] w-[8rem] h-[10.25rem] rounded-[1rem] 
         ${isPressing ? "bg-[#F4F5F6]" : "bg-white"} 
         shadow-ds50 flex flex-col items-center gap-[0.75rem] transition-colors duration-150`}
+      onClick={onClick}
     >
       {/* 이미지 영역 */}
       <div>
         <img
-          src={imageSrc} 
-          alt={title} 
+          src={imageSrc}
+          alt={title}
           className="w-[7rem] h-[5.25rem] rounded-[0.5rem] object-cover"
         />
       </div>
@@ -49,7 +51,6 @@ export const Exercise_S = ({
           <p className="truncate body-sm-400 w-full">{location}</p>
         </div>
       </div>
-
     </div>
   );
 };
