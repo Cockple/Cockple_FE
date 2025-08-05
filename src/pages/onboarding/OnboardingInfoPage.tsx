@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import InputField from "../../components/common/Search_Filed/InputField";
-import { useOnboardingState } from "../../zustand/useOnboardingStore";
+import { useOnboardingState } from "../../store/useOnboardingStore";
 import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
 
 export const OnboardingInfoPage = () => {
