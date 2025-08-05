@@ -146,6 +146,7 @@ export const ContentCardL = ({
               onTouchStart={() => setIsGuestPressing(true)}
               onTouchEnd={() => setIsGuestPressing(false)}
               className="w-[9.5625rem] h-[2.25rem] rounded bg-[#F4F5F6] body-rg-500 text-black transition-colors duration-150"
+              onClick={() => navigate("/group/detail/inviteGuest")}
             >
               게스트 초대하기
             </button>
