@@ -70,8 +70,8 @@ import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
 import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
-import KakaoLogin from "./pages/login/KakaoLogin";
+import MemberRequestPage from "./pages/group/MemberRequest";
+import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -144,7 +144,12 @@ const router = createBrowserRouter([
       { path: "/alert", element: <AlertPage /> },
       { path: "/location/search", element: <LocationSearchPage /> },
       { path: "/location/map", element: <LocationMapPage /> },
+
       { path: "/group/recommend", element: <GroupRecommendPage /> },
+      {
+        path: "/group/:groupId/member-request",
+        element: <MemberRequestPage />,
+      },
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
