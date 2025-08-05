@@ -36,6 +36,7 @@ export const MyGroupWorkoutSection = () => {
               time={item.time}
               location={item.location}
               imageSrc={item.imgSrc}
+              onClick={() => navigate(`/group/${item.id}`)}
             />
           ))}
         </div>
@@ -56,6 +57,7 @@ export const MyGroupWorkoutSection = () => {
               clicked: AddIcon,
               disabled: AddIcon,
             }}
+            onClick={() => navigate("/group/making/basic")}
           />
         </div>
       )}

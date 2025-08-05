@@ -75,11 +75,14 @@ export const OnboardingInfoPage = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8 pt-14">
+      <div
+        className="flex flex-col -mb-8 pt-14"
+        style={{ minHeight: "100dvh" }}
+      >
         <PageHeader title="회원 정보 입력" />
         <ProgressBar width={!isFormValid ? "4" : "24"} />
 
-        <section className="text-left flex flex-col  gap-3 w-full ">
+        <section className="text-left flex flex-col  gap-3 w-full flex-1">
           <p className="header-h4 pt-8 pb-5">기본 정보를 입력해주세요</p>
           {/* 첫번째 */}
           <InputField
@@ -148,7 +151,7 @@ export const OnboardingInfoPage = () => {
 
         {/* 버튼 */}
         <div
-          className="flex items-center justify-center pt-21 mt-[3px] shrink-0 "
+          className="flex items-center justify-center mb-4 shrink-0 "
           onClick={handleNext}
         >
           <Btn_Static

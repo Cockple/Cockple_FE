@@ -30,7 +30,6 @@ import {
   MyPage,
   MyPageEditLocationPage,
   MyPageEditPage,
-  // MyPageExerciseDetailPage,
   MyPageMedalAddPage,
   MyPageMedalDetailPage,
   MyPageMyExercisePage,
@@ -59,7 +58,6 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
 import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
@@ -70,7 +68,8 @@ import { LocationSearchPage } from "./pages/location/LocationSearchPage";
 import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
-// import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
+import MemberRequestPage from "./pages/group/MemberRequest";
+import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 
 const router = createBrowserRouter([
   {
@@ -123,10 +122,6 @@ const router = createBrowserRouter([
       },
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
-      // {
-      //   path: "/mypage/myexercise/:exerciseId",
-      //   element: <MyPageExerciseDetailPage />,
-      // },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
@@ -145,11 +140,15 @@ const router = createBrowserRouter([
       { path: "/alert", element: <AlertPage /> },
       { path: "/location/search", element: <LocationSearchPage /> },
       { path: "/location/map", element: <LocationMapPage /> },
+
       { path: "/group/recommend", element: <GroupRecommendPage /> },
+      {
+        path: "/group/:groupId/member-request",
+        element: <MemberRequestPage />,
+      },
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      // { path: "/group/MemberDefault", element: <MemberDefault /> },//지영님 경로 수정 받아서 확인해야함
       { path: "/group/Mygroup/MyExerciseDetail", element: <MyExerciseDetail /> },
       { path: "/group/Mygroup/ExerciseDetailApplye", element: <ExerciseDetailApply /> }, 
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },

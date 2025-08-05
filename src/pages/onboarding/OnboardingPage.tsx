@@ -7,8 +7,11 @@ export const OnboardingPage = () => {
   const navigate = useNavigate();
   return (
     <>
-      <div className=" w-full flex flex-col justify-center -mb-8">
-        <section className="flex items-center flex-col gap-25 ">
+      <div
+        className=" w-full flex flex-col justify-center -mb-8 "
+        style={{ minHeight: "100dvh" }}
+      >
+        <section className="flex items-center flex-col gap-25 flex-1">
           <IntroText
             title="환영합니다!"
             text1="카카오 계정으로 가입되었어요"
@@ -25,7 +28,7 @@ export const OnboardingPage = () => {
           </div>
         </section>
         <div
-          className="flex items-center justify-center header-h4 pt-32 mt-[1px] shrink-0 "
+          className="flex items-center justify-center header-h4 mb-4  "
           onClick={() => navigate("info")}
         >
           <Btn_Static label="회원 정보 입력" kind="GR400" size="L" />

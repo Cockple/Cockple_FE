@@ -39,6 +39,7 @@ export const GroupPage = () => {
                   pressing: ArrowRight,
                   clicked: ArrowRight,
                 }}
+                onClick={() => navigate("/mypage/mygroup")}
               />
             )}
           </div>
@@ -92,6 +93,7 @@ export const GroupPage = () => {
                   groupImage={item.groupImage}
                   upcomingCount={item.upcomingCount}
                   isMine={true}
+                  onClick={() => navigate(`/group/${item.id}`)}
                 />
               ))}
           </div>

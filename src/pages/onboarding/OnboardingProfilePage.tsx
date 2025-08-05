@@ -27,7 +27,7 @@ export const OnboardingProfilePage = () => {
     if (setProfile) {
       navigate("/confirm");
     } else {
-      setIsProfile(true);
+      fileInput.current?.click();
     }
   };
 
@@ -76,11 +76,11 @@ export const OnboardingProfilePage = () => {
   return (
     <div
       className={` flex flex-col relative -mb-8 min-h-[100dvh] pt-14 ${isCropping ? "-mx-4" : ""}`}
-      style={{ maxWidth: "444px" }}
+      style={{ maxWidth: "444px", minHeight: "100dvh" }}
     >
       <PageHeader title="회원 정보 입력" />
       {isCropping ? "" : <ProgressBar width={setProfile ? "96" : "76"} />}
-      <section className=" flex flex-col gap-[6.25rem] text-left pb-34 mb-[3px] ">
+      <section className=" flex flex-col gap-[6.25rem] text-left flex-1 ">
         <div>
           <IntroText
             title="프로필을 등록해주세요."
@@ -120,8 +120,12 @@ export const OnboardingProfilePage = () => {
           기본 프로필 사용하기
         </p>
       </div>
-      <div className="flex justify-center" onClick={handleClick}>
-        <Btn_Static label="다음" kind="GR400" size="L" />
+      <div className="flex justify-center mb-4" onClick={handleClick}>
+        <Btn_Static
+          label={preview ? "다음" : "프로필 등록"}
+          kind="GR400"
+          size="L"
+        />
       </div>
 
       {/* 이미지 모달 */}
