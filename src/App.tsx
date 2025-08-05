@@ -71,7 +71,8 @@ import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
 import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
 import MemberRequestPage from "./pages/group/MemberRequest";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import KakaoLogin from "./pages/login/KakaoLogin";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
