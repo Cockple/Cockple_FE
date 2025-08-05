@@ -72,7 +72,6 @@ import { EditLocationPage } from "./pages/home/EditLocationPage";
 import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
 import MemberRequestPage from "./pages/group/MemberRequest";
 import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
-import MemberRequestPage from "./pages/group/MemberRequest";
 
 const router = createBrowserRouter([
   {
