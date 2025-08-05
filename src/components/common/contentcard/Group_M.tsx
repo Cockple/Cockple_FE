@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
+import CautionGroupModal from "../../like/CautionGroupModal";
 
 interface GroupMProps {
   id: number;
@@ -14,6 +15,7 @@ interface GroupMProps {
   nextActivitDate: string;
   upcomingCount: number;
   like?: boolean;
+  LikeCount?: number; 
   isMine: boolean;
   onToggleFavorite?: (id: number) => void;
   onClick?: () => void;
@@ -29,15 +31,20 @@ export const Group_M = ({
   nextActivitDate,
   upcomingCount,
   like = false,
-  // isMine,
+  LikeCount,
   onToggleFavorite,
   onClick,
 }: GroupMProps) => {
   const [isPressing, setIsPressing] = useState(false);
   const [favorite, setFavorite] = useState(like);
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //모임 15개 넘어가면 모달창
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleToggleFavorite = () => {
+    if (!favorite && (LikeCount ?? 0) > 15) {
+      setShowFavoriteLimitModal(true);
+      return;
+    }
+
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
@@ -110,6 +117,16 @@ export const Group_M = ({
           </p>
         </div>
       </div>
+      {showFavoriteLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <CautionGroupModal
+            onClose={() => setShowFavoriteLimitModal(false)}
+            onApprove={() => {
+              setShowFavoriteLimitModal(false);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

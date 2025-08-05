@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -8,7 +8,7 @@ import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
 import { useNavigate } from "react-router-dom";
-
+import CautionExerciseModals from "../../like/CautionExerciseModal";
 interface ContentCardLProps {
   id: number;
   isUserJoined: boolean;
@@ -23,6 +23,7 @@ interface ContentCardLProps {
   currentCount: number;
   totalCount: number;
   like?: boolean;
+  LikeCount?: number; 
   onToggleFavorite?: (id: number) => void;
 }
 export type { ContentCardLProps };
@@ -41,6 +42,7 @@ export const ContentCardL = ({
   currentCount,
   totalCount,
   like = false,
+  LikeCount,
   onToggleFavorite,
 }: ContentCardLProps) => {
   const navigate = useNavigate();
@@ -50,14 +52,20 @@ export const ContentCardL = ({
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
-
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //운동 50개 넘어가면 모달창
   const [favorite, setFavorite] = useState(like);
 
   const handleToggleFavorite = () => {
+    if (!favorite && (LikeCount ?? 0) >= 50) {
+      setShowFavoriteLimitModal(true);
+      return;
+    }
+
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
   };
+
 
   function getDayOfWeek(dateString: string): string {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
@@ -151,6 +159,16 @@ export const ContentCardL = ({
               게스트 초대하기
             </button>
           )}
+        </div>
+      )}
+      {showFavoriteLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <CautionExerciseModals
+            onClose={() => setShowFavoriteLimitModal(false)}
+            onApprove={() => {
+              setShowFavoriteLimitModal(false);
+            }}
+          />
         </div>
       )}
     </div>
