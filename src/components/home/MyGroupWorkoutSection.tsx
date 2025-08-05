@@ -57,6 +57,7 @@ export const MyGroupWorkoutSection = () => {
               clicked: AddIcon,
               disabled: AddIcon,
             }}
+            onClick={() => navigate("/group/making/basic")}
           />
         </div>
       )}
