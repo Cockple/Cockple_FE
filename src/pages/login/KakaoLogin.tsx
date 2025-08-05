@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useUserStore from "../../store/useUserStore";
 export default function KakaoLogin() {
   const navigate = useNavigate();
+  const { setUser } = useUserStore();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -23,12 +25,18 @@ export default function KakaoLogin() {
 
       const { data } = response;
       console.log(data);
-      localStorage.setItem("accessToken", data.accessToken);
-      // localStorage.setItem("refreshToken", data.refreshToken);
-      console.log(data.isNewMember);
+      const newUserData = {
+        memberId: data.mamberId,
+        nickname: data.nickname,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      };
+      setUser(newUserData);
       if (data.isNewMember) {
+        //미사용자
         navigate("/onboarding");
       } else {
+        //기존 사용자
         navigate("/");
       }
     } catch (error) {
