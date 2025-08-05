@@ -102,7 +102,7 @@ export const InviteDefault = (props: MyPageExerciseDetailPageProps) => {
   return (
     <>
       <PageHeader title="신규 멤버 초대하기" />
-      <div className="flex flex-col ">
+      <div className="flex flex-col mt-5 ">
         <div className="mb-8">
           <div className="relative">
             <input

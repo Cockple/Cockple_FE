@@ -139,7 +139,7 @@ export const GroupDetailMemberDefault = (
           ]}
         />
         <div className="mb-8">
-          <div className="relative">
+          <div className="relative mt-15">
             <input
               type="text"
               placeholder="이름, 급수로 검색"
