@@ -12,6 +12,7 @@ import { alertList } from "../../components/alert/alertList";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
+import type { AlertItem } from "../../types/alert";
 
 export const AlertPage = () => {
   const navigate = useNavigate();
@@ -40,9 +41,19 @@ export const AlertPage = () => {
   // const handleDetail = (id: number) => {
   //   console.log("상세보기 이동", id);
   // };
-  const handleDetail = (groupId: number) => {
-    console.log("모임 페이지로 이동", groupId);
-    navigate(`/group/${groupId}`); // 필요 시 id 기반 라우팅
+  const handleDetail = (partyId: number, data?: AlertItem["data"]) => {
+    console.log("모임 페이지로 이동", partyId);
+
+    if (data?.exerciseDate && data?.exerciseId) {
+      navigate(`/group/${partyId}`, {
+        state: {
+          exerciseDate: data.exerciseDate,
+          exerciseId: data.exerciseId,
+        },
+      });
+    } else {
+      navigate(`/group/${partyId}`);
+    }
   };
 
   //모임 초대 수락 api
@@ -145,7 +156,7 @@ export const AlertPage = () => {
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={
                   shouldMoveToDetail(alert.type)
-                    ? () => handleDetail(alert.groupId)
+                    ? () => handleDetail(alert.partyId, alert.data)
                     : undefined
                 }
               />
