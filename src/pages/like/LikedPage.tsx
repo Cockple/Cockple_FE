@@ -5,10 +5,12 @@ import TabSelector from "../../components/common/TabSelector";
 import Sort from "../../components/common/Sort";
 import LikedList from "../../components/like/LikedList";
 
-import { groupDummy } from "../../components/like/groupDummy";
-import { exerciseDummy } from "../../components/like/exerciseDummy";
+//import { groupDummy } from "../../components/like/groupDummy";
+//import { exerciseDummy } from "../../components/like/exerciseDummy";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
+import type { ExerciseCard, GroupCard } from "../../types/liked";
+import api from "../../api/api";
 
 // 정렬 옵션 타입
 type GroupSortOption = "최신순" | "오래된 순" | "운동 많은 순";
@@ -46,26 +48,81 @@ export const LikedPage = () => {
 
   const sortOptions = sortOptionsByTab[activeTab];
 
-  const [groupCards, setGroupCards] = useState(groupDummy);
-  const [exerciseCards, setExerciseCards] = useState(exerciseDummy);
+  // const [groupCards, setGroupCards] = useState(groupDummy);
+  const [groupCards, setGroupCards] = useState<GroupCard[]>([]);
+  // const [exerciseCards, setExerciseCards] = useState(exerciseDummy);
+  const [exerciseCards, setExerciseCards] = useState<ExerciseCard[]>([]);
 
+  // useEffect(() => {
+  //   setSelectedSort("최신순");
+  // }, [activeTab]);
+
+  const fetchBookmarks = (tab: "group" | "exercise", sort: string) => {
+    const token = localStorage.getItem("accessToken");
+    const orderType =
+      sortOrderMap[tab][sort as GroupSortOption & ExerciseSortOption];
+
+    api
+      .get(
+        `/api/${activeTab === "group" ? "parties" : "exercises"}/bookmarks`,
+        {
+          params: { orderType },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .then(res => {
+        console.log("찜 목록 : ", res.data);
+        const newData = res.data.data;
+
+        if (activeTab === "group") {
+          setGroupCards(newData);
+        } else {
+          setExerciseCards(newData);
+        }
+      })
+      .catch(err => {
+        console.error("찜 목록 불러오기 실패", err);
+      });
+  };
   useEffect(() => {
-    setSelectedSort("최신순");
-    //const orderType = sortOrderMap[activeTab]["최신순"];
+    // const token = localStorage.getItem("accessToken"); // 예시
 
-    // 실제 API 호출
-    // axios.get(`/api/${activeTab === "group" ? "parties" : "exercises"}/bookmarks?orderType=${orderType}`)
-    //   .then(res => activeTab === "group" ? setGroupCards(res.data) : setExerciseCards(res.data));
-  }, [activeTab]);
+    // const orderType = sortOrderMap[activeTab]["최신순"];
+
+    // api
+    //   .get(
+    //     `/api/${activeTab === "group" ? "parties" : "exercises"}/bookmarks`,
+    //     {
+    //       params: { orderType },
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     },
+    //   )
+    //   .then(res => {
+    //     const newData = res.data.data;
+    //     if (activeTab === "group") {
+    //       setGroupCards(newData);
+    //     } else {
+    //       setExerciseCards(newData);
+    //     }
+    //   })
+    //   .catch(err => {
+    //     console.error("찜 목록 불러오기 실패", err);
+    //   });
+    fetchBookmarks(activeTab, selectedSort);
+  }, [activeTab, selectedSort]);
 
   const handleSortClick = () => setIsSortOpen(prev => !prev);
   const handleSelectSort = (option: string) => {
     setSelectedSort(option);
     setIsSortOpen(false);
 
-    const orderType =
-      sortOrderMap[activeTab][option as GroupSortOption & ExerciseSortOption];
-    console.log("API 요청시 orderType:", orderType);
+    // const orderType =
+    //   sortOrderMap[activeTab][option as GroupSortOption & ExerciseSortOption];
+    // console.log("API 요청시 orderType:", orderType);
   };
 
   const handleToggleFavorite = (id: number) => {
@@ -92,7 +149,7 @@ export const LikedPage = () => {
   };
 
   return (
-    <div className="flex flex-col w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden pt-14">
+    <div className="flex flex-col w-full min-h-[100dvh] -mb-8 overflow-y-scroll [&::-webkit-scrollbar]:hidden pt-14">
       <MainHeader />
       {/* 탭 선택 */}
       <TabSelector
