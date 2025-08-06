@@ -3,7 +3,7 @@ import { PageHeader } from "../../../components/common/system/header/PageHeader"
 import { useNavigate } from "react-router-dom";
 import { ProgressBar } from "../../../components/common/ProgressBar";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
-import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
+import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { DropBox } from "../../../components/common/DropBox";
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
