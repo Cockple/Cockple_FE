@@ -1,18 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AlertInvite from "../../components/common/contentcard/alertTest/AlertInvite";
-//import AlertInviteApproved from "../../components/common/contentcard/alertTest/AlertInviteApproved";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
-// import AlertChange from "../../components/common/contentcard/alertTest/AlertChange";
-// import AlertShadow from "../../components/common/contentcard/alertTest/AlertShadow";
-import { alertList } from "../../components/alert/alertList";
+//import { alertList } from "../../components/alert/alertList";
+
+//api 연결
+import api from "../../api/api";
+
 // 아이콘
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
-import type { AlertItem } from "../../types/alert";
+import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 
 export const AlertPage = () => {
   const navigate = useNavigate();
@@ -21,12 +22,37 @@ export const AlertPage = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [targetId, setTargetId] = useState<number | null>(null);
 
-  const [notifications, setNotifications] = useState(alertList);
+  //const [notifications, setNotifications] = useState(alertList);
+  const [notifications, setNotifications] = useState<ResponseAlertDto[]>([]);
 
   // 알림 리스트 필터링된 상태로 보여주기
   const visibleNotifications = notifications.filter(alert =>
     ["invite", "change", "simple"].includes(alert.type),
   );
+
+  // 알림 목록 조회 api
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await api.get<AlertListResponse>(
+          `/api/notifications`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+        console.log("알림 목록 : ", response.data);
+
+        const { data } = response.data;
+        setNotifications(data);
+      } catch (error) {
+        console.error("알림 목록 조회 실패:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   const handleAccept = (id: number) => {
     setTargetId(id);
@@ -41,7 +67,7 @@ export const AlertPage = () => {
   // const handleDetail = (id: number) => {
   //   console.log("상세보기 이동", id);
   // };
-  const handleDetail = (partyId: number, data?: AlertItem["data"]) => {
+  const handleDetail = (partyId: number, data?: ResponseAlertDto["data"]) => {
     console.log("모임 페이지로 이동", partyId);
 
     if (data?.exerciseDate && data?.exerciseId) {
@@ -142,7 +168,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgKey}
+                imageSrc={alert.imgUrl}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -151,7 +177,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgKey}
+                imageSrc={alert.imgUrl}
                 alertType={alert.type}
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={
