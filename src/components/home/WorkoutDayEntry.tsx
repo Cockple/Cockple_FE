@@ -1,10 +1,11 @@
 import { DailyExercise_S } from "../common/contentcard/DailyExercise_S";
 import TextIconBtnM from "../common/DynamicBtn/TextIconBtnM";
-import type { DailyExerciseItem } from "../../pages/home/HomePage";
+
 import { useNavigate } from "react-router-dom";
+import type { Exercise } from "../../types/calendar";
 
 interface WorkoutDayEntryProps {
-  exerciseData: DailyExerciseItem[] | null;
+  exerciseData: Exercise[] | null;
 }
 
 export const WorkoutDayEntry = ({ exerciseData }: WorkoutDayEntryProps) => {
@@ -21,12 +22,12 @@ export const WorkoutDayEntry = ({ exerciseData }: WorkoutDayEntryProps) => {
     <div className="flex flex-col gap-3">
       {exerciseData.map(item => (
         <DailyExercise_S
-          key={item.id}
-          title={item.title}
-          location={item.location}
-          time={item.time}
-          imageSrc={item.imgSrc}
-          onClick={() => navigate(`/group/${item.id}`)}
+          key={item.exerciseId}
+          title={item.partyName}
+          location={item.buildingName}
+          time={item.startTime + " - " + item.endTime}
+          imageSrc={item.profileImageUrl}
+          onClick={() => navigate(`/group/${item.partyId}`)}
         />
       ))}
     </div>
