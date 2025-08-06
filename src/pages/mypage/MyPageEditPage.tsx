@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
@@ -15,6 +15,8 @@ import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import { LocationField } from "../../components/common/LocationField";
 import { Location } from "../../components/common/contentcard/Location";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
+import { getMyProfile, patchMyProfile } from "../../lib/mypage/profile";
+
 interface LocationType {
   id: number;
   location?: string;
@@ -44,93 +46,118 @@ export const MyPageEditPage = ({
   rank: initialRankProp,
   hasNoRank: initialHasNoRankProp,
   locations: initialLocationsProp = [],
-  // isMainAddr="ㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
-  // streetAddr="ㅈ돋ㅁㅎㄱ",
-  // isMainAddr,
-  // streetAddr,
-  // keywords = ["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"],
 }: MyPageEditProps) => {
   const navigate = useNavigate();
+  
+  const location = useLocation();
+  const selectedPlace = location.state?.selectedPlace;
+
+  const [locations, setLocations] = useState<LocationType[]>([]);
+
+  useEffect(() => {
+    if (selectedPlace) {
+      // 기존 locations에 새 위치를 추가 (중복 체크 가능)
+      setLocations(prev => {
+        const exists = prev.some(
+          loc => loc.isMainAddr === selectedPlace.name && loc.streetAddr === selectedPlace.address,
+        );
+        if (exists) return prev; // 중복 방지
+        // id는 임시로 현재 timestamp 사용
+        return [
+          ...prev,
+          {
+            id: Date.now(),
+            isMainAddr: selectedPlace.name,
+            streetAddr: selectedPlace.address,
+          },
+        ];
+      });
+
+      // 페이지 첫 로딩 시 state 초기화: 중복 추가 방지용
+      window.history.replaceState({}, document.title);
+    }
+  }, [selectedPlace]);
+    useEffect(() => {
+    if (location.state?.selectedPlace) {
+      const selectedPlace = location.state.selectedPlace;
+      addLocation({
+        id: Date.now(), // 간단히 타임스탬프로 고유 id 생성
+        isMainAddr: selectedPlace.name,
+        streetAddr: selectedPlace.address,
+      });
+      // 한번 추가 후 state 초기화 또는 history.replace로 state 제거 권장
+    }
+  }, [location.state]);
+  const addLocation = (newLocation: LocationType) => {
+    setLocations(prev => {
+      if (prev.length >= 5) {
+        alert("위치는 최대 5개까지 추가할 수 있습니다.");
+        return prev;
+      }
+      const exists = prev.some(
+        loc =>
+          loc.isMainAddr === newLocation.isMainAddr &&
+          loc.streetAddr === newLocation.streetAddr,
+      );
+      if (exists) {
+        alert("이미 등록된 위치입니다.");
+        return prev;
+      }
+      return [...prev, newLocation];
+    });
+  };
+
+  // 수정하기 전 저장되어 있는 내 프로필 값 불러오기 API
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getMyProfile();
+
+        setName(data.memberName || "");
+        setSelectedDate(data.birth || "");
+        setSelectedLevel(data.level || "NO_RANK");
+
+        if (data.profileImgUrl) {
+          setProfileImage(data.profileImgUrl); 
+        }
+
+      } catch (error) {
+        console.error("프로필 불러오기 실패", error);
+      }
+  };
+
+  fetchProfile();
+}, []);
 
   const {
-    // register,
-    // handleSubmit,
     setValue,
-    // formState: { errors },
   } = useForm();
   const [openModal, setOpenModal] = useState(false); //생년월일 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name, setName] = useState(initialNameProp ?? "");
+  const [name, setName] = useState("");
+  const [selectedDate, setSelectedDate] = useState(""); // "YYYY-MM-DD"
+  const [selectedLevel, setSelectedLevel] = useState("NO_RANK");
+  const [profileImage, setProfileImage] = useState(""); // imgKey or URL
+
   //키워드
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const keywordLines = [
     ["브랜드 스폰", "가입비 무료"],
     ["친목", "운영진이 게임을 짜드려요"],
   ];
-
-  const level = [
-    "왕초심",
-    "초심",
-    "D조",
-    "C조",
-    "B조",
-    "A조",
-    "준자강",
-    "자강",
-  ];
+  const level = ["왕초심","초심","D조","C조","B조","A조","준자강","자강",];
   const [open, setOpen] = useState(false);
-  const [selectedLevel, setSelectedLevel] = useState("");
   const [disabled, setDisabled] = useState(false);
-
-  //급수없음 버튼
-  // ‼️ 배포 오류를 위한 임시 코드
-  const selectedRank = initialBirthProp ?? "";
-  const hasNoRank = initialHasNoRankProp ?? false;
-  // const [selectedRank, setSelectedRank] = useState(initialRankProp ?? "");
-  // const [hasNoRank, setHasNoRank] = useState(initialHasNoRankProp ?? false);
-
-  //Location 임시값////////////////////////////////////////////////////////////////
-  const [locations, setLocations] = useState([
-    {
-      id: 1,
-      isMainAddr: "서울특별시 강남구 역삼동",
-      streetAddr: "테헤란로 152",
-    },
-    {
-      id: 2,
-      isMainAddr: "서울특별시 서초구 서초동",
-      streetAddr: "강남대로 373",
-    },
-    {
-      id: 3,
-      isMainAddr: "서울특별시 마포구 상암동",
-      streetAddr: "월드컵북로 396",
-    },
-  ]);
   const [selectedId, setSelectedId] = useState(1);
   const [editMode, setEditMode] = useState(false);
+
+  const selectedRank = initialBirthProp ?? "";
+  const hasNoRank = initialHasNoRankProp ?? false;
 
   const handleDelete = (id: number) => {
     setLocations(prev => prev.filter(loc => loc.id !== id));
   };
-
-  //Location 임시값////////////////////////////////////////////////////////////////
-
-  //Location
-  // const [locations, setLocations] = useState<LocationType[]>([]);
-  // const [selectedId, setSelectedId] = useState<number>(1);
-  // const [editMode, setEditMode] = useState(false);
-
-  // 사진
-  const [profileImage, setProfileImage] = useState<string | undefined>(
-    undefined,
-  );
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [selectedDate, setSelectedDate] = useState("");
-  // const pickerRef = useRef(null);
-  // const [isModalNameOpen, setIsModalNameOpen] = useState(false);
-
   const initialDataRef = useRef({
     name: initialNameProp ?? "",
     rank: initialRankProp ?? "",
@@ -152,7 +179,7 @@ export const MyPageEditPage = ({
       };
       reader.readAsDataURL(initialProfileFileProp);
     } else {
-      setProfileImage(undefined);
+      // setProfileImage(undefined);
       initialDataRef.current.profileImage = undefined;
     }
   }, [initialProfileFileProp]);
@@ -180,39 +207,6 @@ export const MyPageEditPage = ({
     return false;
   }, [name, selectedRank, hasNoRank, selectedDate, profileImage, locations]);
 
-  //수정 완료 버튼 클릭 처리
-  const onCompleteClick = () => {
-    if (name.trim() === "") {
-      alert("이름은 반드시 입력해야 합니다.");
-      return;
-    }
-
-    if (!isDataChanged()) {
-      // 변경사항 없을 때 → 바로 마이페이지 이동
-      navigate("/myPage");
-      return;
-    }
-    console.log("수정된 정보를 서버에 저장합니다.");
-
-    navigate("/myPage");
-  };
-
-  const onBackClick = () => {
-    if (isDataChanged()) {
-      setIsModalOpen(true);
-    } else {
-      navigate("/myPage");
-    }
-  };
-  const handleConfirmLeave = () => {
-    setIsModalOpen(false);
-    navigate("/myPage");
-  };
-
-  const handleCancelLeave = () => {
-    setIsModalOpen(false);
-  };
-
   // 이름 기능부분
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value;
@@ -225,11 +219,6 @@ export const MyPageEditPage = ({
     setName(input);
   };
 
-  // Location 기능 부분
-  // const handleDelete = (id: number) => {
-  //   setLocations((prev) => prev.filter((loc) => loc.id !== id));
-  // };
-
   const toggleEditMode = () => {
     if (editMode) {
       // 저장 로직
@@ -238,6 +227,7 @@ export const MyPageEditPage = ({
     }
     setEditMode(prev => !prev);
   };
+  
   if (locations.length > 5) {
     alert(
       "위치 정보는 최대 5개까지 저장 가능합니다. 수정 버튼을 통해 등록된 위치를 삭제해주세요",
@@ -259,10 +249,8 @@ export const MyPageEditPage = ({
       reader.readAsDataURL(file);
     }
   };
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const pickerRef = useRef<{ getDueString: () => string }>(null);
-
   //생년월일
+  const pickerRef = useRef<{ getDueString: () => string }>(null);
   const handleCloseOverlay = () => {
     if (pickerRef.current) {
       const date = pickerRef.current.getDueString(); // 선택된 값
@@ -270,6 +258,51 @@ export const MyPageEditPage = ({
       setValue("birthday", date, { shouldValidate: true });
     }
     setOpenModal(false);
+  };
+
+  //수정 완료 버튼 클릭 처리 -> 수정 API 연동
+    const onCompleteClick = async () => {
+      if (name.trim() === "") {
+        alert("이름은 반드시 입력해야 합니다.");
+        return;
+      }
+
+      if (!isDataChanged()) {
+        navigate("/myPage");
+        return;
+      }
+
+      try {
+        const payload = {
+          memberName: name,
+          birth: selectedDate,
+          level: disabled ? "NO_RANK" : selectedLevel || "NO_RANK",
+          keywords: selectedKeywords,
+          imgKey: "이미지키 or URL", 
+        };
+
+        await patchMyProfile(payload);
+        alert("프로필이 성공적으로 수정되었습니다.");
+        navigate("/myPage");
+      } catch (error) {
+        console.error("프로필 수정 실패:", error);
+        alert("프로필 수정에 실패했습니다.");
+      }
+    };
+
+  const onBackClick = () => {
+    if (isDataChanged()) {
+      setIsModalOpen(true);
+    } else {
+      navigate("/myPage");
+    }
+  };
+  const handleConfirmLeave = () => {
+    setIsModalOpen(false);
+    navigate("/myPage");
+  };
+  const handleCancelLeave = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -346,7 +379,7 @@ export const MyPageEditPage = ({
           </div>
         </div>
 
-        {/* 생년월일 -> 값을 받아오게 해야하는뎁*/}
+        {/* 생년월일 */}
         <div className="mb-8 flex flex-col items-start">
           <div className="w-full">
             <div className="text-left flex flex-col gap-2">
@@ -478,7 +511,6 @@ export const MyPageEditPage = ({
                     isMainAddr={loc.isMainAddr}
                     streetAddr={loc.streetAddr}
                     initialClicked={loc.id === selectedId}
-                    // disabled={false}
                     disabled={editMode && index === 0}
                     editMode={editMode}
                     onClick={() => {

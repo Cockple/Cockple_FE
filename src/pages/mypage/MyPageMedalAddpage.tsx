@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { ImageBox } from "../../components/common/ImageBox";
-import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
-import Camera from "../../assets/icons/camera.svg?react";
-import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
-import Kitty from "../../assets/images/Image Carousel.png";
-import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import { Modal_Add_Caution } from "../../components/MyPage/Modal_Add_Caution";
 import { Modal_Caution_Name } from "../../components/MyPage/Modal_Caution_Name";
 import { useNavigate } from "react-router-dom";
@@ -15,37 +9,38 @@ import { useLocation } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
+import { postMyContestRecord } from "../../lib/contents/contents"; //api
+import type { PostContestRecordRequest } from "../../lib/contents/contents";
+import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
+import Camera from "../../assets/icons/camera.svg?react";
+import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
+import Kitty from "../../assets/images/Image Carousel.png";
+import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
+import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
+
 
 export const MyPageMedalAddPage = () => {
   const {
     register,
-    // handleSubmit,
     setValue,
-    // formState: { errors },
   } = useForm();
-  // export const MyPageMedalAddPage = () => {
   const [photos, setPhotos] = useState<string[]>([]);
-  const [selectedForm, setSelectedForm] = useState<string | null>(null);
-
-  // ‼️ 배포 오류를 위한 임시 코드
   const selectedGrade = "";
   const [tournamentName, setTournamentName] = useState(""); // 대화명 상태
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [videoLinks, setVideoLinks] = useState<string[]>([""]); // 최소 1개 영상
-  const formOptions = ["혼복", "여복", "남복", "단식"];
+  const formOptions = ["혼복", "여복", "남복", "단식"] as const;
+  const [selectedForm, setSelectedForm] = useState<
+    typeof formOptions[number] | null
+  >(null);
   const [recordText, setRecordText] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const pickerRef = useRef<{ getDueString: () => string }>(null);
-  const isSaveEnabled =
-    tournamentName.trim() !== "" &&
-    selectedDate !== "" &&
-    selectedForm !== null;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalNameOpen, setIsModalNameOpen] = useState(false);
-
   const level = [
     "왕초심",
     "초심",
@@ -56,18 +51,34 @@ export const MyPageMedalAddPage = () => {
     "준자강",
     "자강",
   ];
+  const typeMap: Record<string, PostContestRecordRequest["type"]> = {
+    "단식": "SINGLE",
+    "남복": "DOUBLE",
+    "여복": "DOUBLE",
+    "혼복": "MIXED",
+  };
+
+  const levelMap: Record<string, PostContestRecordRequest["level"]> = {
+    "왕초심": "BEGINNER",
+    "초심": "BEGINNER",
+    "D조": "BEGINNER",
+    "C조": "INTERMEDIATE",
+    "B조": "INTERMEDIATE",
+    "A조": "ADVANCED",
+    "준자강": "ADVANCED",
+    "자강": "ADVANCED",
+  };
+
   const [open, setOpen] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState("");
-  // ‼️ 배포 오류를 위한 임시 코드
   const disabled = false;
-  // const [disabled, setDisabled] = useState(false);
 
   const navigate = useNavigate();
   const { medalId } = useParams();
   useEffect(() => {
     console.log("medalId:", medalId); // 확인용
-    // 나중에 서버 요청: fetch(`/api/v1/medals/${medalId}`)
   }, [medalId]);
+
   const location = useLocation();
   const isEditMode = location.state?.mode === "edit";
   const medalData = location.state?.medalData;
@@ -86,11 +97,9 @@ export const MyPageMedalAddPage = () => {
   useEffect(() => {
     if (isEditMode && medalData) {
       setTournamentName(medalData.title);
-      // setSelectedDate(new Date(medalData.date));
       setSelectedForm(medalData.participationType);
       setRecordText(medalData.record);
       setVideoLinks(medalData.videoUrl);
-      // photo도 base64인지 URL인지에 따라 처리 필요
     }
   }, []);
 
@@ -156,6 +165,55 @@ export const MyPageMedalAddPage = () => {
     );
   };
 
+ const isSaveEnabled =
+    tournamentName.trim() !== "" &&
+    selectedDate !== "" &&
+    selectedForm !== null &&
+    selectedLevel !== "";
+
+
+  // 저장 클릭 핸들러
+const handleSaveClick = async () => {
+  if (!isSaveEnabled) return;
+
+  try {
+    const requestBody: PostContestRecordRequest = {
+      contestName: tournamentName,
+      date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
+      medalType: (() => {
+        if (selectedIndex === 0) return "GOLD";
+        if (selectedIndex === 1) return "SILVER";
+        if (selectedIndex === 2) return "BRONZE";
+        return "NONE";
+      })(),
+      type: typeMap[selectedForm!] || "SINGLE",
+      level: levelMap[selectedLevel] || "EXPERT",
+      content: recordText || undefined,
+      contentIsOpen: true,
+      videoIsOpen: true,
+      contestVideos: videoLinks.filter(link => link.trim() !== ""),
+      contestImgs: photos,
+    };
+    console.log("보내는 요청:", JSON.stringify(requestBody, null, 2));
+
+    const response = await postMyContestRecord(requestBody);
+
+    if (response.success && response.data) {
+    const contestId = response.data.contestId; 
+      alert("대회 기록이 성공적으로 등록되었습니다.");
+      console.log("contestId:", contestId);
+      navigate(`/mypage/mymedal/${contestId}`);
+    } else {
+      alert("등록에 실패했습니다: " + response.message);
+    }
+
+      } catch (error) {
+        console.error("대회 기록 등록 오류", error);
+        alert("서버와 통신 중 오류가 발생했습니다.");
+      }
+      
+    };
+
   const onBackClick = () => {
     if (tournamentName === "") {
       setIsModalNameOpen(true);
@@ -178,7 +236,7 @@ export const MyPageMedalAddPage = () => {
     setIsModalOpen(false);
     setIsModalNameOpen(false);
   };
-  console.log(tournamentName, selectedDate, selectedForm);
+  
   return (
     <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-2">
       <div className="flex-shrink-0 sticky top-0 z-20 bg-white ">
@@ -413,10 +471,7 @@ export const MyPageMedalAddPage = () => {
             label="저장하기"
             initialStatus={isSaveEnabled ? "default" : "disabled"}
             // disabled={!isSaveEnabled}
-            onClick={() => {
-              if (!isSaveEnabled) return;
-              console.log("대회 기록 저장 완료");
-            }}
+            onClick={handleSaveClick}
           />
         </div>
       </div>

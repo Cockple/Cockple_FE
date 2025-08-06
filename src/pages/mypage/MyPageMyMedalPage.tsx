@@ -1,87 +1,95 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { MyMedal } from "../../components/common/contentcard/MyMedal";
 import { MyPage_Medal2 } from "../../components/common/contentcard/MyPage_Medal2";
 import { MyMedal_None } from "../../components/MyPage/MyMedal_None";
+import { getMyMedals, getMyContestList } from "../../lib/contents/contents"; 
+import type { MedalItem } from  "../../lib/contents/contents"; 
 
-interface MedalItem {
+interface MedalUIItem {
   title: string;
   date: string;
-  medalImageSrc: string;
-  isAwarded: boolean;
+  medalImageSrc: string | null; 
 }
 
-interface MyMedalProps {
-  name?: string;
-  gender?: string;
-  group?: string;
-  birth?: string;
-  imageSrc?: string;
-  myMedalTotal?: number;
-  goldCount?: number;
-  silverCount?: number;
-  bronzeCount?: number;
-  disabled?: boolean;
-  medals?: MedalItem[];
-}
-
-const dummyMedals: MedalItem[] = [
-  {
-    title: "2024년 동네 마라톤 대회",
-    date: "2024.05.10",
-    medalImageSrc: "/images/medal_gold.png",
-    isAwarded: true,
-  },
-  {
-    title: "주말 배드민턴 친선전",
-    date: "2024.06.15",
-    medalImageSrc: "/images/medal_silver.png",
-    isAwarded: true,
-  },
-  {
-    title: "새벽 조깅 챌린지",
-    date: "2024.07.08",
-    medalImageSrc: "/images/medal_none.png",
-    isAwarded: false,
-  },
-  {
-    title: "수영장 자유형 기록 측정",
-    date: "2024.07.12",
-    medalImageSrc: "/images/medal_none.png",
-    isAwarded: false,
-  },
-];
-
-const MyPageMyMedalPage = ({
-  // name = "",
-  // gender = "",
-  // group = "",
-  // birth = "",
-  // imageSrc = "",
-  myMedalTotal = 0,
-  goldCount = 0,
-  silverCount = 0,
-  bronzeCount = 0,
-  disabled = false,
-  medals = dummyMedals,
-  // medals = [],
-}: MyMedalProps) => {
+const MyPageMyMedalPage = () => {
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState<"전체" | "미입상 기록">(
-    "전체",
-  );
+  const [loading, setLoading] = useState(true);
+  const [medalData, setMedalData] = useState<{
+    myMedalTotal: number;
+    goldCount: number;
+    silverCount: number;
+    bronzeCount: number;
+    medals: MedalItem[];
+  } | null>(null);
 
-  const filteredList = medals.filter(item => {
+  const [selectedTab, setSelectedTab] = useState<"전체" | "미입상 기록">("전체");
+//내 메달 조회
+  useEffect(() => {
+    const fetchMedals = async () => {
+      try {
+        const data = await getMyMedals();
+        setMedalData(data);
+      } catch (error) {
+        console.error("메달 정보 조회 실패", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMedals();
+  }, []);
+
+//내 대회 리스트 조회
+  const [contestList, setContestList] = useState<MedalUIItem[]>([]);
+
+  useEffect(() => {
+    const fetchContests = async () => {
+      try {
+        const records = await getMyContestList();
+        const transformed: MedalUIItem[] = records.map((item) => ({
+          title: `대회 #${item.partyId}`,
+          date: new Date(item.createdAt).toLocaleDateString("ko-KR"),
+          medalImageSrc: null,
+        }));
+        setContestList(transformed);
+      } catch (err) {
+        console.error("대회 기록 조회 실패", err);
+      }
+    };
+    fetchContests();
+  }, []);
+
+  const onBackClick = () => {
+    navigate("/myPage");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>로딩 중...</p>
+      </div>
+    );
+  }
+
+  if (!medalData) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>메달 정보를 불러올 수 없습니다.</p>
+      </div>
+    );
+  }
+
+  const filteredList = medalData.medals.filter(item => {
     if (selectedTab === "전체") return true;
     if (selectedTab === "미입상 기록") return !item.isAwarded;
     return true;
   });
 
-  const onBackClick = () => {
-    navigate("/myPage");
-  };
+  const shownList = filteredList;
+
 
   return (
     <div className="flex flex-col min-h-[100dvh] w-full max-w-[23.4375rem] mx-auto bg-white">
@@ -93,11 +101,10 @@ const MyPageMyMedalPage = ({
         {filteredList.length > 0 && (
           <>
             <MyPage_Medal2
-              myMedalTotal={myMedalTotal}
-              goldCount={goldCount}
-              silverCount={silverCount}
-              bronzeCount={bronzeCount}
-              disabled={disabled}
+              myMedalTotal={medalData.myMedalTotal}
+              goldCount={medalData.goldCount}
+              silverCount={medalData.silverCount}
+              bronzeCount={medalData.bronzeCount}
             />
 
             <div className="w-full mb-4">
@@ -124,9 +131,8 @@ const MyPageMyMedalPage = ({
             </div>
           </>
         )}
-
-        {filteredList.length > 0 ? (
-          filteredList.map((item, idx) => (
+        {shownList.length > 0 ? (
+          shownList.map((item, idx) => (
             <React.Fragment key={idx}>
               <MyMedal
                 title={item.title}
@@ -141,7 +147,7 @@ const MyPageMyMedalPage = ({
             <MyMedal_None />
           </div>
         )}
-
+        
         {filteredList.length > 0 && (
           <div className="mt-8">
             <Grad_GR400_L

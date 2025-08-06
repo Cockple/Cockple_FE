@@ -71,6 +71,8 @@ import { EditLocationPage } from "./pages/home/EditLocationPage";
 import MemberRequestPage from "./pages/group/MemberRequest";
 import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 
+import { fetchDevToken } from "./lib/auth"; 
+
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -123,7 +125,9 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
+
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
       { path: "/mypage/profile", element: <MyPageProfile /> },
@@ -195,6 +199,11 @@ function App() {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
+  //토큰 발급 
+   useEffect(() => {
+    fetchDevToken(); 
+  }, []);
+  
   return (
     <div className="w-full flex justify-center items-center">
       <main

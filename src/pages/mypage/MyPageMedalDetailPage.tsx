@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/pagination";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
@@ -18,35 +18,57 @@ interface MyPageMedalDetailPageProps {
   videoUrl?: string[]; // 영상 링크 여러개
 }
 
+interface MedalDetail {
+  photo?: string[];           // 이미지 URL 배열
+  title?: string;             // 대회명
+  date?: string;              // 날짜
+  participationType?: string; // 참여 형태
+  record?: string;            // 대회 기록
+  videoUrl?: string[];        // 영상 링크 배열
+}
+
 export const MyPageMedalDetailPage = ({
-  // photo,
-  // title,
-  // date,
-  // participationType,
-  // record,
-  // videoUrl,
-
-  photo = [Kitty, Kitty, Kitty],
-  title = "콕",
-  date = "2025.05.23",
-  participationType = "D조",
-  // record = "Lorem ipsum dolor sit amet consectetur. Dui justo aliquet sit eu nec enim elit quis vestibulum.",
-  record = " vestibulum.",
-
   videoUrl = ["https://www.youtube.com/watch?v=TpPwI_Lo0YY&list=PLGa3uxog5E0vn3sJ7abmZNysTye6pSbn6"],
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
+  const { contestId } = useParams<{ contestId: string }>();
+  const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // const HEADER_HEIGHT = "3rem";
 
-  // photo가 배열인지 체크 후, 각각 string 혹은 File일 경우 URL 처리
-  const images = Array.isArray(photo)
-    ? photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
-    : photo
-      ? [typeof photo === "string" ? photo : URL.createObjectURL(photo)]
-      : [];
+  useEffect(() => {
+    if (!contestId) return;
 
-  const urls = videoUrl ?? [];
+    fetch(`/api/contests/my/${contestId}`)
+      .then(res => {
+        if (!res.ok) throw new Error("서버 응답 실패");
+        return res.json();
+      })
+      .then(data => {
+        setMedalDetail({
+          photo: data.contestImgs,
+          title: data.contestName,
+          date: data.date,
+          participationType: data.type,
+          record: data.content,
+          videoUrl: data.contestVideos,
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        setMedalDetail(null);
+      });
+  }, [contestId]);
+
+  const images = medalDetail?.photo
+    ? medalDetail.photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
+    : [Kitty];
+
+  const urls = medalDetail?.videoUrl ?? [];
+  const record = medalDetail?.record ?? "";
+  const date = medalDetail?.date ?? "";
+  const participationType = medalDetail?.participationType ?? "";
+
+  if (!medalDetail) return <div>로딩 중...</div>;
 
   return (
     <div className="w-full max-w-[444px] mx-auto min-h-screen bg-white relative overflow-x-hidden">
@@ -55,12 +77,7 @@ export const MyPageMedalDetailPage = ({
       </div>
 
       {/* 스크롤 영역 */}
-      <div
-        className="relative mt-2 w-full "
-        style={{
-          padding: 0,
-        }}
-      > 
+      <div className="relative mt-2 w-full" style={{ padding: 0 }}>
         <Swiper
           modules={[Pagination]}
           pagination={{ clickable: true }}
@@ -71,18 +88,13 @@ export const MyPageMedalDetailPage = ({
           {images.map((img, idx) => (
             <SwiperSlide
               key={idx}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: 0,
-              }}
+              style={{ display: "flex", justifyContent: "center", padding: 0 }}
             >
               <img
                 src={img}
                 alt={`메달 이미지 ${idx + 1}`}
                 style={{
-                  width:"100%",
-                  // width: "23.4375rem", 
+                  width: "100%",
                   height: "23.4375rem",
                   objectFit: "cover",
                 }}
@@ -105,7 +117,7 @@ export const MyPageMedalDetailPage = ({
       </div>
 
       {/* 대회명 */}
-      <p className="text-left header-h4 mt-12 leading-snug">{title}</p>
+      <p className="text-left header-h4 mt-12 leading-snug">{medalDetail.title}</p>
 
       {/* 참가 정보 */}
       <div className="flex justify-between items-center mt-5">
@@ -147,9 +159,7 @@ export const MyPageMedalDetailPage = ({
               </a>
             ))
           ) : (
-            <p className="body-md-500 text-[#E4E7EA]">
-              등록된 영상 링크가 없습니다.
-            </p>
+            <p className="body-md-500 text-[#E4E7EA]">등록된 영상 링크가 없습니다.</p>
           )}
         </div>
       </div>
@@ -164,12 +174,12 @@ export const MyPageMedalDetailPage = ({
               state: {
                 mode: "edit",
                 medalData: {
-                  title,
-                  date,
-                  participationType,
-                  record,
-                  photo,
-                  videoUrl,
+                  title: medalDetail.title,
+                  date: medalDetail.date,
+                  participationType: medalDetail.participationType,
+                  record: medalDetail.record,
+                  photo: medalDetail.photo,
+                  videoUrl: medalDetail.videoUrl,
                 },
               },
             })

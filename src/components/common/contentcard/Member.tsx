@@ -13,14 +13,10 @@ import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
 import { getModalConfig } from "../../group/modalConfig";
 
-type MemberStatus =
-  | "Participating"
-  | "waiting"
-  | "invite"
-  | "request"
-  | "approved";
+type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
 
 interface MemberProps {
+  id: number;
   status: MemberStatus;
   name: string;
   gender: "male" | "female";
