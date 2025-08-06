@@ -1,4 +1,4 @@
-//운동 상세 페이지 -> 신청하기 (이게 뭐지???)
+//운동 상세 페이지 -> 신청하기 
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import Caution from "../../../assets/icons/caution.svg?react";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { useState } from "react";
 import { getModalConfig } from "../../../components/group/modalConfig";
+import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
 
 interface MyPageExerciseDetailPageProps {
   notice?: string;
@@ -100,7 +101,7 @@ export const MyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
   // const [isModalOpen, setIsModalOpen] = useState(false);
   // const [isApplied, setIsApplied] = useState(false); // 신청 여부
   const [isSortOpen, setIsSortOpen] = useState(false);
-  // const [sortOption, setSortOption] = useState("최신순");
+  const [sortOption, setSortOption] = useState("운동 수정하기");
 
   // 참여 멤버 삭제 함수
   const handleDeleteMember = (idx: number) => {
@@ -123,7 +124,7 @@ export const MyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
       />
       <div className="flex flex-col gap-8">
         {/* 장소 정보 */}
-        <div className="border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
+        <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
           <div className="flex items-center gap-2">
             <Caution className="w-5 h-5" />
             <p className="body-rg-500 truncate">{notice}</p>
@@ -234,6 +235,13 @@ export const MyExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
           })}
         </div>
       )}
+        <SortBottomSheet
+        isOpen={isSortOpen}
+        onClose={() => setIsSortOpen(false)}
+        selected={sortOption}
+        onSelect={option => setSortOption(option)}
+        options={["운동 수정하기", "운동 삭제하기"]}
+      />
     </>
   );
 };

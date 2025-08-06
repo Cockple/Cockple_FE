@@ -27,7 +27,7 @@ export const Modal_Invite = ({
         </div>
 
         <div className="flex flex-col items-center text-center gap-1 mb-4 leading-snug">
-          <Message className="w-8 h-8" />
+          <Message className="w-10 h-10" />
           <p className="header-h4">멤버 초대를 보내시겠어요?</p>
           <p className="body-rg-500">초대받은 분께서 초대를 수락해주시면</p>
           <p className="body-rg-500">바로 모임 멤버로 추가돼요.</p>

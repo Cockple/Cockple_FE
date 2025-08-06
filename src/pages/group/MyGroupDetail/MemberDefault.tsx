@@ -22,7 +22,7 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 }
 
-export const MyGroupDetailMemberDefault = (
+export const MemberDefault = (
   props: MyPageExerciseDetailPageProps,
 ) => {
   const {

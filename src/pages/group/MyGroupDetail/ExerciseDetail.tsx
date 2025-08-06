@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { useState } from "react";
 import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { Modal_Apply } from "../../../components/group/Modal_Apply";
+import { Modal_Join } from "../../../components/group/Modal_Join";
 import { getModalConfig } from "../../../components/group/modalConfig";
 
 interface MyPageExerciseDetailPageProps {
@@ -117,7 +117,7 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
       <PageHeader title="운동 상세" />
       <div className="flex flex-col gap-8">
         {/* 장소 정보 */}
-        <div className="border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
+        <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
           <div className="flex items-center gap-2">
             <Caution className="w-5 h-5" />
             <p className="body-rg-500 truncate">{notice}</p>
@@ -215,7 +215,7 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
           onClick={() => setIsModalOpen(true)}
         />
         {isModalOpen && (
-          <Modal_Apply
+          <Modal_Join
             title={
               isApplied
                 ? "대기 인원으로 신청하시겠어요?"
