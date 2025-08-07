@@ -14,13 +14,6 @@ import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
 export const OnboardingInfoPage = () => {
   const navigate = useNavigate();
 
-  // const { setValue, watch } = useForm({
-  //   defaultValues: {
-  //     memberName,
-  //     birth,
-  //   },
-  // });
-
   //store
   const { memberName, gender, birth, setTemp } = useOnboardingState();
   //정보
@@ -43,13 +36,10 @@ export const OnboardingInfoPage = () => {
     if (pickerRef.current) {
       const date = pickerRef.current.getDueString(); // 선택된 값
       setSelectedDate(date); //  input에 넣기
-      // setValue("birth", date, { shouldValidate: true }); //set Value를 통해 useForm에 전달
     }
     setOpenModal(false); // 닫기
   };
 
-  // const nameValue = watch("memberName") || "";
-  // const birthdayValue = watch("birth") || "";
   const isFormValid =
     localName.length > 0 && selected !== null && selectedDate.length > 0;
 
@@ -87,12 +77,6 @@ export const OnboardingInfoPage = () => {
           {/* 첫번째 */}
           <InputField
             labelName="이름"
-            // {...register("memberName", {
-            //   maxLength: {
-            //     value: 2,
-            //     message: "",
-            //   },
-            // })}
             value={localName}
             InputLength={localName.length}
             onChange={handleInputDetected}
@@ -145,7 +129,6 @@ export const OnboardingInfoPage = () => {
                 onClick={e => e.stopPropagation()} // 내부 클릭 시 닫히지 않도록 방지
               >
                 <DateAndTimePicker ref={pickerRef} />
-                {/* <DateAndTimePicker ref={pickerRef} showTime={true} /> */}
               </div>
             </div>
           )}
