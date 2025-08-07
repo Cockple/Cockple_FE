@@ -6,21 +6,14 @@ import KittyImg from "@/assets/images/kitty.png?url";
 import { useMutation } from "@tanstack/react-query";
 import { useOnboardingState } from "../../store/useOnboardingStore";
 import api from "../../api/api";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useState } from "react";
 import type { onBoardingRequestDto } from "../../types/auth";
+import { getApiLevel } from "../../utils/onboardingAPIMap";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const onboarding = location.state?.onboarding ?? true;
-
-  // const handleNext = () => {
-  //   if (!onboarding) {
-  //     navigate("/group/making/member");
-  //   } else {
-  //     navigate("/onboarding/confirm/start");
-  //   }
-  // };
 
   const axios = api;
   const tagMap = [
@@ -38,11 +31,8 @@ export const ConfirmPage = () => {
     setSelectedTag(pre =>
       pre.includes(tag) ? pre.filter(t => t !== tag) : [...pre, tag],
     );
-    console.log(selectedTag);
   };
-  useEffect(() => {
-    console.log(selectedTag);
-  }, [selectedTag]);
+  useEffect(() => {}, [selectedTag]);
 
   const keywordMap: Record<string, string> = {
     "브랜드 스폰": "BRAND",
@@ -59,10 +49,10 @@ export const ConfirmPage = () => {
     mutationFn: () => {
       const body = {
         memberName: memberName,
-        gender: gender,
-        birth: birth,
-        level: level,
-        // imgKey: preview,
+        gender: gender?.toUpperCase(),
+        birth: birth.split(".").join("-"),
+        level: getApiLevel(level),
+        // imgKey: "",
         keywords: mappedKeywords,
       };
       axios.post("/api/my/details", body);
@@ -74,6 +64,7 @@ export const ConfirmPage = () => {
     },
     onSuccess: ({ data }: onBoardingRequestDto) => {
       console.log(data);
+      console.log("성공");
       navigate("/confirm");
     },
     onError: err => {
