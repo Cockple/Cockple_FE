@@ -23,8 +23,8 @@ const sortOrderMap: {
 } = {
   group: {
     최신순: "LATEST",
-    "오래된 순": "EARLIEST",
-    "운동 많은 순": "MANY",
+    "오래된 순": "OLDEST",
+    "운동 많은 순": "EXERCISE_COUNT",
   },
   exercise: {
     최신순: "LATEST",
@@ -53,9 +53,9 @@ export const LikedPage = () => {
   // const [exerciseCards, setExerciseCards] = useState(exerciseDummy);
   const [exerciseCards, setExerciseCards] = useState<ExerciseCard[]>([]);
 
-  // useEffect(() => {
-  //   setSelectedSort("최신순");
-  // }, [activeTab]);
+  useEffect(() => {
+    setSelectedSort("최신순");
+  }, [activeTab]);
 
   const fetchBookmarks = (tab: "group" | "exercise", sort: string) => {
     const token = localStorage.getItem("accessToken");

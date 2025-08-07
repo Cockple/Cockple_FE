@@ -1,4 +1,20 @@
-export interface GroupCard {
+//나중에 삭제-------------------->
+export type CommonResponse<T> = {
+  code: string;
+  message: string;
+  data: T;
+  errorReason: ErrorReasonDTO;
+  success: boolean;
+};
+
+export type ErrorReasonDTO = {
+  code: string;
+  message: string;
+  httpStatus: string;
+};
+//------------------------------->
+
+export type GroupCard = {
   partyId: number;
   partyName: string;
   addr1: string;
@@ -10,9 +26,9 @@ export interface GroupCard {
   exerciseCnt: number;
   profileImgUrl: string;
   isFavorite: boolean;
-}
+};
 
-export interface ExerciseCard {
+export type ExerciseCard = {
   exerciseId: number;
   partyName: string;
   buildingAddr: string;
@@ -27,4 +43,7 @@ export interface ExerciseCard {
   includeParty: boolean;
   includeExercise: boolean;
   isFavorite: boolean;
-}
+};
+
+export type GroupCardResponse = CommonResponse<GroupCard[]>;
+export type ExerciseCardResponse = CommonResponse<ExerciseCard[]>;
