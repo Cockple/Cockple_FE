@@ -4,6 +4,7 @@ interface ExerciseMapCalendarProps {
   onClose: () => void;
   selectedDate: string;
   onSelectDate: (date: string | number) => void;
+  onMonthChange: (month: Date) => void;
   exerciseDays: string[];
 }
 
@@ -12,6 +13,7 @@ export const ExerciseMapCalendar = ({
   selectedDate,
   onSelectDate,
   exerciseDays,
+  onMonthChange,
 }: ExerciseMapCalendarProps) => {
   return (
     <div
@@ -26,6 +28,7 @@ export const ExerciseMapCalendar = ({
           selectedDate={selectedDate}
           onClick={onSelectDate}
           exerciseDays={exerciseDays}
+          onMonthChange={onMonthChange}
         />
       </div>
     </div>

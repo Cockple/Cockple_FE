@@ -52,6 +52,7 @@ export const ExerciseMapPage = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [calendar, setCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getToday());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date(getToday()));
   const [selectedLocation, setSelectedLocation] =
     useState<SelectedLocation | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -71,11 +72,13 @@ export const ExerciseMapPage = () => {
   };
 
   const { data: buildingData } = useMonthlyBuildings({
-    date: selectedDate,
+    date: currentMonth,
     latitude: 37.4981,
     longitude: 127.028,
     radiusKm: 3,
   });
+
+  console.log(buildingData);
 
   useEffect(() => {
     if (!window.kakao?.maps?.load || !buildingData) return;
@@ -151,8 +154,13 @@ export const ExerciseMapPage = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragEnd = (_: any, info: { offset: { y: number } }) => {
-    if (info.offset.y < -10) setIsExpanded(true);
-    else if (info.offset.y > 200 && enableDrag) {
+    if (
+      info.offset.y < -10 &&
+      selectedLocation &&
+      selectedLocation.exercises.length > 2
+    )
+      setIsExpanded(true);
+    else if (info.offset.y > 150 && enableDrag) {
       setIsExpanded(false);
       setSelectedLocation(null);
     } else setIsExpanded(false);
@@ -190,6 +198,9 @@ export const ExerciseMapPage = () => {
               setSelectedDate(date.toString());
               setCalendar(false);
             }}
+            onMonthChange={(monthDate: Date) => {
+              setCurrentMonth(monthDate);
+            }}
             exerciseDays={exerciseDays}
           />
         </div>
@@ -198,12 +209,19 @@ export const ExerciseMapPage = () => {
       {selectedLocation && (
         <motion.div
           drag={enableDrag ? "y" : false}
-          dragElastic={0.2}
+          dragElastic={{
+            top: selectedLocation.exercises.length > 2 ? 0.2 : 0,
+            bottom: 0.5,
+          }}
           initial={false}
           dragConstraints={{ top: 0, bottom: 0 }}
           onDragEnd={handleDragEnd}
           className="flex flex-col fixed bottom-0 max-w-[444px] rounded-t-3xl z-10 w-full bg-white px-4"
-          animate={{ height: isExpanded ? "70%" : "16.25rem", opacity: 1 }}
+          animate={
+            selectedLocation.exercises.length <= 2
+              ? { height: "auto", opacity: 1 }
+              : { height: isExpanded ? "70%" : "16.25rem", opacity: 1 }
+          }
           transition={{ type: "spring", bounce: 0.2 }}
         >
           <div className="w-full flex justify-center pt-2 pb-3">
@@ -212,8 +230,10 @@ export const ExerciseMapPage = () => {
           <div
             ref={scrollRef}
             className={clsx(
-              "flex flex-col ",
-              isExpanded ? "overflow-y-scroll scrollbar-hide" : "",
+              "flex flex-col",
+              selectedLocation.exercises.length > 2 && isExpanded
+                ? "overflow-y-scroll scrollbar-hide"
+                : "overflow-hidden",
             )}
           >
             {selectedLocation.exercises.map(exercise => (
@@ -228,6 +248,7 @@ export const ExerciseMapPage = () => {
                   time={`${exercise.startTime} ~ ${exercise.endTime}`}
                   location={selectedLocation.buildingName}
                   imageSrc={exercise.imageUrl}
+                  className="w-full"
                 />
               </div>
             ))}

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../api";
+import { format } from "date-fns";
 
 //
 // 📌 [1] 월간 건물 지도 조회 (/api/buildings/map/monthly)
@@ -24,9 +25,9 @@ export interface MonthlyBuildingsResponse {
 }
 
 export interface MonthlyBuildingParams {
-  date: string;
-  latitude: number;
-  longitude: number;
+  date: Date;
+  latitude?: number;
+  longitude?: number;
   radiusKm?: number;
 }
 
@@ -36,9 +37,10 @@ export const fetchMonthlyBuildings = async ({
   longitude,
   radiusKm = 8,
 }: MonthlyBuildingParams): Promise<MonthlyBuildingsResponse> => {
+  const formattedDate = format(date, "yyyy-MM-01");
   const res = await api.get("/api/buildings/map/monthly", {
     params: {
-      date,
+      date: formattedDate,
       latitude,
       longitude,
       radiusKm,
@@ -54,7 +56,13 @@ export const useMonthlyBuildings = ({
   radiusKm = 8,
 }: MonthlyBuildingParams) =>
   useQuery({
-    queryKey: ["monthly-buildings", date, latitude, longitude, radiusKm],
+    queryKey: [
+      "monthly-buildings",
+      format(date, "yyyy-MM"),
+      latitude,
+      longitude,
+      radiusKm,
+    ],
     queryFn: () =>
       fetchMonthlyBuildings({ date, latitude, longitude, radiusKm }),
     enabled: !!date && !!latitude && !!longitude,
