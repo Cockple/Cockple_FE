@@ -149,7 +149,7 @@ export const LikedPage = () => {
   };
 
   return (
-    <div className="flex flex-col w-full min-h-[100dvh] -mb-8 overflow-y-scroll [&::-webkit-scrollbar]:hidden pt-14">
+    <div className="flex flex-col w-full min-h-[76dvh] -mb-8 overflow-hidden pt-14">
       <MainHeader />
       {/* 탭 선택 */}
       <TabSelector
