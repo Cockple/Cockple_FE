@@ -21,6 +21,7 @@ type MemberStatus =
   | "approved";
 
 interface MemberProps {
+  requestId: number; // joinRequestId를 매핑
   status: MemberStatus;
   name: string;
   gender: "male" | "female";
