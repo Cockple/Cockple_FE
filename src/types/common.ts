@@ -1,4 +1,4 @@
-export type CommenResponse<T> = {
+export type CommonResponse<T> = {
   code: string;
   message: string;
   data: T;
