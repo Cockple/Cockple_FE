@@ -91,8 +91,6 @@ export const MyPageMedalDetailPage = ({
           ))}
         </Swiper>
 
-
-
         {/* 오버레이 영역 */}
         <div className="absolute -bottom-8 left-4 right-4 flex items-start justify-between gap-4 z-10">
           <div className="overflow-hidden">

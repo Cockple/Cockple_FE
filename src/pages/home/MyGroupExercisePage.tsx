@@ -5,10 +5,12 @@ import { groupExerciseData } from "../../components/home/mock/homeMock";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import Sort from "../../components/common/Sort";
 import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
+import { useNavigate } from "react-router-dom";
 
 export const MyGroupExercisePage = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+  const navigate = useNavigate();
   const data = groupExerciseData;
   return (
     <div className="flex flex-col -mx-4 px-4 bg-white">
@@ -38,6 +40,7 @@ export const MyGroupExercisePage = () => {
                 time={item.time}
                 location={item.location}
                 imageSrc={item.imgSrc}
+                onClick={() => navigate(`/group/${item.id}`)}
               />
             </div>
           ))}

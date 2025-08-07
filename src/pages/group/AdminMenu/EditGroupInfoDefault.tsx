@@ -120,7 +120,7 @@ export const EditGroupInfoDefault = () => {
 
       {/* 활동 요일 */}
       <div>
-        <label className="flex items-center text-left header-h5 mb-1">
+        <label className="mt-5 flex items-center text-left header-h5 mb-1">
           활동 요일
           <CicleSRED />
         </label>

@@ -5,7 +5,7 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import IntroText from "../../components/onboarding/IntroText";
 import { useForm } from "react-hook-form";
-import { useOnboardingState } from "../../zustand/useOnboardingStore";
+import { useOnboardingState } from "../../store/useOnboardingStore";
 
 export const OnboardingLevelPage = () => {
   const levelOptions = [

@@ -13,6 +13,7 @@ interface ExerciseMProps {
   imageSrc: string;
   isFavorite?: boolean;
   onToggleFavorite?: (id: number) => void;
+  onClick?: () => void;
 }
 
 export const Exercise_M = ({
@@ -24,13 +25,15 @@ export const Exercise_M = ({
   imageSrc,
   isFavorite = false,
   onToggleFavorite,
+  onClick,
 }: ExerciseMProps) => {
   // pressing 상태 관리
   const [isPressing, setIsPressing] = useState(false);
 
   const [favorite, setFavorite] = useState(isFavorite);
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
@@ -46,6 +49,7 @@ export const Exercise_M = ({
       className={`p-[0.5rem] w-[21.4375rem] h-[6.5rem] rounded-[0.75rem] 
         ${isPressing ? "bg-[#F4F5F6]" : "bg-white"} 
         shadow-ds50 flex items-center gap-[0.75rem] transition-colors duration-150`}
+      onClick={onClick}
     >
       {/* 이미지 영역 */}
       <div className="relative">
@@ -56,11 +60,9 @@ export const Exercise_M = ({
         />
         <div
           style={{ position: "absolute", bottom: "0.25rem", right: "0.25rem" }}
+          onClick={handleToggleFavorite}
         >
-          <RD500_S_Icon
-            isActive={favorite}
-            onClick={() => handleToggleFavorite()}
-          />
+          <RD500_S_Icon isActive={favorite} />
         </div>
       </div>
 

@@ -9,7 +9,7 @@ import {
   GroupPage,
   ExerciseDetail,
   GroupDetailMemberDefault,
-  // MemberDefault,
+  MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
   ViceLeaderDefault,
@@ -30,7 +30,6 @@ import {
   MyPage,
   MyPageEditLocationPage,
   MyPageEditPage,
-  // MyPageExerciseDetailPage,
   MyPageMedalAddPage,
   MyPageMedalDetailPage,
   MyPageMyExercisePage,
@@ -47,7 +46,7 @@ import { GroupChatDetailPage } from "./pages/chat/GroupChatDetailPage";
 import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";
 import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
-import useSplashStore from "./zustand/useSplashStore";
+import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
 // import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
@@ -69,14 +68,13 @@ import { LocationSearchPage } from "./pages/location/LocationSearchPage";
 import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
-import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import MemberRequestPage from "./pages/group/MemberRequest";
+import KakaoLogin from "./pages/login/KakaoLogin";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/login/kakao", element: <KakaoLogin /> },
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
@@ -123,10 +121,6 @@ const router = createBrowserRouter([
       },
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
-      // {
-      //   path: "/mypage/myexercise/:exerciseId",
-      //   element: <MyPageExerciseDetailPage />,
-      // },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
@@ -145,19 +139,17 @@ const router = createBrowserRouter([
       { path: "/alert", element: <AlertPage /> },
       { path: "/location/search", element: <LocationSearchPage /> },
       { path: "/location/map", element: <LocationMapPage /> },
+
       { path: "/group/recommend", element: <GroupRecommendPage /> },
+      {
+        path: "/group/:groupId/member-request",
+        element: <MemberRequestPage />,
+      },
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      // { path: "/group/MemberDefault", element: <MemberDefault /> },
-      {
-        path: "/group/Mygroup/MyExerciseDetail",
-        element: <MyExerciseDetail />,
-      },
-      {
-        path: "/group/Mygroup/ExerciseDetailApplye",
-        element: <ExerciseDetailApply />,
-      },
+      { path: "/group/Mygroup/MyExerciseDetail", element: <MyExerciseDetail /> },
+      { path: "/group/Mygroup/ExerciseDetailApplye", element: <ExerciseDetailApply /> }, 
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
@@ -179,7 +171,7 @@ const router = createBrowserRouter([
           { index: true, element: <GroupHomePage /> },
           { path: "chat", element: <GroupChatPage /> },
           { path: "calendar", element: <GroupCalendarPage /> },
-          { path: "member", element: <MyGroupDetailMemberDefault /> },
+          { path: "member", element: <MemberDefault /> },
         ],
       },
 
