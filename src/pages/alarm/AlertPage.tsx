@@ -27,7 +27,7 @@ export const AlertPage = () => {
 
   // 알림 리스트 필터링된 상태로 보여주기
   const visibleNotifications = notifications.filter(alert =>
-    ["invite", "change", "simple"].includes(alert.type),
+    ["INVITE", "CHANGE", "SIMPLE"].includes(alert.type),
   );
 
   // 알림 목록 조회 api
@@ -84,58 +84,108 @@ export const AlertPage = () => {
 
   //모임 초대 수락 api
   //알림 invite_accept patch
-  const confirmApprove = () => {
+  const confirmApprove = async () => {
     if (targetId !== null) {
-      //     try {
-      //     const response = await axios.patch(`/api/notifications/${targetId}`, {
-      //       type: "invite_accept",
-      //     });
-
-      //     console.log("승인 성공:", response.data);
-
-      //     // 알림에서 제거
-      //     setNotifications(prev =>
-      //       prev.filter(alert => alert.notificationId !== targetId)
-      //     );
-      //   } catch (error) {
-      //     console.error("승인 처리 중 오류:", error);
-      //   }
-      // }
-
       // 알림에서 제거
-      setNotifications(prev =>
-        prev.filter(alert => alert.notificationId !== targetId),
-      );
-      console.log("승인 처리", targetId);
+      //   setNotifications(prev =>
+      //     prev.filter(alert => alert.notificationId !== targetId),
+      //   );
+      //   console.log("승인 처리", targetId);
+      // }
+      // setShowApproveModal(false);
+
+      try {
+        // 알림 상태 먼저 수정 (INVITE → INVITE_ACCEPT)
+        const patchNotificationRes = await api.patch(
+          `/api/notifications/${targetId}`,
+          { type: "INVITE_ACCEPT" },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+        console.log("알림 승인 성공:", patchNotificationRes.data);
+
+        // invitationId가 있다면 모임 초대 승인도 추가
+        const targetAlert = notifications.find(
+          alert => alert.notificationId === targetId,
+        );
+
+        const invitationId = targetAlert?.data?.invitationId;
+        if (invitationId) {
+          const patchInviteRes = await api.patch(
+            `/api/parties/invitations/${invitationId}`,
+            { action: "APPROVE" },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          );
+          console.log("모임 초대 승인 성공:", patchInviteRes.data);
+        }
+
+        // 알림 목록에서 제거
+        setNotifications(prev =>
+          prev.filter(alert => alert.notificationId !== targetId),
+        );
+      } catch (error) {
+        console.error("승인 처리 중 오류:", error);
+      }
+      setShowApproveModal(false);
     }
-    setShowApproveModal(false);
   };
 
-  const confirmReject = () => {
+  const confirmReject = async () => {
     if (targetId !== null) {
-      //     try {
-      //     const response = await axios.patch(`/api/notifications/${targetId}`, {
-      //       type: "invite_reject",
-      //     });
-
-      //     console.log("거절 성공:", response.data);
-
-      //     // 알림에서 제거
-      //     setNotifications(prev =>
-      //       prev.filter(alert => alert.notificationId !== targetId)
-      //     );
-      //   } catch (error) {
-      //     console.error("거절 처리 중 오류:", error);
-      //   }
-      // }
       // 알림에서 제거
-      setNotifications(prev =>
-        prev.filter(alert => alert.notificationId !== targetId),
-      );
+      // setNotifications(prev =>
+      //   prev.filter(alert => alert.notificationId !== targetId),
+      // );
 
-      console.log("거절 처리", targetId); // 실제 로직 대체 가능
+      // console.log("거절 처리", targetId); // 실제 로직 대체 가능
+      try {
+        // 알림 상태 변경 (INVITE → INVITE_REJECT)
+        const patchNotificationRes = await api.patch(
+          `/api/notifications/${targetId}`,
+          { type: "INVITE_REJECT" },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+        console.log("알림 거절 성공:", patchNotificationRes.data);
+
+        // invitationId 있으면 모임 초대 거절 처리
+        const targetAlert = notifications.find(
+          alert => alert.notificationId === targetId,
+        );
+
+        const invitationId = targetAlert?.data?.invitationId;
+        if (invitationId) {
+          const patchInviteRes = await api.patch(
+            `/api/parties/invitations/${invitationId}`,
+            { action: "REJECT" },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          );
+          console.log("모임 초대 거절 성공:", patchInviteRes.data);
+        }
+
+        // 알림 목록에서 제거
+        setNotifications(prev =>
+          prev.filter(alert => alert.notificationId !== targetId),
+        );
+      } catch (error) {
+        console.error("거절 처리 중 오류:", error);
+      }
+      setShowRejectModal(false);
     }
-    setShowRejectModal(false);
   };
 
   const shouldMoveToDetail = (type: string): boolean => {
@@ -151,7 +201,7 @@ export const AlertPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-[100dvh] -mb-8 overflow-hidden relative">
+    <div className="flex flex-col min-h-[86dvh] -mb-8 overflow-hidden relative">
       {/* 헤더 */}
       <PageHeader title="알림" />
 
@@ -163,7 +213,7 @@ export const AlertPage = () => {
           </div>
         ) : (
           visibleNotifications.map(alert => {
-            return alert.type === "invite" ? (
+            return alert.type === "INVITE" ? (
               <AlertInvite
                 key={alert.notificationId}
                 groupName={alert.title}

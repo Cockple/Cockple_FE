@@ -1,29 +1,31 @@
 //나중에 삭제-------------------->
-export type CommonResponse<T> = {
-  code: string;
-  message: string;
-  data: T;
-  errorReason: ErrorReasonDTO;
-  success: boolean;
-};
+// export type CommonResponse<T> = {
+//   code: string;
+//   message: string;
+//   data: T;
+//   errorReason: ErrorReasonDTO;
+//   success: boolean;
+// };
 
-export type ErrorReasonDTO = {
-  code: string;
-  message: string;
-  httpStatus: string;
-};
+// export type ErrorReasonDTO = {
+//   code: string;
+//   message: string;
+//   httpStatus: string;
+// };
 //------------------------------->
+import type { CommonResponse } from "./common";
 
 export type AlertType =
-  | "invite"
-  | "invite_accept"
-  | "invite_reject"
-  | "change"
-  | "simple";
+  | "INVITE"
+  | "INVITE_ACCEPT"
+  | "INVITE_REJECT"
+  | "CHANGE"
+  | "SIMPLE";
 
 export interface AlertData {
   exerciseId?: number;
   exerciseDate?: string; // YYYY-MM-DD
+  invitationId?: number; // type이 invite인 경우 모임 api에 사용
 }
 
 export type ResponseAlertDto = {
