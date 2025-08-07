@@ -33,7 +33,9 @@ export const LocationSearchPage = () => {
   const location = useLocation();
   //onboarding
   const [isOnboarding, setIsOnboarding] = useState(false);
-  const [returnPath, setIsReturnPath] = useState("/");
+  const [returnPath, setIsReturnPath] = useState(
+    location.state?.returnPath ?? "/",
+  );
   // const returnPath = location.state?.returnPath ?? "/";
 
   const mode = location.state?.mode ?? "fill-only";
