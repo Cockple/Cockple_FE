@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useOnboardingState } from "../../store/useOnboardingStore";
 import api from "../../api/api";
 import { useEffect, useReducer, useState } from "react";
+import type { onBoardingRequestDto } from "../../types/auth";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();
@@ -28,7 +29,8 @@ export const ConfirmPage = () => {
     "친목",
     "운영진이 게임을 짜드려요",
   ];
-  const { level, name, gender, birthday } = useOnboardingState();
+
+  const { level, memberName, gender, birth } = useOnboardingState();
 
   const [selectedTag, setSelectedTag] = useState<string[]>([]);
   //태그 선택
@@ -42,31 +44,42 @@ export const ConfirmPage = () => {
     console.log(selectedTag);
   }, [selectedTag]);
 
-  // const handleSubmitForm = useMutation({
-  //   mutationFn: () => {
-  //     const body = {
-  //       memberName: "member.Name",
-  //       gender: "",
-  //       birth: "",
-  //       level: "",
-  //       imgKey: preview,
-  //       keywords: "",
-  //     };
-  //     aixos.post("/api/my/details", { body });
-  //     if (!onboarding) {
-  //       navigate("/group/making/member");
-  //     } else {
-  //       navigate("/onboarding/confirm/start");
-  //     }
-  //   },
-  //   onSuccess: ({ data }) => {
-  //     console.log(data);
-  //     navigate("/confirm");
-  //   },
-  //   onError: err => {
-  //     console.log(err);
-  //   },
-  // });
+  const keywordMap: Record<string, string> = {
+    "브랜드 스폰": "BRAND",
+    "가입비 무료": "FREE",
+    친목: "FRIENDSHIP",
+    "운영진이 게임을 짜드려요": "MANAGER_MATCH",
+  };
+  const mappedKeywords =
+    selectedTag.length > 0
+      ? selectedTag.map(tag => keywordMap[tag]).filter(Boolean)
+      : ["NONE"];
+
+  const handleSubmitForm = useMutation({
+    mutationFn: () => {
+      const body = {
+        memberName: memberName,
+        gender: gender,
+        birth: birth,
+        level: level,
+        // imgKey: preview,
+        keywords: mappedKeywords,
+      };
+      axios.post("/api/my/details", body);
+      if (!onboarding) {
+        navigate("/group/making/member");
+      } else {
+        navigate("/onboarding/confirm/start");
+      }
+    },
+    onSuccess: ({ data }: onBoardingRequestDto) => {
+      console.log(data);
+      navigate("/confirm");
+    },
+    onError: err => {
+      console.log(err);
+    },
+  });
 
   return (
     <div
@@ -102,7 +115,7 @@ export const ConfirmPage = () => {
       </section>
       <div
         className="flex items-center justify-center header-h4 mb-5 lg:mb-4"
-        // onClick={handleNext}
+        onClick={() => handleSubmitForm.mutate()}
       >
         <Btn_Static
           label={onboarding ? "다음" : "신규 멤버 추천 받기"}
