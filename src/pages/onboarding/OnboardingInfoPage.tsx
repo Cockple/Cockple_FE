@@ -16,25 +16,25 @@ export const OnboardingInfoPage = () => {
 
   // const { setValue, watch } = useForm({
   //   defaultValues: {
-  //     name,
-  //     birthday,
+  //     memberName,
+  //     birth,
   //   },
   // });
 
   //store
-  const { name, gender, birthday, setTemp } = useOnboardingState();
+  const { memberName, gender, birth, setTemp } = useOnboardingState();
   //정보
-  const [localName, setLocalName] = useState(name ?? "");
+  const [localName, setLocalName] = useState(memberName ?? "");
   const [selected, isSelected] = useState<"boy" | "girl" | null>(gender);
-  const [selectedDate, setSelectedDate] = useState(birthday ?? "");
+  const [selectedDate, setSelectedDate] = useState(birth ?? "");
   const [openModal, setOpenModal] = useState(false);
 
   //초기화
 
   useEffect(() => {
-    setLocalName(name);
+    setLocalName(memberName);
     isSelected(gender);
-    setSelectedDate(birthday);
+    setSelectedDate(birth);
   }, []);
 
   const pickerRef = useRef<DateAndTimePickerHandle>(null);
@@ -43,13 +43,13 @@ export const OnboardingInfoPage = () => {
     if (pickerRef.current) {
       const date = pickerRef.current.getDueString(); // 선택된 값
       setSelectedDate(date); //  input에 넣기
-      // setValue("birthday", date, { shouldValidate: true }); //set Value를 통해 useForm에 전달
+      // setValue("birth", date, { shouldValidate: true }); //set Value를 통해 useForm에 전달
     }
     setOpenModal(false); // 닫기
   };
 
-  // const nameValue = watch("name") || "";
-  // const birthdayValue = watch("birthday") || "";
+  // const nameValue = watch("memberName") || "";
+  // const birthdayValue = watch("birth") || "";
   const isFormValid =
     localName.length > 0 && selected !== null && selectedDate.length > 0;
 
@@ -66,9 +66,9 @@ export const OnboardingInfoPage = () => {
 
   const handleNext = () => {
     setTemp({
-      name: localName,
+      memberName: localName,
       gender: selected,
-      birthday: selectedDate,
+      birth: selectedDate,
     });
     navigate("/onboarding/level");
   };
@@ -87,7 +87,7 @@ export const OnboardingInfoPage = () => {
           {/* 첫번째 */}
           <InputField
             labelName="이름"
-            // {...register("name", {
+            // {...register("memberName", {
             //   maxLength: {
             //     value: 2,
             //     message: "",
