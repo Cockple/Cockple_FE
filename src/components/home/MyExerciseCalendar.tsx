@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import CustomWeekly from "./CustomWeekly";
 import { WorkoutDayEntry } from "./WorkoutDayEntry";
-import { fetchMyCalendar } from "../../api/home/myExerciseCalendarApi";
+
 import { addDays, generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Swiper as SwiperClass } from "swiper";
 import type { CalendarData, Exercise, Week } from "../../types/calendar";
+import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
 
 // 타임존 문제를 해결하기 위한 '오늘 날짜' 생성 헬퍼 함수
 const getTodayString = () => {
@@ -32,7 +33,7 @@ export const MyExerciseCalendar = () => {
       const setLoading = direction ? setIsFetchingMore : setIsLoading;
       setLoading(true);
       try {
-        const newData = await fetchMyCalendar(startDate, endDate);
+        const newData = await getMyExerciseCalendarApi(startDate, endDate);
         if (direction === "future") {
           setCalendarData(prev => {
             if (!prev) return newData;

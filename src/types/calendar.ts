@@ -1,5 +1,3 @@
-// src/types/calendar.ts
-
 /** 운동 정보 타입 */
 export interface Exercise {
   exerciseId: number;

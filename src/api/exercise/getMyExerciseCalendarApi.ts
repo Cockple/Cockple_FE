@@ -7,7 +7,7 @@ import api from "../api";
 /**
  * 내 운동 캘린더 데이터를 서버에서 가져옵니다.
  */
-export const fetchMyCalendar = async (
+export const getMyExerciseCalendarApi = async (
   startDate: string | null,
   endDate: string | null,
 ): Promise<CalendarData> => {
@@ -19,7 +19,7 @@ export const fetchMyCalendar = async (
       },
     );
 
-    console.log(response);
+    console.log(response.data.data);
     if (response.data.success) {
       return response.data.data;
     } else {
