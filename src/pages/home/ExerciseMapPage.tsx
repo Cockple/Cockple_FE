@@ -38,17 +38,37 @@ declare global {
   }
 }
 
+// 오늘 날짜 반환
+const getToday = (): string => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = (today.getMonth() + 1).toString().padStart(2, "0");
+  const date = today.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${date}`;
+};
+
 export const ExerciseMapPage = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [calendar, setCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("2025-08-15");
+  const [selectedDate, setSelectedDate] = useState(getToday());
   const [selectedLocation, setSelectedLocation] =
     useState<SelectedLocation | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [enableDrag, setEnableDrag] = useState(true);
 
   const ArrowIcon = calendar ? ArrowUp : ArrowDown;
+
+  const formatDateToKorean = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+
+    const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+    const dayOfWeek = daysOfWeek[date.getDay()];
+
+    return `${month}.${day} (${dayOfWeek})`;
+  };
 
   const { data: buildingData } = useMonthlyBuildings({
     date: selectedDate,
@@ -138,13 +158,20 @@ export const ExerciseMapPage = () => {
     } else setIsExpanded(false);
   };
 
+  // 운동 있는 날짜 리스트 추출
+  const exerciseDays = buildingData?.buildings
+    ? Object.keys(buildingData.buildings)
+    : [];
+
   return (
     <div className="flex flex-col items-center h-screen -mx-4 -mb-8">
       <PageHeader title="지도로 운동 찾기" />
 
       <div className="relative w-full flex-1 bg-gy-400" ref={mapRef}>
         <div className="absolute flex items-center gap-2 top-3 left-1/2 -translate-x-1/2 w-25 h-7 py-1 pl-2 pr-1.5 border-hard bg-white z-10">
-          <span className="body-rg-500">{selectedDate}</span>
+          <span className="body-rg-500">
+            {formatDateToKorean(selectedDate)}
+          </span>
           <img
             src={ArrowIcon}
             alt="arrow"
@@ -156,7 +183,15 @@ export const ExerciseMapPage = () => {
 
       {calendar && (
         <div className="z-50">
-          <ExerciseMapCalendar onClose={() => setCalendar(false)} />
+          <ExerciseMapCalendar
+            onClose={() => setCalendar(false)}
+            selectedDate={selectedDate}
+            onSelectDate={date => {
+              setSelectedDate(date.toString());
+              setCalendar(false);
+            }}
+            exerciseDays={exerciseDays}
+          />
         </div>
       )}
 
