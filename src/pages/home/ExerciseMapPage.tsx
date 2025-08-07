@@ -12,6 +12,8 @@ import {
   fetchExerciseDetail,
   useMonthlyBuildings,
 } from "../../api/exercise/getExerciseMapApi";
+import { FloatingButton } from "../../components/common/system/FloatingButton";
+import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
 
 interface Exercise {
   exerciseId: number;
@@ -57,6 +59,9 @@ export const ExerciseMapPage = () => {
     useState<SelectedLocation | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [enableDrag, setEnableDrag] = useState(true);
+  const [rightOffset, setRightOffset] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapInstance = useRef<any>(null);
 
   const ArrowIcon = calendar ? ArrowUp : ArrowDown;
 
@@ -64,7 +69,6 @@ export const ExerciseMapPage = () => {
     const date = new Date(dateStr);
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const day = date.getDate().toString().padStart(2, "0");
-
     const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
     const dayOfWeek = daysOfWeek[date.getDay()];
 
@@ -78,7 +82,18 @@ export const ExerciseMapPage = () => {
     radiusKm: 3,
   });
 
-  console.log(buildingData);
+  useEffect(() => {
+    const updateOffset = () => {
+      const screenWidth = window.innerWidth;
+      const contentWidth = Math.min(screenWidth, 444);
+      const offset = (screenWidth - contentWidth) / 2 + 16;
+      setRightOffset(offset);
+    };
+
+    updateOffset();
+    window.addEventListener("resize", updateOffset);
+    return () => window.removeEventListener("resize", updateOffset);
+  }, []);
 
   useEffect(() => {
     if (!window.kakao?.maps?.load || !buildingData) return;
@@ -97,6 +112,7 @@ export const ExerciseMapPage = () => {
         draggable: true,
         scrollwheel: true,
       });
+      mapInstance.current = map;
 
       const myLocationMarker = new kakao.maps.Marker({
         position: centerPos,
@@ -170,6 +186,18 @@ export const ExerciseMapPage = () => {
   const exerciseDays = buildingData?.buildings
     ? Object.keys(buildingData.buildings)
     : [];
+
+  // floating button으로 위치 조정
+  const handleMoveToCurrentLocation = () => {
+    const { centerLatitude, centerLongitude } = buildingData ?? {};
+    if (mapInstance.current && centerLatitude && centerLongitude) {
+      const centerPos = new window.kakao.maps.LatLng(
+        centerLatitude,
+        centerLongitude,
+      );
+      mapInstance.current.panTo(centerPos);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center h-screen -mx-4 -mb-8">
@@ -255,6 +283,15 @@ export const ExerciseMapPage = () => {
           </div>
         </motion.div>
       )}
+
+      <FloatingButton
+        size="L"
+        color="white"
+        icon={MyLocationIcon}
+        className="fixed z-50 bottom-10"
+        style={{ right: rightOffset }}
+        onClick={handleMoveToCurrentLocation}
+      />
     </div>
   );
 };
