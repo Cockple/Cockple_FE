@@ -3,15 +3,16 @@ import type { CommenResponse } from "../../types/common";
 import api from "../api";
 import type { RecommendedExerciseData } from "./type";
 
-export const getRecommendedExercise = async () => {
+export const getMyExerciseApi = async () => {
   const res = await api.get<CommenResponse<RecommendedExerciseData>>(
-    "/api/exercises/recommendations",
+    "/api/exercises/parties/my",
   );
+
   return res.data.data;
 };
 
-export const useRecommendedExerciseApi = () =>
+export const useMyExerciseApi = () =>
   useQuery({
-    queryKey: ["recommended-exercise"],
-    queryFn: getRecommendedExercise,
+    queryKey: ["myexercise-list"],
+    queryFn: getMyExerciseApi,
   });

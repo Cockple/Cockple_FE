@@ -2,19 +2,22 @@ import Clear_XS from "../common/Btn_Static/Icon_Btn/Clear_XS";
 import { Exercise_S } from "../common/contentcard/Exercise_S";
 import ArrowRight from "@/assets/icons/arrow_right.svg";
 import AddIcon from "@/assets/icons/add.svg";
-import { groupExerciseData } from "./mock/homeMock";
 import Btn_Static from "../common/Btn_Static/Btn_Static";
-import type { GroupExerciseItem } from "../../pages/home/HomePage";
 import { useNavigate } from "react-router-dom";
+import { useMyExerciseApi } from "../../api/exercise/getMyExerciseApi";
 
 export const MyGroupWorkoutSection = () => {
   const navigate = useNavigate();
-  const data: GroupExerciseItem[] = groupExerciseData;
+
+  const { data, isLoading } = useMyExerciseApi();
+
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <div className="flex flex-col gap-3 w-full">
       <div className="flex justify-between header-h4">
         내 모임 운동{" "}
-        {data && data.length > 0 && (
+        {data && data.exercises.length > 0 && (
           <Clear_XS
             iconMap={{
               disabled: ArrowRight,
@@ -26,17 +29,17 @@ export const MyGroupWorkoutSection = () => {
           />
         )}
       </div>
-      {data.length > 0 ? (
+      {data && data.exercises.length > 0 ? (
         <div className="flex overflow-x-scroll gap-1 scrollbar-hide">
-          {data.map(item => (
+          {data.exercises.map(item => (
             <Exercise_S
-              key={item.id}
-              title={item.title}
+              key={item.exerciseId}
+              title={item.partyName}
               date={item.date}
-              time={item.time}
-              location={item.location}
-              imageSrc={item.imgSrc}
-              onClick={() => navigate(`/group/${item.id}`)}
+              time={item.startTime + " - " + item.endTime}
+              location={item.buildingName}
+              imageSrc={item.profileImageUrl}
+              onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))}
         </div>
