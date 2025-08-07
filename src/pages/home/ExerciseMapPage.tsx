@@ -8,7 +8,10 @@ import myLocationIcon from "@/assets/icons/map_mylocation.svg?url";
 import markerIcon from "@/assets/icons/map_marker.svg?url";
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { useMonthlyBuildings } from "../../api/exercise/getExerciseMapApi";
+import {
+  fetchExerciseDetail,
+  useMonthlyBuildings,
+} from "../../api/exercise/getExerciseMapApi";
 
 interface Exercise {
   exerciseId: number;
@@ -98,12 +101,19 @@ export const ExerciseMapPage = () => {
           map,
         });
 
-        kakao.maps.event.addListener(marker, "click", () => {
-          setSelectedLocation({
-            buildingName: building.buildingName,
-            totalExercises: 0,
-            exercises: [], // 실제로는 상세 API 호출 결과로 대체
-          });
+        kakao.maps.event.addListener(marker, "click", async () => {
+          try {
+            const detail = await fetchExerciseDetail({
+              date: selectedDate,
+              buildingName: building.buildingName,
+              streetAddr: building.streetAddr,
+            });
+
+            setSelectedLocation(detail);
+            setIsExpanded(false); // 바텀시트 초기 높이로
+          } catch (e) {
+            console.error("운동 상세 조회 실패:", e);
+          }
         });
       });
     });

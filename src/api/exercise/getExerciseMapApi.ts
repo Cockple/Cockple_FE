@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../api";
 
-// 1. 개별 건물 정보
+//
+// 📌 [1] 월간 건물 지도 조회 (/api/buildings/map/monthly)
+//
+
 export interface MonthlyBuilding {
   buildingName: string;
   streetAddr: string;
@@ -9,10 +12,8 @@ export interface MonthlyBuilding {
   longitude: number;
 }
 
-// 2. 날짜별 건물 리스트
 export type MonthlyBuildingsByDate = Record<string, MonthlyBuilding[]>;
 
-// 3. 전체 응답 타입
 export interface MonthlyBuildingsResponse {
   year: number;
   month: number;
@@ -22,15 +23,13 @@ export interface MonthlyBuildingsResponse {
   buildings: MonthlyBuildingsByDate;
 }
 
-// 4. API 호출 시 사용하는 파라미터 타입
 export interface MonthlyBuildingParams {
   date: string;
   latitude: number;
   longitude: number;
-  radiusKm?: number; // 기본값 8
+  radiusKm?: number;
 }
 
-// 📌 API 요청 함수
 export const fetchMonthlyBuildings = async ({
   date,
   latitude,
@@ -45,22 +44,61 @@ export const fetchMonthlyBuildings = async ({
       radiusKm,
     },
   });
-
   return res.data.data;
 };
 
-// 📌 React Query 훅
 export const useMonthlyBuildings = ({
   date,
   latitude,
   longitude,
   radiusKm = 8,
-}: MonthlyBuildingParams) => {
-  return useQuery({
+}: MonthlyBuildingParams) =>
+  useQuery({
     queryKey: ["monthly-buildings", date, latitude, longitude, radiusKm],
     queryFn: () =>
       fetchMonthlyBuildings({ date, latitude, longitude, radiusKm }),
     enabled: !!date && !!latitude && !!longitude,
-    staleTime: 1000 * 60 * 5, // 5분간 캐시
+    staleTime: 1000 * 60 * 5,
   });
+
+//
+// 📌 [2] 운동 상세 조회 (/api/buildings/exercises/{date})
+//
+
+export interface Exercise {
+  exerciseId: number;
+  partyId: number;
+  partyName: string;
+  date: string;
+  dayOfTheWeek: string;
+  startTime: string;
+  endTime: string;
+  imageUrl: string;
+  isBookmarked: boolean;
+}
+
+export interface ExerciseDetailResponse {
+  buildingName: string;
+  totalExercises: number;
+  exercises: Exercise[];
+}
+
+export interface ExerciseDetailParams {
+  date: string;
+  buildingName: string;
+  streetAddr: string;
+}
+
+export const fetchExerciseDetail = async ({
+  date,
+  buildingName,
+  streetAddr,
+}: ExerciseDetailParams): Promise<ExerciseDetailResponse> => {
+  const res = await api.get(`/api/buildings/exercises/${date}`, {
+    params: {
+      buildingName,
+      streetAddr,
+    },
+  });
+  return res.data.data;
 };
