@@ -6,9 +6,10 @@ import KittyImg from "@/assets/images/kitty.png?url";
 import { useMutation } from "@tanstack/react-query";
 import { useOnboardingState } from "../../store/useOnboardingStore";
 import api from "../../api/api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { onBoardingRequestDto } from "../../types/auth";
 import { getApiLevel } from "../../utils/onboardingAPIMap";
+import useUserStore from "../../store/useUserStore";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();
@@ -23,16 +24,20 @@ export const ConfirmPage = () => {
     "운영진이 게임을 짜드려요",
   ];
 
-  const { level, memberName, gender, birth } = useOnboardingState();
+  const { level, memberName, gender, birth, keyword, setTemp } =
+    useOnboardingState();
+  //세션 reset (지도때문에)
+  const { resetUser } = useUserStore();
 
-  const [selectedTag, setSelectedTag] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string[]>(keyword ?? []);
   //태그 선택
   const toggleTag = (tag: string) => {
-    setSelectedTag(pre =>
-      pre.includes(tag) ? pre.filter(t => t !== tag) : [...pre, tag],
-    );
+    const tagUpdated = selectedTag.includes(tag)
+      ? selectedTag.filter(t => t !== tag)
+      : [...selectedTag, tag];
+    setSelectedTag(tagUpdated);
+    setTemp({ keyword: tagUpdated });
   };
-  useEffect(() => {}, [selectedTag]);
 
   const keywordMap: Record<string, string> = {
     "브랜드 스폰": "BRAND",
@@ -45,27 +50,41 @@ export const ConfirmPage = () => {
       ? selectedTag.map(tag => keywordMap[tag]).filter(Boolean)
       : ["NONE"];
 
+  //onboarding
+  const submitOnboarding = () => {
+    const body = {
+      memberName,
+      gender: gender?.toUpperCase(),
+      birth: birth.split(".").join("-"),
+      level: getApiLevel(level),
+      keywords: mappedKeywords,
+    };
+    return axios.post("/api/my/details", body);
+  };
+  //그룹추천
+  const submitGroupMaking = () => {
+    const body = {
+      // memberName,
+      // gender: gender?.toUpperCase(),
+      // birth: birth.split(".").join("-"),
+      // level: getApiLevel(level),
+      // keywords: mappedKeywords,
+    };
+    return axios.post("/api/my/details", body);
+  };
+  //
   const handleSubmitForm = useMutation({
-    mutationFn: () => {
-      const body = {
-        memberName: memberName,
-        gender: gender?.toUpperCase(),
-        birth: birth.split(".").join("-"),
-        level: getApiLevel(level),
-        // imgKey: "",
-        keywords: mappedKeywords,
-      };
-      axios.post("/api/my/details", body);
+    mutationFn: () => (onboarding ? submitOnboarding() : submitGroupMaking()),
+    onSuccess: ({ data }: onBoardingRequestDto) => {
+      console.log(data);
+      console.log("성공");
+
       if (!onboarding) {
         navigate("/group/making/member");
       } else {
         navigate("/onboarding/confirm/start");
       }
-    },
-    onSuccess: ({ data }: onBoardingRequestDto) => {
-      console.log(data);
-      console.log("성공");
-      navigate("/confirm");
+      resetUser();
     },
     onError: err => {
       console.log(err);
