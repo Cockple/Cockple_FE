@@ -1,14 +1,17 @@
 // 메인 채팅 페이지
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { groupChats } from "../../components/chat/groupDummy";
-import { personalChats } from "../../components/chat/personalDummy";
+//import { groupChats } from "../../components/chat/groupDummy";
+//import { personalChats } from "../../components/chat/personalDummy";
 import type { GroupChatRoom, PersonalChatRoom } from "../../types/chat";
 import SearchInput from "../../components/chat/SearchInput";
 import ChatList from "../../components/chat/ChatList";
 import { disassembleHangul } from "../../utils/disassembleHangul";
 import TabSelector from "../../components/common/TabSelector";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
+
+//api 연결
+import { getGroupChats, getPersonalChats } from "../../api/chat/chatList";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
@@ -21,6 +24,25 @@ export const ChatPage = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
+  //api 연결
+  const [groupChats, setGroupChats] = useState<GroupChatRoom[]>([]);
+  const [personalChats, setPersonalChats] = useState<PersonalChatRoom[]>([]);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        const [groupData, personalData] = await Promise.all([
+          getGroupChats(),
+          getPersonalChats(),
+        ]);
+        setGroupChats(groupData.content);
+        setPersonalChats(personalData.content);
+      } catch (err) {
+        console.error("모임 채팅 목록 불러오기 실패", err);
+      }
+    };
+    fetchChats();
+  }, []);
 
   const tabOptions = [
     { label: "모임채팅", value: "group" },
@@ -30,7 +52,7 @@ export const ChatPage = () => {
   // 전체 사용 문자
   const allChatNames = [
     ...groupChats.map((c: GroupChatRoom) => c.partyName),
-    ...personalChats.map((p: PersonalChatRoom) => p.otherMember.memberName),
+    ...personalChats.map((p: PersonalChatRoom) => p.displayName),
   ];
   const allUsedCharacters = useMemo(() => {
     return new Set(allChatNames.flatMap(name => [...disassembleHangul(name)]));
@@ -46,13 +68,11 @@ export const ChatPage = () => {
     disassembleHangul(chat.partyName).includes(disassembleHangul(searchTerm)),
   );
   const filteredPersonalChats = personalChats.filter(chat =>
-    disassembleHangul(chat.otherMember.memberName).includes(
-      disassembleHangul(searchTerm),
-    ),
+    disassembleHangul(chat.displayName).includes(disassembleHangul(searchTerm)),
   );
 
   return (
-    <div className="flex flex-col w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden pt-14">
+    <div className="flex flex-col w-full pt-14">
       <MainHeader />
       <div>
         {/* 네비게이션 탭 */}
@@ -70,14 +90,16 @@ export const ChatPage = () => {
           />
 
           {/* 채팅 리스트 또는 결과 없음 */}
-          <ChatList
-            tab={activeTab}
-            groupChats={filteredGroupChats}
-            personalChats={filteredPersonalChats}
-            isValidSearch={isValidSearch}
-            searchTerm={searchTerm}
-            navigate={navigate}
-          />
+          <div className="flex min-h-[60dvh] overflow-hidden">
+            <ChatList
+              tab={activeTab}
+              groupChats={filteredGroupChats}
+              personalChats={filteredPersonalChats}
+              isValidSearch={isValidSearch}
+              searchTerm={searchTerm}
+              navigate={navigate}
+            />
+          </div>
         </section>
       </div>
     </div>

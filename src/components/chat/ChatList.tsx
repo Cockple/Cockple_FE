@@ -55,7 +55,7 @@ const ChatList = ({
               className="border-b border-gy-200 pb-1"
             >
               <GroupChat
-                imageSrc="src/assets/images/base_profile_img.png"
+                imageSrc={chat.partyImgUrl}
                 chatName={chat.partyName}
                 memberCount={chat.memberCount}
                 lastMessage={chat.lastMessage.content}
@@ -71,15 +71,15 @@ const ChatList = ({
                 navigate(`/chat/personal/${chat.chatRoomId}`, {
                   state: {
                     tab: "personal",
-                    chatName: chat.otherMember.memberName,
+                    chatName: chat.displayName,
                   },
                 })
               }
               className="border-b border-gy-200 pb-1"
             >
               <PersonalChat
-                imageSrc={chat.otherMember.profileImageUrl}
-                userName={chat.otherMember.memberName}
+                imageSrc={chat.profileImageUrl}
+                userName={chat.displayName}
                 lastMessage={chat.lastMessage.content}
                 lastMessageTime={chat.lastMessage.timestamp}
                 unreadCount={chat.unreadCount}
