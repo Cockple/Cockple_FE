@@ -25,7 +25,7 @@ export const OnboardingInfoPage = () => {
   const { memberName, gender, birth, setTemp } = useOnboardingState();
   //정보
   const [localName, setLocalName] = useState(memberName ?? "");
-  const [selected, isSelected] = useState<"boy" | "girl" | null>(gender);
+  const [selected, isSelected] = useState<"male" | "female" | null>(gender);
   const [selectedDate, setSelectedDate] = useState(birth ?? "");
   const [openModal, setOpenModal] = useState(false);
 
@@ -107,14 +107,16 @@ export const OnboardingInfoPage = () => {
             <div className="flex gap-[13px]">
               <TextBox
                 children="남성"
-                isSelected={selected === "boy"}
-                onClick={() => isSelected(selected === "boy" ? null : "boy")}
+                isSelected={selected === "male"}
+                onClick={() => isSelected(selected === "male" ? null : "male")}
                 className="w-19"
               />
               <TextBox
                 children="여성"
-                isSelected={selected === "girl"}
-                onClick={() => isSelected(selected === "girl" ? null : "girl")}
+                isSelected={selected === "female"}
+                onClick={() =>
+                  isSelected(selected === "female" ? null : "female")
+                }
                 className="w-19"
               />
             </div>

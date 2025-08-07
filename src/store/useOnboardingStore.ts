@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface OnboardingState {
   memberName: string;
-  gender: "boy" | "girl" | null;
+  gender: "male" | "female" | null;
   birth: string;
   level: string;
   imgKey: string;
