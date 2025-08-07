@@ -3,25 +3,71 @@ import TagBtn from "../../components/common/DynamicBtn/TagBtn";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import KittyImg from "@/assets/images/kitty.png?url";
+import { useMutation } from "@tanstack/react-query";
+import { useOnboardingState } from "../../store/useOnboardingStore";
+import api from "../../api/api";
+import { useEffect, useReducer, useState } from "react";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const onboarding = location.state?.onboarding ?? true;
 
-  const handleNext = () => {
-    if (!onboarding) {
-      navigate("/group/making/member");
-    } else {
-      navigate("/onboarding/confirm/start");
-    }
-  };
+  // const handleNext = () => {
+  //   if (!onboarding) {
+  //     navigate("/group/making/member");
+  //   } else {
+  //     navigate("/onboarding/confirm/start");
+  //   }
+  // };
+
+  const axios = api;
   const tagMap = [
     "브랜드 스폰",
     "가입비 무료",
     "친목",
     "운영진이 게임을 짜드려요",
   ];
+  const { level, name, gender, birthday } = useOnboardingState();
+
+  const [selectedTag, setSelectedTag] = useState<string[]>([]);
+  //태그 선택
+  const toggleTag = (tag: string) => {
+    setSelectedTag(pre =>
+      pre.includes(tag) ? pre.filter(t => t !== tag) : [...pre, tag],
+    );
+    console.log(selectedTag);
+  };
+  useEffect(() => {
+    console.log(selectedTag);
+  }, [selectedTag]);
+
+  // const handleSubmitForm = useMutation({
+  //   mutationFn: () => {
+  //     const body = {
+  //       memberName: "member.Name",
+  //       gender: "",
+  //       birth: "",
+  //       level: "",
+  //       imgKey: preview,
+  //       keywords: "",
+  //     };
+  //     aixos.post("/api/my/details", { body });
+  //     if (!onboarding) {
+  //       navigate("/group/making/member");
+  //     } else {
+  //       navigate("/onboarding/confirm/start");
+  //     }
+  //   },
+  //   onSuccess: ({ data }) => {
+  //     console.log(data);
+  //     navigate("/confirm");
+  //   },
+  //   onError: err => {
+  //     console.log(err);
+  //   },
+  // });
+
   return (
     <div
       className="w-full flex flex-col -mb-8 -mt-14"
@@ -42,13 +88,21 @@ export const ConfirmPage = () => {
         </div>
         <div className="flex flex-wrap gap-[0.625rem] items-center justify-center">
           {tagMap.map(item => {
-            return <TagBtn key={item} children={item} />;
+            return (
+              <TagBtn
+                key={item}
+                isSelected={selectedTag.includes(item)}
+                onClick={() => toggleTag(item)}
+              >
+                {item}
+              </TagBtn>
+            );
           })}
         </div>
       </section>
       <div
         className="flex items-center justify-center header-h4 mb-5 lg:mb-4"
-        onClick={handleNext}
+        // onClick={handleNext}
       >
         <Btn_Static
           label={onboarding ? "다음" : "신규 멤버 추천 받기"}
