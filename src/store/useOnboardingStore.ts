@@ -6,7 +6,7 @@ interface OnboardingState {
   birth: string;
   level: string;
   imgKey: string;
-  keyWord: string[];
+  keyword: string[];
   setTemp: (field: Partial<OnboardingState>) => void;
   reset: () => void;
 }
@@ -17,7 +17,7 @@ export const useOnboardingState = create<OnboardingState>(set => ({
   birth: "",
   level: "",
   imgKey: "",
-  keyWord: [],
+  keyword: [],
 
   setTemp: field => set(state => ({ ...state, ...field })),
   reset: () =>
@@ -27,6 +27,6 @@ export const useOnboardingState = create<OnboardingState>(set => ({
       birth: "",
       level: "",
       imgKey: "",
-      keyWord: [],
+      keyword: [],
     }),
 }));

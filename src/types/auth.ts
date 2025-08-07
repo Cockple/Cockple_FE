@@ -15,7 +15,7 @@ export type OnBoarding = {
   gender: string;
   birth: string;
   level: string;
-  imgKey: string;
+  imgKey?: string;
   keywords: string;
 };
 export type onBoardingRequestDto = CommenResponse<OnBoarding[]>;
