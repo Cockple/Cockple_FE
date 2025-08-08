@@ -108,7 +108,7 @@ export const InviteGuest = () => {
 
   if (isLoading) return <div>로딩중</div>;
 
-  const noneData = data.list.length === 0;
+  const noneData = data?.list.length === 0;
   console.log(data);
 
   const { toKor } = userLevelMapper();
@@ -202,13 +202,13 @@ export const InviteGuest = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <label className="text-left header-h5">초대된 인원</label>
-                    <p className="header-h5">{data.totalCount}</p>
+                    <p className="header-h5">{data?.totalCount}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Female className="w-4 h-4" />
-                    <p className="body-rg-500">{data.femaleCount}</p>
+                    <p className="body-rg-500">{data?.femaleCount}</p>
                     <Male className="w-4 h-4" />
-                    <p className="body-rg-500">{data.maleCount}</p>
+                    <p className="body-rg-500">{data?.maleCount}</p>
                   </div>
                 </div>
               </div>
