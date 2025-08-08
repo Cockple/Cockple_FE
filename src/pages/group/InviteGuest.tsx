@@ -1,6 +1,6 @@
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import TextBox from "../../components/common/Text_Box/TextBox";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Female from "../../assets/icons/female.svg?react";
 import Male from "../../assets/icons/male.svg?react";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
@@ -9,25 +9,10 @@ import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import { useForm } from "react-hook-form";
 import { Member } from "../../components/common/contentcard/Member";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api";
 import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
-import { userLevelMapper } from "../../utils/onboardingAPIMap";
-
-type MemberStatus =
-  | "waiting"
-  | "invite"
-  | "request"
-  | "approved"
-  | "Participating";
-
-interface MemberProps {
-  name: string;
-  gender: "male" | "female";
-  level: string;
-  birth?: string;
-  status: MemberStatus;
-}
+import { userLevelMapper } from "../../utils/levelValueExchange";
 
 export const InviteGuest = () => {
   //정보
@@ -44,7 +29,7 @@ export const InviteGuest = () => {
     "준자강",
     "자강",
   ];
-
+  const queryClient = useQueryClient();
   const axios = api;
 
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,37 +56,26 @@ export const InviteGuest = () => {
     selected !== null &&
     (levelValue === "disabled" || levelOptions.includes(levelValue));
 
-  // //클릭
-  // const handleInvite = () => {
-  //   if (!isFormValid) return;
-  //   setWaitingMember(true);
-
-  //   const newGuest: MemberProps = {
-  //     name: localName,
-  //     gender: selected as "male" | "female",
-  //     level: levelValue === "disabled" ? "급수 없음" : levelValue,
-  //     status: "waiting",
-  //   };
-
-  //   setInvitedGuests(prev => [...prev, newGuest]);
-  //   console.log(invitedGuests);
-  //   // btn클릭 후 초기화
-  //   setLocalName("");
-  //   isSelected(null);
-  //   setValue("levelOptions", "");
-  // };
   //---------------------------------------모임 초대하기
+  const apiGender = selected === "male" ? "남성" : "여성";
+
+  const ReauestLevelValue = levelValue === "disabled" ? "급수없음" : levelValue;
   const handleInviteForm = useMutation({
     mutationFn: () => {
       const body = {
         guestName: localName,
-        gender: selected,
-        level: levelValue,
+        gender: apiGender,
+        level: ReauestLevelValue,
       };
       return axios.post(`/api/exercises/${1}/guests`, body);
     },
     onSuccess: ({ data }) => {
-      console.log(data);
+      queryClient.invalidateQueries({
+        queryKey: ["exerciseId"],
+      });
+      setLocalName("");
+      isSelected(null);
+      setValue("levelOptions", "");
     },
     onError: err => {
       console.log(err);
@@ -109,23 +83,22 @@ export const InviteGuest = () => {
   });
 
   //모임 불러오기---------------------------------
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["excersiedId"],
+  const { data, isLoading } = useQuery({
+    queryKey: ["exerciseId"],
     queryFn: () => getInviteGuestList(),
-    // select: res => res.data.data,
+    select: res => res.data,
   });
 
   console.log(data);
 
   if (isLoading) return <div>로딩중</div>;
 
-  const noneData = data.data.list.length === 0;
-  console.log(data.data.list[0]);
+  const noneData = data.list.length === 0;
 
   const { toKor } = userLevelMapper();
-  const InviteGuestList = data?.data?.list.map((item, idx) => {
+  const InviteGuestList = data?.list.map((item, idx: number) => {
     const apilevel = toKor(item.level);
-    const uiLevelValue = apilevel === "disabled" ? "급수 없음" : apilevel;
+    const responseLevelValue = apilevel === "disabled" ? "급수 없음" : apilevel;
 
     return (
       <Member
@@ -135,7 +108,7 @@ export const InviteGuest = () => {
         guestName={item.inviterName}
         gender={item.gender}
         number={idx + 1}
-        level={uiLevelValue}
+        level={responseLevelValue}
         showDeleteButton={true}
         useDeleteModal={false}
         isGuest={true}
@@ -207,13 +180,13 @@ export const InviteGuest = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <label className="text-left header-h5">초대된 인원</label>
-                    <p className="header-h5">{data.data.totalCount}</p>
+                    <p className="header-h5">{data.totalCount}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Female className="w-4 h-4" />
-                    <p className="body-rg-500">{data.data.femaleCount}</p>
+                    <p className="body-rg-500">{data.femaleCount}</p>
                     <Male className="w-4 h-4" />
-                    <p className="body-rg-500">{data.data.maleCount}</p>
+                    <p className="body-rg-500">{data.maleCount}</p>
                   </div>
                 </div>
               </div>
