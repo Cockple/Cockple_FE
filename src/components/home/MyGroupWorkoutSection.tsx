@@ -38,7 +38,7 @@ export const MyGroupWorkoutSection = () => {
               date={item.date}
               time={item.startTime + " - " + item.endTime}
               location={item.buildingName}
-              imageSrc={item.profileImageUrl}
+              imageSrc={item.imageUrl ?? ""}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))}

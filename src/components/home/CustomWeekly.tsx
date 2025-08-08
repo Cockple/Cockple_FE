@@ -51,7 +51,6 @@ export default function CustomWeekly({
 
   return (
     <Swiper
-      key={initialSlide}
       initialSlide={initialSlide}
       onSlideChange={onSlideChange}
       onSwiper={swiper => {

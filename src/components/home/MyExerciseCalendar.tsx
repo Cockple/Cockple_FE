@@ -21,6 +21,7 @@ export const MyExerciseCalendar = () => {
   const [error, setError] = useState<Error | null>(null);
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
+
   const swiperRef = useRef<SwiperClass | null>(null);
 
   // 데이터 로딩 함수
@@ -115,18 +116,14 @@ export const MyExerciseCalendar = () => {
     [calendarData, isFetchingMore, fetchAndProcessData],
   );
 
-  // 렌더링을 위한 데이터 가공
   const initialSlideIndex = useMemo(() => {
-    if (!calendarData?.weeks) return 0;
+    if (!calendarData?.weeks) return 1;
     const todayStr = getTodayString();
     const todayWeekIndex = calendarData.weeks.findIndex(week =>
       week.days.some(day => day.date === todayStr),
     );
-    // return todayWeekIndex > -1
-    //   ? todayWeekIndex
-    //   : Math.floor(calendarData.weeks.length / 2);
 
-    return todayWeekIndex > -1 ? todayWeekIndex : 1;
+    return todayWeekIndex === 0 ? 1 : todayWeekIndex;
   }, [calendarData]);
 
   const exerciseDays = useMemo(() => {
@@ -159,8 +156,8 @@ export const MyExerciseCalendar = () => {
             exerciseDays={exerciseDays}
             onClick={handleDateClick}
             onSlideChange={handleSlideChange}
-            initialSlide={initialSlideIndex}
             shadow={true}
+            initialSlide={initialSlideIndex}
             setSwiperRef={swiper => (swiperRef.current = swiper)}
           />
         )}
