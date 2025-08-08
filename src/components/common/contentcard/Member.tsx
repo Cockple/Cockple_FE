@@ -23,7 +23,7 @@ type MemberStatus =
 interface MemberProps {
   status: MemberStatus;
   name: string;
-  gender: "male" | "female";
+  gender: "MALE" | "female";
   level: string;
   birth?: string;
   showStar?: boolean;
@@ -67,7 +67,7 @@ const MemberInfo = ({
   position,
 }: {
   name: string;
-  gender: "male" | "female";
+  gender: "MALE" | "FEMALE";
   level: string;
   isGuest?: boolean;
   guestName?: string;
@@ -85,7 +85,7 @@ const MemberInfo = ({
         )}
       </div>
       <div className="flex items-center gap-[0.25rem] body-sm-500">
-        {gender === "female" ? (
+        {gender === "FEMALE" ? (
           <Female className="w-[1rem] h-[1rem]" />
         ) : (
           <Male className="w-[1rem] h-[1rem]" />
