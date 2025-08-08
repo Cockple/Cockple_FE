@@ -10,8 +10,8 @@ import type { MemberProps } from "../../../components/common/contentcard/Member"
 import { useState, useEffect } from "react";
 import { getModalConfig } from "../../../components/group/modalConfig";
 import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
-import { getExerciseDetail, deleteParticipantMember} from "../../../lib/mygroup/exercises";
-import type { ExerciseDetailResponse } from "../../../lib/mygroup/exercises";
+import { getExerciseDetail, deleteParticipantMember} from "../../../api/exercise/exercises";
+import type { ExerciseDetailResponse } from "../../../api/exercise/exercises";
 
 export const MyExerciseDetail = () => {
   const { exerciseId } = useParams<{ exerciseId: string }>();

@@ -71,7 +71,6 @@ import { EditLocationPage } from "./pages/home/EditLocationPage";
 import MemberRequestPage from "./pages/group/MemberRequest";
 import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
 
-import { fetchDevToken } from "./lib/auth"; 
 
 const router = createBrowserRouter([
   {
@@ -130,7 +129,8 @@ const router = createBrowserRouter([
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
-      { path: "/mypage/profile", element: <MyPageProfile /> },
+      // { path: "/mypage/profile", element: <MyPageProfile /> },
+      { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
       { path: "/mypage/profile/medal", element: <MyPageProfileMedal /> },
 
@@ -199,10 +199,6 @@ function App() {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
-  //토큰 발급 
-   useEffect(() => {
-    fetchDevToken(); 
-  }, []);
   
   return (
     <div className="w-full flex justify-center items-center">

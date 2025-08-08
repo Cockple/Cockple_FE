@@ -1,3 +1,5 @@
+//운동 상세 조회 및 삭제 /api/exercises/{exerciseId}
+
 import api from "../api";
 
 // 타입 정의 (API 응답에 맞게)

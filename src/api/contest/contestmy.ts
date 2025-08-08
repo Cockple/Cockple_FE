@@ -22,6 +22,7 @@ export interface ApiMedalResponse {
 }
 
 export interface MedalItem {
+  id: number;
   title: string;
   date: string;
   medalImageSrc: string;
@@ -37,9 +38,18 @@ export interface MyMedalData {
 }
 
 //내 대회 기록 리스트 조회
+// export interface MyContestRecord {
+//   partyId: number;
+//   createdAt: string; 
+// }
+
 export interface MyContestRecord {
-  partyId: number;
-  createdAt: string; 
+  contestId: number;
+  contestName: string;
+  type: string;
+  level: string;
+  date: string;
+  medalImgUrl: string;
 }
 
 //내 대회 기록 등록
@@ -100,7 +110,7 @@ export interface ContestRecordDetailResponse {
 
 
 
-//내 메달 조회 -> 아직 더미 없어서 0 0 0 으로 나옴
+//내 메달 조회 
 export const getMyMedals = async (): Promise<MyMedalData> => {
   const response = await api.get<ApiMedalResponse>("/api/contests/my/medals");
   console.log("내 메달 조회 API 응답 확인:", response.data);
@@ -118,8 +128,15 @@ export const getMyMedals = async (): Promise<MyMedalData> => {
     silverCount: data.silverCount,
     bronzeCount: data.bronzeCount,
     myMedalTotal: data.myMedalTotal,
-    medals: Array.isArray(data.medals) ? data.medals : [], 
-  };
+    medals: Array.isArray(data.medals)
+        ? data.medals.map((item, index) => ({
+            id: index,               // 임시 id 
+            title: item.title,
+            date: item.date,
+            medalImageSrc: item.medalImageSrc,
+            isAwarded: item.isAwarded,
+          }))
+        : [],  };
 
   return transformed;
 };
@@ -149,7 +166,7 @@ export const postMyContestRecord = async (
   return response.data;
 };
 
-
+//안씀
 export const getContestRecordDetail = async (
   contestId: number
 ): Promise<ContestRecordDetailResponse> => {

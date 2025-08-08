@@ -1,4 +1,4 @@
-// 지도는 임시로 그냥 만들었어요
+// 더 이상 이 페이지는 사용하지 않습니다.
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Search from "@/assets/icons/search.svg?react";

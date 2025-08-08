@@ -6,7 +6,7 @@ import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import White_L from "../../components/common/Btn_Static/Text/White_L";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getMyProfile } from "../../lib/mypage/profile";
+import { getMyProfile } from "../../api/member/my";
 
 interface MyPageProps {
   name?: string;

@@ -3,6 +3,7 @@ import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import { useNavigate } from "react-router-dom";
 
 interface MyMedalProps {
+  id: number;
   title: string;
   date: string;
   medalImageSrc: string;
@@ -11,14 +12,13 @@ interface MyMedalProps {
 }
 
 export const MyMedal = ({
+  id,
   title,
   date,
   medalImageSrc,
   disabled = false,
-  // onClick,
 }: MyMedalProps) => {
   const navigate = useNavigate();
-  // pressing 상태 관리
   const [isPressing, setIsPressing] = useState(false);
 
   const handlePressStart = () => {
@@ -35,7 +35,6 @@ export const MyMedal = ({
   let cursorStyle = "cursor-pointer";
 
   if (disabled) {
-    // disabled 상태일 때의 스타일
     bgColor = "bg-white";
     textColor = "text-[#C0C4CD]";
     iconColor = "text-[#C0C4CD]";
@@ -53,7 +52,6 @@ export const MyMedal = ({
       onTouchEnd={handlePressEnd}
       className={`${baseClasses} ${bgColor} ${cursorStyle}`}
     >
-      {/* 이미지 영역 */}
       <div className="relative">
         <img
           src={medalImageSrc}
@@ -62,19 +60,14 @@ export const MyMedal = ({
         />
       </div>
 
-      {/* 글/정보 영역 */}
       <div className="w-[13.9375rem] h-[3.25rem] flex flex-col items-start">
         <div className="w-[13.9375rem] h-[3.25rem] flex flex-col gap-[0.25rem]">
-          <div
-            className={`flex items-center gap-[0.25rem] header-h4 ${textColor}`}
-          >
+          <div className={`flex items-center gap-[0.25rem] header-h4 ${textColor}`}>
             <span className="truncate overflow-hidden whitespace-nowrap">
               {title}
             </span>
           </div>
-          <div
-            className={`flex items-center gap-[0.25rem] body-rg-500 ${textColor}`}
-          >
+          <div className={`flex items-center gap-[0.25rem] body-rg-500 ${textColor}`}>
             <span>{date}</span>
           </div>
         </div>
@@ -82,7 +75,7 @@ export const MyMedal = ({
 
       <RightAngle
         className={`w-[1.25rem] h-[1.25rem] ${iconColor}`}
-        onClick={() => navigate("/mypage/mymedal/:medalId")}
+        onClick={() => navigate(`/mypage/mymedal/${id}`)}
       />
     </div>
   );

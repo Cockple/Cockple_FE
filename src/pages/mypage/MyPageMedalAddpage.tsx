@@ -9,8 +9,8 @@ import { useLocation } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
-import { postMyContestRecord } from "../../lib/contents/contents"; //api
-import type { PostContestRecordRequest } from "../../lib/contents/contents";
+import { postMyContestRecord } from "../../api/contest/contestmy" //api
+import type { PostContestRecordRequest } from "../../api/contest/contestmy"
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import Camera from "../../assets/icons/camera.svg?react";
 import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";

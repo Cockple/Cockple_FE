@@ -28,36 +28,41 @@ interface MedalDetail {
 }
 
 export const MyPageMedalDetailPage = ({
-  videoUrl = ["https://www.youtube.com/watch?v=TpPwI_Lo0YY&list=PLGa3uxog5E0vn3sJ7abmZNysTye6pSbn6"],
+  // videoUrl = ["https://www.youtube.com/watch?v=TpPwI_Lo0YY&list=PLGa3uxog5E0vn3sJ7abmZNysTye6pSbn6"],
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
   const { contestId } = useParams<{ contestId: string }>();
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+// 경로 에러 나옴 
+useEffect(() => {
+  if (!contestId) return;
 
-  useEffect(() => {
-    if (!contestId) return;
-
-    fetch(`/api/contests/my/${contestId}`)
-      .then(res => {
-        if (!res.ok) throw new Error("서버 응답 실패");
-        return res.json();
-      })
-      .then(data => {
-        setMedalDetail({
-          photo: data.contestImgs,
-          title: data.contestName,
-          date: data.date,
-          participationType: data.type,
-          record: data.content,
-          videoUrl: data.contestVideos,
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        setMedalDetail(null);
+  fetch(`/api/contests/my/${contestId}`, {
+    headers: { Accept: "application/json" },
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`서버 응답 실패: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(({ data }) => {
+      setMedalDetail({
+        title: `Party ID: ${data.partyId}`,
+        date: data.createdAt,
+        participationType: "",
+        record: "",
+        photo: [],
+        videoUrl: [],
       });
-  }, [contestId]);
+    })
+    .catch(err => {
+      console.error("API 호출 실패 또는 JSON 파싱 오류", err);
+      setMedalDetail(null);
+    });
+}, [contestId]);
+
 
   const images = medalDetail?.photo
     ? medalDetail.photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
