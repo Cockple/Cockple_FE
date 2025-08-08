@@ -9,8 +9,21 @@ import LikedList from "../../components/like/LikedList";
 //import { exerciseDummy } from "../../components/like/exerciseDummy";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
-import type { ExerciseCard, GroupCard } from "../../types/liked";
-import api from "../../api/api";
+//import type { ExerciseCard, GroupCard } from "../../types/liked";
+//import api from "../../api/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  bookmarkExercise,
+  bookmarkGroup,
+  fetchExerciseBookmarks,
+  fetchGroupBookmarks,
+  unbookmarkExercise,
+  unbookmarkGroup,
+} from "../../api/bookmark/bookmark";
+import {
+  useLikedExerciseIds,
+  useLikedGroupIds,
+} from "../../hooks/useLikedItems";
 
 // 정렬 옵션 타입
 type GroupSortOption = "최신순" | "오래된 순" | "운동 많은 순";
@@ -48,105 +61,121 @@ export const LikedPage = () => {
 
   const sortOptions = sortOptionsByTab[activeTab];
 
-  // const [groupCards, setGroupCards] = useState(groupDummy);
-  const [groupCards, setGroupCards] = useState<GroupCard[]>([]);
-  // const [exerciseCards, setExerciseCards] = useState(exerciseDummy);
-  const [exerciseCards, setExerciseCards] = useState<ExerciseCard[]>([]);
+  // 처음 전체 찜 목록 임시 저장
+  const [tempUnbookmarkedGroupIds, setTempUnbookmarkedGroupIds] = useState<
+    number[]
+  >([]);
+  const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
+    useState<number[]>([]);
 
+  // 탭 바뀔 때 정렬 초기화
   useEffect(() => {
     setSelectedSort("최신순");
   }, [activeTab]);
 
-  const fetchBookmarks = (tab: "group" | "exercise", sort: string) => {
-    const token = localStorage.getItem("accessToken");
-    const orderType =
-      sortOrderMap[tab][sort as GroupSortOption & ExerciseSortOption];
+  //TanStack Query - Group 찜 목록
+  const {
+    data: groupData,
+    isLoading: isGroupLoading,
+    isError: isGroupError,
+  } = useQuery({
+    queryKey: ["groupBookmarks", selectedSort],
+    queryFn: () =>
+      fetchGroupBookmarks(sortOrderMap.group[selectedSort as GroupSortOption]),
+    enabled: activeTab === "group",
+  });
 
-    api
-      .get(
-        `/api/${activeTab === "group" ? "parties" : "exercises"}/bookmarks`,
-        {
-          params: { orderType },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .then(res => {
-        console.log("찜 목록 : ", res.data);
-        const newData = res.data.data;
+  // TanStack Query - Exercise 찜 목록
+  const {
+    data: exerciseData,
+    isLoading: isExerciseLoading,
+    isError: isExerciseError,
+  } = useQuery({
+    queryKey: ["exerciseBookmarks", selectedSort],
+    queryFn: () =>
+      fetchExerciseBookmarks(
+        sortOrderMap.exercise[selectedSort as ExerciseSortOption],
+      ),
+    enabled: activeTab === "exercise",
+  });
 
-        if (activeTab === "group") {
-          setGroupCards(newData);
-        } else {
-          setExerciseCards(newData);
-        }
-      })
-      .catch(err => {
-        console.error("찜 목록 불러오기 실패", err);
-      });
+  // 모임 찜
+  // const groupBookmarkMutation = useMutation({
+  //   mutationFn: (partyId: number) => bookmarkGroup(partyId),
+  // });
+
+  // 모임 찜 해제
+  // const groupUnbookmarkMutation = useMutation({
+  //   mutationFn: (partyId: number) => unbookmarkGroup(partyId),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["groupBookmarks", selectedSort],
+  //     });
+  //   },
+  // });
+
+  // 운동 찜
+  // const exerciseBookmarkMutation = useMutation({
+  //   mutationFn: (partyId: number) => bookmarkExercise(partyId),
+  // });
+
+  // 운동 찜 해제
+  // const exerciseUnbookmarkMutation = useMutation({
+  //   mutationFn: (exerciseId: number) => unbookmarkExercise(exerciseId),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["exerciseBookmarks", selectedSort],
+  //     });
+  //   },
+  // });
+
+  // 찜 해제 핸들러
+  const handleToggleFavorite = (id: number) => {
+    if (activeTab === "group") {
+      //groupUnbookmarkMutation.mutate(id);
+      setTempUnbookmarkedGroupIds(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+      );
+    } else {
+      //exerciseUnbookmarkMutation.mutate(id);
+      setTempUnbookmarkedExerciseIds(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+      );
+    }
   };
-  useEffect(() => {
-    // const token = localStorage.getItem("accessToken"); // 예시
-
-    // const orderType = sortOrderMap[activeTab]["최신순"];
-
-    // api
-    //   .get(
-    //     `/api/${activeTab === "group" ? "parties" : "exercises"}/bookmarks`,
-    //     {
-    //       params: { orderType },
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     },
-    //   )
-    //   .then(res => {
-    //     const newData = res.data.data;
-    //     if (activeTab === "group") {
-    //       setGroupCards(newData);
-    //     } else {
-    //       setExerciseCards(newData);
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.error("찜 목록 불러오기 실패", err);
-    //   });
-    fetchBookmarks(activeTab, selectedSort);
-  }, [activeTab, selectedSort]);
 
   const handleSortClick = () => setIsSortOpen(prev => !prev);
+
   const handleSelectSort = (option: string) => {
     setSelectedSort(option);
     setIsSortOpen(false);
-
-    // const orderType =
-    //   sortOrderMap[activeTab][option as GroupSortOption & ExerciseSortOption];
-    // console.log("API 요청시 orderType:", orderType);
   };
 
-  const handleToggleFavorite = (id: number) => {
-    console.log("하트 토글", id);
-    if (activeTab === "group") {
-      setGroupCards(prev =>
-        prev.map(card =>
-          card.partyId === id
-            ? { ...card, isFavorite: !card.isFavorite }
-            : card,
-        ),
-      );
-    } else {
-      setExerciseCards(prev =>
-        prev.map(card =>
-          card.exerciseId === id
-            ? { ...card, isFavorite: !card.isFavorite }
-            : card,
-        ),
-      );
-    }
-    // 배포 오류 해결을 위한 임시 코드
-    console.log(exerciseCards);
-  };
+  // const handleToggleFavorite = (id: number) => {
+  //   console.log("하트 토글", id);
+  //   if (activeTab === "group") {
+  //     setGroupCards(prev =>
+  //       prev.map(card =>
+  //         card.partyId === id
+  //           ? { ...card, isFavorite: !card.isFavorite }
+  //           : card,
+  //       ),
+  //     );
+  //   } else {
+  //     setExerciseCards(prev =>
+  //       prev.map(card =>
+  //         card.exerciseId === id
+  //           ? { ...card, isFavorite: !card.isFavorite }
+  //           : card,
+  //       ),
+  //     );
+  //   }
+  //   // 배포 오류 해결을 위한 임시 코드
+  //   console.log(exerciseCards);
+  // };
+
+  const isLoading = activeTab === "group" ? isGroupLoading : isExerciseLoading;
+  const isError = activeTab === "group" ? isGroupError : isExerciseError;
 
   return (
     <div className="flex flex-col w-full min-h-[76dvh] -mb-8 overflow-hidden pt-14">
@@ -173,12 +202,28 @@ export const LikedPage = () => {
 
         {/* 카드 목록 */}
         <div className="flex justify-center">
-          <LikedList
+          {/* <LikedList
             activeTab={activeTab}
-            groupCards={groupCards}
-            exerciseCards={exerciseCards}
+            //groupCards={groupCards}
+            //exerciseCards={exerciseCards}
+            groupCards={groupData?.data ?? []}
+            exerciseCards={exerciseData?.data ?? []}
             onToggleFavorite={handleToggleFavorite}
-          />
+          /> */}
+          {isLoading ? (
+            <p className="text-center py-10">로딩 중...</p>
+          ) : isError ? (
+            <p className="text-center py-10 text-red-500">불러오기 실패</p>
+          ) : (
+            <LikedList
+              activeTab={activeTab}
+              groupCards={groupData?.data ?? []}
+              exerciseCards={exerciseData?.data ?? []}
+              onToggleFavorite={handleToggleFavorite}
+              tempUnbookmarkedGroupIds={tempUnbookmarkedGroupIds}
+              tempUnbookmarkedExerciseIds={tempUnbookmarkedExerciseIds}
+            />
+          )}
         </div>
       </section>
 

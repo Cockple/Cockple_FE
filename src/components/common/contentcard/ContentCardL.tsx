@@ -8,6 +8,11 @@ import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import {
+  bookmarkExercise,
+  unbookmarkExercise,
+} from "../../../api/bookmark/bookmark";
 
 interface ContentCardLProps {
   id: number;
@@ -51,12 +56,39 @@ export const ContentCardL = ({
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
 
+  //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
+
+  const bookmarkMutation = useMutation({
+    mutationFn: bookmarkExercise,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["exerciseBookmarks"] });
+    // },
+    // onError: () => {
+    //   setFavorite(false); // rollback
+    // },
+  });
+
+  const unbookmarkMutation = useMutation({
+    mutationFn: unbookmarkExercise,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["exerciseBookmarks"] });
+    // },
+    // onError: () => {
+    //   setFavorite(true); // rollback
+    // },
+  });
 
   const handleToggleFavorite = () => {
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
+
+    if (newFavorite) {
+      bookmarkMutation.mutate(id);
+    } else {
+      unbookmarkMutation.mutate(id);
+    }
   };
 
   function getDayOfWeek(dateString: string): string {
