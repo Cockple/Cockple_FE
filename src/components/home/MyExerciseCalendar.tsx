@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import CustomWeekly from "./CustomWeekly";
 import { WorkoutDayEntry } from "./WorkoutDayEntry";
 import { addDays, generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Swiper as SwiperClass } from "swiper";
 import type { CalendarData, Exercise } from "../../types/calendar";
 import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
+import CustomhomeWeekly from "./CustomhomeWeekly";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {
@@ -150,15 +150,13 @@ export const MyExerciseCalendar = () => {
     <>
       <div className="w-full h-17">
         {calendarData && (
-          <CustomWeekly
+          <CustomhomeWeekly
             weeks={calendarData.weeks}
             selectedDate={selectedDate}
             exerciseDays={exerciseDays}
             onClick={handleDateClick}
             onSlideChange={handleSlideChange}
-            shadow={true}
             initialSlide={initialSlideIndex}
-            setSwiperRef={swiper => (swiperRef.current = swiper)}
           />
         )}
       </div>
