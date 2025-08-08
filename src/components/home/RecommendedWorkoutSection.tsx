@@ -28,18 +28,19 @@ export const RecommendedWorkoutSection = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {data?.exercises.map((item, index) => (
-          <Exercise_M
-            id={index}
-            key={item.exerciseId}
-            title={item.partyName}
-            date={item.date}
-            time={item.startTime + " - " + item.endTime}
-            location={item.buildingName}
-            imageSrc={item.profileImageUrl}
-            onClick={() => navigate(`/group/${item.partyId}`)}
-          />
-        ))}
+        {data &&
+          data.exercises.map((item, index) => (
+            <Exercise_M
+              id={index}
+              key={item.exerciseId}
+              title={item.partyName}
+              date={item.date}
+              time={item.startTime + " - " + item.endTime}
+              location={item.buildingName}
+              imageSrc={item.imageUrl ?? ""}
+              onClick={() => navigate(`/group/${item.partyId}`)}
+            />
+          ))}
       </div>
     </div>
   );

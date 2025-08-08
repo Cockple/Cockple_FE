@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { CommenResponse } from "../../types/common";
 import api from "../api";
-import type { RecommendedExerciseData } from "./type";
+import type { RecommendedExerciseData } from "../../types/exerciseRecommend";
 
 export const getMyExerciseApi = async () => {
   const res = await api.get<CommenResponse<RecommendedExerciseData>>(

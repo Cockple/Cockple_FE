@@ -1,5 +1,3 @@
-// src/api/myExerciseCalendarApi.ts
-
 import type { CalendarData } from "../../types/calendar";
 import type { CommenResponse } from "../../types/common";
 import api from "../api";
