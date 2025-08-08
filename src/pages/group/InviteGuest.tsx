@@ -90,11 +90,26 @@ export const InviteGuest = () => {
     select: res => res.data,
   });
 
-  console.log(data);
+  //게스트 초대 취소하기--------------
+  const handleDelete = useMutation({
+    mutationFn: (guestId: number) => {
+      return axios.delete(`/api/exercises/${1}/guests/${guestId}`);
+    },
+    onSuccess: () => {
+      console.log("삭제 성공");
+      queryClient.invalidateQueries({
+        queryKey: ["exerciseId"],
+      });
+    },
+    onError: err => {
+      console.log(err);
+    },
+  });
 
   if (isLoading) return <div>로딩중</div>;
 
   const noneData = data.list.length === 0;
+  console.log(data);
 
   const { toKor } = userLevelMapper();
   const InviteGuestList = data?.list.map(
@@ -115,8 +130,7 @@ export const InviteGuest = () => {
           showDeleteButton={true}
           useDeleteModal={false}
           isGuest={true}
-
-          // onDelete={() => handleDelete(idx)}
+          onDelete={() => handleDelete.mutate(item.guestId)}
         />
       );
     },
