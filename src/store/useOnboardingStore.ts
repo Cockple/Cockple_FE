@@ -1,19 +1,32 @@
 import { create } from "zustand";
 
 interface OnboardingState {
-  name: string;
-  gender: "boy" | "girl" | null;
-  birthday: string;
+  memberName: string;
+  gender: "male" | "female" | null;
+  birth: string;
   level: string;
+  imgKey: string;
+  keyword: string[];
   setTemp: (field: Partial<OnboardingState>) => void;
   reset: () => void;
 }
 
 export const useOnboardingState = create<OnboardingState>(set => ({
-  name: "",
+  memberName: "",
   gender: null,
-  birthday: "",
+  birth: "",
   level: "",
+  imgKey: "",
+  keyword: [],
+
   setTemp: field => set(state => ({ ...state, ...field })),
-  reset: () => set({ name: "", gender: null, birthday: "", level: "" }),
+  reset: () =>
+    set({
+      memberName: "",
+      gender: null,
+      birth: "",
+      level: "",
+      imgKey: "",
+      keyword: [],
+    }),
 }));
