@@ -11,19 +11,11 @@ import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
 //import type { ExerciseCard, GroupCard } from "../../types/liked";
 //import api from "../../api/api";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  bookmarkExercise,
-  bookmarkGroup,
   fetchExerciseBookmarks,
   fetchGroupBookmarks,
-  unbookmarkExercise,
-  unbookmarkGroup,
 } from "../../api/bookmark/bookmark";
-import {
-  useLikedExerciseIds,
-  useLikedGroupIds,
-} from "../../hooks/useLikedItems";
 
 // 정렬 옵션 타입
 type GroupSortOption = "최신순" | "오래된 순" | "운동 많은 순";
@@ -61,12 +53,12 @@ export const LikedPage = () => {
 
   const sortOptions = sortOptionsByTab[activeTab];
 
-  // 처음 전체 찜 목록 임시 저장
-  const [tempUnbookmarkedGroupIds, setTempUnbookmarkedGroupIds] = useState<
-    number[]
-  >([]);
-  const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
-    useState<number[]>([]);
+  // // 처음 전체 찜 목록 임시 저장
+  // const [tempUnbookmarkedGroupIds, setTempUnbookmarkedGroupIds] = useState<
+  //   number[]
+  // >([]);
+  // const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
+  //   useState<number[]>([]);
 
   // 탭 바뀔 때 정렬 초기화
   useEffect(() => {
@@ -130,19 +122,19 @@ export const LikedPage = () => {
   // });
 
   // 찜 해제 핸들러
-  const handleToggleFavorite = (id: number) => {
-    if (activeTab === "group") {
-      //groupUnbookmarkMutation.mutate(id);
-      setTempUnbookmarkedGroupIds(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
-      );
-    } else {
-      //exerciseUnbookmarkMutation.mutate(id);
-      setTempUnbookmarkedExerciseIds(prev =>
-        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
-      );
-    }
-  };
+  // const handleToggleFavorite = (id: number) => {
+  //   if (activeTab === "group") {
+  //     //groupUnbookmarkMutation.mutate(id);
+  //     setTempUnbookmarkedGroupIds(prev =>
+  //       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+  //     );
+  //   } else {
+  //     //exerciseUnbookmarkMutation.mutate(id);
+  //     setTempUnbookmarkedExerciseIds(prev =>
+  //       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+  //     );
+  //   }
+  // };
 
   const handleSortClick = () => setIsSortOpen(prev => !prev);
 
@@ -219,9 +211,9 @@ export const LikedPage = () => {
               activeTab={activeTab}
               groupCards={groupData?.data ?? []}
               exerciseCards={exerciseData?.data ?? []}
-              onToggleFavorite={handleToggleFavorite}
-              tempUnbookmarkedGroupIds={tempUnbookmarkedGroupIds}
-              tempUnbookmarkedExerciseIds={tempUnbookmarkedExerciseIds}
+              //onToggleFavorite={handleToggleFavorite}
+              //tempUnbookmarkedGroupIds={tempUnbookmarkedGroupIds}
+              //tempUnbookmarkedExerciseIds={tempUnbookmarkedExerciseIds}
             />
           )}
         </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
@@ -38,6 +38,10 @@ export const Group_M = ({
   //const queryClient = useQueryClient();
   const [isPressing, setIsPressing] = useState(false);
   const [favorite, setFavorite] = useState(like);
+
+  useEffect(() => {
+    setFavorite(like);
+  }, [like]);
 
   // 모임 찜
   const bookmarkMutation = useMutation({

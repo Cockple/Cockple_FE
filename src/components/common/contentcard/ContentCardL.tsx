@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -58,6 +58,10 @@ export const ContentCardL = ({
 
   //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
+
+  useEffect(() => {
+    setFavorite(like);
+  }, [like]);
 
   const bookmarkMutation = useMutation({
     mutationFn: bookmarkExercise,

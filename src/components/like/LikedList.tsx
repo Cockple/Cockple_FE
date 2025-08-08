@@ -6,7 +6,7 @@ import {
   useLikedExerciseIds,
   useLikedGroupIds,
 } from "../../hooks/useLikedItems";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface LikedListProps {
   activeTab: "group" | "exercise";
@@ -21,18 +21,37 @@ const LikedList = ({
   activeTab,
   groupCards,
   exerciseCards,
-  onToggleFavorite,
-  tempUnbookmarkedGroupIds = [],
-  tempUnbookmarkedExerciseIds = [],
+  //onToggleFavorite,
+  //tempUnbookmarkedGroupIds = [],
+  //tempUnbookmarkedExerciseIds = [],
 }: LikedListProps) => {
   const isGroupTab = activeTab === "group";
 
-  const { data: likedGroupIds = [] } = useLikedGroupIds();
-  const { data: likedExerciseIds = [] } = useLikedExerciseIds();
+  // 처음 전체 찜 목록 임시 저장
+  const [tempUnbookmarkedGroupIds, setTempUnbookmarkedGroupIds] = useState<
+    number[]
+  >([]);
+  const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
+    useState<number[]>([]);
+
+  // const { data: likedGroupIds = [] } = useLikedGroupIds();
+  // const { data: likedExerciseIds = [] } = useLikedExerciseIds();
+  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
+    useLikedGroupIds();
+  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
+    useLikedExerciseIds();
   useEffect(() => {
     console.log(likedGroupIds);
     console.log(likedExerciseIds);
   }, []);
+
+  const isLikedLoading = isGroupTab
+    ? isGroupLikedLoading
+    : isExerciseLikedLoading;
+
+  if (isLikedLoading) {
+    return <div className="text-center py-10">하트 불러오는 중...</div>;
+  }
 
   const isEmpty = isGroupTab
     ? groupCards.length === 0
@@ -48,6 +67,20 @@ const LikedList = ({
       </div>
     );
   }
+
+  const handleToggleFavorite = (id: number) => {
+    if (activeTab === "group") {
+      //groupUnbookmarkMutation.mutate(id);
+      setTempUnbookmarkedGroupIds(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+      );
+    } else {
+      //exerciseUnbookmarkMutation.mutate(id);
+      setTempUnbookmarkedExerciseIds(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+      );
+    }
+  };
 
   return (
     <>
@@ -111,7 +144,7 @@ const LikedList = ({
                     upcomingCount={card.exerciseCnt}
                     like={isLiked}
                     isMine={false}
-                    onToggleFavorite={onToggleFavorite}
+                    onToggleFavorite={handleToggleFavorite}
                   />
                 </div>
               );
@@ -137,7 +170,7 @@ const LikedList = ({
                     currentCount={card.nowMemberCnt}
                     totalCount={card.maxMemberCnt}
                     like={isLiked}
-                    onToggleFavorite={onToggleFavorite}
+                    onToggleFavorite={handleToggleFavorite}
                   />
                 </div>
               );
