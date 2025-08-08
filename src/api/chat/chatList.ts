@@ -10,32 +10,59 @@ export interface GetGroupChatsResponse {
 
 interface GetPersonalChatsResponse {
   content: PersonalChatRoom[];
-  hasNext: boolean;
+  totalElements: number;
 }
 
-export const getGroupChats = async (page = 0, size = 20) => {
+export const getGroupChatRooms = async () => {
   const response = await api.get<CommonResponse<GetGroupChatsResponse>>(
-    "/api/chats/parties",
+    `/api/chats/parties`,
     {
-      params: { page, size },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     },
   );
+  console.log("party: ", response);
   return response.data.data;
 };
 
-export const getPersonalChats = async (page = 0, size = 20) => {
+export const getPersonalChatRooms = async () => {
   const response = await api.get<CommonResponse<GetPersonalChatsResponse>>(
     "/api/chats/direct",
     {
-      params: { page, size },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     },
   );
-
+  console.log("direct: ", response);
   return response.data.data;
+};
+
+export const searchGroupChatRooms = async (name: string) => {
+  const res = await api.get<CommonResponse<{ content: GroupChatRoom[] }>>(
+    `/api/chats/parties/search`,
+    {
+      params: { name },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    },
+  );
+  console.log("groupChatRoomSearch: ", res.data.data.content);
+  return res.data.data.content;
+};
+
+export const searchPersonalChatRooms = async (name: string) => {
+  const res = await api.get<CommonResponse<{ content: PersonalChatRoom[] }>>(
+    `/api/chats/direct/search`,
+    {
+      params: { name },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    },
+  );
+  console.log("personalChatRoomSearch: ", res);
+  return res.data.data.content;
 };

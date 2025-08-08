@@ -23,17 +23,17 @@ const ChatList = ({
   searchTerm,
   navigate,
 }: Props) => {
+  const chatData = tab === "group" ? groupChats : personalChats;
+
   if (searchTerm !== "" && !isValidSearch) {
     return (
       <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
     );
   }
 
-  const chatData = tab === "group" ? groupChats : personalChats;
-
   if (chatData.length === 0) {
     return (
-      <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
+      <div className="text-center text-gy-500 py-4">채팅방이 없습니다.</div>
     );
   }
 
@@ -80,8 +80,10 @@ const ChatList = ({
               <PersonalChat
                 imageSrc={chat.profileImageUrl}
                 userName={chat.displayName}
-                lastMessage={chat.lastMessage.content}
-                lastMessageTime={chat.lastMessage.timestamp}
+                lastMessage={chat.lastMessage ? chat.lastMessage.content : ""}
+                lastMessageTime={
+                  chat.lastMessage ? chat.lastMessage.timestamp : ""
+                }
                 unreadCount={chat.unreadCount}
               />
             </div>

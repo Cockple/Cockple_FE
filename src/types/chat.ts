@@ -20,12 +20,21 @@ export interface PersonalChatRoom {
   displayName: string;
   profileImageUrl: string;
   unreadCount: number;
-  lastMessage: {
+  lastMessage?: {
     messageId: number;
     content: string;
     timestamp: string;
     messageType: "TEXT" | "IMAGE";
   };
+}
+
+export interface ChatRoomInfo {
+  chatRoomId: number;
+  chatRoomType: "PARTY" | "PERSONAL";
+  displayName: string;
+  profileImageUrl: string | null;
+  memberCount: number;
+  lastReadMessageId: number;
 }
 
 export interface ChatMessageResponse {

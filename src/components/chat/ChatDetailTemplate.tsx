@@ -52,7 +52,7 @@ export const ChatDetailTemplate = ({
   useEffect(() => {
     const loadInitialMessages = async () => {
       try {
-        const res = await fetchChatMessages(chatId, undefined, 30, "DESC");
+        const res = await fetchChatMessages(chatId);
         setChattings(res.messages);
         // 필요하면 nextCursor 저장
       } catch (error) {
