@@ -13,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api";
 import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
+import type { ResponseInviteGuest } from "../../types/guest";
 
 export const InviteGuest = () => {
   //정보
@@ -69,7 +70,7 @@ export const InviteGuest = () => {
       };
       return axios.post(`/api/exercises/${1}/guests`, body);
     },
-    onSuccess: ({ data }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["exerciseId"],
       });
@@ -96,27 +97,30 @@ export const InviteGuest = () => {
   const noneData = data.list.length === 0;
 
   const { toKor } = userLevelMapper();
-  const InviteGuestList = data?.list.map((item, idx: number) => {
-    const apilevel = toKor(item.level);
-    const responseLevelValue = apilevel === "disabled" ? "급수 없음" : apilevel;
+  const InviteGuestList = data?.list.map(
+    (item: ResponseInviteGuest, idx: number) => {
+      const apilevel = toKor(item.level);
+      const responseLevelValue =
+        apilevel === "disabled" ? "급수 없음" : apilevel;
 
-    return (
-      <Member
-        key={item.guestId}
-        status="waiting"
-        {...item}
-        guestName={item.inviterName}
-        gender={item.gender}
-        number={idx + 1}
-        level={responseLevelValue}
-        showDeleteButton={true}
-        useDeleteModal={false}
-        isGuest={true}
+      return (
+        <Member
+          key={item.guestId}
+          status="waiting"
+          {...item}
+          guestName={item.inviterName}
+          gender={item.gender}
+          number={idx + 1}
+          level={responseLevelValue}
+          showDeleteButton={true}
+          useDeleteModal={false}
+          isGuest={true}
 
-        // onDelete={() => handleDelete(idx)}
-      />
-    );
-  });
+          // onDelete={() => handleDelete(idx)}
+        />
+      );
+    },
+  );
 
   return (
     <>
