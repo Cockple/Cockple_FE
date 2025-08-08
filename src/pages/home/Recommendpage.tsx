@@ -16,7 +16,6 @@ import type { Swiper as SwiperClass } from "swiper";
 import type {
   RecommendCalendarData,
   Exercise,
-  Week,
 } from "../../types/exerciseRecommend";
 import { fetchRecommendedCalendar } from "../../api/exercise/getRecommendedExerciseApi";
 import { transformFiltersForApi } from "../../utils/filterUtils";
@@ -164,7 +163,7 @@ export const RecommendPage = () => {
   );
 
   // --- 렌더링을 위한 데이터 가공 ---
-  const processedWeeks = useMemo<Week[] | null>(() => {
+  const processedWeeks = useMemo(() => {
     if (!calendarData) return null;
     if (calendarData.weeks.length === 0) {
       return generateWeeksFromRange(
@@ -179,7 +178,8 @@ export const RecommendPage = () => {
         ...day,
         exercises: day.exercises.map(ex => ({
           ...ex,
-          profileImageUrl: ex.profileImageUrl ?? "",
+          profileImageUrl:
+            ex.profileImageUrl !== undefined ? ex.profileImageUrl : "",
         })),
       })),
     }));

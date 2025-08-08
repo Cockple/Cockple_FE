@@ -1,5 +1,3 @@
-// src/utils/dateUtils.ts
-
 import type { Week, Day } from "../types/calendar";
 
 // 날짜를 'YYYY-MM-DD' 형식의 문자열로 변환

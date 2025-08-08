@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import CustomWeekly from "./CustomWeekly";
 import { WorkoutDayEntry } from "./WorkoutDayEntry";
 import { addDays, generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Swiper as SwiperClass } from "swiper";
-import type { CalendarData, Exercise, Week } from "../../types/calendar";
+import type { CalendarData, Exercise } from "../../types/calendar";
 import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
 
 // 오늘 날짜 생성 헬퍼 함수
@@ -21,18 +21,27 @@ export const MyExerciseCalendar = () => {
   const [error, setError] = useState<Error | null>(null);
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
+  const swiperRef = useRef<SwiperClass | null>(null);
 
+  // 데이터 로딩 함수
   const fetchAndProcessData = useCallback(
     async (
       startDate: string | null,
       endDate: string | null,
       direction?: "past" | "future",
-      swiper?: SwiperClass,
     ) => {
       const setLoading = direction ? setIsFetchingMore : setIsLoading;
       setLoading(true);
       try {
         const newData = await getMyExerciseCalendarApi(startDate, endDate);
+
+        // API 응답 직후, weeks가 비어있으면 빈 캘린더를 생성해서 채워줌
+        if (newData.weeks.length === 0) {
+          newData.weeks = generateWeeksFromRange(
+            newData.startDate,
+            newData.endDate,
+          );
+        }
 
         if (direction) {
           setCalendarData(prev => {
@@ -43,15 +52,20 @@ export const MyExerciseCalendar = () => {
             const uniqueNewWeeks = newData.weeks.filter(
               w => !existingStarts.has(w.weekStartDate),
             );
+
             if (direction === "future") {
-              const updatedWeeks = [...prev.weeks, ...uniqueNewWeeks];
-              setTimeout(() => swiper?.update(), 0);
-              return { ...prev, endDate: newData.endDate, weeks: updatedWeeks };
+              setTimeout(() => swiperRef.current?.update(), 0);
+              return {
+                ...prev,
+                endDate: newData.endDate,
+                weeks: [...prev.weeks, ...uniqueNewWeeks],
+              };
             } else {
+              // past
               if (uniqueNewWeeks.length > 0) {
                 setTimeout(() => {
-                  swiper?.slideTo(uniqueNewWeeks.length, 0);
-                  swiper?.update();
+                  swiperRef.current?.slideTo(uniqueNewWeeks.length, 0);
+                  swiperRef.current?.update();
                 }, 0);
               }
               return {
@@ -73,7 +87,7 @@ export const MyExerciseCalendar = () => {
     [],
   );
 
-  // 초기 데이터 로딩 useEffect
+  // 초기 데이터 로딩
   useEffect(() => {
     fetchAndProcessData(null, null);
   }, [fetchAndProcessData]);
@@ -82,7 +96,7 @@ export const MyExerciseCalendar = () => {
     setSelectedDate(date);
   };
 
-  //  handleSlideChange의 useCallback 의존성 배열에 fetchAndProcessData를 추가합니다.
+  // 무한 스크롤 핸들러
   const handleSlideChange = useCallback(
     (swiper: SwiperClass) => {
       if (isFetchingMore || !calendarData) return;
@@ -90,37 +104,30 @@ export const MyExerciseCalendar = () => {
       if (swiper.activeIndex >= calendarData.weeks.length - buffer) {
         const newStartDate = addDays(calendarData.endDate, 1);
         const newEndDate = addDays(newStartDate, 13);
-        fetchAndProcessData(newStartDate, newEndDate, "future", swiper);
+        fetchAndProcessData(newStartDate, newEndDate, "future");
       }
       if (swiper.activeIndex <= buffer - 1) {
         const newEndDate = addDays(calendarData.startDate, -1);
         const newStartDate = addDays(newEndDate, -13);
-        fetchAndProcessData(newStartDate, newEndDate, "past", swiper);
+        fetchAndProcessData(newStartDate, newEndDate, "past");
       }
     },
     [calendarData, isFetchingMore, fetchAndProcessData],
   );
 
-  // --- 렌더링을 위한 데이터 가공 (이전과 동일) ---
-  const processedWeeks = useMemo<Week[] | null>(() => {
-    if (!calendarData) return null;
-    if (calendarData.weeks.length === 0) {
-      return generateWeeksFromRange(
-        calendarData.startDate,
-        calendarData.endDate,
-      );
-    }
-    return calendarData.weeks;
-  }, [calendarData]);
-
+  // 렌더링을 위한 데이터 가공
   const initialSlideIndex = useMemo(() => {
-    if (!processedWeeks) return 0;
+    if (!calendarData?.weeks) return 0;
     const todayStr = getTodayString();
-    const todayWeekIndex = processedWeeks.findIndex(week =>
+    const todayWeekIndex = calendarData.weeks.findIndex(week =>
       week.days.some(day => day.date === todayStr),
     );
+    // return todayWeekIndex > -1
+    //   ? todayWeekIndex
+    //   : Math.floor(calendarData.weeks.length / 2);
+
     return todayWeekIndex > -1 ? todayWeekIndex : 1;
-  }, [processedWeeks]);
+  }, [calendarData]);
 
   const exerciseDays = useMemo(() => {
     if (!calendarData) return [];
@@ -145,15 +152,16 @@ export const MyExerciseCalendar = () => {
   return (
     <>
       <div className="w-full h-17">
-        {processedWeeks && (
+        {calendarData && (
           <CustomWeekly
-            weeks={processedWeeks}
+            weeks={calendarData.weeks}
             selectedDate={selectedDate}
             exerciseDays={exerciseDays}
             onClick={handleDateClick}
             onSlideChange={handleSlideChange}
             initialSlide={initialSlideIndex}
             shadow={true}
+            setSwiperRef={swiper => (swiperRef.current = swiper)}
           />
         )}
       </div>
