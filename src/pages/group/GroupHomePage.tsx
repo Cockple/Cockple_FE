@@ -11,8 +11,9 @@ import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import PlusIcon from "@/assets/icons/add_white.svg?url";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
+import { usePartyDetail } from "../../api/exercise/getpartyDetail";
 
 const dummyClub = {
   id: "mint-clover",
@@ -35,6 +36,7 @@ export const GroupHomePage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [rightOffset, setRightOffset] = useState(0);
   const [plusModalOpen, setPlusModalOpen] = useState(false);
+  const { groupId } = useParams();
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -68,50 +70,63 @@ export const GroupHomePage = () => {
     return () => window.removeEventListener("resize", updateOffset);
   }, []);
 
-  const isOwner = true;
-  const isJoined = false;
-  const group = dummyClub;
+  // 요일 변환 함수
+  const formatActivityDays = (days: string[]) => {
+    const formatted = days.join(" "); // 배열을 문자열로 변환 (공백 구분)
+    return formatted;
+  };
+
+  // 레벨 변환 함수
+  const getLevelValue = (femaleLevel: string[], maleLevel: string[]) => {
+    return (
+      <div className="flex flex-col gap-1">
+        {femaleLevel.length > 0 && (
+          <div className="flex gap-1 items-center">
+            <FemaleIcon />
+            <span>{femaleLevel.join(" · ")}</span>
+          </div>
+        )}
+        {maleLevel.length > 0 && (
+          <div className="flex gap-1 items-center">
+            <MaleIcon />
+            <span>{maleLevel.join(" · ")}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const { data: partyDetail } = usePartyDetail(Number(groupId));
+  console.log(partyDetail);
+
+  const isOwner = partyDetail?.memberRole === "MANAGER";
+  const isJoined = partyDetail?.memberStatus === "MEMBER";
   const items = [
-    { label: "지역", value: "경기도 / 성남시" },
-    { label: "날짜", value: "월 화 수 목 금 토" },
-    { label: "시간", value: "상시" },
+    { label: "지역", value: `${partyDetail?.addr1} / ${partyDetail?.addr2}` },
+    {
+      label: "날짜",
+      value: partyDetail ? formatActivityDays(partyDetail?.activityDays) : "",
+    },
+    { label: "시간", value: partyDetail?.activityTime },
     {
       label: "급수",
-      value: (
-        <div className="flex flex-col">
-          <div className="flex gap-1">
-            <span>
-              <FemaleIcon />
-            </span>
-            <span>전국 초심 ~ 준자강</span>
-          </div>
-          <div className="flex gap-1">
-            <span>
-              <MaleIcon />
-            </span>
-            <span>전국 준자강 이상</span>
-          </div>
-        </div>
+      value: partyDetail ? (
+        getLevelValue(partyDetail?.femaleLevel, partyDetail?.maleLevel)
+      ) : (
+        <></>
       ),
     },
-    { label: "나이", value: "1990 ~ 2005년생" },
-    { label: "회비", value: "10,000원" },
-    { label: "가입비", value: "10,000원" },
+    {
+      label: "나이",
+      value: `${partyDetail?.minBirthYear} ~ ${partyDetail?.maxBirthYear}`,
+    },
+    { label: "회비", value: partyDetail?.price },
+    { label: "가입비", value: partyDetail?.joinPrice },
     {
       label: "지정콕",
-      value: "삼화더블랙, 삼화더블랙, 삼화더블랙",
+      value: partyDetail?.designatedCock,
     },
   ];
-
-  const tagData = [
-    "브랜드 스폰",
-    "가입비 무료",
-    "친목",
-    "운영진이 게임을 짜드려요",
-  ];
-
-  const describe =
-    "민턴클로버는 성남시 2030을 대상으로 하는 운동입니다! 함께 하고 싶으신 분들은 연락주세요~";
 
   const visibleItems = isExpanded ? items : items.slice(0, 4);
 
@@ -121,10 +136,12 @@ export const GroupHomePage = () => {
         <div className="flex p-3 gap-3">
           <div className="w-30 h-30 border-hard bg-gy-500 shrink-0"></div>
           <div className="flex flex-col flex-1">
-            <div className="body-rg-500 text-left mb-2">{group.name}</div>
+            <div className="body-rg-500 text-left mb-2">
+              {partyDetail?.partyName}
+            </div>
             <div className="flex flex-col gap-2">
               {visibleItems.map(item => (
-                <GroupInfoList items={item} />
+                <GroupInfoList items={item} key={item.label} />
               ))}
             </div>
 
@@ -148,20 +165,21 @@ export const GroupHomePage = () => {
         </div>
 
         <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
-          {tagData.map((data, idx) => (
-            <div
-              className="inline-flex items-center gap-1 rounded-full py-2 pl-2.5 pr-3 border-1 border-gy-200 shadow-ds50 body-rg-500"
-              key={idx}
-            >
-              <img src={HashIcon} className="w-4 h-4 shrink-0" />
-              <span>{data}</span>
-            </div>
-          ))}
+          {partyDetail &&
+            partyDetail.keywords.map((data, idx) => (
+              <div
+                className="inline-flex items-center gap-1 rounded-full py-2 pl-2.5 pr-3 border-1 border-gy-200 shadow-ds50 body-rg-500"
+                key={idx}
+              >
+                <img src={HashIcon} className="w-4 h-4 shrink-0" />
+                <span>{data}</span>
+              </div>
+            ))}
         </div>
 
         <div className="w-full p-4 flex items-center gap-2 border-1 border-gr-500 border-soft">
           <img src={CautionIcon} className="size-5" />
-          <div className="text-left body-rg-500">{describe}</div>
+          <div className="text-left body-rg-500">{partyDetail?.content}</div>
         </div>
       </div>
 
