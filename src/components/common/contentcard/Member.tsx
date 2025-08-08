@@ -23,13 +23,13 @@ type MemberStatus =
 interface MemberProps {
   status: MemberStatus;
   name: string;
-  gender: "MALE" | "female";
+  gender: "MALE" | "FEMALE";
   level: string;
   birth?: string;
   showStar?: boolean;
   isGuest?: boolean;
   guestName?: string;
-  number?: number;
+  number?: number | string;
   isMe?: boolean;
   isLeader?: boolean;
 
@@ -174,9 +174,7 @@ export const Member = ({
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">
-                No. {number?.toString().padStart(2, "0")}
-              </p>
+              <p className="body-md-500">{number}</p>
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo
                 name={name}

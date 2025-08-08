@@ -112,12 +112,16 @@ export const InviteGuest = () => {
   console.log(data);
 
   const { toKor } = userLevelMapper();
+
   const InviteGuestList = data?.list.map(
     (item: ResponseInviteGuest, idx: number) => {
       const apilevel = toKor(item.level);
       const responseLevelValue =
         apilevel === "disabled" ? "급수 없음" : apilevel;
-
+      const watiingNum =
+        idx <= 9
+          ? `No.${(idx + 1).toString().padStart(2, "0")}`
+          : `대기 ${item.participantNumber}`; // guestName 없으면 빈 문자열
       return (
         <Member
           key={item.guestId}
@@ -125,7 +129,7 @@ export const InviteGuest = () => {
           {...item}
           guestName={item.inviterName}
           gender={item.gender}
-          number={idx + 1}
+          number={watiingNum}
           level={responseLevelValue}
           showDeleteButton={true}
           useDeleteModal={false}
