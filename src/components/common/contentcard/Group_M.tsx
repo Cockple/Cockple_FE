@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
+import { useMutation } from "@tanstack/react-query";
+import { bookmarkGroup, unbookmarkGroup } from "../../../api/bookmark/bookmark";
 
 interface GroupMProps {
   id: number;
@@ -33,14 +35,47 @@ export const Group_M = ({
   onToggleFavorite,
   onClick,
 }: GroupMProps) => {
+  //const queryClient = useQueryClient();
   const [isPressing, setIsPressing] = useState(false);
   const [favorite, setFavorite] = useState(like);
+
+  useEffect(() => {
+    setFavorite(like);
+  }, [like]);
+
+  // 모임 찜
+  const bookmarkMutation = useMutation({
+    mutationFn: bookmarkGroup,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["groupBookmarks"] });
+    // },
+    // onError: () => {
+    //   setFavorite(false); // rollback
+    // },
+  });
+
+  //모임 찜 해제
+  const unbookmarkMutation = useMutation({
+    mutationFn: unbookmarkGroup,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["groupBookmarks"] });
+    // },
+    // onError: () => {
+    //   setFavorite(true); // rollback
+    // },
+  });
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
+
+    if (newFavorite) {
+      bookmarkMutation.mutate(id);
+    } else {
+      unbookmarkMutation.mutate(id);
+    }
   };
 
   return (

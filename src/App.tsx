@@ -142,14 +142,20 @@ const router = createBrowserRouter([
 
       { path: "/group/recommend", element: <GroupRecommendPage /> },
       {
-        path: "/group/:groupId/member-request",
+        path: "/group/:partyId/member-request",
         element: <MemberRequestPage />,
       },
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/Mygroup/MyExerciseDetail", element: <MyExerciseDetail /> },
-      { path: "/group/Mygroup/ExerciseDetailApplye", element: <ExerciseDetailApply /> }, 
+      {
+        path: "/group/Mygroup/MyExerciseDetail",
+        element: <MyExerciseDetail />,
+      },
+      {
+        path: "/group/Mygroup/ExerciseDetailApplye",
+        element: <ExerciseDetailApply />,
+      },
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },

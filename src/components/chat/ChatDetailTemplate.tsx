@@ -12,12 +12,13 @@ import { formatTime } from "../../utils/formatDate";
 
 import type { ChatMessageResponse } from "../../types/chat";
 import { useNavigate } from "react-router-dom";
+import { fetchChatMessages } from "../../api/chat/chattingMessage";
 
 interface ChatDetailTemplateProps {
   chatId: string;
   chatName: string;
   chatType: "group" | "personal";
-  chatData: Record<string, ChatMessageResponse[]>;
+  //chatData: Record<string, ChatMessageResponse[]>;
   onBack: () => void;
   showHomeButton?: boolean;
   partyId?: number;
@@ -26,7 +27,7 @@ interface ChatDetailTemplateProps {
 export const ChatDetailTemplate = ({
   chatId,
   chatName,
-  chatData,
+  //chatData,
   onBack,
   showHomeButton = false,
   partyId,
@@ -43,11 +44,24 @@ export const ChatDetailTemplate = ({
 
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   if (chatId && chatData[chatId]) {
+  //     setChattings(chatData[chatId]);
+  //   }
+  // }, [chatId, chatData]);
   useEffect(() => {
-    if (chatId && chatData[chatId]) {
-      setChattings(chatData[chatId]);
-    }
-  }, [chatId, chatData]);
+    const loadInitialMessages = async () => {
+      try {
+        const res = await fetchChatMessages(chatId);
+        setChattings(res.messages);
+        // 필요하면 nextCursor 저장
+      } catch (error) {
+        console.error("채팅 메시지 불러오기 실패:", error);
+      }
+    };
+
+    loadInitialMessages();
+  }, [chatId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -100,7 +114,9 @@ export const ChatDetailTemplate = ({
         fileId: Date.now(),
         fileName: file.name,
         fileSize: file.size,
-        fileUrl: fileUrl,
+        mimeType: file.type,
+        thumbnailUrl: fileUrl,
+        downUrl: fileUrl,
       },
       createdAt: now,
       updatedAt: now,
