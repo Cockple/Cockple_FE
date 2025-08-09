@@ -8,8 +8,8 @@ import { useOnboardingState } from "../../store/useOnboardingStore";
 import api from "../../api/api";
 import { useState } from "react";
 import type { onBoardingRequestDto } from "../../types/auth";
-import { getApiLevel } from "../../utils/onboardingAPIMap";
 import useUserStore from "../../store/useUserStore";
+import { userLevelMapper } from "../../utils/levelValueExchange";
 
 export const ConfirmPage = () => {
   const navigate = useNavigate();
@@ -30,6 +30,7 @@ export const ConfirmPage = () => {
   const { resetUser } = useUserStore();
 
   const [selectedTag, setSelectedTag] = useState<string[]>(keyword ?? []);
+  const { toEng } = userLevelMapper();
   //태그 선택
   const toggleTag = (tag: string) => {
     const tagUpdated = selectedTag.includes(tag)
@@ -56,7 +57,7 @@ export const ConfirmPage = () => {
       memberName,
       gender: gender?.toUpperCase(),
       birth: birth.split(".").join("-"),
-      level: getApiLevel(level),
+      level: toEng(level),
       keywords: mappedKeywords,
     };
     return axios.post("/api/my/details", body);
