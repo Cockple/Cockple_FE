@@ -53,25 +53,27 @@ export const LocationMapPage = () => {
     const kakao = window.kakao;
     if (!mapRef.current || !kakao || !x || !y) return;
 
-    const lat = parseFloat(y);
-    const lng = parseFloat(x);
-    const centerPos = new kakao.maps.LatLng(lat, lng);
+    kakao.maps.load(() => {
+      const lat = parseFloat(y);
+      const lng = parseFloat(x);
+      const centerPos = new kakao.maps.LatLng(lat, lng);
 
-    const mapOption = {
-      center: centerPos,
-      level: 2,
-      draggable: true,
-      srcollwheel: true,
-    };
+      const mapOption = {
+        center: centerPos,
+        level: 2,
+        draggable: true,
+        srcollwheel: true,
+      };
 
-    const map = new kakao.maps.Map(mapRef.current, mapOption);
+      const map = new kakao.maps.Map(mapRef.current, mapOption);
 
-    new kakao.maps.Marker({
-      position: centerPos,
-      map,
-      image: new kakao.maps.MarkerImage(Marker, new kakao.maps.Size(40, 40), {
-        offset: new kakao.maps.Point(20, 20),
-      }),
+      new kakao.maps.Marker({
+        position: centerPos,
+        map,
+        image: new kakao.maps.MarkerImage(Marker, new kakao.maps.Size(40, 40), {
+          offset: new kakao.maps.Point(20, 20),
+        }),
+      });
     });
   }, [x, y]);
   return (
