@@ -7,7 +7,7 @@ interface ProfileProps {
   gender: "female" | "male";
   level: string;
   birth?: string;
-  profileImage: File | null | undefined;
+  profileImage: File | string | null | undefined;
 }
 
 export const Profile = ({
@@ -28,10 +28,13 @@ export const Profile = ({
       return () => {
         URL.revokeObjectURL(objectUrl);
       };
+    } else if (typeof profileImage === "string") {
+      setImageUrl(profileImage);
     } else {
-      setImageUrl("/default-profile.png"); 
+      setImageUrl("/default-profile.png");
     }
   }, [profileImage]);
+
 
 
   return (

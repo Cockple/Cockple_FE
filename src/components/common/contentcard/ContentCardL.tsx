@@ -13,6 +13,7 @@ import {
   bookmarkExercise,
   unbookmarkExercise,
 } from "../../../api/bookmark/bookmark";
+import CautionExerciseModals from "../../like/CautionExerciseModal";
 
 interface ContentCardLProps {
   id: number;
@@ -28,6 +29,7 @@ interface ContentCardLProps {
   currentCount: number;
   totalCount: number;
   like?: boolean;
+  LikeCount?: number; 
   onToggleFavorite?: (id: number) => void;
 }
 export type { ContentCardLProps };
@@ -46,6 +48,7 @@ export const ContentCardL = ({
   currentCount,
   totalCount,
   like = false,
+  LikeCount,
   onToggleFavorite,
 }: ContentCardLProps) => {
   const navigate = useNavigate();
@@ -55,7 +58,7 @@ export const ContentCardL = ({
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
-
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //운동 50개 넘어가면 모달창
   //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
 
@@ -84,6 +87,11 @@ export const ContentCardL = ({
   });
 
   const handleToggleFavorite = () => {
+    if (!favorite && (LikeCount ?? 0) >= 50) {
+      setShowFavoriteLimitModal(true);
+      return;
+    }
+
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
@@ -94,6 +102,7 @@ export const ContentCardL = ({
       unbookmarkMutation.mutate(id);
     }
   };
+
 
   function getDayOfWeek(dateString: string): string {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
@@ -187,6 +196,16 @@ export const ContentCardL = ({
               게스트 초대하기
             </button>
           )}
+        </div>
+      )}
+      {showFavoriteLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <CautionExerciseModals
+            onClose={() => setShowFavoriteLimitModal(false)}
+            onApprove={() => {
+              setShowFavoriteLimitModal(false);
+            }}
+          />
         </div>
       )}
     </div>
