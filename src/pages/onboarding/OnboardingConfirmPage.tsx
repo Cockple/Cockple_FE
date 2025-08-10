@@ -7,8 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useOnboardingState } from "../../store/useOnboardingStore";
 import api from "../../api/api";
 import { useState } from "react";
-import type { onBoardingRequestDto } from "../../types/auth";
-import useUserStore from "../../store/useUserStore";
+import type { OnBoardingResponseDto } from "../../types/auth";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 
 export const ConfirmPage = () => {
@@ -51,7 +50,7 @@ export const ConfirmPage = () => {
       : ["NONE"];
 
   //onboarding
-  const submitOnboarding = () => {
+  const submitOnboarding = async (): Promise<OnBoardingResponseDto> => {
     const body = {
       memberName,
       gender: gender?.toUpperCase(),
@@ -59,23 +58,31 @@ export const ConfirmPage = () => {
       level: toEng(level),
       keywords: mappedKeywords,
     };
-    return axios.post("/api/my/details", body);
+    const { data } = await axios.post<OnBoardingResponseDto>(
+      "/api/my/details",
+      body,
+    );
+    return data;
   };
-  //그룹추천
-  const submitGroupMaking = () => {
+  // 그룹추천
+  const submitGroupMaking = async (): Promise<OnBoardingResponseDto> => {
     const body = {
-      // memberName,
-      // gender: gender?.toUpperCase(),
-      // birth: birth.split(".").join("-"),
-      // level: getApiLevel(level),
-      // keywords: mappedKeywords,
+      memberName,
+      gender: gender?.toUpperCase(),
+      birth: birth.split(".").join("-"),
+      level: toEng(level),
+      keywords: mappedKeywords,
     };
-    return axios.post("/api/my/details", body);
+    const { data } = await axios.post<OnBoardingResponseDto>(
+      "/api/my/details",
+      body,
+    );
+    return data;
   };
-  //
-  const handleSubmitForm = useMutation({
+
+  const handleSubmitForm = useMutation<OnBoardingResponseDto>({
     mutationFn: () => (onboarding ? submitOnboarding() : submitGroupMaking()),
-    onSuccess: ({ data }: onBoardingRequestDto) => {
+    onSuccess: data => {
       console.log(data);
       console.log("성공");
 
