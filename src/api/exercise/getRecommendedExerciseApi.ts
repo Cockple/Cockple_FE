@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CommenResponse } from "../../types/common";
+import type { CommonResponse } from "../../types/common";
 
 import api from "../api";
 import type {
@@ -21,7 +21,7 @@ interface FetchCalendarParams {
 export const fetchRecommendedCalendar = async (
   params: FetchCalendarParams,
 ): Promise<RecommendCalendarData> => {
-  const res = await api.get<CommenResponse<RecommendCalendarData>>(
+  const res = await api.get<CommonResponse<RecommendCalendarData>>(
     "/api/exercises/recommendations/calendar",
     { params },
   );
@@ -31,7 +31,7 @@ export const fetchRecommendedCalendar = async (
 
 // API 호출 함수
 export const getRecommendedExercise = async () => {
-  const res = await api.get<CommenResponse<RecommendedExerciseData>>(
+  const res = await api.get<CommonResponse<RecommendedExerciseData>>(
     "/api/exercises/recommendations",
   );
   return res.data.data;

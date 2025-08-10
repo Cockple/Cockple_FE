@@ -1,4 +1,4 @@
-import type { CommenResponse } from "./common";
+import type { CommonResponse } from "./common";
 
 //카카오 로그인
 export type KakaoLoginResponseDTO = {
@@ -18,4 +18,4 @@ export type OnBoarding = {
   imgKey?: string;
   keywords: string;
 };
-export type onBoardingRequestDto = CommenResponse<OnBoarding[]>;
+export type onBoardingRequestDto = CommonResponse<OnBoarding[]>;

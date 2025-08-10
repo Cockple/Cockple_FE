@@ -1,5 +1,5 @@
 import type { CalendarData } from "../../types/calendar";
-import type { CommenResponse } from "../../types/common";
+import type { CommonResponse } from "../../types/common";
 import api from "../api";
 
 /**
@@ -10,7 +10,7 @@ export const getMyExerciseCalendarApi = async (
   endDate: string | null,
 ): Promise<CalendarData> => {
   try {
-    const response = await api.get<CommenResponse<CalendarData>>(
+    const response = await api.get<CommonResponse<CalendarData>>(
       "/api/exercises/my/calender",
       {
         params: { startDate, endDate },

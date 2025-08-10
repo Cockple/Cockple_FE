@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CommenResponse } from "../../types/common";
+import type { CommonResponse } from "../../types/common";
 import api from "../api";
 
 export interface PartyDetailResponse {
@@ -27,7 +27,7 @@ export const getPartyDetail = async (partyId: number) => {
   if (!partyId) {
     throw new Error("유효하지 않은 partyId");
   }
-  const response = await api.get<CommenResponse<PartyDetailResponse>>(
+  const response = await api.get<CommonResponse<PartyDetailResponse>>(
     `/api/parties/${partyId}`,
   );
   console.log(response.data.data);

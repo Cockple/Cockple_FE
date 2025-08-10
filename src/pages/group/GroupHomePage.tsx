@@ -149,7 +149,7 @@ export const GroupHomePage = () => {
 
         <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
           {partyDetail &&
-            partyDetail.keywords.map((data, idx) => (
+            partyDetail.keywords.map((data: string, idx: number) => (
               <div
                 className="inline-flex items-center gap-1 rounded-full py-2 pl-2.5 pr-3 border-1 border-gy-200 shadow-ds50 body-rg-500"
                 key={idx}
