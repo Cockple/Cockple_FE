@@ -4,7 +4,7 @@ import type { ChatMessageResponse } from "../types/chat";
 import ProfileImg from "../assets/images/profile_Image.png";
 import { useMemo, useState } from "react";
 
-// 🧪 Mock 메시지 생성기
+// Mock 메시지 생성기
 const makeMockMessages = (
   total: number,
   currentUserId: number,
@@ -45,7 +45,7 @@ const uniqueById = (arr: ChatMessageResponse[]) => {
 
 // ─────────────────────────────────────────────────────────────
 // useMockChatInfinite: 실제 훅과 동일한 인터페이스로 동작
-export const useMockChatInfinite = (roomId: string, currentUserId: number) => {
+export const useMockChatInfinite = (currentUserId: number) => {
   const PAGE_SIZE = 30;
   const [all] = useState<ChatMessageResponse[]>(() =>
     sortAsc(makeMockMessages(150, currentUserId)),

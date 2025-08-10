@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Arrow_right_GY from "../../../assets/icons/arrow_right_GY.svg?react"; 
 import Arrow_right from "../../../assets/icons/arrow_right.svg?react";
 

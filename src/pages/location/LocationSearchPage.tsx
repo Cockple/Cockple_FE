@@ -9,6 +9,7 @@ import { LocationList } from "../../components/common/contentcard/LocationList";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
+import useUserStore from "../../store/useUserStore";
 
 export interface Place {
   id?: string;
@@ -32,7 +33,7 @@ export const LocationSearchPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const location = useLocation();
   //onboarding
-  const [isOnboarding, setIsOnboarding] = useState(false);
+  const [isOnboarding, setIsOnboarding] = useState<boolean | undefined>(false);
   const [returnPath, setIsReturnPath] = useState(
     location.state?.returnPath ?? "/",
   );
@@ -151,13 +152,11 @@ export const LocationSearchPage = () => {
       console.log(returnPath);
     }
   };
+
+  const { user } = useUserStore();
   useEffect(() => {
-    const raw = sessionStorage.getItem("user");
-    const parsed = JSON.parse(raw ?? "{}");
-    const memberId = parsed?.state?.user?.memberId;
-
-    const isValidMember = typeof memberId === "number" && memberId > 0;
-
+    const isValidMember = user?.isNewMember;
+    console.log(isValidMember);
     setIsOnboarding(isValidMember);
 
     const fromRouter = location.state?.returnPath;

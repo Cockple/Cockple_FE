@@ -26,21 +26,6 @@ interface MyPageExerciseDetailPageProps {
   waitingMembers?: MemberProps[];
 }
 
-// export const MyPageExerciseDetailPage = ({
-//   notice = "",
-//   placeName = "",
-//   placeAddress = "",
-
-//   participantsCount = 0,
-//   participantGenderCount = { male: 0, female: 0 },
-//   participantMembers = [],
-
-//   waitingCount = 0,
-//   waitingGenderCount = { male: 0, female: 0 },
-//   waitingMembers = [],
-// }: MyPageExerciseDetailPageProps) => {
-
-// export const MyPageExerciseDetailPage = ({
 export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
   const {
     notice = "명찰을 위한 신분증",
@@ -49,44 +34,48 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
-      {
-        status: "Participating",
-        name: "홍길동",
-        gender: "male",
-        level: "A조",
-        isMe: false,
-        isLeader: true,
-        position: "leader",
-      },
-      {
-        status: "Participating",
-        name: "김민수",
-        gender: "male",
-        level: "B조",
-        isMe: true,
-        isLeader: false,
-        position: "sub_leader",
-      },
-      {
-        status: "Participating",
-        name: "이지은",
-        gender: "female",
-        level: "C조",
-        isMe: false,
-        isLeader: false,
-        position: null,
-      },
-      {
-        status: "Participating",
-        name: "박서준",
-        gender: "male",
-        level: "D조",
-        isMe: false,
-        isLeader: false,
-        position: null,
-      },
-    ],
-  } = props;
+        {
+          requestId: 1,
+          status: "Participating",
+          name: "홍길동",
+          gender: "MALE", 
+          level: "A조",
+          isMe: false,
+          isLeader: true,
+          position: "leader",
+        },
+        {
+          requestId: 2,
+          status: "Participating",
+          name: "김민수",
+          gender: "MALE",
+          level: "B조",
+          isMe: true,
+          isLeader: false,
+          position: "sub_leader",
+        },
+        {
+          requestId: 3,
+          status: "Participating",
+          name: "이지은",
+          gender: "FEMALE",
+          level: "C조",
+          isMe: false,
+          isLeader: false,
+          position: null,
+        },
+        {
+          requestId: 4,
+          status: "Participating",
+          name: "박서준",
+          gender: "MALE",
+          level: "D조",
+          isMe: false,
+          isLeader: false,
+          position: null,
+        },
+      ],
+      } = props;
 
   const [members, setMembers] = useState<MemberProps[]>(participantMembers);
 
@@ -241,10 +230,13 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
                 // 하드 코드
                 const myWaitingMember: MemberProps = {
                   status: "waiting",
-                  name: "나", // 혹은 유저 이름 정보 가져올 수 있으면 대체
-                  gender: "female", // 또는 "male" 실제 유저 성별로
-                  level: "미정", // 없으면 "미정" 또는 생략
-                  isMe: true,
+                  requestId: 1,
+                  name: "오류제바류ㅠ",
+                  gender: "MALE", 
+                  level: "D조",
+                  isMe: false,
+                  isLeader: true,
+                  position: "leader",
                 };
 
                 const updated = [...waitingMembers, myWaitingMember];

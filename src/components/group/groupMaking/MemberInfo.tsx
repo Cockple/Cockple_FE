@@ -9,7 +9,7 @@ const MemberInfo = ({
   guestName,
 }: {
   name: string;
-  gender: "male" | "female";
+  gender: "MALE" | "FEMALE";
   level: string;
   isGuest?: boolean;
   guestName?: string;
@@ -21,7 +21,7 @@ const MemberInfo = ({
         <p className="header-h5 text-black">{name}</p>
       </div>
       <div className="flex items-center gap-[0.25rem] body-sm-500">
-        {gender === "female" ? (
+        {gender === "FEMALE" ? (
           <Female className="w-[1rem] h-[1rem]" />
         ) : (
           <Male className="w-[1rem] h-[1rem]" />
