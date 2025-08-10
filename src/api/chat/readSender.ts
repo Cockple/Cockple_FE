@@ -1,7 +1,7 @@
 import api from "../api";
 
 export type ReadPayload = {
-  chatRoomId: string;
+  chatRoomId: number;
   lastReadMessageId?: number;
   readAt?: string;
 };
@@ -15,7 +15,7 @@ export interface ChatReadSender {
   send(payload: ReadPayload): Promise<ReadResult>;
 }
 
-const READ_REST_ENDPOINT = (roomId: string) => `/api/chats/${roomId}/read-all`; // TODO: 백엔드 확정 후 수정!!!!!!
+const READ_REST_ENDPOINT = (roomId: number) => `/api/chats/${roomId}/read-all`; // TODO: 백엔드 확정 후 수정!!!!!!
 
 /** REST 버전(아직 URL 미정) */
 export const restReadSender: ChatReadSender = {
