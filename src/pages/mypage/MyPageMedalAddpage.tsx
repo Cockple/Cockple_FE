@@ -3,7 +3,7 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { ImageBox } from "../../components/common/ImageBox";
 import { Modal_Add_Caution } from "../../components/MyPage/Modal_Add_Caution";
 import { Modal_Caution_Name } from "../../components/MyPage/Modal_Caution_Name";
-import { useNavigate, useLocation, useParams  } from "react-router-dom";
+import { useNavigate, useLocation  } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
@@ -96,7 +96,7 @@ export const MyPageMedalAddPage = () => {
   const [initialData, setInitialData] = useState<MedalDetail | null>(null);
 
 // API에서 contestId로 상세 데이터 불러오기
-const fetchContestDetail = async (id: string) => {
+const fetchContestDetail = async (contestId: string) => {
   try {
     const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
     setInitialData({

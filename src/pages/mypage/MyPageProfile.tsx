@@ -5,7 +5,7 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { MyPage_Profile_Medal } from "../../components/common/contentcard/MyPage_Profile_Medal";
 import { getProfile } from "../../api/member/profile";
-import { getOtherUserMedals } from "../../api/contest/member"; //이거 확인해라
+// import { getOtherUserMedals } from "../../api/contest/member"; //이거 확인해라
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -45,6 +45,15 @@ export const MyPageProfile = () => {
     };
     fetchProfile();
   }, [numericMemberId]);
+
+  if (loading) {
+  return <div className="text-center py-10">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-10 text-red-500">에러: {error}</div>;
+  }
+
 
   return (
     <div className="flex flex-col overflow-hidden w-full">

@@ -29,12 +29,6 @@ interface MyMedalProps {
 }
 
 export const MyPageProfileMedal = ({
-  // name = "",
-  // gender = "",
-  // group = "",
-  // birth = "",
-  // imageSrc = "",
-
   myMedalTotal = 0,
   goldCount = 0,
   silverCount = 0,
@@ -99,14 +93,15 @@ export const MyPageProfileMedal = ({
           </div>
 
           <div className="flex flex-col gap-4">
-            {filteredList.map((item, idx) => (
+            {/* 다른 회원 메달 API X */}
+            {/* {filteredList.map((item, idx) => (
               <MyMedal
                 key={idx}
                 title={item.title}
                 date={item.date}
                 medalImageSrc={item.medalImageSrc}
               />
-            ))}
+            ))} */}
           </div>
         </>
       )}
