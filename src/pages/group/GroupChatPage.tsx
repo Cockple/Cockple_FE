@@ -19,7 +19,23 @@ export const GroupChatPage = () => {
   const [isMember, setIsMember] = useState(false);
 
   // 나중에 태연이가 PR 올리면 그 파일 사용!!-------------------------------------------------------------------------->
-  const getMyParties = async (created: false, page: 0, size: 20) => {
+  type MyParties = {
+    partyId: number;
+    partyName: string;
+    addr1: string;
+    addr2: string;
+    femailLevel: string[];
+    maleLevel: string[];
+    nextExerciseInfo: string;
+    totalExerciseCount: number;
+    partyImgUrl: string;
+  };
+
+  const getMyParties = async (
+    created: false,
+    page: 0,
+    size: 20,
+  ): Promise<MyParties[]> => {
     const res = await api.get(`/api/my/parties`, {
       params: { created, page, size },
       headers: {
@@ -36,7 +52,7 @@ export const GroupChatPage = () => {
       try {
         const res = await getMyParties(false, 0, 20);
         console.log("내 모임 조회: ", res);
-        if (res.some(party => party.partyId === groupId)) {
+        if (res.some(party => party.partyId === Number(groupId))) {
           setIsMember(true);
         }
 
@@ -60,9 +76,9 @@ export const GroupChatPage = () => {
   if (isMember) {
     return (
       <GroupChatDetailTemplate
-        chatId={groupId}
-        //chatName={chatName}
-        chatType="group"
+        chatId={Number(groupId)}
+        chatName="" // 추후 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //chatType="group"
         //chatData={groupChatDataMap}
         onBack={() =>
           navigate(`/group/${groupId}`, { state: { tab: "group" } })

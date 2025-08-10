@@ -39,27 +39,29 @@ export interface ChatRoomInfo {
 
 export interface ChatMessageResponse {
   messageId: number;
-  chatRoomId: number;
   senderId: number;
   senderName: string;
   senderProfileImage: string;
-  messageType: "TEXT" | "IMAGE";
   content: string;
-  reactions: Reaction[];
-  replyTo: null | number;
-  fileInfo: FileInfo | null;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
+  messageType: "TEXT" | "IMAGE";
+  imgUrls: string[];
+  //reactions: Reaction[];
+  //replyTo: null | number;
+  //fileInfo: FileInfo | null;
+  //isDeleted: boolean;
+  //createdAt: string;
+  //updatedAt: string;
+  timestamp: string;
+  isMyMessage: boolean;
 }
 
-interface Reaction {
-  reactionId: number;
-  emoji: string;
-  count: number;
-  userReacted: boolean;
-  reactedUsers: string[];
-}
+// interface Reaction {
+//   reactionId: number;
+//   emoji: string;
+//   count: number;
+//   userReacted: boolean;
+//   reactedUsers: string[];
+// }
 
 export interface FileInfo {
   fileId: number;
@@ -68,4 +70,10 @@ export interface FileInfo {
   mimeType: string;
   thumbnailUrl: string;
   downUrl: string;
+}
+
+export interface Participants {
+  memberId: number;
+  memberName: string;
+  profileImgUrl: string;
 }

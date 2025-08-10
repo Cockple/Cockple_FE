@@ -13,10 +13,15 @@ import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
 import { getModalConfig } from "../../group/modalConfig";
 
-type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
+type MemberStatus =
+  | "Participating"
+  | "waiting"
+  | "invite"
+  | "request"
+  | "approved";
 
 interface MemberProps {
-  requestId: number; // joinRequestId를 매핑
+  requestId?: number; // joinRequestId를 매핑
   status: MemberStatus;
   name: string;
   gender: "MALE" | "FEMALE";
