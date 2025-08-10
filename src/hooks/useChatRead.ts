@@ -8,10 +8,19 @@ import {
 } from "../api/chat/readSender";
 
 type Params = {
-  roomId: string;
+  roomId: number;
   messages?: ChatMessageResponse[]; //최신 ID 계산용
   mode?: ChatReadMode; // "mock" | "rest" | "ws"
   wsSendFn?: (p: ReadPayload) => Promise<{ lastReadMessageId?: number }>; // WS 전용
+};
+
+// 👇 캐시에 들어있는 최소 형태만 정의 (확장 가능)
+type ChatInitialCache = {
+  chatRoomInfo?: {
+    lastReadMessageId?: number | null;
+    // 다른 필드가 있어도 깨지지 않도록 선택형으로 둠
+  };
+  // 필요한 경우 나머지 필드도 여기에 추가
 };
 
 export const useChatRead = ({
@@ -49,20 +58,23 @@ export const useChatRead = ({
       setLastReadId(effective);
 
       // React Query 캐시에 lastReadMessageId 반영
-      qc.setQueryData<any>(["chat", roomId, "initial"], prev => {
-        if (!prev) return prev;
-        const prevId = prev?.chatRoomInfo?.lastReadMessageId ?? null;
-        if (effective && effective !== prevId) {
-          return {
-            ...prev,
-            chatRoomInfo: {
-              ...prev.chatRoomInfo,
-              lastReadMessageId: effective,
-            },
-          };
-        }
-        return prev;
-      });
+      qc.setQueryData<ChatInitialCache | undefined>(
+        ["chat", roomId, "initial"],
+        prev => {
+          if (!prev) return prev;
+          const prevId = prev?.chatRoomInfo?.lastReadMessageId ?? null;
+          if (effective && effective !== prevId) {
+            return {
+              ...prev,
+              chatRoomInfo: {
+                ...prev.chatRoomInfo,
+                lastReadMessageId: effective,
+              },
+            };
+          }
+          return prev;
+        },
+      );
     },
   });
 

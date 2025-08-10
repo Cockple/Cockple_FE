@@ -13,7 +13,7 @@ export interface GetChatMessagesResponse {
 
 // 최초 진입(현재 윈도우) 불러오기
 export const fetchChatMessages = async (
-  roomId: string,
+  roomId: number,
 ): Promise<GetChatMessagesResponse> => {
   const response = await api.get(`/api/chats/rooms/${roomId}`, {
     headers: {
@@ -38,7 +38,7 @@ export const fetchPreviousMessages = async ({
   cursor,
   size = 50,
 }: {
-  roomId: string;
+  roomId: number;
   cursor: number; // 마지막으로 읽은 메시지ID
   size?: number;
 }): Promise<FetchPreviousRes> => {

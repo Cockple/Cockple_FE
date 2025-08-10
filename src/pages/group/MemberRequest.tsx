@@ -82,7 +82,7 @@ const MemberRequestPage = () => {
       requestId: item.joinRequestId,
       status,
       name: item.nickname,
-      gender: item.gender === "FEMALE" ? "female" : "male",
+      gender: item.gender,
       level: item.level,
       birth: status === "request" ? item.createdAt : item.updatedAt,
     });
