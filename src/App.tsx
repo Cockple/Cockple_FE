@@ -72,6 +72,7 @@ import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 
+
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
@@ -122,10 +123,14 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
+      { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
+
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
-      { path: "/mypage/profile", element: <MyPageProfile /> },
+      // { path: "/mypage/profile", element: <MyPageProfile /> },
+      { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
       { path: "/mypage/profile/medal", element: <MyPageProfileMedal /> },
 
@@ -200,6 +205,7 @@ function App() {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
+  
   return (
     <div className="w-full flex justify-center items-center">
       <main

@@ -16,6 +16,7 @@ const CautionGroupModal = ({
   onApprove,
   //memberName,
 }: cautionGroupModalProps) => {
+  
   return (
     <div className="flex flex-col bg-white border-round p-3 w-[21.4375rem] shadow-ds300">
       <div className="flex w-[19.9375rem] justify-between items-center">
