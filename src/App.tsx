@@ -125,6 +125,7 @@ const router = createBrowserRouter([
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
       { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },

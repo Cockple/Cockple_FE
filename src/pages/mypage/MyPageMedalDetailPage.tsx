@@ -8,12 +8,14 @@ import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
 import Kitty from "../../assets/images/Image Carousel.png";
+import { getContestRecordDetail, deleteContestRecord } from "../../api/contest/contestmy";
+import type { ContestRecordDetailResponse } from  "../../api/contest/contestmy";
 
 interface MyPageMedalDetailPageProps {
   photo?: File | string | (File | string)[];
   title?: string; // 대회명
   date?: string; // 날짜
-  participationType?: string; // 참여 형태
+  participationType?: string; // 참여 형태 //이거 서버랑 다르게 나오니 확인 후 수정
   record?: string; // 대회 기록
   videoUrl?: string[]; // 영상 링크 여러개
 }
@@ -28,39 +30,41 @@ interface MedalDetail {
 }
 
 export const MyPageMedalDetailPage = ({
-  // videoUrl = ["https://www.youtube.com/watch?v=TpPwI_Lo0YY&list=PLGa3uxog5E0vn3sJ7abmZNysTye6pSbn6"],
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
-  const { contestId } = useParams<{ contestId: string }>();
+  const { contestId } = useParams();
+  console.log(contestId);
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-// 경로 에러 나옴 
-useEffect(() => {
+  
+  useEffect(() => {
   if (!contestId) return;
 
-  fetch(`/api/contests/my/${contestId}`, {
-    headers: { Accept: "application/json" },
-  })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`서버 응답 실패: ${res.status}`);
-      }
-      return res.json();
-    })
-    .then(({ data }) => {
+  const fetchData = async () => {
+    try {
+      const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
+      console.log("API 응답 데이터:", data);  
+      // 서버 상대 경로를 절대 URL로 변환 (예: 이미지 서버 주소 앞에 붙이기)
+      // const baseUrl = "https://yourserver.com/"; // 실제 서버 주소로 변경 필요
+      // const photos = data.contestImgs.map(img => img.startsWith("http") ? img : baseUrl + img);
+
       setMedalDetail({
-        title: `Party ID: ${data.partyId}`,
-        date: data.createdAt,
-        participationType: "",
-        record: "",
-        photo: [],
-        videoUrl: [],
+        title: data.contestName,
+        date: data.date,
+        participationType: `${data.type} - ${data.level}`,
+        record: data.content,
+        // photo: photos,
+        videoUrl: data.contestVideos,
       });
-    })
-    .catch(err => {
-      console.error("API 호출 실패 또는 JSON 파싱 오류", err);
+      console.log("대회명:", data.contestName);
+
+    } catch (error) {
+      console.error("대회 기록 상세 조회 실패", error);
       setMedalDetail(null);
-    });
+    }
+  };
+
+  fetchData();
 }, [contestId]);
 
 
@@ -178,6 +182,7 @@ useEffect(() => {
             navigate("/mypage/mymedal/add", {
               state: {
                 mode: "edit",
+                contestId: contestId,  // 값 넘김 
                 medalData: {
                   title: medalDetail.title,
                   date: medalDetail.date,
@@ -197,9 +202,16 @@ useEffect(() => {
       {isDeleteModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Delete
-            onConfirm={() => {
-              setIsDeleteModalOpen(false);
-              console.log("삭제");
+            onConfirm={async () => {
+              try {
+                if (!contestId) return;
+                await deleteContestRecord(Number(contestId));
+                setIsDeleteModalOpen(false);
+                navigate("/mypage/mymedal");
+              } catch (error) {
+                console.error("삭제 실패", error);
+                alert("삭제하지 못했습니다. 다시 시도해주세요");
+              }
             }}
             onCancel={() => setIsDeleteModalOpen(false)}
           />

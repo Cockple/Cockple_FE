@@ -3,7 +3,7 @@ import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import { useNavigate } from "react-router-dom";
 
 interface MyMedalProps {
-  id: number;
+  contentId: number;
   title: string;
   date: string;
   medalImageSrc: string;
@@ -12,7 +12,7 @@ interface MyMedalProps {
 }
 
 export const MyMedal = ({
-  id,
+  contentId,
   title,
   date,
   medalImageSrc,
@@ -20,6 +20,7 @@ export const MyMedal = ({
 }: MyMedalProps) => {
   const navigate = useNavigate();
   const [isPressing, setIsPressing] = useState(false);
+  // console.log("MyMedal contentId:", contentId);
 
   const handlePressStart = () => {
     if (!disabled) setIsPressing(true);
@@ -75,7 +76,10 @@ export const MyMedal = ({
 
       <RightAngle
         className={`w-[1.25rem] h-[1.25rem] ${iconColor}`}
-        onClick={() => navigate(`/mypage/mymedal/${id}`)}
+        onClick={() => {
+          console.log("clicked contentId:", contentId);
+          navigate(`/mypage/mymedal/${contentId}`);
+        }}
       />
     </div>
   );

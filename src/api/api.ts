@@ -6,11 +6,11 @@ const api = axios.create({
 
 export default api;
 
-const token = import.meta.env.VITE_APP_ACCESS_TOKEN;
+// const token = import.meta.env.VITE_APP_ACCESS_TOKEN;
 
-api.interceptors.request.use((config) => {
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// api.interceptors.request.use((config) => {
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });

@@ -36,7 +36,7 @@ export const getMyGroups = async ({
       "pageable.size": size,
     },
   });
-    console.log("응답 결과:", response.data);
+    console.log("내 모임 조회 응답 결과:", response.data);
 
   return response.data?.data?.content ?? [];
 };

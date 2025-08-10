@@ -24,6 +24,7 @@ export interface ExerciseItem {
     max: number;
   };
   isBookmarked: boolean;
+  isCompleted: boolean;
 }
 
 export interface MyExerciseItem {
@@ -72,23 +73,51 @@ export const getMyExercises = async ({
     },
   });
   console.log(response);
-  const rawList = response.data?.data?.content ?? [];
 
-  const mappedList: ExerciseItem[] = rawList.map((item: any) => ({
-    exerciseId: item.partyId, // 이 부분을 맞게 변경해야 함
-    access: item.access,
-    partyName: item.title,
-    date: item.date,
-    buildingName: item.location,
-    startTime: item.startTime,
-    endTime: item.endTime,
-    levelRequirement: item.levelRequirement,
-    participation: item.participation,
-    isBookmarked: item.isBookmarked,
-  }));
+  // exercises 배열로 변경
+  const rawList = response.data?.data?.exercises ?? [];
 
+  // const mappedList: ExerciseItem[] = rawList.map((item: any) => ({
+  //   exerciseId: item.exerciseId ?? item.partyId, // id 필드 확인
+  //   access: item.access ?? { ispartyMember: false, allowGuestInvitation: false },
+  //   partyName: item.partyName ?? item.title,
+  //   date: item.date,
+  //   buildingName: item.buildingName ?? item.location,
+  //   startTime: item.startTime,
+  //   endTime: item.endTime,
+  //   levelRequirement: item.levelRequirement,
+  //   participation: item.participation,
+  //   isBookmarked: item.isBookmarked,
+  // }));
+const mappedList: ExerciseItem[] = rawList.map((item: any) => ({
+  exerciseId: item.exerciseId,
+  access: {
+    ispartyMember: item.access?.ispartyMember ?? false,
+    allowGuestInvitation: item.access?.allowGuestInvitation ?? false,
+    allowOutsideGuest: item.access?.allowOutsideGuest ?? false,
+  },
+  partyName: item.partyName,
+  date: item.date,
+  dayOfTheWeek: item.dayOfTheWeek, // 서버에서 준 경우 그대로 사용
+  buildingName: item.buildingName,
+  startTime: item.startTime,
+  endTime: item.endTime,
+  participation: {
+    current: item.participation?.current ?? 0,
+    max: item.participation?.max ?? 0,
+  },
+  levelRequirement: {
+    female: item.levelRequirement?.female ?? "-",
+    male: item.levelRequirement?.male ?? "-",
+  },
+  isBookmarked: item.isBookmarked ?? false,
+  isCompleted: item.isCompleted ?? false, // 서버에서 주면 넣기
+}));
+
+  console.log("내 운동 조회", mappedList);
   return mappedList;
 };
+
 
 // export const getMyExercises = async ({
 //   filterType = "ALL",

@@ -4,8 +4,6 @@ import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import Sort from "../../components/common/Sort";
 import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
-import { useLocation } from "react-router-dom";
-import type { ContentCardLProps } from "../../components/common/contentcard/ContentCardL";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
 import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
@@ -40,12 +38,12 @@ export const MyPageMyExercisePage = () => {
   useEffect(() => {
     const fetchExercises = async () => {
       setIsLoading(true);
-      try {
+   try {
         const data = await getMyExercises({
           filterType: mapTabToFilterType(selectedTab),
           orderType: mapSortToOrderType(sortOption),
         });
-        setExerciseList(data);
+        setExerciseList(data); 
       } catch (err) {
         console.error("운동 데이터 불러오기 실패", err);
       } finally {
@@ -88,24 +86,24 @@ export const MyPageMyExercisePage = () => {
               />
             </div>
             <div className="flex flex-col items-center justify-center">
-             {exerciseList.map((item) => (
-                <ContentCardL
-                  key={item.exerciseId}
-                  id={item.exerciseId}
-                  isUserJoined={item.access.ispartyMember}
-                  isGuestAllowedByOwner={item.access.allowGuestInvitation}
-                  isCompleted={false} 
-                  title={item.partyName}
-                  date={item.date}
-                  location={item.buildingName}
-                  time={`${item.startTime} ~ ${item.endTime}`}
-                  femaleLevel={item.levelRequirement.female}
-                  maleLevel={item.levelRequirement.male}
-                  currentCount={item.participation.current}
-                  totalCount={item.participation.max}
-                  like={item.isBookmarked}
-                />
-              ))}
+           {exerciseList.map((item) => (
+            <ContentCardL
+              key={item.exerciseId}
+              id={item.exerciseId}
+              isUserJoined={item.access.ispartyMember}
+              isGuestAllowedByOwner={item.access.allowGuestInvitation}
+              isCompleted={item.isCompleted}
+              title={item.partyName}
+              date={item.date}
+              location={item.buildingName}
+              time={`${item.startTime} ~ ${item.endTime}`}
+              femaleLevel={item.levelRequirement.female}
+              maleLevel={item.levelRequirement.male}
+              currentCount={item.participation.current}
+              totalCount={item.participation.max}
+              like={item.isBookmarked}
+            />
+          ))}
             </div>
           </>
         ) : (

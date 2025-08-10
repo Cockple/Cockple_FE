@@ -37,12 +37,6 @@ export interface MyMedalData {
   medals: MedalItem[];
 }
 
-//내 대회 기록 리스트 조회
-// export interface MyContestRecord {
-//   partyId: number;
-//   createdAt: string; 
-// }
-
 export interface MyContestRecord {
   contestId: number;
   contestName: string;
@@ -52,19 +46,6 @@ export interface MyContestRecord {
   medalImgUrl: string;
 }
 
-//내 대회 기록 등록
-// export interface PostContestRecordRequest {
-//   contestName: string;
-//   date?: string;             
-//   medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
-//   type: "혼복" | "여복" | "남복" | "단식"; 
-//   level: "자강" | "준자강" | "A" | "B" | "C" | "D" | "초심" | "왕초심";
-//   content?: string;
-//   contentIsOpen?: boolean;   
-//   videoIsOpen?: boolean;    
-//   contestVideos?: string[];
-//   contestImgs?: string[];     
-// }
 export interface PostContestRecordRequest {
   contestName: string;
   date?: string;             
@@ -94,20 +75,19 @@ interface PostContestRecordResponse {
 }
 
 export interface ContestRecordDetailResponse {
-  code: string;
-  message: string;
-  data: {
-    partyId: number;
-    createdAt: string;
-  };
-  errorReason?: {
-    code: string;
-    message: string;
-    httpStatus: string;
-  };
-  success: boolean;
+  contestName: string;
+  date: string;  // "2025-08-10" 형식
+  medalType: string; // "SILVER" 등
+  type: string;  // 참여 형태 (e.g. "DOUBLE")
+  level: string; // 급수 (e.g. "INTERMEDIATE")
+  content: string; // 대회 기록 텍스트
+  contentIsOpen: boolean;
+  videoIsOpen: boolean;
+  contestVideos: string[];  // 영상 링크 배열
+  contestImgs: string[];    // 이미지 경로 배열 (서버 상대경로)
+  contestImgsToDelete: string[];
+  contestVideoIdsToDelete: number[];
 }
-
 
 
 //내 메달 조회 
@@ -158,7 +138,7 @@ export const getMyContestList = async (medalType?: "NONE"): Promise<MyContestRec
   return records;
 };
 
-//내 대회 가록 등록
+//내 대회 기록 등록
 export const postMyContestRecord = async (
   body: PostContestRecordRequest
 ): Promise<PostContestRecordResponse> => {
@@ -166,15 +146,36 @@ export const postMyContestRecord = async (
   return response.data;
 };
 
-//안씀
+// 내 대회 기록 상세 조회
 export const getContestRecordDetail = async (
   contestId: number
 ): Promise<ContestRecordDetailResponse> => {
   try {
     const response = await api.get(`/api/contests/my/${contestId}`);
-    return response.data;
+    return response.data.data; 
   } catch (error) {
     console.error("대회 기록 상세 조회 오류", error);
     throw error;
   }
 };
+// 내 대회 기록 삭제
+export const deleteContestRecord = async (contestId: number): Promise<void> => {
+  try {
+    await api.delete(`/api/contests/my/${contestId}`);
+  } catch (error) {
+    console.error("대회 기록 삭제 오류", error);
+    throw error;
+  }
+};
+
+// 내 대회 기록 수정
+export async function patchMyContestRecord(contestId: number, body: PostContestRecordRequest) {
+  const response = await fetch(`/api/contests/my/${contestId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return response.json();
+}

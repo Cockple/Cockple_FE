@@ -9,7 +9,7 @@ import { getMyMedals, getMyContestList } from "../../api/contest/contestmy";
 import type { MedalItem } from "../../api/contest/contestmy";
 
 interface MedalUIItem {
-  id: number;
+  contentId: number;
   title: string;
   date: string;
   medalImageSrc: string | null;
@@ -52,7 +52,7 @@ const MyPageMyMedalPage = () => {
       try {
         const records = await getMyContestList();
         const transformed: MedalUIItem[] = records.map((item) => ({
-          id: item.contestId, // contestId를 id로 사용
+          contentId: item.contestId, // contestId를 id로 사용
           title: item.contestName,
           date: new Date(item.date).toLocaleDateString("ko-KR"),
           medalImageSrc: item.medalImgUrl,
@@ -91,7 +91,7 @@ const MyPageMyMedalPage = () => {
       : medalData.medals
           .filter((item) => !item.isAwarded)
           .map((item) => ({
-            id: item.id, 
+            contentId: item.id, 
             title: item.title,
             date: new Date(item.date).toLocaleDateString("ko-KR"),
             medalImageSrc: item.medalImageSrc,
@@ -114,13 +114,20 @@ const MyPageMyMedalPage = () => {
           />
 
           {/* 메달 리스트 or 없을 때 문구 */}
-          {medalData.medals.length > 0 ? (
+          {/* {medalData.medals.length > 0 ? (
             medalData.medals.map((item) => (
-              <MyMedal key={item.id} {...item} />
+              <MyMedal
+                key={item.id}
+                contentId={item.id}      // id를 contentId로 전달
+                title={item.title}
+                date={new Date(item.date).toLocaleDateString("ko-KR")}
+                medalImageSrc={item.medalImageSrc || ""}
+              />
             ))
           ) : (
             <p className="text-center my-4">아직 메달 내역이 없습니다.</p>
-          )}
+          )} */}
+
 
           <div className="w-full mb-4">
             <div className="flex gap-4 px-4 relative h-10">
@@ -146,9 +153,9 @@ const MyPageMyMedalPage = () => {
           {/* 선택된 탭에 따른 리스트 */}
           {shownList.length > 0 ? (
             shownList.map((item) => (
-              <React.Fragment key={item.id}>
+              <React.Fragment key={item.contentId}>
                 <MyMedal
-                  id={item.id}
+                  contentId={item.contentId}
                   title={item.title}
                   date={item.date}
                   medalImageSrc={item.medalImageSrc || ""}
