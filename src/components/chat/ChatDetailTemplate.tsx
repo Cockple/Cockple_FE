@@ -56,7 +56,7 @@ export const ChatDetailTemplate = ({
 
   // ===== 무한 스크롤 데이터 =====
   // 훅 호출 순서 고정을 위해 real/mocking 모두 호출 후 결과만 선택
-  const real = useChatInfinite(chatId);
+  const real = useChatInfinite(Number(chatId));
   const mock = useMockChatInfinite(currentUserId);
 
   // ==== 무한 스크롤 데이터 ====
