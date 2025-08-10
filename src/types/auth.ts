@@ -10,12 +10,13 @@ export type KakaoLoginResponseDTO = {
 };
 
 //회원정보 상세 추가
-export type OnBoarding = {
+export type OnBoardingRequest = {
   memberName: string;
   gender: string;
   birth: string;
   level: string;
   imgKey?: string;
-  keywords: string;
+  keywords: string[];
 };
-export type onBoardingRequestDto = CommonResponse<OnBoarding[]>;
+
+export type OnBoardingResponseDto = CommonResponse<string>;
