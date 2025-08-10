@@ -1,4 +1,4 @@
-// //운동 상세 페이지 -> 신청하기 
+// //운동 상세 페이지 -> 신청하기
 // import { PageHeader } from "../../../components/common/system/header/PageHeader";
 // import Vector from "../../../assets/icons/Vector.svg?react";
 // import Caution from "../../../assets/icons/caution.svg?react";
@@ -83,8 +83,6 @@
 // //   }
 // // };
 
-
-
 //   if (loading) {
 //     return <div className="text-center py-10">로딩 중...</div>;
 //   }
@@ -101,7 +99,6 @@
 //     }
 //     // 이하 생략
 //   }, [exerciseId]);
-
 
 //    return (
 //     <>
@@ -246,71 +243,79 @@ export const MyExerciseDetail = () => {
   const navigate = useNavigate();
 
   // 임시 더미 데이터 (API 연결 전 테스트용)
-  const [detail, setDetail] = useState({
+  // const [detail, setDetail] = useState({
+  //   notice: "운동 전 몸풀기 꼭 하세요!",
+  //   placeName: "강남 헬스장",
+  //   placeAddress: "서울시 강남구 테헤란로 123",
+  //   participantGenderCount: { male: 3, female: 2 },
+  //   waitingGenderCount: { male: 1, female: 0 },
+  // });
+
+  // 배포 오류 임시 코드
+  const detail = {
     notice: "운동 전 몸풀기 꼭 하세요!",
     placeName: "강남 헬스장",
     placeAddress: "서울시 강남구 테헤란로 123",
     participantGenderCount: { male: 3, female: 2 },
     waitingGenderCount: { male: 1, female: 0 },
-  });
+  };
 
   const [members, setMembers] = useState<MemberProps[]>([
-   {
-          requestId: 1,
-          status: "Participating",
-          name: "홍길동",
-          gender: "MALE", 
-          level: "A조",
-          isMe: false,
-          isLeader: true,
-          position: "leader",
-        },
-        {
-          requestId: 2,
-          status: "Participating",
-          name: "김민수",
-          gender: "MALE",
-          level: "B조",
-          isMe: true,
-          isLeader: false,
-          position: "sub_leader",
-        },
-        {
-          requestId: 3,
-          status: "Participating",
-          name: "이지은",
-          gender: "FEMALE",
-          level: "C조",
-          isMe: false,
-          isLeader: false,
-          position: null,
-        },
+    {
+      requestId: 1,
+      status: "Participating",
+      name: "홍길동",
+      gender: "MALE",
+      level: "A조",
+      isMe: false,
+      isLeader: true,
+      position: "leader",
+    },
+    {
+      requestId: 2,
+      status: "Participating",
+      name: "김민수",
+      gender: "MALE",
+      level: "B조",
+      isMe: true,
+      isLeader: false,
+      position: "sub_leader",
+    },
+    {
+      requestId: 3,
+      status: "Participating",
+      name: "이지은",
+      gender: "FEMALE",
+      level: "C조",
+      isMe: false,
+      isLeader: false,
+      position: null,
+    },
   ]);
 
   const [participantsCount, setParticipantsCount] = useState(members.length);
 
   const [waitingMembers, setWaitingMembers] = useState<MemberProps[]>([
-         {
-        requestId: 101,
-        status: "waiting",
-        name: "최유리",
-        gender: "FEMALE",
-        level: "E조",
-        isMe: false,
-        isLeader: false,
-        position: null,
-      },
-      {
-        requestId: 102,
-        status: "waiting",
-        name: "정수민",
-        gender: "MALE",
-        level: "F조",
-        isMe: false,
-        isLeader: false,
-        position: null,
-      },
-
+    {
+      requestId: 101,
+      status: "waiting",
+      name: "최유리",
+      gender: "FEMALE",
+      level: "E조",
+      isMe: false,
+      isLeader: false,
+      position: null,
+    },
+    {
+      requestId: 102,
+      status: "waiting",
+      name: "정수민",
+      gender: "MALE",
+      level: "F조",
+      isMe: false,
+      isLeader: false,
+      position: null,
+    },
   ]);
   const [waitingCount, setWaitingCount] = useState(waitingMembers.length);
 
@@ -318,7 +323,7 @@ export const MyExerciseDetail = () => {
   const [sortOption, setSortOption] = useState("운동 수정하기");
 
   // 현재 로그인 멤버 정보 찾기
-  const currentUser = members.find((m) => m.isMe);
+  const currentUser = members.find(m => m.isMe);
   const isCurrentUserLeader = currentUser?.isLeader ?? false;
 
   // 참여 멤버 삭제 (로컬 상태만)
@@ -330,7 +335,10 @@ export const MyExerciseDetail = () => {
 
   return (
     <>
-      <PageHeader title="내 운동 상세" onMoreClick={() => setIsSortOpen(true)} />
+      <PageHeader
+        title="내 운동 상세"
+        onMoreClick={() => setIsSortOpen(true)}
+      />
 
       <div className="flex flex-col gap-8">
         {/* 장소 정보 */}
@@ -343,7 +351,9 @@ export const MyExerciseDetail = () => {
             <Vector className="w-5 h-5 mt-4" />
             <div className="flex flex-col">
               <p className="body-rg-500 truncate">{detail.placeName?.trim()}</p>
-              <p className="body-rg-500 truncate">{detail.placeAddress?.trim()}</p>
+              <p className="body-rg-500 truncate">
+                {detail.placeAddress?.trim()}
+              </p>
             </div>
           </div>
         </div>
@@ -354,14 +364,20 @@ export const MyExerciseDetail = () => {
             <div className="flex items-center gap-2">
               <label className="text-left header-h5">참여 인원</label>
               <span>
-                {detail.participantGenderCount.male + detail.participantGenderCount.female} / {participantsCount}
+                {detail.participantGenderCount.male +
+                  detail.participantGenderCount.female}{" "}
+                / {participantsCount}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Female className="w-4 h-4" />
-              <p className="body-rg-500">{detail.participantGenderCount.female}</p>
+              <p className="body-rg-500">
+                {detail.participantGenderCount.female}
+              </p>
               <Male className="w-4 h-4" />
-              <p className="body-rg-500">{detail.participantGenderCount.male}</p>
+              <p className="body-rg-500">
+                {detail.participantGenderCount.male}
+              </p>
             </div>
           </div>
         </div>
@@ -371,7 +387,7 @@ export const MyExerciseDetail = () => {
           const modalConfig = getModalConfig(
             member.status,
             isCurrentUserLeader,
-            member.isMe ?? false, 
+            member.isMe ?? false,
             member.name,
           );
 
@@ -383,7 +399,9 @@ export const MyExerciseDetail = () => {
                 position={member.position}
                 onClick={() => navigate("/mypage/profile")}
                 onDelete={() => handleDeleteMember(idx)}
-                showDeleteButton={isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)}
+                showDeleteButton={
+                  isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
+                }
                 modalConfig={modalConfig ?? undefined}
               />
               <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
@@ -401,9 +419,13 @@ export const MyExerciseDetail = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Female className="w-4 h-4" />
-                <p className="body-rg-500">{detail.waitingGenderCount?.female ?? 0}</p>
+                <p className="body-rg-500">
+                  {detail.waitingGenderCount?.female ?? 0}
+                </p>
                 <Male className="w-4 h-4" />
-                <p className="body-rg-500">{detail.waitingGenderCount?.male ?? 0}</p>
+                <p className="body-rg-500">
+                  {detail.waitingGenderCount?.male ?? 0}
+                </p>
               </div>
             </div>
 
@@ -411,7 +433,7 @@ export const MyExerciseDetail = () => {
               const modalConfig = getModalConfig(
                 member.status,
                 isCurrentUserLeader,
-                member.isMe ?? false,  
+                member.isMe ?? false,
                 member.name,
               );
               return (
@@ -422,11 +444,16 @@ export const MyExerciseDetail = () => {
                     position={member.position}
                     onClick={() => navigate("/mypage/profile")}
                     onDelete={() => {
-                      const updated = waitingMembers.filter((_, i) => i !== idx);
+                      const updated = waitingMembers.filter(
+                        (_, i) => i !== idx,
+                      );
                       setWaitingMembers(updated);
                       setWaitingCount(updated.length);
                     }}
-                    showDeleteButton={isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)}
+                    showDeleteButton={
+                      isCurrentUserLeader ||
+                      (member.isMe && !isCurrentUserLeader)
+                    }
                     modalConfig={modalConfig ?? undefined}
                   />
                   <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
@@ -441,7 +468,7 @@ export const MyExerciseDetail = () => {
         isOpen={isSortOpen}
         onClose={() => setIsSortOpen(false)}
         selected={sortOption}
-        onSelect={(option) => setSortOption(option)}
+        onSelect={option => setSortOption(option)}
         options={["운동 수정하기", "운동 삭제하기"]}
       />
     </>

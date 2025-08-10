@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { MyMedal } from "../../components/common/contentcard/MyMedal";
 import { MyPage_Medal2 } from "../../components/common/contentcard/MyPage_Medal2";
 import { ProfileMyMedal_None } from "../../components/MyPage/ProfileMyMedal_None";
 
@@ -41,11 +40,11 @@ export const MyPageProfileMedal = ({
     "전체",
   );
 
-  const filteredList = medals.filter(item => {
-    if (selectedTab === "전체") return true;
-    if (selectedTab === "미입상 기록") return !item.isAwarded;
-    return true;
-  });
+  // const filteredList = medals.filter(item => {
+  //   if (selectedTab === "전체") return true;
+  //   if (selectedTab === "미입상 기록") return !item.isAwarded;
+  //   return true;
+  // });
 
   const isEmpty = medals.length === 0;
 
