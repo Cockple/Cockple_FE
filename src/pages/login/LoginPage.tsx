@@ -23,10 +23,21 @@ export const LoginPage = () => {
     },
   ];
 
+  const handleKakako = () => {
+    const REST_API_KEY = `${import.meta.env.VITE_KAKAO_REST_API_KEY}`;
+    const REDIRECT_URI = `${window.location.origin}/login/kakao`;
+    const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}`;
+
+    window.location.href = KAKAO_AUTH_URI;
+  };
+
   return (
-    <div className="flex flex-col  w-full -mb-8 ">
+    <div
+      className="flex flex-col  w-full -mb-8"
+      style={{ minHeight: "100dvh" }}
+    >
       {/* 스와이퍼 */}
-      <div className="">
+      <div className="flex-1">
         <Swiper
           modules={[Pagination]}
           spaceBetween={50}
@@ -48,8 +59,11 @@ export const LoginPage = () => {
         </Swiper>
       </div>
 
-      <div className="mb-2 mt-20">
-        <button className="bg-[#FEE500] w-full rounded-lg py-3 px-4 relative">
+      <div className=" mb-4">
+        <button
+          className="bg-[#FEE500] w-full rounded-lg py-3 px-4 relative cursor-pointer"
+          onClick={handleKakako}
+        >
           카카오 로그인
           <img
             src={KakaoIcon}

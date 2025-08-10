@@ -1,52 +1,83 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/pagination";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
 import Kitty from "../../assets/images/Image Carousel.png";
+import { getContestRecordDetail, deleteContestRecord } from "../../api/contest/contestmy";
+import type { ContestRecordDetailResponse } from  "../../api/contest/contestmy";
 
 interface MyPageMedalDetailPageProps {
   photo?: File | string | (File | string)[];
   title?: string; // 대회명
   date?: string; // 날짜
-  participationType?: string; // 참여 형태
+  participationType?: string; // 참여 형태 //이거 서버랑 다르게 나오니 확인 후 수정
   record?: string; // 대회 기록
   videoUrl?: string[]; // 영상 링크 여러개
 }
 
+interface MedalDetail {
+  photo?: string[];           // 이미지 URL 배열
+  title?: string;             // 대회명
+  date?: string;              // 날짜
+  participationType?: string; // 참여 형태
+  record?: string;            // 대회 기록
+  videoUrl?: string[];        // 영상 링크 배열
+}
+
 export const MyPageMedalDetailPage = ({
-  // photo,
-  // title,
-  // date,
-  // participationType,
-  // record,
-  // videoUrl,
-
-  photo = [Kitty, Kitty, Kitty],
-  title = "콕",
-  date = "2025.05.23",
-  participationType = "D조",
-  // record = "Lorem ipsum dolor sit amet consectetur. Dui justo aliquet sit eu nec enim elit quis vestibulum.",
-  record = " vestibulum.",
-
-  videoUrl = ["https://www.youtube.com/watch?v=TpPwI_Lo0YY&list=PLGa3uxog5E0vn3sJ7abmZNysTye6pSbn6"],
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
+  const { contestId } = useParams();
+  console.log(contestId);
+  const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // const HEADER_HEIGHT = "3rem";
+  
+  useEffect(() => {
+  if (!contestId) return;
 
-  // photo가 배열인지 체크 후, 각각 string 혹은 File일 경우 URL 처리
-  const images = Array.isArray(photo)
-    ? photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
-    : photo
-      ? [typeof photo === "string" ? photo : URL.createObjectURL(photo)]
-      : [];
+  const fetchData = async () => {
+    try {
+      const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
+      console.log("API 응답 데이터:", data);  
+      // 서버 상대 경로를 절대 URL로 변환 (예: 이미지 서버 주소 앞에 붙이기)
+      // const baseUrl = "https://yourserver.com/"; // 실제 서버 주소로 변경 필요
+      // const photos = data.contestImgs.map(img => img.startsWith("http") ? img : baseUrl + img);
 
-  const urls = videoUrl ?? [];
+      setMedalDetail({
+        title: data.contestName,
+        date: data.date,
+        participationType: `${data.type} - ${data.level}`,
+        record: data.content,
+        // photo: photos,
+        videoUrl: data.contestVideos,
+      });
+      console.log("대회명:", data.contestName);
+
+    } catch (error) {
+      console.error("대회 기록 상세 조회 실패", error);
+      setMedalDetail(null);
+    }
+  };
+
+  fetchData();
+}, [contestId]);
+
+
+  const images = medalDetail?.photo
+    ? medalDetail.photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
+    : [Kitty];
+
+  const urls = medalDetail?.videoUrl ?? [];
+  const record = medalDetail?.record ?? "";
+  const date = medalDetail?.date ?? "";
+  const participationType = medalDetail?.participationType ?? "";
+
+  if (!medalDetail) return <div>로딩 중...</div>;
 
   return (
     <div className="w-full max-w-[444px] mx-auto min-h-screen bg-white relative overflow-x-hidden">
@@ -55,12 +86,7 @@ export const MyPageMedalDetailPage = ({
       </div>
 
       {/* 스크롤 영역 */}
-      <div
-        className="relative mt-2 w-full "
-        style={{
-          padding: 0,
-        }}
-      > 
+      <div className="relative mt-2 w-full" style={{ padding: 0 }}>
         <Swiper
           modules={[Pagination]}
           pagination={{ clickable: true }}
@@ -71,18 +97,13 @@ export const MyPageMedalDetailPage = ({
           {images.map((img, idx) => (
             <SwiperSlide
               key={idx}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: 0,
-              }}
+              style={{ display: "flex", justifyContent: "center", padding: 0 }}
             >
               <img
                 src={img}
                 alt={`메달 이미지 ${idx + 1}`}
                 style={{
-                  width:"100%",
-                  // width: "23.4375rem", 
+                  width: "100%",
                   height: "23.4375rem",
                   objectFit: "cover",
                 }}
@@ -90,8 +111,6 @@ export const MyPageMedalDetailPage = ({
             </SwiperSlide>
           ))}
         </Swiper>
-
-
 
         {/* 오버레이 영역 */}
         <div className="absolute -bottom-8 left-4 right-4 flex items-start justify-between gap-4 z-10">
@@ -107,7 +126,7 @@ export const MyPageMedalDetailPage = ({
       </div>
 
       {/* 대회명 */}
-      <p className="text-left header-h4 mt-12 leading-snug">{title}</p>
+      <p className="text-left header-h4 mt-12 leading-snug">{medalDetail.title}</p>
 
       {/* 참가 정보 */}
       <div className="flex justify-between items-center mt-5">
@@ -149,9 +168,7 @@ export const MyPageMedalDetailPage = ({
               </a>
             ))
           ) : (
-            <p className="body-md-500 text-[#E4E7EA]">
-              등록된 영상 링크가 없습니다.
-            </p>
+            <p className="body-md-500 text-[#E4E7EA]">등록된 영상 링크가 없습니다.</p>
           )}
         </div>
       </div>
@@ -165,13 +182,14 @@ export const MyPageMedalDetailPage = ({
             navigate("/mypage/mymedal/add", {
               state: {
                 mode: "edit",
+                contestId: contestId,  // 값 넘김 
                 medalData: {
-                  title,
-                  date,
-                  participationType,
-                  record,
-                  photo,
-                  videoUrl,
+                  title: medalDetail.title,
+                  date: medalDetail.date,
+                  participationType: medalDetail.participationType,
+                  record: medalDetail.record,
+                  photo: medalDetail.photo,
+                  videoUrl: medalDetail.videoUrl,
                 },
               },
             })
@@ -184,9 +202,16 @@ export const MyPageMedalDetailPage = ({
       {isDeleteModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Delete
-            onConfirm={() => {
-              setIsDeleteModalOpen(false);
-              console.log("삭제");
+            onConfirm={async () => {
+              try {
+                if (!contestId) return;
+                await deleteContestRecord(Number(contestId));
+                setIsDeleteModalOpen(false);
+                navigate("/mypage/mymedal");
+              } catch (error) {
+                console.error("삭제 실패", error);
+                alert("삭제하지 못했습니다. 다시 시도해주세요");
+              }
             }}
             onCancel={() => setIsDeleteModalOpen(false)}
           />

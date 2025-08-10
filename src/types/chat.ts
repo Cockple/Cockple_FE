@@ -3,6 +3,7 @@ export interface GroupChatRoom {
   chatRoomId: number;
   partyId: number;
   partyName: string;
+  partyImgUrl: string;
   memberCount: number;
   unreadCount: number;
   lastMessage: {
@@ -16,79 +17,63 @@ export interface GroupChatRoom {
 
 export interface PersonalChatRoom {
   chatRoomId: number;
-  chatRoomName: string;
-  memberCount: number;
+  displayName: string;
+  profileImageUrl: string;
   unreadCount: number;
-  lastMessage: {
+  lastMessage?: {
     messageId: number;
     content: string;
-    senderName: string;
     timestamp: string;
     messageType: "TEXT" | "IMAGE";
   };
-  otherMember: {
-    memberId: number;
-    memberName: string;
-    profileImageUrl: string;
-  };
+}
+
+export interface ChatRoomInfo {
+  chatRoomId: number;
+  chatRoomType: "PARTY" | "PERSONAL";
+  displayName: string;
+  profileImageUrl: string | null;
+  memberCount: number;
+  lastReadMessageId: number;
 }
 
 export interface ChatMessageResponse {
   messageId: number;
-  chatRoomId: number;
   senderId: number;
   senderName: string;
   senderProfileImage: string;
-  messageType: "TEXT" | "IMAGE";
   content: string;
-  reactions: Reaction[];
-  replyTo: null | number;
-  fileInfo: FileInfo | null;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
+  messageType: "TEXT" | "IMAGE";
+  imgUrls: string[];
+  //reactions: Reaction[];
+  //replyTo: null | number;
+  //fileInfo: FileInfo | null;
+  //isDeleted: boolean;
+  //createdAt: string;
+  //updatedAt: string;
+  timestamp: string;
+  isMyMessage: boolean;
 }
 
-interface Reaction {
-  reactionId: number;
-  emoji: string;
-  count: number;
-  userReacted: boolean;
-  reactedUsers: string[];
-}
+// interface Reaction {
+//   reactionId: number;
+//   emoji: string;
+//   count: number;
+//   userReacted: boolean;
+//   reactedUsers: string[];
+// }
 
 export interface FileInfo {
   fileId: number;
   fileName: string;
   fileSize: number;
-  fileUrl: string;
+  mimeType: string;
+  thumbnailUrl: string;
+  downUrl: string;
 }
 
-// 프론트에서 사용하는 메시지 타입 (ChattingComponent에 맞춤)
-// export interface Chatting {
-//   id: number;
-//   nickname: string;
-//   profile: string;
-//   chatting: string;
-//   time: string;
-//   createdAt: string; // YYYY.MM.DD
-//   isMe: boolean;
-//   unreadCount: number;
-//   imageUrls?: string[];
-// }
-
-// // 채팅 메시지 하나의 기본 구조
-// export interface Chatting {
-//   id: number;
-//   nickname: string;
-//   profile: string; // 프로필 이미지 URL
-//   chatting: string;
-//   time: string; // HH:MM 형식 문자열
-//   createdAt: string; // yyyy.mm.dd
-//   isMe: boolean;
-//   unreadCount: number;
-//   imageUrls?: string[]; // 첨부 이미지 (선택)
-// }
-
-// // ChattingComponent에서 사용하는 props (id, profile 제외)
-// export type ChattingComponentProps = Omit<Chatting, "id">;
+export interface Participants {
+  memberId: number;
+  memberName: string;
+  profileImgUrl: string;
+}

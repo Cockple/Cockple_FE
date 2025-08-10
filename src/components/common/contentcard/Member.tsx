@@ -13,23 +13,19 @@ import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
 import { getModalConfig } from "../../group/modalConfig";
 
-type MemberStatus =
-  | "Participating"
-  | "waiting"
-  | "invite"
-  | "request"
-  | "approved";
+type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
 
 interface MemberProps {
+  requestId: number; // joinRequestId를 매핑
   status: MemberStatus;
   name: string;
-  gender: "male" | "female";
+  gender: "MALE" | "FEMALE";
   level: string;
   birth?: string;
   showStar?: boolean;
   isGuest?: boolean;
   guestName?: string;
-  number?: number;
+  number?: number | string;
   isMe?: boolean;
   isLeader?: boolean;
 
@@ -51,6 +47,7 @@ interface MemberProps {
   //부모임장 지정
   onAppointClick?: () => void;
   selectMode?: boolean;
+  useDeleteModal?: boolean;
 }
 
 export type { MemberProps };
@@ -66,7 +63,7 @@ const MemberInfo = ({
   position,
 }: {
   name: string;
-  gender: "male" | "female";
+  gender: "MALE" | "FEMALE";
   level: string;
   isGuest?: boolean;
   guestName?: string;
@@ -84,7 +81,7 @@ const MemberInfo = ({
         )}
       </div>
       <div className="flex items-center gap-[0.25rem] body-sm-500">
-        {gender === "female" ? (
+        {gender === "FEMALE" ? (
           <Female className="w-[1rem] h-[1rem]" />
         ) : (
           <Male className="w-[1rem] h-[1rem]" />
@@ -117,6 +114,7 @@ export const Member = ({
   onReject,
   onClick,
   onDelete,
+  useDeleteModal = true,
   isMe = false,
   isLeader = false,
   position = null,
@@ -153,7 +151,15 @@ export const Member = ({
       />
     );
   };
-
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (useDeleteModal) {
+      setIsModalOpen(true);
+    } else {
+      onDelete?.();
+    }
+    console.log("삭제 버튼 클릭됨, 모달 상태:", true);
+  };
   const renderContent = () => {
     switch (status) {
       case "Participating":
@@ -164,9 +170,7 @@ export const Member = ({
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">
-                No. {number?.toString().padStart(2, "0")}
-              </p>
+              <p className="body-md-500">{number}</p>
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo
                 name={name}
@@ -190,11 +194,7 @@ export const Member = ({
               {showDeleteButton && (
                 <Prohibition
                   className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setIsModalOpen(true);
-                    console.log("삭제 버튼 클릭됨, 모달 상태:", true);
-                  }}
+                  onClick={handleDeleteClick}
                 />
               )}
             </div>

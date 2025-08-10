@@ -7,7 +7,9 @@ export interface ExerciseFilterState {
   level: string[];
   style: string;
   time: string;
+  recommend: boolean;
   setFilter: (key: FilterKey, value: string[] | string) => void;
+  toggleRecommend: () => void;
   resetFilter: () => void;
 }
 
@@ -16,7 +18,9 @@ export const useExerciseFilterStore = create<ExerciseFilterState>(set => ({
   level: [],
   style: "",
   time: "",
+  recommend: true,
   setFilter: (key, value) => set(state => ({ ...state, [key]: value })),
+  toggleRecommend: () => set(state => ({ recommend: !state.recommend })),
   resetFilter: () =>
     set(() => ({
       region: [],

@@ -1,73 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-// import { Sort } from "../../components/MyPage/Sort";
 import Sort from "../../components/common/Sort";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
-
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import { MyGroupNone } from "../../components/MyPage/MyGroupNone";
-
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
-import { useLocation } from "react-router-dom";
+import { getMyGroups } from "../../api/party/my";
+import type { PartyData } from "../../api/party/my";
 
-export interface GroupMProps {
-  id: number;
-  groupName: string;
-  groupImage: string;
-  location: string;
-  femaleLevel: string;
-  maleLevel: string;
-  nextActivitDate: string;
-  upcomingCount: number;
-  like?: boolean;
-  isMine: boolean;
-  onToggleFavorite?: (id: number) => void;
-}
-
-// interface MyPageMyGroupPageProps {
-//   groups: GroupMProps[];
-// }
-
-// export const MyPageMyGroupPage = ({ groups }: MyPageMyGroupPageProps) => {
-//   const [isChecked, setIsChecked] = useState(false);
-//   const [sortOption, setSortOption] = useState("최신순");
-//   const [favoriteGroups, setFavoriteGroups] = useState<GroupMProps[]>(groups || []);
-// const location = useLocation();
-// const groups: GroupMProps[] = location.state?.groups || [];
 export const MyPageMyGroupPage = () => {
-  const location = useLocation();
-  const groups: GroupMProps[] = location.state?.groups || [];
-  const [favoriteGroups, setFavoriteGroups] = useState<GroupMProps[]>(groups);
+  const [groups, setGroups] = useState<PartyData[]>([]);
   const [isChecked, setIsChecked] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
 
+  // 내 모임 조회
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const result = await getMyGroups({
+          created: isChecked,
+          sort: sortOption,
+        });
+        setGroups(result);
+      } catch (err) {
+        console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
+      }
+    };
+
+    fetchGroups();
+  }, [isChecked, sortOption]);
+
   const handleToggleFavorite = (id: number) => {
-    setFavoriteGroups(prev =>
+    setGroups(prev =>
       prev.map(group =>
-        group.id === id ? { ...group, like: !group.like } : group,
+        group.partyId === id ? { ...group, like: !group.like } : group,
       ),
     );
   };
-  // 정렬 기능 -> 나중에 서버랑 연동
-  const sortGroups = (groups: GroupMProps[]) => {
-    switch (sortOption) {
-      case "최신순":
-        return [...groups].sort((a, b) => b.id - a.id);
-      case "오래된 순":
-        return [...groups].sort((a, b) => a.id - b.id);
-      case "운동 많은 순":
-        return [...groups].sort((a, b) => b.upcomingCount - a.upcomingCount);
-      default:
-        return groups;
-    }
-  };
-  const filteredGroups = isChecked
-    ? sortGroups(favoriteGroups.filter(group => group.isMine))
-    : sortGroups(favoriteGroups);
 
-  const hasGroups = filteredGroups.length > 0;
+  const hasGroups = groups.length > 0;
 
   return (
     <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
@@ -102,9 +75,22 @@ export const MyPageMyGroupPage = () => {
 
         <div className="flex-1 flex flex-col gap-4">
           {hasGroups ? (
-            filteredGroups.map(group => (
-              <div key={group.id}>
-                <Group_M {...group} onToggleFavorite={handleToggleFavorite} />
+            groups.map(group => (
+              <div key={group.partyId}>
+                <Group_M
+                  {...group}
+                  id={group.partyId}
+                  groupName={group.groupName}
+                  groupImage={group.groupImage}
+                  location={group.location}
+                  femaleLevel={group.femaleLevel}
+                  maleLevel={group.maleLevel}
+                  nextActivitDate={group.nextActivitDate}
+                  upcomingCount={group.upcomingCount}
+                  like={group.like}
+                  isMine={group.isMine}
+                  onToggleFavorite={handleToggleFavorite}
+                />
                 <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
               </div>
             ))

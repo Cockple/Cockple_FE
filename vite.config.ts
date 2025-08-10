@@ -28,6 +28,10 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
     },
+    define: {
+      global: "globalThis", // 또는 'window'
+      // 'process.env': {},           // (혹시 'process is not defined' 뜨면 주석 해제)
+    },
 
     // ✅ 프로덕션 빌드가 아닐 때만 test 설정을 포함시킵니다.
     ...(!isProduction && {

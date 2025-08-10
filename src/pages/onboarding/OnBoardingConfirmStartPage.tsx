@@ -1,16 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import KittyImg from "@/assets/images/kitty.png?url";
+import AddIcon from "@/assets/icons/add.svg";
 
 export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full  flex flex-col -mb-8 pt-14">
-      <PageHeader title="가입 완료" />
-      <section className="flex items-center flex-col  gap-15 pb-24 ">
+    <div
+      className="w-full  flex flex-col -mb-8 pt-14"
+      style={{ minHeight: "100dvh" }}
+    >
+      <section className="flex items-center flex-col  gap-15 flex-1 ">
         <IntroText
           title="입상 기록이 나를 더 잘 보여줄거에요!"
           text1="마이페이지에서 대회 경력을 등록해보세요."
@@ -44,13 +46,13 @@ export const OnboardingConfirmStartPage = () => {
             className="flex py-2 px-4 rounded-lg gap-2 items-center justify-center bg-gy-100 cursor-pointer"
             onClick={() => navigate("/mypage/mymedal/add")}
           >
-            <img src="/src/assets/icons/add.svg" alt="" />
+            <img src={AddIcon} alt="" />
             대회기록 추가하기
           </button>
         </div>
       </section>
       <div
-        className="flex items-center justify-center header-h4 "
+        className="flex items-center justify-center header-h4 mb-4"
         onClick={() => navigate("/")}
       >
         <Btn_Static label="시작하기" kind="GR400" size="L" />

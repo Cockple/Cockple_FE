@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
-import { WorkoutDayEntry } from "../../components/home/WorkoutDayEntry";
 import { Footer } from "../../components/common/system/Footer";
 import { dailyExerciseData } from "../../components/home/mock/homeMock";
 import { MyGroupWorkoutSection } from "../../components/home/MyGroupWorkoutSection";
@@ -8,7 +7,7 @@ import { RecommendedWorkoutSection } from "../../components/home/RecommendedWork
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import MapIcon from "@/assets/icons/map_white.svg";
 import { useNavigate } from "react-router-dom";
-import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
+import { MyExerciseCalendar } from "../../components/home/MyExerciseCalendar";
 
 export type DailyExerciseItem = {
   id: number;
@@ -64,7 +63,7 @@ export const HomePage = () => {
       />
       {/* 배경색 적용 */}
       <div
-        className="w-full min-h-94 flex flex-col gap-vertical-section"
+        className="w-full flex flex-col gap-vertical-section"
         style={{
           background: "var(--color-gradient-home-header)",
           width: "calc(100% + 2rem)",
@@ -91,13 +90,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* 달력 */}
-          <div className="w-full h-17">
-            <WeeklyCalendar />
-          </div>
-
-          {/* 해당 날짜 운동 */}
-          <WorkoutDayEntry exerciseData={exerciseData ?? null} />
+          <MyExerciseCalendar />
         </div>
       </div>
 

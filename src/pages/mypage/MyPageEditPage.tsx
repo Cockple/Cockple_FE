@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
@@ -15,12 +15,9 @@ import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import { LocationField } from "../../components/common/LocationField";
 import { Location } from "../../components/common/contentcard/Location";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
-interface LocationType {
-  id: number;
-  location?: string;
-  isMainAddr: string;
-  streetAddr: string;
-}
+import { getMyProfile, patchMyProfile } from "../../api/member/my";
+import { getMyProfileLocations, postMyProfileLocation, deleteAddress, setMainAddress } from "../../api/member/my";
+import type { UserAddress, AddLocationPayload } from "../../api/member/my";
 
 interface MyPageEditProps {
   profileUrl?: File;
@@ -29,7 +26,7 @@ interface MyPageEditProps {
   birth?: string;
   rank?: string;
   hasNoRank?: boolean;
-  locations?: LocationType[];
+  locations?: UserAddress[];
   location?: string;
   isMainAddr?: string;
   streetAddr?: string;
@@ -44,93 +41,40 @@ export const MyPageEditPage = ({
   rank: initialRankProp,
   hasNoRank: initialHasNoRankProp,
   locations: initialLocationsProp = [],
-  // isMainAddr="ㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
-  // streetAddr="ㅈ돋ㅁㅎㄱ",
-  // isMainAddr,
-  // streetAddr,
-  // keywords = ["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"],
 }: MyPageEditProps) => {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  // const selectedPlace = location.state?.selectedPlace;
+  // const selectedPlace = location.state?.selectedPlace as UserAddress | undefined;
+  const selectedPlace = location.state?.selectedPlace as UserAddress | undefined;;
+  const [locations, setLocations] = useState<UserAddress[]>([]);
   const {
-    // register,
-    // handleSubmit,
     setValue,
-    // formState: { errors },
   } = useForm();
   const [openModal, setOpenModal] = useState(false); //생년월일 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name, setName] = useState(initialNameProp ?? "");
+  const [name, setName] = useState("");
+  const [selectedDate, setSelectedDate] = useState(""); // "YYYY-MM-DD"
+  const [selectedLevel, setSelectedLevel] = useState("NO_RANK");
+  const [profileImage, setProfileImage] = useState(""); // imgKey or URL
+
   //키워드
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const keywordLines = [
     ["브랜드 스폰", "가입비 무료"],
     ["친목", "운영진이 게임을 짜드려요"],
   ];
-
-  const level = [
-    "왕초심",
-    "초심",
-    "D조",
-    "C조",
-    "B조",
-    "A조",
-    "준자강",
-    "자강",
-  ];
+  const level = ["왕초심","초심","D조","C조","B조","A조","준자강","자강",];
   const [open, setOpen] = useState(false);
-  const [selectedLevel, setSelectedLevel] = useState("");
   const [disabled, setDisabled] = useState(false);
+  // const [selectedId, setSelectedId] = useState(1);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [profileImageKey, setProfileImageKey] = useState<string>(""); // 이미지 업로드 키 -> 추후에 연동
 
-  //급수없음 버튼
-  // ‼️ 배포 오류를 위한 임시 코드
   const selectedRank = initialBirthProp ?? "";
   const hasNoRank = initialHasNoRankProp ?? false;
-  // const [selectedRank, setSelectedRank] = useState(initialRankProp ?? "");
-  // const [hasNoRank, setHasNoRank] = useState(initialHasNoRankProp ?? false);
-
-  //Location 임시값////////////////////////////////////////////////////////////////
-  const [locations, setLocations] = useState([
-    {
-      id: 1,
-      isMainAddr: "서울특별시 강남구 역삼동",
-      streetAddr: "테헤란로 152",
-    },
-    {
-      id: 2,
-      isMainAddr: "서울특별시 서초구 서초동",
-      streetAddr: "강남대로 373",
-    },
-    {
-      id: 3,
-      isMainAddr: "서울특별시 마포구 상암동",
-      streetAddr: "월드컵북로 396",
-    },
-  ]);
-  const [selectedId, setSelectedId] = useState(1);
-  const [editMode, setEditMode] = useState(false);
-
-  const handleDelete = (id: number) => {
-    setLocations(prev => prev.filter(loc => loc.id !== id));
-  };
-
-  //Location 임시값////////////////////////////////////////////////////////////////
-
-  //Location
-  // const [locations, setLocations] = useState<LocationType[]>([]);
-  // const [selectedId, setSelectedId] = useState<number>(1);
-  // const [editMode, setEditMode] = useState(false);
-
-  // 사진
-  const [profileImage, setProfileImage] = useState<string | undefined>(
-    undefined,
-  );
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [selectedDate, setSelectedDate] = useState("");
-  // const pickerRef = useRef(null);
-  // const [isModalNameOpen, setIsModalNameOpen] = useState(false);
-
   const initialDataRef = useRef({
     name: initialNameProp ?? "",
     rank: initialRankProp ?? "",
@@ -139,6 +83,155 @@ export const MyPageEditPage = ({
     profileImage: undefined as string | undefined,
     locations: initialLocationsProp,
   });
+  //내 위치/주소 조회
+  useEffect(() => {
+    getMyProfileLocations()
+      .then(data => setLocations(data))
+      .catch(console.error);
+  }, []);
+
+  const addLocation = (newLocation: UserAddress) => {
+    setLocations(prev => {
+      if (prev.length >= 5) {
+        alert("위치는 최대 5개까지 추가할 수 있습니다.");
+        return prev;
+      }
+      const exists = prev.some(
+        loc =>
+          loc.buildingName === newLocation.buildingName &&
+          loc.streetAddr === newLocation.streetAddr,
+      );
+      if (exists) {
+        alert("이미 등록된 위치입니다.");
+        return prev;
+      }
+      return [...prev, newLocation];
+    });
+  };
+
+ useEffect(() => {
+    if (selectedPlace) {
+      // 중복 체크 후 locations 상태에 추가
+      setLocations(prev => {
+        const exists = prev.some(
+          loc => loc.buildingName === selectedPlace.buildingName && loc.streetAddr === selectedPlace.streetAddr
+        );
+        if (exists) return prev;
+
+        return [
+          ...prev,
+          {
+            addrId: Date.now(),
+            buildingName: selectedPlace.buildingName,
+            streetAddr: selectedPlace.streetAddr,
+            latitude: 0,
+            longitude: 0,
+            isMainAddr: false,
+            addr1: "",
+            addr2: "",
+            addr3: "",
+          }
+        ];
+      });
+
+      // URL 상태 초기화 (중복 추가 방지)
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [selectedPlace]);
+  // useEffect(() => {
+  //   if (selectedPlace) {
+  //     setLocations(prev => {
+  //       const exists = prev.some(
+  //         loc => loc.buildingName === selectedPlace.buildingName && loc.streetAddr === selectedPlace.streetAddr
+  //       );
+  //       if (exists) return prev;
+
+  //       return [
+  //         ...prev,
+  //         {
+  //           addrId: Date.now(),  // 임시 ID
+  //           buildingName: selectedPlace.buildingName,
+  //           streetAddr: selectedPlace.streetAddr,
+  //           addr1: "", addr2: "", addr3: "",
+  //           latitude: 0,
+  //           longitude: 0,
+  //           isMainAddr: false,
+  //         },
+  //       ];
+  //     });
+
+  //     window.history.replaceState({}, document.title);
+  //   }
+  // }, [selectedPlace]);
+
+
+  useEffect(() => {
+    if (location.state?.selectedPlace) {
+      const selectedPlace = location.state.selectedPlace;
+
+      addLocation({
+        addrId: Date.now(),           
+        buildingName: selectedPlace.name || selectedPlace.buildingName || "", 
+        streetAddr: selectedPlace.address || selectedPlace.streetAddr || "",  
+        addr1: "",
+        addr2: "",
+        addr3: "",
+        latitude: 0,
+        longitude: 0,
+        isMainAddr: false,             
+      });
+    }
+  }, [location.state]);
+
+  // //회원 주소 추가
+  // const saveLocationToServer = async (location: UserAddress) => {
+  //   try {
+  //     const savedLocation = await postMyProfileLocation(location);
+  //     setLocations(prev => [...prev, savedLocation]);
+  //   } catch (err) {
+  //     alert("주소 추가에 실패했습니다.");
+  //     console.error(err);
+  //   }
+  // };
+ useEffect(() => {
+  if (selectedPlace) {
+    const saveLocation = async () => {
+      try {
+        const savedLocation = await postMyProfileLocation(selectedPlace);
+        setLocations(prev => [...prev, savedLocation]);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (err) {
+        alert("주소 추가 실패");
+      }
+    };
+    saveLocation();
+  }
+}, [selectedPlace]);
+
+
+  //내 프로필 불러오기
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getMyProfile();
+
+        setName(data.memberName || "");
+        setSelectedDate(data.birth || "");
+        setSelectedLevel(data.level || "NO_RANK");
+
+        if (data.profileImgUrl) {
+          setProfileImage(data.profileImgUrl); 
+        }
+
+      } catch (error) {
+        console.error("프로필 불러오기 실패", error);
+      }
+  };
+
+  fetchProfile();
+}, []);
+
+
 
   useEffect(() => {
     let initialProfileImageUrl: string | undefined = undefined;
@@ -152,7 +245,7 @@ export const MyPageEditPage = ({
       };
       reader.readAsDataURL(initialProfileFileProp);
     } else {
-      setProfileImage(undefined);
+      // setProfileImage(undefined);
       initialDataRef.current.profileImage = undefined;
     }
   }, [initialProfileFileProp]);
@@ -168,50 +261,17 @@ export const MyPageEditPage = ({
     if (profileImage !== initialData.profileImage) return true; //이미지
     // 위치 정보 비교
     const currentLocationsIds = locations
-      .map(loc => loc.id)
+      .map(loc => loc.addrId)
       .sort()
       .join(",");
     const initialLocationsIds = initialData.locations
-      .map(loc => loc.id)
+      .map(loc => loc.addrId)
       .sort()
       .join(",");
     if (currentLocationsIds !== initialLocationsIds) return true;
 
     return false;
   }, [name, selectedRank, hasNoRank, selectedDate, profileImage, locations]);
-
-  //수정 완료 버튼 클릭 처리
-  const onCompleteClick = () => {
-    if (name.trim() === "") {
-      alert("이름은 반드시 입력해야 합니다.");
-      return;
-    }
-
-    if (!isDataChanged()) {
-      // 변경사항 없을 때 → 바로 마이페이지 이동
-      navigate("/myPage");
-      return;
-    }
-    console.log("수정된 정보를 서버에 저장합니다.");
-
-    navigate("/myPage");
-  };
-
-  const onBackClick = () => {
-    if (isDataChanged()) {
-      setIsModalOpen(true);
-    } else {
-      navigate("/myPage");
-    }
-  };
-  const handleConfirmLeave = () => {
-    setIsModalOpen(false);
-    navigate("/myPage");
-  };
-
-  const handleCancelLeave = () => {
-    setIsModalOpen(false);
-  };
 
   // 이름 기능부분
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,11 +284,32 @@ export const MyPageEditPage = ({
     }
     setName(input);
   };
+  //주소 삭제
+  const handleDelete = async (addrId: number) => {
+    try {
+      await deleteAddress(addrId);
+      setLocations(prev => prev.filter(loc => loc.addrId !== addrId));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    if (selectedId === null) return;
 
-  // Location 기능 부분
-  // const handleDelete = (id: number) => {
-  //   setLocations((prev) => prev.filter((loc) => loc.id !== id));
-  // };
+    const updateMainAddress = async () => {
+      try {
+        await setMainAddress(selectedId);
+        // 대표 주소 변경 성공 후에, 필요하면 다시 주소 리스트 불러오기
+        const updatedLocations = await getMyProfileLocations();
+        setLocations(updatedLocations);
+      } catch (error) {
+        alert("대표 주소 변경에 실패했습니다.");
+        console.error(error);
+      }
+    };
+
+    updateMainAddress();
+  }, [selectedId]);
 
   const toggleEditMode = () => {
     if (editMode) {
@@ -238,6 +319,7 @@ export const MyPageEditPage = ({
     }
     setEditMode(prev => !prev);
   };
+  
   if (locations.length > 5) {
     alert(
       "위치 정보는 최대 5개까지 저장 가능합니다. 수정 버튼을 통해 등록된 위치를 삭제해주세요",
@@ -259,10 +341,8 @@ export const MyPageEditPage = ({
       reader.readAsDataURL(file);
     }
   };
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const pickerRef = useRef<{ getDueString: () => string }>(null);
-
   //생년월일
+  const pickerRef = useRef<{ getDueString: () => string }>(null);
   const handleCloseOverlay = () => {
     if (pickerRef.current) {
       const date = pickerRef.current.getDueString(); // 선택된 값
@@ -270,6 +350,81 @@ export const MyPageEditPage = ({
       setValue("birthday", date, { shouldValidate: true });
     }
     setOpenModal(false);
+  };
+
+  //수정 완료 버튼 클릭 처리 -> 수정 API 연동
+  const onCompleteClick = async () => {
+    if (name.trim() === "") {
+      alert("이름은 반드시 입력해야 합니다.");
+      return;
+    }
+
+    if (!isDataChanged()) {
+      navigate("/myPage");
+      return;
+    }
+
+    try {
+      const formattedBirth = selectedDate.replace(/\./g, "-");
+
+      const levelMap: Record<string, string> = {
+        "왕초심": "NOVICE",
+        "초심": "BEGINNER",
+        "D조": "D",
+        "C조": "C",
+        "B조": "B",
+        "A조": "A",
+        "준자강": "SEMI_EXPERT",
+        "자강": "EXPERT",
+        "NO_RANK": "NONE",
+        "NONE": "NONE"
+      };
+      const mappedLevel = disabled ? "NONE" : (levelMap[selectedLevel] || "NONE");
+
+      const keywordMap: Record<string, string> = {
+        "브랜드 스폰": "BRAND",
+        "가입비 무료": "FREE",
+        "친목": "FRIENDSHIP",
+        "운영진이 게임을 짜드려요": "MANAGER_MATCH",
+        "NONE": "NONE",
+      };
+      const mappedKeywords = selectedKeywords.length > 0 
+        ? selectedKeywords.map(k => keywordMap[k] || "NONE")
+        : ["NONE"];
+
+      // TODO: 실제 이미지 업로드 후 받아오는 키를 넣어야 함
+      const imgKey = profileImageKey || "";
+
+      const payload = {
+        memberName: name,
+        birth: formattedBirth,
+        level: mappedLevel,
+        keywords: mappedKeywords,
+        imgKey,
+      };
+
+      await patchMyProfile(payload);
+      alert("프로필이 성공적으로 수정되었습니다.");
+      navigate("/myPage");
+    } catch (error) {
+      console.error("프로필 수정 실패:", error);
+      alert("프로필 수정에 실패했습니다.");
+    }
+  };
+
+  const onBackClick = () => {
+    if (isDataChanged()) {
+      setIsModalOpen(true);
+    } else {
+      navigate("/myPage");
+    }
+  };
+  const handleConfirmLeave = () => {
+    setIsModalOpen(false);
+    navigate("/myPage");
+  };
+  const handleCancelLeave = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -346,7 +501,7 @@ export const MyPageEditPage = ({
           </div>
         </div>
 
-        {/* 생년월일 -> 값을 받아오게 해야하는뎁*/}
+        {/* 생년월일 */}
         <div className="mb-8 flex flex-col items-start">
           <div className="w-full">
             <div className="text-left flex flex-col gap-2">
@@ -469,22 +624,21 @@ export const MyPageEditPage = ({
           <div className="flex flex-col gap-2 text-start">
             {locations
               .sort((a, b) =>
-                a.id === selectedId ? -1 : b.id === selectedId ? 1 : 0,
+                a.addrId === selectedId ? -1 : b.addrId === selectedId ? 1 : 0,
               )
               .map((loc, index) => (
-                <div className="relative" key={loc.id}>
+                <div className="relative" key={loc.addrId}>
                   <Location
                     className="w-full"
-                    isMainAddr={loc.isMainAddr}
+                    isMainAddr={loc.buildingName}
                     streetAddr={loc.streetAddr}
-                    initialClicked={loc.id === selectedId}
-                    // disabled={false}
+                    initialClicked={loc.addrId === selectedId}
                     disabled={editMode && index === 0}
                     editMode={editMode}
                     onClick={() => {
-                      if (!editMode) setSelectedId(loc.id);
+                      if (!editMode) setSelectedId(loc.addrId);
                     }}
-                    onDelete={() => handleDelete(loc.id)}
+                    onDelete={() => handleDelete(loc.addrId)}
                   />
                 </div>
               ))}
@@ -496,7 +650,7 @@ export const MyPageEditPage = ({
           <label className="flex items-center text-left header-h5 mb-1">
             키워드
           </label>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3  items-center">
             {keywordLines.map((line, i) => (
               <div key={i} className="flex gap-4 flex-wrap">
                 {line.map(keyword => {
@@ -524,6 +678,7 @@ export const MyPageEditPage = ({
             ))}
           </div>
         </div>
+        
         <div className="mt-8 mb-8 flex justify-center">
           <Btn_Static
             kind="GR400"

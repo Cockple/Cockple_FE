@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { useState } from "react";
 import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { Modal_Apply } from "../../../components/group/Modal_Apply";
+import { Modal_Join } from "../../../components/group/Modal_Join";
 import { getModalConfig } from "../../../components/group/modalConfig";
 import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
 
@@ -102,7 +102,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false); // 신청 여부
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [sortOption, setSortOption] = useState("최신순");
+  const [sortOption, setSortOption] = useState("운동 수정하기");
 
   // 참여 멤버 삭제 함수
   const handleDeleteMember = (idx: number) => {
@@ -121,7 +121,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
       <PageHeader title="운동 상세" onMoreClick={() => setIsSortOpen(true)} />
       <div className="flex flex-col gap-8">
         {/* 장소 정보 */}
-        <div className="border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
+        <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
           <div className="flex items-center gap-2">
             <Caution className="w-5 h-5" />
             <p className="body-rg-500 truncate">{notice}</p>
@@ -235,7 +235,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
       <div className="mt-8">
         <Grad_GR400_L label="신청하기" onClick={() => setIsModalOpen(true)} />
         {isModalOpen && (
-          <Modal_Apply
+          <Modal_Join
             title={
               isApplied ? "신청이 완료되었어요!" : "운동을 신청하시겠어요?"
             }

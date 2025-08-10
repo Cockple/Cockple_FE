@@ -1,6 +1,6 @@
 export const groupDummy = [
   {
-    partyId: 1,
+    partyId: 401,
     partyName: "민턴클로버",
     addr1: "경기도",
     addr2: "성남시",
@@ -13,7 +13,7 @@ export const groupDummy = [
     isFavorite: true,
   },
   {
-    partyId: 2,
+    partyId: 402,
     partyName: "하이배드",
     addr1: "서울특별시",
     addr2: "강남구",
@@ -26,7 +26,7 @@ export const groupDummy = [
     isFavorite: true,
   },
   {
-    partyId: 3,
+    partyId: 403,
     partyName: "셔틀콕즈",
     addr1: "인천광역시",
     addr2: "미추홀구",
@@ -39,7 +39,7 @@ export const groupDummy = [
     isFavorite: true,
   },
   {
-    partyId: 4,
+    partyId: 404,
     partyName: "민턴즈리턴",
     addr1: "수원시",
     addr2: "팔달구",

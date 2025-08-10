@@ -9,7 +9,7 @@ import {
   GroupPage,
   ExerciseDetail,
   GroupDetailMemberDefault,
-  // MemberDefault,
+  MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
   ViceLeaderDefault,
@@ -30,7 +30,6 @@ import {
   MyPage,
   MyPageEditLocationPage,
   MyPageEditPage,
-  // MyPageExerciseDetailPage,
   MyPageMedalAddPage,
   MyPageMedalDetailPage,
   MyPageMyExercisePage,
@@ -47,7 +46,7 @@ import { GroupChatDetailPage } from "./pages/chat/GroupChatDetailPage";
 import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";
 import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
-import useSplashStore from "./zustand/useSplashStore";
+import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
 // import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
@@ -59,7 +58,6 @@ import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
 import { GroupRecommendPage } from "./pages/group/GroupRecommendPage";
 import { GroupRecommendFilterPage } from "./pages/group/GroupRecommendFilterPage";
 import { InviteGuest } from "./pages/group/InviteGuest";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
 import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
 import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
@@ -70,13 +68,14 @@ import { LocationSearchPage } from "./pages/location/LocationSearchPage";
 import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
-import { MyGroupDetailMemberDefault } from "./pages/group/MyGroupDetail/MemberDefault";
+import MemberRequestPage from "./pages/group/MemberRequest";
+import KakaoLogin from "./pages/login/KakaoLogin";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
+
 
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/login/kakao", element: <KakaoLogin /> },
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
@@ -123,15 +122,15 @@ const router = createBrowserRouter([
       },
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
-      // {
-      //   path: "/mypage/myexercise/:exerciseId",
-      //   element: <MyPageExerciseDetailPage />,
-      // },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
+      // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
+      { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
+
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
-      { path: "/mypage/profile", element: <MyPageProfile /> },
+      // { path: "/mypage/profile", element: <MyPageProfile /> },
+      { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
       { path: "/mypage/profile/medal", element: <MyPageProfileMedal /> },
 
@@ -145,11 +144,15 @@ const router = createBrowserRouter([
       { path: "/alert", element: <AlertPage /> },
       { path: "/location/search", element: <LocationSearchPage /> },
       { path: "/location/map", element: <LocationMapPage /> },
+
       { path: "/group/recommend", element: <GroupRecommendPage /> },
+      {
+        path: "/group/:partyId/member-request",
+        element: <MemberRequestPage />,
+      },
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      // { path: "/group/MemberDefault", element: <MemberDefault /> },
       {
         path: "/group/Mygroup/MyExerciseDetail",
         element: <MyExerciseDetail />,
@@ -179,7 +182,7 @@ const router = createBrowserRouter([
           { index: true, element: <GroupHomePage /> },
           { path: "chat", element: <GroupChatPage /> },
           { path: "calendar", element: <GroupCalendarPage /> },
-          { path: "member", element: <MyGroupDetailMemberDefault /> },
+          { path: "member", element: <MemberDefault /> },
         ],
       },
 
@@ -202,6 +205,7 @@ function App() {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
+  
   return (
     <div className="w-full flex justify-center items-center">
       <main

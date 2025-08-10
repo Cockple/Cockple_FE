@@ -3,6 +3,7 @@ import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
+import clsx from "clsx";
 
 interface ExerciseMProps {
   id: number;
@@ -13,6 +14,8 @@ interface ExerciseMProps {
   imageSrc: string;
   isFavorite?: boolean;
   onToggleFavorite?: (id: number) => void;
+  onClick?: () => void;
+  className?: string;
 }
 
 export const Exercise_M = ({
@@ -24,13 +27,16 @@ export const Exercise_M = ({
   imageSrc,
   isFavorite = false,
   onToggleFavorite,
+  onClick,
+  className,
 }: ExerciseMProps) => {
   // pressing 상태 관리
   const [isPressing, setIsPressing] = useState(false);
 
   const [favorite, setFavorite] = useState(isFavorite);
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
@@ -43,9 +49,13 @@ export const Exercise_M = ({
       onMouseLeave={() => setIsPressing(false)}
       onTouchStart={() => setIsPressing(true)}
       onTouchEnd={() => setIsPressing(false)}
-      className={`p-[0.5rem] w-[21.4375rem] h-[6.5rem] rounded-[0.75rem] 
+      className={clsx(
+        `p-[0.5rem] w-[21.4375rem] h-[6.5rem] rounded-[0.75rem] 
         ${isPressing ? "bg-[#F4F5F6]" : "bg-white"} 
-        shadow-ds50 flex items-center gap-[0.75rem] transition-colors duration-150`}
+        shadow-ds50 flex items-center gap-[0.75rem] transition-colors duration-150`,
+        className,
+      )}
+      onClick={onClick}
     >
       {/* 이미지 영역 */}
       <div className="relative">
@@ -56,11 +66,9 @@ export const Exercise_M = ({
         />
         <div
           style={{ position: "absolute", bottom: "0.25rem", right: "0.25rem" }}
+          onClick={handleToggleFavorite}
         >
-          <RD500_S_Icon
-            isActive={favorite}
-            onClick={() => handleToggleFavorite()}
-          />
+          <RD500_S_Icon isActive={favorite} />
         </div>
       </div>
 
