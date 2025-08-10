@@ -5,7 +5,7 @@ import { ProgressBar } from "../../common/ProgressBar";
 import Btn_Static from "../../common/Btn_Static/Btn_Static";
 import InputSlider from "../../common/Search_Filed/InputSlider";
 import CheckBoxInputFiled from "./CheckBoxInputField";
-import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
+import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();

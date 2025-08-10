@@ -46,7 +46,7 @@ import { GroupChatDetailPage } from "./pages/chat/GroupChatDetailPage";
 import { PersonalChatDetailPage } from "./pages/chat/PersonalChatDetailPage";
 import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
-import useSplashStore from "./zustand/useSplashStore";
+import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
 // import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
@@ -69,14 +69,13 @@ import { LocationMapPage } from "./pages/location/LocationMapPage";
 import { CreateExercise } from "./pages/group/CreateExercise";
 import { EditLocationPage } from "./pages/home/EditLocationPage";
 import MemberRequestPage from "./pages/group/MemberRequest";
-import OnboardingLayout from "./pages/onboarding/OnBoardingLayout";
+import KakaoLogin from "./pages/login/KakaoLogin";
+import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 
 
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/login/kakao", element: <KakaoLogin /> },
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
@@ -148,14 +147,20 @@ const router = createBrowserRouter([
 
       { path: "/group/recommend", element: <GroupRecommendPage /> },
       {
-        path: "/group/:groupId/member-request",
+        path: "/group/:partyId/member-request",
         element: <MemberRequestPage />,
       },
 
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
-      { path: "/group/Mygroup/MyExerciseDetail", element: <MyExerciseDetail /> },
-      { path: "/group/Mygroup/ExerciseDetailApplye", element: <ExerciseDetailApply /> }, 
+      {
+        path: "/group/Mygroup/MyExerciseDetail",
+        element: <MyExerciseDetail />,
+      },
+      {
+        path: "/group/Mygroup/ExerciseDetailApplye",
+        element: <ExerciseDetailApply />,
+      },
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },

@@ -31,11 +31,14 @@ export const LocationSearchPage = () => {
   const observer = useRef<IntersectionObserver | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const location = useLocation();
-  const returnPath = location.state?.returnPath ?? "/";
+  //onboarding
+  const [isOnboarding, setIsOnboarding] = useState(false);
+  const [returnPath, setIsReturnPath] = useState(
+    location.state?.returnPath ?? "/",
+  );
+  // const returnPath = location.state?.returnPath ?? "/";
+
   const mode = location.state?.mode ?? "fill-only";
-
-  const user = false;
-
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
       setIsLoading(true);
@@ -145,14 +148,29 @@ export const LocationSearchPage = () => {
       navigate(returnPath, {
         state: { selectedPlace },
       });
+      console.log(returnPath);
     }
   };
+  useEffect(() => {
+    const raw = sessionStorage.getItem("user");
+    const parsed = JSON.parse(raw ?? "{}");
+    const memberId = parsed?.state?.user?.memberId;
 
+    const isValidMember = typeof memberId === "number" && memberId > 0;
+
+    setIsOnboarding(isValidMember);
+
+    const fromRouter = location.state?.returnPath;
+    const fallbackPath = fromRouter ?? "/";
+
+    setIsReturnPath(isValidMember ? "/onboarding/profile" : fallbackPath);
+  }, []);
   return (
     <div className="flex flex-col">
       <PageHeader title="주소 검색" />
-
-      {user && <ProgressBar width={selectedId !== null ? "72" : "52"} />}
+      {isOnboarding && (
+        <ProgressBar width={selectedId !== null ? "72" : "52"} />
+      )}
 
       <div className="flex flex-col mt-5 gap-6">
         <div className="flex flex-col w-full gap-2">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
@@ -8,7 +8,13 @@ import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import {
+  bookmarkExercise,
+  unbookmarkExercise,
+} from "../../../api/bookmark/bookmark";
 import CautionExerciseModals from "../../like/CautionExerciseModal";
+
 interface ContentCardLProps {
   id: number;
   isUserJoined: boolean;
@@ -53,7 +59,32 @@ export const ContentCardL = ({
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
   const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //운동 50개 넘어가면 모달창
+  //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
+
+  useEffect(() => {
+    setFavorite(like);
+  }, [like]);
+
+  const bookmarkMutation = useMutation({
+    mutationFn: bookmarkExercise,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["exerciseBookmarks"] });
+    // },
+    // onError: () => {
+    //   setFavorite(false); // rollback
+    // },
+  });
+
+  const unbookmarkMutation = useMutation({
+    mutationFn: unbookmarkExercise,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["exerciseBookmarks"] });
+    // },
+    // onError: () => {
+    //   setFavorite(true); // rollback
+    // },
+  });
 
   const handleToggleFavorite = () => {
     if (!favorite && (LikeCount ?? 0) >= 50) {
@@ -64,6 +95,12 @@ export const ContentCardL = ({
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
+
+    if (newFavorite) {
+      bookmarkMutation.mutate(id);
+    } else {
+      unbookmarkMutation.mutate(id);
+    }
   };
 
 

@@ -4,7 +4,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ChatDetailTemplate } from "../../components/chat/ChatDetailTemplate";
 //import ProfileImg from "../../assets/images/Profile_Image.png";
 //import type { ChatMessageResponse } from "../../types/chat";
-import { groupChatDataMap } from "../../components/chat/groupChatMessageDummy";
+//import { groupChatDataMap } from "../../components/chat/groupChatMessageDummy";
 
 export const GroupChatDetailPage = () => {
   const { chatId } = useParams();
@@ -20,7 +20,7 @@ export const GroupChatDetailPage = () => {
       chatId={chatId}
       chatName={chatName}
       chatType="group"
-      chatData={groupChatDataMap}
+      //chatData={groupChatDataMap}
       onBack={() => navigate(`/chat`, { state: { tab: "group" } })}
       showHomeButton
       partyId={partyId}

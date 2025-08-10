@@ -7,7 +7,7 @@ import { ProgressBar } from "../../../components/common/ProgressBar";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import InputField from "../../../components/common/Search_Filed/InputField";
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
-import { useGroupMakingFilterStore } from "../../../zustand/useGroupMakingFilter";
+import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 
