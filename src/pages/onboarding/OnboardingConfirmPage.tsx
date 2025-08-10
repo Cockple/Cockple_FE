@@ -27,7 +27,6 @@ export const ConfirmPage = () => {
   const { level, memberName, gender, birth, keyword, setTemp } =
     useOnboardingState();
   //세션 reset (지도때문에)
-  const { resetUser } = useUserStore();
 
   const [selectedTag, setSelectedTag] = useState<string[]>(keyword ?? []);
   const { toEng } = userLevelMapper();
@@ -85,7 +84,6 @@ export const ConfirmPage = () => {
       } else {
         navigate("/onboarding/confirm/start");
       }
-      resetUser();
     },
     onError: err => {
       console.log(err);
