@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import KittyImg from "@/assets/images/kitty.png?url";
@@ -13,7 +12,6 @@ export const OnboardingConfirmStartPage = () => {
       className="w-full  flex flex-col -mb-8 pt-14"
       style={{ minHeight: "100dvh" }}
     >
-      <PageHeader title="가입 완료" />
       <section className="flex items-center flex-col  gap-15 flex-1 ">
         <IntroText
           title="입상 기록이 나를 더 잘 보여줄거에요!"
