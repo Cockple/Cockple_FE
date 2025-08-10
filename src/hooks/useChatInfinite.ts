@@ -23,7 +23,7 @@ const uniqueByMessageId = (items: ChatMessageResponse[]) => {
   });
 };
 
-export const useChatInfinite = (roomId: string) => {
+export const useChatInfinite = (roomId: number) => {
   // 1) 초기 윈도우(현재 메시지 묶음)
   const {
     data: initial,

@@ -22,7 +22,7 @@ const ChattingComponent = ({
   message,
   isMe,
   unreadCount,
-  onImageClick,
+  //onImageClick,
   time,
 }: ChattingComponentProps) => {
   //chatNick 상태 변수와 setChatNick 함수 정의
@@ -54,14 +54,14 @@ const ChattingComponent = ({
           onClick={() => onImageClick?.(src)}
         />
       ))} */}
-      {message.fileInfo?.fileUrl ? (
+      {/* {message.fileInfo?.fileUrl ? (
         <img
           src={message.fileInfo.fileUrl}
           alt={message.fileInfo.fileName}
           className="w-40 h-40 object-cover rounded-lg cursor-pointer"
           onClick={() => onImageClick?.(message.fileInfo!.fileUrl)}
         />
-      ) : null}
+      ) : null} */}
     </div>
   );
 
@@ -171,7 +171,7 @@ const ChattingComponent = ({
                       {unreadCount && unreadCount > 0 && (
                         <span className="text-gr-500">{unreadCount}</span>
                       )}
-                      <span className="text-gy-700">{message.createdAt}</span>
+                      <span className="text-gy-700">{message.timestamp}</span>
                     </div>
                   </div>
                 )}
