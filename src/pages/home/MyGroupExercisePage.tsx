@@ -44,8 +44,12 @@ export const MyGroupExercisePage = () => {
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const swiperRef = useRef<SwiperClass | null>(null);
 
-  // onSlideChange에서 첫 1회 무시용(프로그램적으로 slideTo 했을 때)
+  // 프로그램적 slideTo 이후 onSlideChange 무시
   const ignoreNextSlideChange = useRef(false);
+  // 오늘 주로 스냅은 최초 1회만
+  const hasSnappedToToday = useRef(false);
+  // initialSlide는 최초 마운트 1회만 읽히므로 ref에 고정
+  const initialSlideRef = useRef<number>(0);
 
   // 초기 로딩
   useEffect(() => {
@@ -53,19 +57,29 @@ export const MyGroupExercisePage = () => {
       setLoading(true);
       try {
         const orderType = sortOption === "최신순" ? "LATEST" : "POPULARITY";
-        const data = await fetchMyGroupCalendar({
+        const res = await fetchMyGroupCalendar({
           orderType,
           startDate: null,
           endDate: null,
         });
-        setCalendar(data);
+
+        // ✅ 빈 주 보정
+        const weeks =
+          res.weeks && res.weeks.length > 0
+            ? res.weeks
+            : generateWeeksFromRange(res.startDate, res.endDate);
+
+        setCalendar({
+          ...res,
+          weeks,
+        });
       } finally {
         setLoading(false);
       }
     })();
   }, [sortOption]);
 
-  // 주 병합
+  // 주 병합(중복 제거)
   const mergeWeeks = (base: CalWeek[], incoming: CalWeek[]) => {
     const seen = new Set(base.map(w => w.weekStartDate));
     const uniq = incoming.filter(w => !seen.has(w.weekStartDate));
@@ -79,49 +93,70 @@ export const MyGroupExercisePage = () => {
       setFetchingMore(true);
       try {
         const orderType = sortOption === "최신순" ? "LATEST" : "POPULARITY";
+
         if (direction === "future") {
-          const newStart = addDays(calendar.endDate, 1);
-          const newEnd = addDays(newStart, 13);
-          const data = await fetchMyGroupCalendar({
+          const reqStart = addDays(calendar.endDate, 1);
+          const reqEnd = addDays(reqStart, 13);
+          const res = await fetchMyGroupCalendar({
             orderType,
-            startDate: newStart,
-            endDate: newEnd,
+            startDate: reqStart,
+            endDate: reqEnd,
           });
+
+          // ✅ 빈 주 보정 + endDate 갱신 유지
+          const weeks =
+            res.weeks && res.weeks.length > 0
+              ? res.weeks
+              : generateWeeksFromRange(res.startDate, res.endDate);
+
           setCalendar(prev =>
             prev
               ? {
                   startDate: prev.startDate,
-                  endDate: data.endDate,
-                  weeks: mergeWeeks(prev.weeks, data.weeks),
+                  endDate: res.endDate, // res.endDate로 한 칸 전진
+                  weeks: mergeWeeks(prev.weeks, weeks),
                 }
-              : data,
+              : { ...res, weeks },
           );
         } else {
-          const newEnd = addDays(calendar.startDate, -1);
-          const newStart = addDays(newEnd, -13);
-          const data = await fetchMyGroupCalendar({
+          // 과거 주 prepend
+          const reqEnd = addDays(calendar.startDate, -1);
+          const reqStart = addDays(reqEnd, -13);
+          const res = await fetchMyGroupCalendar({
             orderType,
-            startDate: newStart,
-            endDate: newEnd,
+            startDate: reqStart,
+            endDate: reqEnd,
           });
+
+          // ✅ 빈 주 보정 + startDate 갱신 유지
+          const weeks =
+            res.weeks && res.weeks.length > 0
+              ? res.weeks
+              : generateWeeksFromRange(res.startDate, res.endDate);
+
+          // 현재 인덱스/추가 갯수 계산(중복 제외)
+          const current = swiperRef.current?.activeIndex ?? 0;
+          const added = weeks.filter(
+            w => !calendar.weeks.some(x => x.weekStartDate === w.weekStartDate),
+          ).length;
+
           setCalendar(prev =>
             prev
               ? {
-                  startDate: data.startDate,
+                  startDate: res.startDate, // res.startDate로 한 칸 뒤로 확장
                   endDate: prev.endDate,
-                  weeks: mergeWeeks(data.weeks, prev.weeks),
+                  weeks: mergeWeeks(weeks, prev.weeks),
                 }
-              : data,
+              : { ...res, weeks },
           );
 
-          // 앞에 주를 붙였으니 인덱스 보정
-          setTimeout(() => {
-            if (swiperRef.current) {
-              const added = data.weeks.length;
+          // 앞에 붙였으면 현재 보던 위치 보정
+          if (swiperRef.current && added > 0) {
+            setTimeout(() => {
               ignoreNextSlideChange.current = true;
-              swiperRef.current.slideTo(added, 0);
-            }
-          }, 0);
+              swiperRef.current!.slideTo(current + added, 0);
+            }, 0);
+          }
         }
       } finally {
         setFetchingMore(false);
@@ -137,6 +172,7 @@ export const MyGroupExercisePage = () => {
         return;
       }
       if (!calendar || fetchingMore) return;
+
       const buffer = 1;
       if (swiper.activeIndex >= calendar.weeks.length - 1 - buffer) {
         loadMore("future");
@@ -147,10 +183,10 @@ export const MyGroupExercisePage = () => {
     [calendar, fetchingMore, loadMore],
   );
 
-  // 빈 주 보정
+  // 빈 주 보정 (초기 상태 전용)
   const processedWeeks = useMemo(() => {
     if (!calendar) return null;
-    if (calendar.weeks.length === 0) {
+    if (!calendar.weeks || calendar.weeks.length === 0) {
       return generateWeeksFromRange(calendar.startDate, calendar.endDate);
     }
     return calendar.weeks;
@@ -166,10 +202,18 @@ export const MyGroupExercisePage = () => {
     return idx >= 0 ? idx : 0;
   }, [processedWeeks]);
 
-  // ✅ 데이터가 준비되면 강제로 오늘 주로 1회 맞춰주기(초기 위치 튐 방지)
+  // initialSlide는 최초에만 고정 전달
+  useEffect(() => {
+    initialSlideRef.current = initialSlideIndex;
+  }, [initialSlideIndex]);
+
+  // 첫 데이터 준비되면 오늘 주로 1회 스냅
   useEffect(() => {
     if (!processedWeeks?.length) return;
     if (!swiperRef.current) return;
+    if (hasSnappedToToday.current) return;
+
+    hasSnappedToToday.current = true;
     ignoreNextSlideChange.current = true;
     swiperRef.current.slideTo(initialSlideIndex, 0);
   }, [processedWeeks, initialSlideIndex]);
@@ -190,7 +234,6 @@ export const MyGroupExercisePage = () => {
     const found = processedWeeks
       .flatMap(w => w.days)
       .find(d => d.date === selectedDate);
-    // Ensure exercises are of type CalExercise[]
     return (found?.exercises ?? []) as CalExercise[];
   }, [processedWeeks, selectedDate]);
 
@@ -207,7 +250,7 @@ export const MyGroupExercisePage = () => {
               weeks={processedWeeks}
               selectedDate={selectedDate}
               exerciseDays={exerciseDays}
-              initialSlide={initialSlideIndex}
+              initialSlide={initialSlideRef.current}
               onSlideChange={handleSlideChange}
               setSwiperRef={swiper => (swiperRef.current = swiper)}
               onClick={setSelectedDate}
@@ -215,7 +258,6 @@ export const MyGroupExercisePage = () => {
           )}
         </div>
 
-        {/* 정렬 UI */}
         <div className="flex justify-end w-full h-7">
           <Sort
             label={sortOption}
@@ -224,7 +266,6 @@ export const MyGroupExercisePage = () => {
           />
         </div>
 
-        {/* 선택 날짜의 운동 목록 */}
         <div className="flex flex-col gap-3">
           {selectedDayExercises.length > 0 ? (
             selectedDayExercises.map(ex => (
@@ -238,10 +279,8 @@ export const MyGroupExercisePage = () => {
                   date={selectedDate}
                   time={`${ex.startTime} ~ ${ex.endTime}`}
                   location={ex.buildingName}
-                  imageSrc={ex.profileImageUrl ?? ""}
-                  onClick={() => {
-                    /* 상세 이동 등 */
-                  }}
+                  imageSrc={ex.profileImageUrl || null}
+                  onClick={() => {}}
                 />
               </div>
             ))
