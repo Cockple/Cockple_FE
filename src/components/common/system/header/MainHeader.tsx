@@ -1,9 +1,14 @@
-import LogoIcon from "@/assets/icons/Logo.svg";
-import Alert from "@/assets/icons/alert.svg";
-import AlertNoti from "@/assets/icons/alert_noti.svg";
+import LogoIcon from "@/assets/icons/Logo.svg?url";
+import Alert from "@/assets/icons/alert.svg?url";
+import AlertNoti from "@/assets/icons/alert_noti.svg?url";
 import clsx from "clsx";
 import DropDownBtn from "../../DynamicBtn/DropDownBtn";
 import { useNavigate } from "react-router-dom";
+import {
+  getMyLocation,
+  type MyLocationType,
+} from "../../../../api/member/getMyLocation";
+import { useEffect, useState } from "react";
 
 interface MainHeaderProps {
   hasNotification?: boolean;
@@ -18,6 +23,16 @@ export const MainHeader = ({
 }: MainHeaderProps) => {
   const navigate = useNavigate();
   const alertIcon = hasNotification ? AlertNoti : Alert;
+  const [location, setLocation] = useState("");
+
+  useEffect(() => {
+    const fetchMyLocation = async () => {
+      const data: MyLocationType = await getMyLocation();
+      setLocation(data.addr3 ?? data.buildingName);
+    };
+
+    fetchMyLocation();
+  }, []);
 
   return (
     <div
@@ -30,13 +45,8 @@ export const MainHeader = ({
       <img src={LogoIcon} className="w-15" alt="Cockple Logo" />
 
       <div className="flex gap-3">
-        <DropDownBtn>
-          <span
-            className="header-h4"
-            onClick={() => navigate("/edit/location")}
-          >
-            사1동
-          </span>
+        <DropDownBtn onClick={() => navigate("/edit/location")}>
+          <span className="header-h4">{location}</span>
         </DropDownBtn>
 
         <button

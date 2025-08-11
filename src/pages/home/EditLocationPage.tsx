@@ -1,42 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DynamicBtn from "../../components/common/DynamicBtn/DynamicBtn";
 import { LocationField } from "../../components/common/LocationField";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { Location } from "../../components/common/contentcard/Location";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { useNavigate } from "react-router-dom";
-
-const testData = [
-  {
-    id: 1,
-    name: "디에이치스티어아이파크",
-    address: "서울특별시 강남구 개포로 310",
-  },
-  {
-    id: 2,
-    name: "디에이치스티어아이파크",
-    address: "서울특별시 강남구 개포로 310",
-  },
-  {
-    id: 3,
-    name: "디에이치스티어아이파크",
-    address: "서울특별시 강남구 개포로 310",
-  },
-  {
-    id: 4,
-    name: "디에이치스티어아이파크",
-    address: "서울특별시 강남구 개포로 310",
-  },
-];
+import {
+  getMyProfileLocations,
+  setMainAddress,
+  type UserAddress,
+} from "../../api/member/my";
 
 export const EditLocationPage = () => {
   const [edit, setEdit] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(1);
-  const [locationList, setLocationList] = useState(testData);
+  const [locationList, setLocationList] = useState<UserAddress[]>([]);
   const navigate = useNavigate();
 
   const handleDelete = (id: number) => {
-    setLocationList(prev => prev.filter(item => item.id !== id));
+    setLocationList(prev => prev.filter(item => item.addrId !== id));
   };
 
   const handleClick = (clickedId: number) => {
@@ -44,6 +26,30 @@ export const EditLocationPage = () => {
 
     setSelectedId(clickedId);
   };
+
+  const onClickEdit = async () => {
+    await setMainAddress(Number(selectedId));
+    navigate(-1);
+  };
+
+  useEffect(() => {
+    const getMyLocations = async () => {
+      try {
+        const data = await getMyProfileLocations();
+        console.log(data);
+        setLocationList(data);
+
+        const mainAddr = data.find((addr: UserAddress) => addr.isMainAddr);
+        if (mainAddr) {
+          setSelectedId(mainAddr.addrId);
+        }
+      } catch (err) {
+        console.log("등록된 위치 불러오기 오류: ", err);
+      }
+    };
+
+    getMyLocations();
+  }, []);
 
   return (
     <div className="flex flex-col pb-27">
@@ -62,14 +68,14 @@ export const EditLocationPage = () => {
 
           {locationList.map(item => (
             <Location
-              key={item.id}
-              isMainAddr={item.name}
-              streetAddr={item.address}
+              key={item.addrId}
+              isMainAddr={item.buildingName}
+              streetAddr={item.streetAddr}
               editMode={edit}
-              disabled={edit && selectedId === item.id}
-              initialClicked={selectedId === item.id}
-              onClick={() => handleClick(item.id)}
-              onDelete={() => handleDelete(item.id)}
+              disabled={edit && selectedId === item.addrId}
+              initialClicked={selectedId === item.addrId}
+              onClick={() => handleClick(item.addrId)}
+              onDelete={() => handleDelete(item.addrId)}
               className="w-full"
             />
           ))}
@@ -78,7 +84,7 @@ export const EditLocationPage = () => {
 
       {!edit && (
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
-          <Grad_GR400_L label="수정 완료" onClick={() => navigate(-1)} />
+          <Grad_GR400_L label="수정 완료" onClick={onClickEdit} />
         </div>
       )}
     </div>
