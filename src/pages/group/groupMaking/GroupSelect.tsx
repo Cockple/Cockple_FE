@@ -5,10 +5,29 @@ import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import SingleImageUploadBtn from "../../../components/group/groupMaking/SingleImgUploadBtn";
 import InputField from "../../../components/common/Search_Filed/InputField";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import api from "../../../api/api";
+import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
+import type {
+  GroupMakingRequestDto,
+  GroupMakingResponseDTO,
+} from "../../../types/groupMaking";
 
 export const GroupSelect = () => {
   const [text, setText] = useState<string>();
-
+  const {
+    region,
+    femaleLevel,
+    maleLevel,
+    name,
+    weekly,
+    type,
+    kock,
+    money,
+    ageRange,
+    joinMoney,
+    time,
+  } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,15 +40,62 @@ export const GroupSelect = () => {
     setText(filterd);
   };
 
-  const handleNext = () => {
-    navigate("/confirm", {
-      state: {
-        onboarding: false,
-      },
-    });
+  const parsePrice = (value: string) => {
+    if (value === "disabled") return 0;
+    return Number(value.split(",").join("").slice(0, -1));
   };
 
-  // const isFormValid = "";
+  const parseKock = (value: string) => {
+    if (value === "disabled") return "";
+    return value;
+  };
+
+  const axios = api;
+  const apiJoinMoney = parsePrice(joinMoney);
+  const apiMoney = parsePrice(money);
+  const apiKock = parseKock(kock);
+  const apiType = type === "female" ? "여복" : "혼복";
+
+  const submitGroupMaking = async (): Promise<GroupMakingResponseDTO> => {
+    const RequestBody: GroupMakingRequestDto = {
+      partyName: name,
+      partyType: apiType,
+      femaleLevel: femaleLevel,
+      maleLevel: maleLevel,
+      addr1: region[0],
+      addr2: region[1],
+      activityTime: time,
+      activityDay: weekly,
+      designatedCock: apiKock,
+      joinPrice: apiJoinMoney,
+      price: apiMoney,
+      minBirthYear: ageRange[0],
+      maxBirthYear: ageRange[1],
+      content: text || "",
+      // imgKey:""
+    };
+    const { data } = await axios.post<GroupMakingResponseDTO>(
+      "/api/parties",
+      RequestBody,
+    );
+    return data;
+  };
+
+  const handleMakingGroup = useMutation({
+    mutationFn: submitGroupMaking(),
+    onSuccess: () => {
+      console.log("성공");
+      navigate("/confirm", {
+        state: {
+          onboarding: false,
+        },
+      });
+    },
+
+    onError: error => {
+      console.log(error);
+    },
+  });
   return (
     <>
       <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
@@ -57,7 +123,7 @@ export const GroupSelect = () => {
         {/* 버튼 */}
         <div
           className={`flex items-center justify-center mb-4 shrink-0 `}
-          onClick={handleNext}
+          onClick={() => handleMakingGroup.mutate()}
         >
           <Btn_Static
             label="다음"
