@@ -31,6 +31,7 @@ export default function KakaoLogin() {
         nickname: data.nickname,
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
+        isNewMember: data.isNewMember,
       };
       setUser(newUserData);
       if (data.isNewMember) {

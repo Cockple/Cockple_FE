@@ -16,7 +16,7 @@ type MemberStatus =
 
 interface MemberProps {
   name: string;
-  gender: "male" | "female";
+  gender: "MALE" | "FEMALE";
   level: string;
   birth?: string;
   status: MemberStatus;
@@ -25,25 +25,25 @@ interface MemberProps {
 const members: MemberProps[] = [
   {
     name: "누구겡",
-    gender: "male",
+    gender: "MALE",
     level: "D조",
     status: "approved",
   },
   // {
   //   name: "누구겡",
-  //   gender: "female",
+  //   gender: "FEMALE",
   //   level: "C조",
   //   status: "approved",
   // },
   // {
   //   name: "누구겡",
-  //   gender: "male",
+  //   gender: "MALE",
   //   level: "B조",
   //   status: "approved",
   // },
   // {
   //   name: "누구겡",
-  //   gender: "male",
+  //   gender: "MALE",
   //   level: "초급",
   //   status: "approved",
   // },

@@ -13,10 +13,15 @@ import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
 import { getModalConfig } from "../../group/modalConfig";
 
-type MemberStatus = "Participating" | "waiting" | "invite" | "request" | "approved";
+type MemberStatus =
+  | "Participating"
+  | "waiting"
+  | "invite"
+  | "request"
+  | "approved";
 
 interface MemberProps {
-  requestId: number; // joinRequestId를 매핑
+  requestId?: number; // joinRequestId를 매핑
   status: MemberStatus;
   name: string;
   gender: "MALE" | "FEMALE";
@@ -239,7 +244,7 @@ export const Member = ({
                 </div>
                 <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
                   <div className="flex items-center gap-[0.25rem]">
-                    {gender === "female" ? (
+                    {gender === "FEMALE" ? (
                       <Female className="w-[1rem] h-[1rem]" />
                     ) : (
                       <Male className="w-[1rem] h-[1rem]" />
@@ -278,7 +283,7 @@ export const Member = ({
                 </div>
                 <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
                   <div className="flex items-center gap-[0.25rem]">
-                    {gender === "female" ? (
+                    {gender === "FEMALE" ? (
                       <Female className="w-[1rem] h-[1rem]" />
                     ) : (
                       <Male className="w-[1rem] h-[1rem]" />

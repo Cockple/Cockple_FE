@@ -7,6 +7,7 @@ interface UserData {
   nickname: string;
   accessToken: string;
   refreshToken: string | null;
+  isNewMember: boolean;
 }
 
 interface UserStoreType {
