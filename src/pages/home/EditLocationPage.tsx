@@ -6,6 +6,7 @@ import { Location } from "../../components/common/contentcard/Location";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { useNavigate } from "react-router-dom";
 import {
+  deleteAddress,
   getMyProfileLocations,
   setMainAddress,
   type UserAddress,
@@ -17,7 +18,8 @@ export const EditLocationPage = () => {
   const [locationList, setLocationList] = useState<UserAddress[]>([]);
   const navigate = useNavigate();
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
+    await deleteAddress(id);
     setLocationList(prev => prev.filter(item => item.addrId !== id));
   };
 
