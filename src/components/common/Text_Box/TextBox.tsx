@@ -35,7 +35,7 @@ export default function TextBox({
       bg: "border-gy-100 bg-white shadow-ds100 ",
     },
     disabled: {
-      bg: "border-gy-100 bg-white ",
+      bg: "border-gy-100 bg-white  text-gy-500 shadow-ds100 opacity-70",
     },
   };
 
@@ -48,7 +48,7 @@ export default function TextBox({
       onClick={onClick}
       disabled={disabled}
       type={type ? type : "button"}
-      className={`border p-2 flex items-center justify-center rounded-lg ${bg} ${className}`}
+      className={`border p-2 flex items-center justify-center rounded-lg body-rg-500 ${bg} ${className}`}
     >
       {children}
     </button>
