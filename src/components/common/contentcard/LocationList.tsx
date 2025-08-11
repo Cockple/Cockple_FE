@@ -8,6 +8,7 @@ interface LocationListProps {
   streetAddr: string;
   x?: string;
   y?: string;
+  roadAddr?: string;
   input?: string;
   showOnMapText?: string;
   disabled?: boolean;
@@ -23,6 +24,7 @@ export const LocationList = ({
   streetAddr,
   x,
   y,
+  roadAddr,
   input,
   showOnMapText = "지도에서 보기",
   disabled = false,
@@ -59,7 +61,7 @@ export const LocationList = ({
     if (!disabled) {
       // navigate("/mypage/edit/location/address");
       navigate(
-        `/location/map?x=${x}&y=${y}&place=${encodeURIComponent(isMainAddr)}&address=${encodeURIComponent(streetAddr)}&query=${encodeURIComponent(input ?? "")}`,
+        `/location/map?x=${x}&y=${y}&place=${encodeURIComponent(isMainAddr)}&address=${encodeURIComponent(streetAddr)}&road=${encodeURIComponent(roadAddr ?? "")}&query=${encodeURIComponent(input ?? "")}`,
         {
           state: {
             returnPath: returnPath,

@@ -58,7 +58,7 @@ export const EditLocationPage = () => {
       <PageHeader title="위치 수정하기" />
 
       <div className="flex flex-col mt-5 gap-8">
-        <LocationField label="위치" icon={false} />
+        <LocationField label="위치" icon={false} mode="call-api" />
 
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
