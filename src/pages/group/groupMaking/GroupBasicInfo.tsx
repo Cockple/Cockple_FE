@@ -10,6 +10,8 @@ import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectBu
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
+import { useQuery } from "@tanstack/react-query";
+import { getMyProfile } from "../../../api/member/my";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
@@ -21,7 +23,6 @@ export const GroupBasicInfo = () => {
   const selected = useGroupMakingFilterStore(state => state.type);
   //정보
   const [localName, setLocalName] = useState(name ?? "");
-  // const [selected, isSelected] = useState<"female" | "mixed" | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleConfirmLeave = () => {
@@ -59,7 +60,14 @@ export const GroupBasicInfo = () => {
   const handleNext = () => {
     navigate("/group/making/activity");
   };
-
+  //내 프로필 가져오기
+  const { data: me, isLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: getMyProfile,
+  });
+  console.log(me);
+  const gender = me?.gender;
+  const isMale = gender === "MALE";
   return (
     <>
       <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
@@ -93,6 +101,7 @@ export const GroupBasicInfo = () => {
             <div className="flex gap-[13px]">
               <TextBox
                 children="여복"
+                disabled={isMale}
                 isSelected={selected === "female"}
                 onClick={() =>
                   setFilter("type", selected === "female" ? "" : "female")
