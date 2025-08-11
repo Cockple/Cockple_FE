@@ -76,7 +76,7 @@ export const ChatDetailTemplate = ({
   //USE_MOCK ? mock : real;
   // ===== 읽음 처리: 진입/포커스 시 자동 전송(현재 mock, 나중에 rest/ws로 변경) =====
   const { markReadNow } = useChatRead({
-    roomId: chatId,
+    roomId: Number(chatId),
     messages,
     mode: "mock", // ← 백엔드 URL 확정되면 "rest"로 교체
     // wsSendFn: payload => stompClient.publish({...}) 형태로 주입 가능

@@ -128,7 +128,7 @@ export const InviteGuest = () => {
           status="waiting"
           {...item}
           guestName={item.inviterName}
-          gender={item.gender}
+          gender={item.gender.toUpperCase() as "MALE" | "FEMALE"}
           number={watiingNum}
           level={responseLevelValue}
           showDeleteButton={true}

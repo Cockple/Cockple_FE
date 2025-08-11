@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { MyMedal } from "../../components/common/contentcard/MyMedal";
 import { MyPage_Medal2 } from "../../components/common/contentcard/MyPage_Medal2";
 import { ProfileMyMedal_None } from "../../components/MyPage/ProfileMyMedal_None";
 
@@ -29,12 +28,6 @@ interface MyMedalProps {
 }
 
 export const MyPageProfileMedal = ({
-  // name = "",
-  // gender = "",
-  // group = "",
-  // birth = "",
-  // imageSrc = "",
-
   myMedalTotal = 0,
   goldCount = 0,
   silverCount = 0,
@@ -47,11 +40,11 @@ export const MyPageProfileMedal = ({
     "전체",
   );
 
-  const filteredList = medals.filter(item => {
-    if (selectedTab === "전체") return true;
-    if (selectedTab === "미입상 기록") return !item.isAwarded;
-    return true;
-  });
+  // const filteredList = medals.filter(item => {
+  //   if (selectedTab === "전체") return true;
+  //   if (selectedTab === "미입상 기록") return !item.isAwarded;
+  //   return true;
+  // });
 
   const isEmpty = medals.length === 0;
 
@@ -99,14 +92,15 @@ export const MyPageProfileMedal = ({
           </div>
 
           <div className="flex flex-col gap-4">
-            {filteredList.map((item, idx) => (
+            {/* 다른 회원 메달 API X */}
+            {/* {filteredList.map((item, idx) => (
               <MyMedal
                 key={idx}
                 title={item.title}
                 date={item.date}
                 medalImageSrc={item.medalImageSrc}
               />
-            ))}
+            ))} */}
           </div>
         </>
       )}

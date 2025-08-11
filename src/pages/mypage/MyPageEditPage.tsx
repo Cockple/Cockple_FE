@@ -17,7 +17,7 @@ import { Location } from "../../components/common/contentcard/Location";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 import { getMyProfile, patchMyProfile } from "../../api/member/my";
 import { getMyProfileLocations, postMyProfileLocation, deleteAddress, setMainAddress } from "../../api/member/my";
-import type { UserAddress, AddLocationPayload } from "../../api/member/my";
+import type { UserAddress } from "../../api/member/my";
 
 interface MyPageEditProps {
   profileUrl?: File;
@@ -71,6 +71,8 @@ export const MyPageEditPage = ({
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [profileImageKey, setProfileImageKey] = useState<string>(""); // 이미지 업로드 키 -> 추후에 연동
+  void setProfileImageKey;  // 배포용 임시 코드 (TS unused 변수 경고 회피용)
+
 
   const selectedRank = initialBirthProp ?? "";
   const hasNoRank = initialHasNoRankProp ?? false;
