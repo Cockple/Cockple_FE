@@ -79,7 +79,7 @@ export default function DropCheckBox({
                       onClick={() => {
                         handleOptionClick(item);
                       }}
-                      className=" cursor-pointer w-40 rounded-xl px-3 py-[0.625rem] "
+                      className=" cursor-pointer w-40  px-3 py-[0.625rem] active:bg-gray-100 "
                     >
                       {item}
                     </li>
