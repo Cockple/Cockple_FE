@@ -12,6 +12,8 @@ import type {
   GroupMakingRequestDto,
   GroupMakingResponseDTO,
 } from "../../../types/groupMaking";
+import { groupMaking } from "../../../utils/groupMaking";
+import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
 
 export const GroupSelect = () => {
   const [text, setText] = useState<string>();
@@ -56,16 +58,20 @@ export const GroupSelect = () => {
   const apiKock = parseKock(kock);
   const apiType = type === "female" ? "여복" : "혼복";
 
+  const apiFemaleLevel = groupMaking(femaleLevel, LEVEL_KEY);
+  const apiMaleLevel = groupMaking(maleLevel, LEVEL_KEY);
+  const apiWeekly = groupMaking(weekly, WEEKLY_KEY);
+
   const submitGroupMaking = async (): Promise<GroupMakingResponseDTO> => {
     const RequestBody: GroupMakingRequestDto = {
       partyName: name,
       partyType: apiType,
-      femaleLevel: femaleLevel,
-      maleLevel: maleLevel,
+      femaleLevel: apiFemaleLevel,
+      maleLevel: apiMaleLevel,
       addr1: region[0],
       addr2: region[1],
       activityTime: time,
-      activityDay: weekly,
+      activityDay: apiWeekly,
       designatedCock: apiKock,
       joinPrice: apiJoinMoney,
       price: apiMoney,
@@ -82,7 +88,7 @@ export const GroupSelect = () => {
   };
 
   const handleMakingGroup = useMutation({
-    mutationFn: submitGroupMaking(),
+    mutationFn: submitGroupMaking,
     onSuccess: () => {
       console.log("성공");
       navigate("/confirm", {

@@ -23,7 +23,6 @@ export const GroupBasicInfo = () => {
   const { toKor } = userLevelMapper();
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
-  //정보
   const [localName, setLocalName] = useState(name ?? "");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,6 +63,7 @@ export const GroupBasicInfo = () => {
     queryKey: ["user"],
     queryFn: getMyProfile,
   });
+  console.log(me);
   const gender = me?.gender;
   const isMale = gender === "MALE";
   const myKorLevel = me ? toKor(me.level) : undefined;
@@ -73,16 +73,13 @@ export const GroupBasicInfo = () => {
     return arr.includes(ANY) || arr.includes(my);
   };
 
-  // “전체면 무시 + 성별쪽만 체크”
   const passesMyLevelRule = () => {
     if (!me || !myKorLevel) return false;
 
     if (selected === "female") {
-      //  여자 급수만 검증
       return containsMy(femaleLevel, myKorLevel);
     }
     if (selected === "mixed") {
-      // 혼복: 본인 성별 쪽만 검증, 반대쪽은 아무거나 OK
       return isMale
         ? containsMy(maleLevel, myKorLevel)
         : containsMy(femaleLevel, myKorLevel);
