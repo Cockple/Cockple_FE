@@ -12,13 +12,14 @@ import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { useQuery } from "@tanstack/react-query";
 import { getMyProfile } from "../../../api/member/my";
+import { userLevelMapper } from "../../../utils/levelValueExchange";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
   const { femaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
-
+  const { toKor } = userLevelMapper();
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
   //정보
@@ -37,7 +38,8 @@ export const GroupBasicInfo = () => {
   const onBackClick = () => {
     setIsModalOpen(true);
   };
-  //초기화
+
+  //본인 level포함 안되면 ..
 
   const isFormValid =
     localName.length > 0 &&
@@ -57,17 +59,49 @@ export const GroupBasicInfo = () => {
     setFilter("name", filtered);
   };
 
-  const handleNext = () => {
-    navigate("/group/making/activity");
-  };
   //내 프로필 가져오기
   const { data: me, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: getMyProfile,
   });
-  console.log(me);
   const gender = me?.gender;
   const isMale = gender === "MALE";
+  const myKorLevel = me ? toKor(me.level) : undefined;
+  const ANY = "전체";
+  const containsMy = (arr: string[], my?: string) => {
+    if (!my) return false;
+    return arr.includes(ANY) || arr.includes(my);
+  };
+
+  // “전체면 무시 + 성별쪽만 체크”
+  const passesMyLevelRule = () => {
+    if (!me || !myKorLevel) return false;
+
+    if (selected === "female") {
+      //  여자 급수만 검증
+      return containsMy(femaleLevel, myKorLevel);
+    }
+    if (selected === "mixed") {
+      // 혼복: 본인 성별 쪽만 검증, 반대쪽은 아무거나 OK
+      return isMale
+        ? containsMy(maleLevel, myKorLevel)
+        : containsMy(femaleLevel, myKorLevel);
+    }
+    return false;
+  };
+  const handleNext = () => {
+    if (isLoading || !me) {
+      alert("내 프로필을 불러오는 중입니다. 잠시만 기다려주세요.");
+      return;
+    }
+    if (!isFormValid) return;
+
+    if (!passesMyLevelRule()) {
+      alert("본인 급수를 포함해서 선택해주세요.");
+      return;
+    }
+    navigate("/group/making/activity");
+  };
   return (
     <>
       <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
