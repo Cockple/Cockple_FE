@@ -1,5 +1,5 @@
 // 메인 채팅 페이지
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 //import { groupChats } from "../../components/chat/groupDummy";
 //import { personalChats } from "../../components/chat/personalDummy";
@@ -17,6 +17,8 @@ import {
   searchGroupChatRooms,
   searchPersonalChatRooms,
 } from "../../api/chat/chatList";
+import { useRawWsConnect } from "../../hooks/useRawWsConnect";
+import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
@@ -40,7 +42,15 @@ export const ChatPage = () => {
     PersonalChatRoom[]
   >([]);
 
-  // 전체 목록
+  // 🌟전역 소켓 상태(열림 여부·수신 메시지)
+  const memberId = Number(localStorage.getItem("memberId") || 1);
+  // const { isOpen, lastMessage } = useRawWsConnect({
+  const { isOpen } = useRawWsConnect({
+    memberId,
+    origin: "https://cockple.store",
+  });
+
+  // 전체 목록(최초 로드)
   useEffect(() => {
     const fetchChats = async () => {
       try {
@@ -88,27 +98,62 @@ export const ChatPage = () => {
     fetchSearchedPeronalChats();
   }, [searchTerm]);
 
-  // 전체 사용 문자
-  // const allChatNames = [
-  //   ...groupChatRooms.map((c: GroupChatRoom) => c.partyName),
-  //   ...personalChatRooms.map((p: PersonalChatRoom) => p.displayName),
-  // ];
-  // const allUsedCharacters = useMemo(() => {
-  //   return new Set(allChatNames.flatMap(name => [...disassembleHangul(name)]));
-  // }, [allChatNames]);
+  //🌟
+  const prevRoomsRef = useRef<number[]>([]);
 
-  // // 검색어 유효성
-  // const isValidSearch = [...disassembleHangul(searchTerm)].every(char =>
-  //   allUsedCharacters.has(char),
-  // );
+  // 🌟현재 리스트에 보이는 방 id들
+  const visibleRoomIds = useMemo(
+    () =>
+      (activeTab === "group" ? groupChatRooms : personalChatRooms).map(
+        c => c.chatRoomId,
+      ),
+    [activeTab, groupChatRooms, personalChatRooms],
+  );
 
-  // 자모 기반 검색
-  // const filteredGroupChats = groupChatRooms.filter(chat =>
-  //   disassembleHangul(chat.partyName).includes(disassembleHangul(searchTerm)),
-  // );
-  // const filteredPersonalChats = personalChatRooms.filter(chat =>
-  //   disassembleHangul(chat.displayName).includes(disassembleHangul(searchTerm)),
-  // );
+  // 🌟
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const prev = new Set(prevRoomsRef.current);
+    const next = new Set(visibleRoomIds);
+
+    // 새로 보이게 된 방만 구독
+    for (const id of next) if (!prev.has(id)) subscribeRoom(id);
+    // 더 이상 보이지 않는 방만 해제
+    for (const id of prev) if (!next.has(id)) unsubscribeRoom(id);
+
+    prevRoomsRef.current = visibleRoomIds;
+
+    // 페이지 완전히 떠날 때만 모두 해제(상세 페이지에서 단일 구독 예정)
+    return () => {
+      prevRoomsRef.current.forEach(id => unsubscribeRoom(id));
+      prevRoomsRef.current = [];
+    };
+  }, [isOpen, visibleRoomIds]);
+
+  // 🌟실시간 수신 → 마지막 메시지/미읽음 카운트 갱신
+  // useEffect(() => {
+  //   if (!lastMessage || lastMessage.type !== "SEND") return;
+  //   const { chatRoomId, content, createdAt } = lastMessage;
+
+  //   const patch = <T extends { chatRoomId:number; unreadCount:number; lastMessage }>(list: T[]) =>
+  //     list.map(item =>
+  //       item.chatRoomId === chatRoomId
+  //         ? {
+  //             ...item,
+  //             lastMessage: {
+  //               ...(item).lastMessage,
+  //               content,
+  //               timestamp: createdAt,
+  //             },
+  //             unreadCount: item.unreadCount + 1,
+  //           }
+  //         : item
+  //     );
+
+  //   setGroupChatRooms(prev => patch(prev));
+  //   setPersonalChatRooms(prev => patch(prev));
+  // }, [lastMessage]);
 
   return (
     <div className="flex flex-col w-full pt-14">

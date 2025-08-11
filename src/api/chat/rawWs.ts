@@ -46,10 +46,12 @@ export type IncomingMessage =
   | SubscriptionResponse
   | BroadcastMessage;
 
-// 클라이언트 → 서버
-type OutgoingMessage =
-  | { type: "SUBSCRIBE"; chatRoomId: number }
-  | { type: "SEND"; chatRoomId: number; content: string };
+//현재 구독 중인 방 목록을 전역으로 유지
+const currentRooms = new Set<number>();
+
+// 재연결 백오프
+let reconnectTimer: number | null = null;
+let reconnectAttempt = 0;
 
 type Handlers = {
   onOpen?: (info?: ConnectResponse) => void;
@@ -67,17 +69,42 @@ const WS_PATH = (import.meta.env.VITE_WS_PATH ?? "/ws/chats").replace(
 );
 
 // SockJS는 http/https 스킴 사용
-const buildSockUrl = (originOverride?: string) => {
-  const isHttps =
-    typeof window !== "undefined" && window.location.protocol === "https:";
-  // originOverride가 없으면 배포/로컬 자동 분기
-  const origin =
-    originOverride ?? (isHttps ? WS_ORIGIN : "http://localhost:8080");
-  return `${origin}${WS_PATH}`;
+// const buildSockUrl = (originOverride?: string) => {
+//   const isHttps =
+//     typeof window !== "undefined" && window.location.protocol === "https:";
+//   // originOverride가 없으면 배포/로컬 자동 분기
+//   const origin =
+//     originOverride ?? (isHttps ? WS_ORIGIN : "http://localhost:8080");
+//   return `${origin}${WS_PATH}`;
+// };
+const buildSockUrl = (origin?: string) => {
+  const base = (origin ?? WS_ORIGIN) + WS_PATH;
+  return base; // SockJS는 http/https 사용
 };
 
+// 🌟서버로 보낼 메시지 타입
+type OutgoingMessage =
+  | { type: "SUBSCRIBE"; chatRoomId: number }
+  | { type: "SEND"; chatRoomId: number; content: string };
+
+const sendJSON = (msg: OutgoingMessage) => {
+  //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+  //🌟
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(msg));
+    return true;
+  }
+  console.warn("[WS] not open. drop:", msg);
+  return false;
+};
+
+// --------- 공개 API ----------
 export const connectRawWs = (
-  { memberId, origin }: { memberId: number; origin?: string },
+  {
+    memberId,
+    origin,
+    //chatRoomId,
+  }: { memberId: number; origin?: string },
   handlers: Handlers = {},
 ) => {
   if (
@@ -101,7 +128,20 @@ export const connectRawWs = (
 
   // readyState가 OPEN이 되면 onopen 호출
   sock.onopen = () => {
+    //🌟
+    reconnectAttempt = 0;
     handlers.onOpen?.();
+
+    //====== 이 부분 ============
+    //const payload = { type: "SUBSCRIBE", chatRoomId };
+    //console.log("[WS >>] SUBSCRIBE:", payload);
+    //sock.send(JSON.stringify(payload));
+    // 🌟 자동 재구독
+    if (currentRooms.size) {
+      [...currentRooms].forEach(id =>
+        sendJSON({ type: "SUBSCRIBE", chatRoomId: id }),
+      );
+    }
   };
 
   sock.onmessage = (e: MessageEvent) => {
@@ -120,6 +160,16 @@ export const connectRawWs = (
   sock.onclose = (ev: CloseEvent) => {
     handlers.onClose?.(ev);
     ws = null;
+
+    // 🌟 백오프 재연결
+    if (!reconnectTimer) {
+      const delay = Math.min(500 * 2 ** reconnectAttempt, 8000);
+      reconnectTimer = window.setTimeout(() => {
+        reconnectTimer = null;
+        reconnectAttempt++;
+        connectRawWs({ memberId, origin }, handlers);
+      }, delay);
+    }
   };
 
   return ws!;
@@ -138,23 +188,35 @@ export const disconnectRawWs = () => {
 export const rawWsState = () => ws?.readyState; // 0/1/2/3
 export const isRawWsOpen = () => ws?.readyState === WebSocket.OPEN;
 
-// 구독 / 메시지 전송 헬퍼 (SockJS도 문자열 전송)
-export const subscribeWS = (chatRoomId: number) => {
-  if (!ws || ws.readyState !== WebSocket.OPEN) throw new Error("WS not open");
-  const payload: OutgoingMessage = { type: "SUBSCRIBE", chatRoomId };
-  ws.send(JSON.stringify(payload));
+// 🌟
+export const subscribeRoom = (roomId: number) => {
+  if (currentRooms.has(roomId)) return; // 중복 방지
+  currentRooms.add(roomId);
+  sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
 };
 
+// 🌟
+export const subscribeMany = (roomIds: number[]) => {
+  roomIds.forEach(id => subscribeRoom(id));
+};
+
+// 🌟
+export const unsubscribeRoom = (roomId: number) => {
+  if (!currentRooms.has(roomId)) return;
+  currentRooms.delete(roomId);
+  // 서버가 UNSUBSCRIBE 지원하면 다음 줄 활성화
+  // sendJSON({ type: "UNSUBSCRIBE", chatRoomId: roomId });
+};
+
+// 🌟
+export const unsubscribeAll = () => {
+  // 서버가 UNSUBSCRIBE 지원하면 room별 전송
+  // currentRooms.forEach(id => sendJSON({ type:"UNSUBSCRIBE", chatRoomId:id }));
+  currentRooms.clear();
+};
+
+// 🌟 채팅 SEND
 export const sendChatWS = (chatRoomId: number, content: string) => {
-  if (!ws || ws.readyState !== WebSocket.OPEN) throw new Error("WS not open");
-  const trimmed = content.trim();
-  if (!trimmed) return;
-  if (trimmed.length > 1000)
-    throw new Error("메시지는 최대 1000자까지 가능합니다.");
-  const payload: OutgoingMessage = {
-    type: "SEND",
-    chatRoomId,
-    content: trimmed,
-  };
-  ws.send(JSON.stringify(payload));
+  // 백엔드 명세: 반드시 JSON 문자열로 보냄
+  return sendJSON({ type: "SEND", chatRoomId, content });
 };

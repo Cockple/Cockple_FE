@@ -71,7 +71,7 @@ import { EditLocationPage } from "./pages/home/EditLocationPage";
 import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
-
+import { useRawWsConnect } from "./hooks/useRawWsConnect";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -125,7 +125,10 @@ const router = createBrowserRouter([
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
-      { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
+      {
+        path: "/mypage/mymedal/:contestId",
+        element: <MyPageMedalDetailPage />,
+      },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
@@ -199,13 +202,18 @@ const router = createBrowserRouter([
 
 function App() {
   const { isSplashShown, hasShownSplash, showSplash } = useSplashStore();
+
+  //🌟
+  const memberId = Number(localStorage.getItem("memberId") || 1);
+  useRawWsConnect({ memberId, origin: "https://cockple.store" });
+
   useEffect(() => {
     // 스플래시 화면이 한 번도 표시되지 않은 경우에만 실행
     if (!hasShownSplash) {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
-  
+
   return (
     <div className="w-full flex justify-center items-center">
       <main
