@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 //import { fetchChatMessages } from "../../api/chat/chattingMessage";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
-import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
+//import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
 //import { useSocketConnection } from "../../hooks/useSocketConnection";
 
 // WS 연결만: CONNECT 전송 + 응답 수신
@@ -25,7 +25,7 @@ import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 
 // ─────────────────────────────────────────────────────────────
 // 모드 스위치: true면 mock 훅 사용, false면 실제 useChatInfinite 사용
-const USE_MOCK = false;
+//const USE_MOCK = false;
 // ─────────────────────────────────────────────────────────────
 
 // 간단 빈 상태/에러/로딩 UI
@@ -58,8 +58,8 @@ export const ChatDetailTemplate = ({
 
   // ===== 무한 스크롤 데이터 =====
   // 훅 호출 순서 고정을 위해 real/mocking 모두 호출 후 결과만 선택
-  const real = useChatInfinite(chatId);
-  const mock = useMockChatInfinite(chatId);
+  //const real = useChatInfinite(chatId);
+  //const mock = useMockChatInfinite(chatId);
 
   // ==== 무한 스크롤 데이터 ====
   const {
@@ -72,8 +72,8 @@ export const ChatDetailTemplate = ({
     isFetchingNextPage,
     fetchNextPage,
     refetchInitial,
-  } = USE_MOCK ? mock : real;
-
+  } = useChatInfinite(chatId);
+  //USE_MOCK ? mock : real;
   // ===== 읽음 처리: 진입/포커스 시 자동 전송(현재 mock, 나중에 rest/ws로 변경) =====
   const { markReadNow } = useChatRead({
     roomId: chatId,
@@ -172,7 +172,7 @@ export const ChatDetailTemplate = ({
   }, [markReadNow]);
 
   //======== SEND ==================
-  // 🌟 전역 소켓 연결로부터 send 함수 받기
+  // 전역 소켓 연결로부터 send 함수 받기
   const memberId = Number(localStorage.getItem("memberId") || 1);
   const { send } = useRawWsConnect({
     memberId,

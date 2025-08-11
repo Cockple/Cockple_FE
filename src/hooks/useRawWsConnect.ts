@@ -21,7 +21,6 @@ export const useRawWsConnect = (opts: {
   //const [error, setError] = useState<string | null>(null);
   const mounted = useRef(false);
 
-  //🌟
   const [isOpen, setOpen] = useState(false);
 
   useEffect(() => {
@@ -52,7 +51,6 @@ export const useRawWsConnect = (opts: {
     //isOpen: status === "open",
     isOpen,
     lastMessage,
-    //🌟
     send: (chatRoomId: number, content: string) =>
       sendChatWS(chatRoomId, content),
   };

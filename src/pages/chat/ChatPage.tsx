@@ -19,6 +19,7 @@ import {
 } from "../../api/chat/chatList";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
@@ -36,13 +37,15 @@ export const ChatPage = () => {
 
   //채팅방 api 연결
   const [searchTerm, setSearchTerm] = useState("");
+  // 🌟 디바운스 + 트림
+  const debounced = useDebounce(searchTerm.trim(), 300);
 
   const [groupChatRooms, setGroupChatRooms] = useState<GroupChatRoom[]>([]);
   const [personalChatRooms, setPersonalChatRooms] = useState<
     PersonalChatRoom[]
   >([]);
 
-  // 🌟전역 소켓 상태(열림 여부·수신 메시지)
+  // 전역 소켓 상태(열림 여부·수신 메시지)
   const memberId = Number(localStorage.getItem("memberId") || 1);
   // const { isOpen, lastMessage } = useRawWsConnect({
   const { isOpen } = useRawWsConnect({
@@ -69,39 +72,74 @@ export const ChatPage = () => {
   }, []);
 
   //모임 채팅방 검색
+  // useEffect(() => {
+  //   const fetchSearchedGroupChats = async () => {
+  //     try {
+  //       const res = await searchGroupChatRooms(searchTerm);
+  //       setGroupChatRooms(res);
+  //     } catch (error) {
+  //       console.error("검색어 입력 실패: ", error);
+  //       setGroupChatRooms([]);
+  //     }
+  //   };
+
+  //   fetchSearchedGroupChats();
+  // }, [searchTerm]);
+
+  // //개인 채팅방 검색
+  // useEffect(() => {
+  //   if (searchTerm == "") {
+  //     console.log("빈 문자열!!");
+  //     return;
+  //   }
+  //   const fetchSearchedPeronalChats = async () => {
+  //     try {
+  //       const res = await searchPersonalChatRooms(searchTerm);
+  //       setPersonalChatRooms(res);
+  //     } catch (error) {
+  //       console.error("검색어 입력 실패: ", error);
+  //       setPersonalChatRooms([]);
+  //     }
+  //   };
+
+  //   fetchSearchedPeronalChats();
+  // }, [searchTerm]);
+  // 🌟통합 검색 이펙트 (탭/검색어 변화에만 동작)
+
   useEffect(() => {
-    const fetchSearchedGroupChats = async () => {
+    const run = async () => {
       try {
-        const res = await searchGroupChatRooms(searchTerm);
-        setGroupChatRooms(res);
-      } catch (error) {
-        console.error("검색어 입력 실패: ", error);
-        setGroupChatRooms([]);
+        if (activeTab === "group") {
+          // 그룹 탭일 때만 그룹 검색/복원
+          if (debounced === "") {
+            const res = await getGroupChatRooms();
+            setGroupChatRooms(res.content);
+          } else {
+            const res = await searchGroupChatRooms(debounced);
+            setGroupChatRooms(res);
+          }
+        } else {
+          // 개인 탭일 때만 개인 검색/복원
+          if (debounced === "") {
+            const res = await getPersonalChatRooms();
+            setPersonalChatRooms(res.content);
+          } else {
+            const res = await searchPersonalChatRooms(debounced);
+            setPersonalChatRooms(res);
+          }
+        }
+      } catch (e) {
+        console.error("검색 실패:", e);
+        if (activeTab === "group") setGroupChatRooms([]);
+        else setPersonalChatRooms([]);
       }
     };
+    run();
+  }, [activeTab, debounced]);
 
-    fetchSearchedGroupChats();
-  }, [searchTerm]);
-
-  //개인 채팅방 검색
-  useEffect(() => {
-    const fetchSearchedPeronalChats = async () => {
-      try {
-        const res = await searchPersonalChatRooms(searchTerm);
-        setPersonalChatRooms(res);
-      } catch (error) {
-        console.error("검색어 입력 실패: ", error);
-        setPersonalChatRooms([]);
-      }
-    };
-
-    fetchSearchedPeronalChats();
-  }, [searchTerm]);
-
-  //🌟
   const prevRoomsRef = useRef<number[]>([]);
 
-  // 🌟현재 리스트에 보이는 방 id들
+  // 현재 리스트에 보이는 방 id들
   const visibleRoomIds = useMemo(
     () =>
       (activeTab === "group" ? groupChatRooms : personalChatRooms).map(
@@ -110,7 +148,6 @@ export const ChatPage = () => {
     [activeTab, groupChatRooms, personalChatRooms],
   );
 
-  // 🌟
   useEffect(() => {
     if (!isOpen) return;
 

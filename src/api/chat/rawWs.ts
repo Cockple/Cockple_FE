@@ -82,14 +82,13 @@ const buildSockUrl = (origin?: string) => {
   return base; // SockJS는 http/https 사용
 };
 
-// 🌟서버로 보낼 메시지 타입
+// 서버로 보낼 메시지 타입
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "SEND"; chatRoomId: number; content: string };
 
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
-  //🌟
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(msg));
     return true;
@@ -128,7 +127,6 @@ export const connectRawWs = (
 
   // readyState가 OPEN이 되면 onopen 호출
   sock.onopen = () => {
-    //🌟
     reconnectAttempt = 0;
     handlers.onOpen?.();
 
@@ -136,7 +134,7 @@ export const connectRawWs = (
     //const payload = { type: "SUBSCRIBE", chatRoomId };
     //console.log("[WS >>] SUBSCRIBE:", payload);
     //sock.send(JSON.stringify(payload));
-    // 🌟 자동 재구독
+    // 자동 재구독
     if (currentRooms.size) {
       [...currentRooms].forEach(id =>
         sendJSON({ type: "SUBSCRIBE", chatRoomId: id }),
@@ -161,7 +159,7 @@ export const connectRawWs = (
     handlers.onClose?.(ev);
     ws = null;
 
-    // 🌟 백오프 재연결
+    // 백오프 재연결
     if (!reconnectTimer) {
       const delay = Math.min(500 * 2 ** reconnectAttempt, 8000);
       reconnectTimer = window.setTimeout(() => {
@@ -188,19 +186,19 @@ export const disconnectRawWs = () => {
 export const rawWsState = () => ws?.readyState; // 0/1/2/3
 export const isRawWsOpen = () => ws?.readyState === WebSocket.OPEN;
 
-// 🌟
+//
 export const subscribeRoom = (roomId: number) => {
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
   sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
 };
 
-// 🌟
+//
 export const subscribeMany = (roomIds: number[]) => {
   roomIds.forEach(id => subscribeRoom(id));
 };
 
-// 🌟
+//
 export const unsubscribeRoom = (roomId: number) => {
   if (!currentRooms.has(roomId)) return;
   currentRooms.delete(roomId);
@@ -208,14 +206,14 @@ export const unsubscribeRoom = (roomId: number) => {
   // sendJSON({ type: "UNSUBSCRIBE", chatRoomId: roomId });
 };
 
-// 🌟
+//
 export const unsubscribeAll = () => {
   // 서버가 UNSUBSCRIBE 지원하면 room별 전송
   // currentRooms.forEach(id => sendJSON({ type:"UNSUBSCRIBE", chatRoomId:id }));
   currentRooms.clear();
 };
 
-// 🌟 채팅 SEND
+// 채팅 SEND
 export const sendChatWS = (chatRoomId: number, content: string) => {
   // 백엔드 명세: 반드시 JSON 문자열로 보냄
   return sendJSON({ type: "SEND", chatRoomId, content });
