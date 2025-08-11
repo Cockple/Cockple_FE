@@ -17,7 +17,7 @@ export const GroupChatDetailPage = () => {
 
   return (
     <ChatDetailTemplate
-      chatId={chatId}
+      chatId={Number(chatId)}
       chatName={chatName}
       chatType="group"
       //chatData={groupChatDataMap}
