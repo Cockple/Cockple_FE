@@ -44,14 +44,10 @@ export const MyGroupExercisePage = () => {
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const swiperRef = useRef<SwiperClass | null>(null);
 
-  // 프로그램적 slideTo 이후 onSlideChange 무시
   const ignoreNextSlideChange = useRef(false);
-  // 오늘 주로 스냅은 최초 1회만
   const hasSnappedToToday = useRef(false);
-  // initialSlide는 최초 마운트 1회만 읽히므로 ref에 고정
   const initialSlideRef = useRef<number>(0);
 
-  // 초기 로딩
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -63,7 +59,6 @@ export const MyGroupExercisePage = () => {
           endDate: null,
         });
 
-        // ✅ 빈 주 보정
         const weeks =
           res.weeks && res.weeks.length > 0
             ? res.weeks
@@ -86,7 +81,6 @@ export const MyGroupExercisePage = () => {
     return [...base, ...uniq];
   };
 
-  // 더 불러오기
   const loadMore = useCallback(
     async (direction: "past" | "future") => {
       if (!calendar) return;
@@ -103,7 +97,6 @@ export const MyGroupExercisePage = () => {
             endDate: reqEnd,
           });
 
-          // ✅ 빈 주 보정 + endDate 갱신 유지
           const weeks =
             res.weeks && res.weeks.length > 0
               ? res.weeks
@@ -113,13 +106,12 @@ export const MyGroupExercisePage = () => {
             prev
               ? {
                   startDate: prev.startDate,
-                  endDate: res.endDate, // res.endDate로 한 칸 전진
+                  endDate: res.endDate,
                   weeks: mergeWeeks(prev.weeks, weeks),
                 }
               : { ...res, weeks },
           );
         } else {
-          // 과거 주 prepend
           const reqEnd = addDays(calendar.startDate, -1);
           const reqStart = addDays(reqEnd, -13);
           const res = await fetchMyGroupCalendar({
@@ -128,13 +120,11 @@ export const MyGroupExercisePage = () => {
             endDate: reqEnd,
           });
 
-          // ✅ 빈 주 보정 + startDate 갱신 유지
           const weeks =
             res.weeks && res.weeks.length > 0
               ? res.weeks
               : generateWeeksFromRange(res.startDate, res.endDate);
 
-          // 현재 인덱스/추가 갯수 계산(중복 제외)
           const current = swiperRef.current?.activeIndex ?? 0;
           const added = weeks.filter(
             w => !calendar.weeks.some(x => x.weekStartDate === w.weekStartDate),
@@ -143,14 +133,13 @@ export const MyGroupExercisePage = () => {
           setCalendar(prev =>
             prev
               ? {
-                  startDate: res.startDate, // res.startDate로 한 칸 뒤로 확장
+                  startDate: res.startDate,
                   endDate: prev.endDate,
                   weeks: mergeWeeks(weeks, prev.weeks),
                 }
               : { ...res, weeks },
           );
 
-          // 앞에 붙였으면 현재 보던 위치 보정
           if (swiperRef.current && added > 0) {
             setTimeout(() => {
               ignoreNextSlideChange.current = true;
@@ -183,7 +172,6 @@ export const MyGroupExercisePage = () => {
     [calendar, fetchingMore, loadMore],
   );
 
-  // 빈 주 보정 (초기 상태 전용)
   const processedWeeks = useMemo(() => {
     if (!calendar) return null;
     if (!calendar.weeks || calendar.weeks.length === 0) {
@@ -192,7 +180,6 @@ export const MyGroupExercisePage = () => {
     return calendar.weeks;
   }, [calendar]);
 
-  // 오늘 포함 주 index
   const initialSlideIndex = useMemo(() => {
     if (!processedWeeks) return 0;
     const today = getTodayString();
@@ -202,12 +189,10 @@ export const MyGroupExercisePage = () => {
     return idx >= 0 ? idx : 0;
   }, [processedWeeks]);
 
-  // initialSlide는 최초에만 고정 전달
   useEffect(() => {
     initialSlideRef.current = initialSlideIndex;
   }, [initialSlideIndex]);
 
-  // 첫 데이터 준비되면 오늘 주로 1회 스냅
   useEffect(() => {
     if (!processedWeeks?.length) return;
     if (!swiperRef.current) return;
@@ -218,7 +203,6 @@ export const MyGroupExercisePage = () => {
     swiperRef.current.slideTo(initialSlideIndex, 0);
   }, [processedWeeks, initialSlideIndex]);
 
-  // 점 표시용 날짜들
   const exerciseDays = useMemo(() => {
     if (!processedWeeks) return [];
     const s = new Set<string>();
@@ -228,7 +212,6 @@ export const MyGroupExercisePage = () => {
     return Array.from(s);
   }, [processedWeeks]);
 
-  // 선택 날짜의 운동 목록
   const selectedDayExercises: CalExercise[] = useMemo(() => {
     if (!processedWeeks) return [];
     const found = processedWeeks
