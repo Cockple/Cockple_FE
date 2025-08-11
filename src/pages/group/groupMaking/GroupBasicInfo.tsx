@@ -13,6 +13,7 @@ import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { useQuery } from "@tanstack/react-query";
 import { getMyProfile } from "../../../api/member/my";
 import { userLevelMapper } from "../../../utils/levelValueExchange";
+import { LEVEL_KEY } from "../../../constants/options";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
@@ -59,7 +60,6 @@ export const GroupBasicInfo = () => {
     setFilter("name", filtered);
   };
 
-  //내 프로필 가져오기
   const { data: me, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: getMyProfile,
@@ -160,17 +160,7 @@ export const GroupBasicInfo = () => {
                 <img src={Circle_Red} alt="icon-cicle" />
               </div>
               <MultiSelectButtonGroup
-                options={[
-                  "전체",
-                  "왕초심",
-                  "초심",
-                  "D조",
-                  "C조",
-                  "B조",
-                  "A조",
-                  "준자강",
-                  "자강",
-                ]}
+                options={LEVEL_KEY}
                 selected={femaleLevel}
                 onChange={newVal => setFilter("femaleLevel", newVal)}
               />
@@ -186,17 +176,7 @@ export const GroupBasicInfo = () => {
                     <img src={Circle_Red} alt="icon-cicle" />
                   </div>
                   <MultiSelectButtonGroup
-                    options={[
-                      "전체",
-                      "왕초심",
-                      "초심",
-                      "D조",
-                      "C조",
-                      "B조",
-                      "A조",
-                      "준자강",
-                      "자강",
-                    ]}
+                    options={LEVEL_KEY}
                     selected={femaleLevel}
                     onChange={newVal => setFilter("femaleLevel", newVal)}
                   />
@@ -207,17 +187,7 @@ export const GroupBasicInfo = () => {
                     <img src={Circle_Red} alt="icon-cicle" />
                   </div>
                   <MultiSelectButtonGroup
-                    options={[
-                      "전체",
-                      "왕초심",
-                      "초심",
-                      "D조",
-                      "C조",
-                      "B조",
-                      "A조",
-                      "준자강",
-                      "자강",
-                    ]}
+                    options={LEVEL_KEY}
                     selected={maleLevel}
                     onChange={newVal => setFilter("maleLevel", newVal)}
                   />

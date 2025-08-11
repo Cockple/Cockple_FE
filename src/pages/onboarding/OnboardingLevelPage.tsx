@@ -6,18 +6,9 @@ import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import IntroText from "../../components/onboarding/IntroText";
 import { useForm } from "react-hook-form";
 import { useOnboardingState } from "../../store/useOnboardingStore";
+import { LEVEL_KEY } from "../../constants/options";
 
 export const OnboardingLevelPage = () => {
-  const levelOptions = [
-    "왕초심",
-    "초심",
-    "D조",
-    "C조",
-    "B조",
-    "A조",
-    "준자강",
-    "자강",
-  ];
   const navigate = useNavigate();
   const { level, setTemp } = useOnboardingState();
 
@@ -28,15 +19,15 @@ export const OnboardingLevelPage = () => {
     // formState: { errors },
   } = useForm({
     defaultValues: {
-      levelOptions: level ?? "",
+      LEVEL_KEY: level ?? "",
     },
   });
 
   // console.log(level);
 
-  const levelValue = watch("levelOptions") || "";
+  const levelValue = watch("LEVEL_KEY") || "";
   const isFormValid =
-    levelValue === "disabled" || levelOptions.includes(levelValue);
+    levelValue === "disabled" || LEVEL_KEY.includes(levelValue);
 
   const handleNext = () => {
     setTemp({
@@ -63,12 +54,12 @@ export const OnboardingLevelPage = () => {
 
         <DropCheckBox
           title="전국 급수"
-          options={levelOptions}
+          options={LEVEL_KEY}
           checkLabel="급수 없음"
           value={levelValue}
           checked={levelValue === "disabled"}
           onChange={val =>
-            setValue("levelOptions", val ?? "", { shouldValidate: true })
+            setValue("LEVEL_KEY", val ?? "", { shouldValidate: true })
           }
         />
       </section>
