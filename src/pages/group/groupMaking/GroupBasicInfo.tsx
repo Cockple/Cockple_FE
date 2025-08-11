@@ -15,7 +15,7 @@ export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
-  const { FemaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
+  const { femaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
 
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
@@ -41,8 +41,8 @@ export const GroupBasicInfo = () => {
   const isFormValid =
     localName.length > 0 &&
     selected !== null &&
-    ((selected === "female" && FemaleLevel.length > 0) ||
-      (selected === "mixed" && FemaleLevel.length > 0 && maleLevel.length > 0));
+    ((selected === "female" && femaleLevel.length > 0) ||
+      (selected === "mixed" && femaleLevel.length > 0 && maleLevel.length > 0));
 
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value;
@@ -128,8 +128,8 @@ export const GroupBasicInfo = () => {
                   "준자강",
                   "자강",
                 ]}
-                selected={FemaleLevel}
-                onChange={newVal => setFilter("FemaleLevel", newVal)}
+                selected={femaleLevel}
+                onChange={newVal => setFilter("femaleLevel", newVal)}
               />
             </div>
           )}
@@ -154,8 +154,8 @@ export const GroupBasicInfo = () => {
                       "준자강",
                       "자강",
                     ]}
-                    selected={FemaleLevel}
-                    onChange={newVal => setFilter("FemaleLevel", newVal)}
+                    selected={femaleLevel}
+                    onChange={newVal => setFilter("femaleLevel", newVal)}
                   />
                 </div>
                 <div>

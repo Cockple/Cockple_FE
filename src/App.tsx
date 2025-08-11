@@ -49,7 +49,6 @@ import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirm
 import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
-// import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
 import { ExerciseFilterPage } from "./pages/home/ExerciseFilterPage";
 import { GroupLayout } from "./layout/GroupLayout";
 import { GroupHomePage } from "./pages/group/GroupHomePage";
@@ -72,7 +71,6 @@ import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 
-
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
@@ -84,9 +82,7 @@ const router = createBrowserRouter([
       { path: "info", element: <OnboardingInfoPage /> },
       { path: "level", element: <OnboardingLevelPage /> },
       { path: "address", element: <OnboardingAddressPage /> },
-      // { path: "address/search", element: <OnboardingAddressSearchPage /> },
       { path: "profile", element: <OnboardingProfilePage /> },
-      // { path: "profile/input", element: <OnboardingProfileInputPage /> },
       { path: "confirm/start", element: <OnboardingConfirmStartPage /> },
     ],
   },
@@ -125,7 +121,10 @@ const router = createBrowserRouter([
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
       // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
-      { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
+      {
+        path: "/mypage/mymedal/:contestId",
+        element: <MyPageMedalDetailPage />,
+      },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
@@ -205,7 +204,7 @@ function App() {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
-  
+
   return (
     <div className="w-full flex justify-center items-center">
       <main
