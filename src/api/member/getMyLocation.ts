@@ -10,7 +10,6 @@ export interface MyLocationType {
 export const getMyLocation = async () => {
   try {
     const res = await api.get("/api/my/location");
-    console.log(res.data.data);
     return res.data.data;
   } catch (err) {
     console.log("회원 위치 조회 API 실패:", err);
