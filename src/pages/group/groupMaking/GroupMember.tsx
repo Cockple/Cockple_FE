@@ -1,5 +1,5 @@
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 
 import { useState } from "react";
@@ -7,6 +7,8 @@ import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import SearchInput from "../../../components/chat/SearchInput";
 import MemberCard from "../../../components/group/groupMaking/MemberCard";
 import { useMemberInfinite } from "../../../api/party/useMemberInfinite";
+import { useMutation } from "@tanstack/react-query";
+import api from "../../../api/api";
 
 interface ApiMember {
   userId: number;
@@ -21,31 +23,55 @@ export const GroupMember = () => {
   const navigate = useNavigate();
 
   const handleNext = () => {
-    navigate("/group/1"); //임시 하드코딩
+    navigate(`/group/${partyId}`); //임시 하드코딩
   };
 
   const [isOpenModal, setIsOpenModal] = useState(false);
-
-  const openModal = () => {
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const paramsId = useParams();
+  const partyId = Number(paramsId.partyId);
+  console.log(partyId);
+  const openModal = (userId: number) => {
+    setSelectedUserId(userId);
     setIsOpenModal(true);
   };
 
-  const handleInviteLeave = () => {
-    setIsOpenModal(false);
-  };
+  const axios = api;
 
   const handleCloseLeave = () => {
     setIsOpenModal(false);
   };
   const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useMemberInfinite({
+  const { data: page, isLoading } = useMemberInfinite({
     levelSearch: search,
     page: 0,
     size: 10,
   });
 
-  const members: ApiMember[] = data?.content || [];
+  const submitInvite = async (userId: number) => {
+    const res = await axios.post(`/api/parties/${partyId}/invitations`, {
+      userId,
+    });
+    return res.data;
+  };
+
+  const handleInviteConfirm = () => {
+    if (selectedUserId != null) handleInviteLeave.mutate(selectedUserId);
+  };
+
+  const handleInviteLeave = useMutation({
+    mutationFn: submitInvite,
+    onSuccess: () => {
+      console.log("성공");
+      setIsOpenModal(false);
+    },
+    onError: err => {
+      console.log(err);
+    },
+  });
+
+  const members: ApiMember[] = page?.content || [];
 
   const mamberList = members.map(member => ({
     id: member.userId,
@@ -61,7 +87,7 @@ export const GroupMember = () => {
   );
 
   if (!isLoading) {
-    console.log(data);
+    console.log(page);
   }
 
   //--------------데이터 보고싶으면 partyId를 23로 하드코딩 하세요!!!----------
@@ -84,7 +110,7 @@ export const GroupMember = () => {
               <MemberCard
                 key={idx}
                 member={member}
-                onMessageClick={openModal}
+                onMessageClick={() => openModal(member.id)}
               />
             ))}
           </div>
@@ -105,7 +131,7 @@ export const GroupMember = () => {
         {isOpenModal && (
           <div className="fixed inset-0 flex justify-center items-center z-50">
             <InviteModal
-              onInvite={handleInviteLeave}
+              onInvite={handleInviteConfirm}
               onClose={handleCloseLeave}
             />
           </div>
