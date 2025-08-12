@@ -25,7 +25,6 @@ export const ConfirmPage = () => {
 
   const { level, memberName, gender, birth, keyword, setTemp } =
     useOnboardingState();
-  //세션 reset (지도때문에)
 
   const [selectedTag, setSelectedTag] = useState<string[]>(keyword ?? []);
   const { toEng } = userLevelMapper();
@@ -64,38 +63,26 @@ export const ConfirmPage = () => {
     );
     return data;
   };
-  // 그룹추천
-  const submitGroupMaking = async (): Promise<OnBoardingResponseDto> => {
-    const body = {
-      memberName,
-      gender: gender?.toUpperCase(),
-      birth: birth.split(".").join("-"),
-      level: toEng(level),
-      keywords: mappedKeywords,
-    };
-    const { data } = await axios.post<OnBoardingResponseDto>(
-      "/api/my/details",
-      body,
-    );
-    return data;
-  };
 
   const handleSubmitForm = useMutation<OnBoardingResponseDto>({
-    mutationFn: () => (onboarding ? submitOnboarding() : submitGroupMaking()),
+    mutationFn: submitOnboarding,
     onSuccess: data => {
       console.log(data);
       console.log("성공");
-
-      if (!onboarding) {
-        navigate("/group/making/member");
-      } else {
-        navigate("/onboarding/confirm/start");
-      }
+      navigate("/onboarding/confirm/start");
     },
     onError: err => {
       console.log(err);
     },
   });
+
+  const handleNext = () => {
+    if (onboarding) {
+      handleSubmitForm.mutate();
+    } else {
+      navigate("/group/making/member");
+    }
+  };
 
   return (
     <div
@@ -131,7 +118,7 @@ export const ConfirmPage = () => {
       </section>
       <div
         className="flex items-center justify-center header-h4 mb-5 lg:mb-4"
-        onClick={() => handleSubmitForm.mutate()}
+        onClick={handleNext}
       >
         <Btn_Static
           label={onboarding ? "다음" : "신규 멤버 추천 받기"}

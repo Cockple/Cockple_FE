@@ -1,4 +1,4 @@
-import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, IconTextStatus } from "../../../types/dynamicBtn";
 import { useState } from "react";
 import CheckFill from "@/assets/icons/check_circled_filled.svg?url";
 import CheckEmpty from "@/assets/icons/check_circled.svg?url";

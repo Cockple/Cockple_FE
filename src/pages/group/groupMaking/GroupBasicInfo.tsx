@@ -10,18 +10,20 @@ import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectBu
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
+import { useQuery } from "@tanstack/react-query";
+import { getMyProfile } from "../../../api/member/my";
+import { userLevelMapper } from "../../../utils/levelValueExchange";
+import { LEVEL_KEY } from "../../../constants/options";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
-  const { FemaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
-
+  const { femaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
+  const { toKor } = userLevelMapper();
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
-  //정보
   const [localName, setLocalName] = useState(name ?? "");
-  // const [selected, isSelected] = useState<"female" | "mixed" | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleConfirmLeave = () => {
@@ -36,13 +38,14 @@ export const GroupBasicInfo = () => {
   const onBackClick = () => {
     setIsModalOpen(true);
   };
-  //초기화
+
+  //본인 level포함 안되면 ..
 
   const isFormValid =
     localName.length > 0 &&
     selected !== null &&
-    ((selected === "female" && FemaleLevel.length > 0) ||
-      (selected === "mixed" && FemaleLevel.length > 0 && maleLevel.length > 0));
+    ((selected === "female" && femaleLevel.length > 0) ||
+      (selected === "mixed" && femaleLevel.length > 0 && maleLevel.length > 0));
 
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value;
@@ -56,10 +59,46 @@ export const GroupBasicInfo = () => {
     setFilter("name", filtered);
   };
 
-  const handleNext = () => {
-    navigate("/group/making/activity");
+  const { data: me, isLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: getMyProfile,
+  });
+  console.log(me);
+  const gender = me?.gender;
+  const isMale = gender === "MALE";
+  const myKorLevel = me ? toKor(me.level) : undefined;
+  const ANY = "전체";
+  const containsMy = (arr: string[], my?: string) => {
+    if (!my) return false;
+    return arr.includes(ANY) || arr.includes(my);
   };
 
+  const passesMyLevelRule = () => {
+    if (!me || !myKorLevel) return false;
+
+    if (selected === "female") {
+      return containsMy(femaleLevel, myKorLevel);
+    }
+    if (selected === "mixed") {
+      return isMale
+        ? containsMy(maleLevel, myKorLevel)
+        : containsMy(femaleLevel, myKorLevel);
+    }
+    return false;
+  };
+  const handleNext = () => {
+    if (isLoading || !me) {
+      alert("내 프로필을 불러오는 중입니다. 잠시만 기다려주세요.");
+      return;
+    }
+    if (!isFormValid) return;
+
+    if (!passesMyLevelRule()) {
+      alert("본인 급수를 포함해서 선택해주세요.");
+      return;
+    }
+    navigate("/group/making/activity");
+  };
   return (
     <>
       <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
@@ -93,6 +132,7 @@ export const GroupBasicInfo = () => {
             <div className="flex gap-[13px]">
               <TextBox
                 children="여복"
+                disabled={isMale}
                 isSelected={selected === "female"}
                 onClick={() =>
                   setFilter("type", selected === "female" ? "" : "female")
@@ -117,19 +157,9 @@ export const GroupBasicInfo = () => {
                 <img src={Circle_Red} alt="icon-cicle" />
               </div>
               <MultiSelectButtonGroup
-                options={[
-                  "전체",
-                  "왕초심",
-                  "초심",
-                  "D조",
-                  "C조",
-                  "B조",
-                  "A조",
-                  "준자강",
-                  "자강",
-                ]}
-                selected={FemaleLevel}
-                onChange={newVal => setFilter("FemaleLevel", newVal)}
+                options={LEVEL_KEY}
+                selected={femaleLevel}
+                onChange={newVal => setFilter("femaleLevel", newVal)}
               />
             </div>
           )}
@@ -143,19 +173,9 @@ export const GroupBasicInfo = () => {
                     <img src={Circle_Red} alt="icon-cicle" />
                   </div>
                   <MultiSelectButtonGroup
-                    options={[
-                      "전체",
-                      "왕초심",
-                      "초심",
-                      "D조",
-                      "C조",
-                      "B조",
-                      "A조",
-                      "준자강",
-                      "자강",
-                    ]}
-                    selected={FemaleLevel}
-                    onChange={newVal => setFilter("FemaleLevel", newVal)}
+                    options={LEVEL_KEY}
+                    selected={femaleLevel}
+                    onChange={newVal => setFilter("femaleLevel", newVal)}
                   />
                 </div>
                 <div>
@@ -164,17 +184,7 @@ export const GroupBasicInfo = () => {
                     <img src={Circle_Red} alt="icon-cicle" />
                   </div>
                   <MultiSelectButtonGroup
-                    options={[
-                      "전체",
-                      "왕초심",
-                      "초심",
-                      "D조",
-                      "C조",
-                      "B조",
-                      "A조",
-                      "준자강",
-                      "자강",
-                    ]}
+                    options={LEVEL_KEY}
                     selected={maleLevel}
                     onChange={newVal => setFilter("maleLevel", newVal)}
                   />

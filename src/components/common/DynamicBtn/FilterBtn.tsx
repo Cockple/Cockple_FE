@@ -1,4 +1,4 @@
-import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, IconTextStatus } from "../../../types/dynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import Filter_Fill from "@/assets/icons/filter_fill.svg?url";
 import FilterIcon from "@/assets/icons/filter.svg?url";

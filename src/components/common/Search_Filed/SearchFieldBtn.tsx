@@ -1,5 +1,5 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
 import MyLocationIcon_G from "@/assets/icons/mylocation_g.svg?url";
 
