@@ -9,6 +9,7 @@ import MemberCard from "../../../components/group/groupMaking/MemberCard";
 import { useMemberInfinite } from "../../../api/party/useMemberInfinite";
 import { useMutation } from "@tanstack/react-query";
 import api from "../../../api/api";
+import axiosLib from "axios";
 
 interface ApiMember {
   userId: number;
@@ -16,7 +17,7 @@ interface ApiMember {
   nickname: string;
   level: string;
   profileImageUrl: string | null;
-  status: "waiting";
+  status: "invite";
 }
 
 export const GroupMember = () => {
@@ -67,7 +68,14 @@ export const GroupMember = () => {
       setIsOpenModal(false);
     },
     onError: err => {
-      console.log(err);
+      if (axiosLib.isAxiosError(err)) {
+        if (err.response?.data?.code === "PARTY409") {
+          setIsOpenModal(false);
+          alert("이미 초대를 보내고,대기상태임");
+        } else {
+          console.error("실패임~", err.response?.data);
+        }
+      }
     },
   });
 
@@ -79,8 +87,9 @@ export const GroupMember = () => {
     gender: member.gender,
     level: member.level,
     avatar: member.profileImageUrl,
-    status: "waiting",
+    status: "invite" as const,
   }));
+  console.log(members);
 
   const filteredMembers = mamberList.filter(member =>
     member.level.includes(search.trim()),
@@ -105,15 +114,13 @@ export const GroupMember = () => {
             />
           </div>
           {/* 두번째 */}
-          <div>
-            {filteredMembers.map((member, idx) => (
-              <MemberCard
-                key={idx}
-                member={member}
-                onMessageClick={() => openModal(member.id)}
-              />
-            ))}
-          </div>
+          {filteredMembers.map(member => (
+            <MemberCard
+              key={member.id}
+              member={member}
+              onMessageClick={() => openModal(member.id)}
+            />
+          ))}
         </section>
 
         {/* 버튼 */}
