@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TagBtn from "../../components/common/DynamicBtn/TagBtn";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
@@ -76,11 +76,13 @@ export const ConfirmPage = () => {
     },
   });
 
+  const params = useParams();
+  console.log(params);
   const handleNext = () => {
     if (onboarding) {
       handleSubmitForm.mutate();
     } else {
-      navigate("/group/making/member");
+      navigate(`/group/making/member/${params.partyId}`);
     }
   };
 
@@ -116,6 +118,7 @@ export const ConfirmPage = () => {
           })}
         </div>
       </section>
+      {/* <Link status={{}}> */}
       <div
         className="flex items-center justify-center header-h4 mb-5 lg:mb-4"
         onClick={handleNext}
@@ -126,6 +129,7 @@ export const ConfirmPage = () => {
           size="L"
         />
       </div>
+      {/* </Link> */}
     </div>
   );
 };

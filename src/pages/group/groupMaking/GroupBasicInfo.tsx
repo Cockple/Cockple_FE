@@ -63,7 +63,7 @@ export const GroupBasicInfo = () => {
     queryKey: ["user"],
     queryFn: getMyProfile,
   });
-  console.log(me);
+  // console.log(me);
   const gender = me?.gender;
   const isMale = gender === "MALE";
   const myKorLevel = me ? toKor(me.level) : undefined;
