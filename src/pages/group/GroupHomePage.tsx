@@ -23,7 +23,6 @@ export const GroupHomePage = () => {
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // TODO: API 값으로 대체
   const requestCount = 2;
 
   useEffect(() => {
@@ -52,18 +51,15 @@ export const GroupHomePage = () => {
     return () => window.removeEventListener("resize", updateOffset);
   }, []);
 
-  // ✅ null/undefined 안전한 요일 포맷
   const formatActivityDays = (days?: string[] | null) =>
     days && days.length ? days.join(" ") : "";
 
-  // ✅ null/undefined 안전한 레벨 포맷 (배열 1개면 '이상', 여러 개면 '처음~끝')
   const toLevelString = (arr?: string[] | null) => {
     if (!arr || arr.length === 0) return "";
     if (arr.length === 1) return `${arr[0]} 이상`;
     return `${arr[0]} ~ ${arr[arr.length - 1]}`;
   };
 
-  // ✅ 레벨 블록: 아이콘 + 문자열
   const LevelBlock = ({
     female,
     male,
@@ -97,7 +93,6 @@ export const GroupHomePage = () => {
   const isOwner = partyDetail?.memberRole === "MANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
 
-  // ✅ 정보 아이템(메모이즈)
   const items = useMemo(
     () => [
       {
