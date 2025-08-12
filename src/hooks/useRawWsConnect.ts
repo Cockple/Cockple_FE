@@ -2,47 +2,55 @@
 import { useEffect, useRef, useState } from "react";
 import {
   connectRawWs,
-  disconnectRawWs,
-  isRawWsOpen,
-  type IncomingMessage,
-  type WsStatus,
-  subscribeWS,
   sendChatWS,
+  //disconnectRawWs,
+  //isRawWsOpen,
+  type IncomingMessage,
+  //type WsStatus,
+  //subscribeWS,
+  //sendChatWS,
 } from "../api/chat/rawWs";
 
 export const useRawWsConnect = (opts: {
   memberId: number;
   origin?: string;
+  //chatRommId?: number;
 }) => {
-  const [status, setStatus] = useState<WsStatus>("idle");
+  //const [status, setStatus] = useState<WsStatus>("idle");
   const [lastMessage, setLastMessage] = useState<IncomingMessage | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  //const [error, setError] = useState<string | null>(null);
   const mounted = useRef(false);
+
+  const [isOpen, setOpen] = useState(false);
 
   useEffect(() => {
     mounted.current = true;
-    setStatus("connecting");
+    //setStatus("connecting");
 
-    connectRawWs(opts, {
-      onOpen: () => mounted.current && setStatus("open"),
-      onMessage: data => mounted.current && setLastMessage(data),
-      onError: () =>
-        mounted.current && (setStatus("error"), setError("WS error")),
-      onClose: () => mounted.current && setStatus("closed"),
-    });
+    connectRawWs(
+      { memberId: opts.memberId, origin: opts.origin },
+      {
+        onOpen: () => mounted.current && setOpen(true),
+        onClose: () => mounted.current && setOpen(false),
+        onMessage: msg => mounted.current && setLastMessage(msg),
+        onError: () => mounted.current && setOpen(false),
+      },
+    );
 
     return () => {
-      disconnectRawWs();
       mounted.current = false;
+      // 전역 소켓을 앱 루트에서만 끊고 싶다면 여기서는 끊지 마세요.
+      // 페이지 단위라면 끊어도 됨.
+      // disconnectRawWs();
     };
   }, [opts.memberId, opts.origin]);
 
   return {
-    status,
-    isOpen: isRawWsOpen(),
+    //status,
+    //isOpen: isRawWsOpen(),
+    //isOpen: status === "open",
+    isOpen,
     lastMessage,
-    error,
-    subscribe: (chatRoomId: number) => subscribeWS(chatRoomId),
     send: (chatRoomId: number, content: string) =>
       sendChatWS(chatRoomId, content),
   };

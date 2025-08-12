@@ -15,15 +15,17 @@ import { useNavigate } from "react-router-dom";
 //import { fetchChatMessages } from "../../api/chat/chattingMessage";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
-import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
+//import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
 //import { useSocketConnection } from "../../hooks/useSocketConnection";
 
 // WS 연결만: CONNECT 전송 + 응답 수신
+//import { useRawWsConnect } from "../../hooks/useRawWsConnect";
+import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 
 // ─────────────────────────────────────────────────────────────
 // 모드 스위치: true면 mock 훅 사용, false면 실제 useChatInfinite 사용
-const USE_MOCK = false;
+//const USE_MOCK = false;
 // ─────────────────────────────────────────────────────────────
 
 // 간단 빈 상태/에러/로딩 UI
@@ -34,7 +36,7 @@ const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
 );
 
 interface ChatDetailTemplateProps {
-  chatId: string;
+  chatId: number;
   chatName: string;
   chatType: "group" | "personal";
   //chatData: Record<string, ChatMessageResponse[]>;
@@ -56,8 +58,8 @@ export const ChatDetailTemplate = ({
 
   // ===== 무한 스크롤 데이터 =====
   // 훅 호출 순서 고정을 위해 real/mocking 모두 호출 후 결과만 선택
-  const real = useChatInfinite(Number(chatId));
-  const mock = useMockChatInfinite(currentUserId);
+  //const real = useChatInfinite(chatId);
+  //const mock = useMockChatInfinite(chatId);
 
   // ==== 무한 스크롤 데이터 ====
   const {
@@ -70,8 +72,8 @@ export const ChatDetailTemplate = ({
     isFetchingNextPage,
     fetchNextPage,
     refetchInitial,
-  } = USE_MOCK ? mock : real;
-
+  } = useChatInfinite(chatId);
+  //USE_MOCK ? mock : real;
   // ===== 읽음 처리: 진입/포커스 시 자동 전송(현재 mock, 나중에 rest/ws로 변경) =====
   const { markReadNow } = useChatRead({
     roomId: Number(chatId),
@@ -84,17 +86,27 @@ export const ChatDetailTemplate = ({
   });
 
   // ====== WS 연결 ======
-  const memberId = Number(localStorage.getItem("memberId") || 1);
-  const {
-    status: wsStatus,
-    isOpen: wsOpen,
-    //lastMessage: wsLast,
-    //subscribe,
-    //send,
-  } = useRawWsConnect({
-    memberId,
-    origin: "https://cockple.store", // 필요시 강제 지정 가능(옵션)
-  });
+  // const memberId = Number(localStorage.getItem("memberId") || 1);
+  // const {
+  //   //status: wsStatus,
+  //   isOpen: wsOpen,
+  //   //lastMessage: wsLast, // 응답 수신
+  //   //subscribe, // 구독 전송
+  //   //send,
+  // } = useRawWsConnect({
+  //   memberId,
+  //   origin: "https://cockple.store", // 필요시 강제 지정 가능(옵션)
+  //   //chatRommId: chatId,
+  // });
+
+  // 방 입장: 단일 구독
+  useEffect(() => {
+    subscribeRoom(chatId);
+    return () => {
+      // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
+      unsubscribeRoom(chatId);
+    };
+  }, [chatId]);
 
   // ===== 로컬 상태 ====
   //const [chattings, setChattings] = useState<ChatMessageResponse[]>([]);
@@ -108,24 +120,6 @@ export const ChatDetailTemplate = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  // useEffect(() => {
-  //   const loadInitialMessages = async () => {
-  //     try {
-  //       const res = await fetchChatMessages(chatId);
-  //       setChattings(res.messages);
-  //       // 필요하면 nextCursor 저장
-  //     } catch (error) {
-  //       console.error("채팅 메시지 불러오기 실패:", error);
-  //     }
-  //   };
-
-  //   loadInitialMessages();
-  // }, [chatId]);
-
-  // useEffect(() => {
-  //   chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [chattings]);
 
   // 초기 로드시 맨 아래로
   useEffect(() => {
@@ -177,9 +171,18 @@ export const ChatDetailTemplate = ({
     return () => root.removeEventListener("scroll", onScroll);
   }, [markReadNow]);
 
+  //======== SEND ==================
+  // 전역 소켓 연결로부터 send 함수 받기
+  const memberId = Number(localStorage.getItem("memberId") || 1);
+  const { send } = useRawWsConnect({
+    memberId,
+    origin: "https://cockple.store",
+  });
+
   // 메시지 전송(WS 경로 확정 전까지는 스크롤만)
   const handleSendMessage = () => {
-    if (!input.trim()) return;
+    const text = input.trim();
+    if (!text) return;
 
     // TODO(WS): destination 확정되면 여기서 publish
     // if (connected) {
@@ -198,13 +201,23 @@ export const ChatDetailTemplate = ({
     //   console.warn("WS not connected; fallback or queue");
     // }
 
-    // 입력 초기화 + 스크롤만
+    // 1) 서버로 전송 (스펙: JSON string)
+    const ok = send(chatId, text); // 또는 sendChatWS(chatId, text);
+
+    // 2) 입력 초기화 + 스크롤
     setInput("");
+
+    // (선택) 실패 시 사용자 안내
+    if (!ok) {
+      console.warn("WS 미연결로 전송 실패");
+      // TODO: 토스트/스낵바 등 사용자 피드백
+    }
+
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
 
-    console.log("메시지 전송(WS 미구현):", input.trim());
+    console.log("메시지 전송:", text);
   };
 
   // 이미지 업로드(미연결 - 로컬 프리뷰만)
@@ -265,19 +278,6 @@ export const ChatDetailTemplate = ({
       {/* 헤더 */}
       <PageHeader title={chatName} onBackClick={onBack} />
 
-      {/* WS 연결 상태 뱃지 */}
-      <div className="absolute top-14 right-4 text-xs">
-        {wsOpen ? (
-          <span className="rounded-md bg-gr-100 text-gr-800 px-2 py-1">
-            WS 연결됨
-          </span>
-        ) : (
-          <span className="rounded-md bg-gy-200 text-gy-700 px-2 py-1">
-            {wsStatus === "connecting" ? "WS 연결 중…" : wsStatus.toUpperCase()}
-          </span>
-        )}
-      </div>
-
       {/* 스크롤 영역 */}
       <div
         ref={scrollAreaRef}
@@ -298,35 +298,6 @@ export const ChatDetailTemplate = ({
           </div>
         )}
 
-        {/* <div className="flex flex-col gap-5 shrink-0 p-4"> */}
-        {/* 위쪽 센티넬 */}
-        {/* <div ref={topSentinelRef} /> */}
-
-        {/* {chattings.map((chat, index) => {
-            const currentDate = chat.timestamp;
-            const prevDate = index > 0 ? chattings[index - 1].timestamp : null;
-            //const showDate = index === 0 || currentDate !== prevDate;
-            const getDateOnly = (isoString: string) =>
-              new Date(isoString).toISOString().split("T")[0];
-            const showDate =
-              index === 0 ||
-              (prevDate && getDateOnly(currentDate) !== getDateOnly(prevDate));
-
-            return (
-              <React.Fragment key={chat.messageId}>
-                {showDate && (
-                  <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
-                )}
-                <ChattingComponent
-                  message={chat}
-                  isMe={chat.senderId === currentUserId}
-                  onImageClick={setPreviewImage}
-                  time={formatTime(chat.timestamp)}
-                />
-              </React.Fragment>
-            );
-          })} */}
-
         {/* 상태 UI */}
         {initLoading && <CenterBox>불러오는 중…</CenterBox>}
         {initError && (
@@ -345,31 +316,6 @@ export const ChatDetailTemplate = ({
         {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
 
         {/* 메시지 리스트 */}
-        {/* {initLoading ? (
-            <div className="text-center py-8">불러오는 중…</div>
-          ) : (
-            messages.map((chat, idx) => {
-              const prev = idx > 0 ? messages[idx - 1] : undefined;
-              const dateOnly = (s: string) =>
-                new Date(s).toISOString().split("T")[0];
-              const showDate =
-                !prev || dateOnly(chat.timestamp) !== dateOnly(prev.timestamp);
-
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatTime(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })
-          )} */}
         {!initLoading && !initError && !isEmpty && (
           <div className="flex flex-col gap-5 shrink-0 p-4">
             {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
