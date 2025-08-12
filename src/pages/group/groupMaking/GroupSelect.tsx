@@ -89,8 +89,9 @@ export const GroupSelect = () => {
 
   const handleMakingGroup = useMutation({
     mutationFn: submitGroupMaking,
-    onSuccess: () => {
+    onSuccess: res => {
       console.log("성공");
+      console.log(res.data);
       navigate("/confirm", {
         state: {
           onboarding: false,
