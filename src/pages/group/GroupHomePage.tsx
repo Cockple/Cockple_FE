@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { GroupInfoList } from "../../components/group/home/GroupInfoList";
 import FemaleIcon from "@/assets/icons/female.svg?react";
 import MaleIcon from "@/assets/icons/male.svg?react";
@@ -23,6 +23,7 @@ export const GroupHomePage = () => {
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // TODO: API 값으로 대체
   const requestCount = 2;
 
   useEffect(() => {
@@ -35,7 +36,6 @@ export const GroupHomePage = () => {
         setPlusModalOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [plusModalOpen]);
@@ -47,88 +47,117 @@ export const GroupHomePage = () => {
       const offset = (screenWidth - contentWidth) / 2 + 16;
       setRightOffset(offset);
     };
-
     updateOffset();
     window.addEventListener("resize", updateOffset);
     return () => window.removeEventListener("resize", updateOffset);
   }, []);
 
-  // 요일 변환 함수
-  const formatActivityDays = (days: string[]) => {
-    const formatted = days.join(" "); // 배열을 문자열로 변환 (공백 구분)
-    return formatted;
+  // ✅ null/undefined 안전한 요일 포맷
+  const formatActivityDays = (days?: string[] | null) =>
+    days && days.length ? days.join(" ") : "";
+
+  // ✅ null/undefined 안전한 레벨 포맷 (배열 1개면 '이상', 여러 개면 '처음~끝')
+  const toLevelString = (arr?: string[] | null) => {
+    if (!arr || arr.length === 0) return "";
+    if (arr.length === 1) return `${arr[0]} 이상`;
+    return `${arr[0]} ~ ${arr[arr.length - 1]}`;
   };
 
-  // 레벨 변환 함수
-  const getLevelValue = (femaleLevel: string[], maleLevel: string[]) => {
+  // ✅ 레벨 블록: 아이콘 + 문자열
+  const LevelBlock = ({
+    female,
+    male,
+  }: {
+    female?: string[] | null;
+    male?: string[] | null;
+  }) => {
+    const femaleText = toLevelString(female);
+    const maleText = toLevelString(male);
+    if (!femaleText && !maleText) return null;
     return (
       <div className="flex flex-col gap-1">
-        {femaleLevel.length > 0 && (
+        {femaleText && (
           <div className="flex gap-1 items-center">
             <FemaleIcon />
-            <span>{femaleLevel.join(" · ")}</span>
+            <span>{femaleText}</span>
           </div>
         )}
-        {maleLevel.length > 0 && (
+        {maleText && (
           <div className="flex gap-1 items-center">
             <MaleIcon />
-            <span>{maleLevel.join(" · ")}</span>
+            <span>{maleText}</span>
           </div>
         )}
       </div>
     );
   };
 
-  const { data: partyDetail } = usePartyDetail(Number(groupId));
-  console.log(partyDetail);
+  const { data: partyDetail, status, error } = usePartyDetail(Number(groupId));
 
   const isOwner = partyDetail?.memberRole === "MANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
-  const items = [
-    { label: "지역", value: `${partyDetail?.addr1} / ${partyDetail?.addr2}` },
-    {
-      label: "날짜",
-      value: partyDetail ? formatActivityDays(partyDetail?.activityDays) : "",
-    },
-    { label: "시간", value: partyDetail?.activityTime },
-    {
-      label: "급수",
-      value: partyDetail ? (
-        getLevelValue(partyDetail?.femaleLevel, partyDetail?.maleLevel)
-      ) : (
-        <></>
-      ),
-    },
-    {
-      label: "나이",
-      value: `${partyDetail?.minBirthYear} ~ ${partyDetail?.maxBirthYear}`,
-    },
-    { label: "회비", value: partyDetail?.price },
-    { label: "가입비", value: partyDetail?.joinPrice },
-    {
-      label: "지정콕",
-      value: partyDetail?.designatedCock,
-    },
-  ];
+
+  // ✅ 정보 아이템(메모이즈)
+  const items = useMemo(
+    () => [
+      {
+        label: "지역",
+        value: partyDetail ? `${partyDetail.addr1} / ${partyDetail.addr2}` : "",
+      },
+      { label: "날짜", value: formatActivityDays(partyDetail?.activityDays) },
+      { label: "시간", value: partyDetail?.activityTime ?? "" },
+      {
+        label: "급수",
+        value: partyDetail ? (
+          <LevelBlock
+            female={partyDetail.femaleLevel}
+            male={partyDetail.maleLevel}
+          />
+        ) : null,
+      },
+      {
+        label: "나이",
+        value:
+          partyDetail?.minBirthYear && partyDetail?.maxBirthYear
+            ? `${partyDetail.minBirthYear} ~ ${partyDetail.maxBirthYear}`
+            : "",
+      },
+      { label: "회비", value: partyDetail?.price ?? "" },
+      { label: "가입비", value: partyDetail?.joinPrice ?? "" },
+      { label: "지정콕", value: partyDetail?.designatedCock ?? "" },
+    ],
+    [partyDetail],
+  );
 
   const visibleItems = isExpanded ? items : items.slice(0, 4);
+
+  if (status === "pending") {
+    return <div className="p-4 text-gray-500">불러오는 중…</div>;
+  }
+  if (status === "error") {
+    return (
+      <div className="p-4 text-red-500">
+        {(error as Error)?.message || "오류가 발생했어요."}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <div className="flex p-3 gap-3">
-          <div className="w-30 h-30 border-hard bg-gy-500 shrink-0"></div>
+          <div className="w-30 h-30 border-hard bg-gy-500 shrink-0" />
           <div className="flex flex-col flex-1">
             <div className="body-rg-500 text-left mb-2">
               {partyDetail?.partyName}
             </div>
+
             <div className="flex flex-col gap-2">
               {visibleItems.map(item => (
                 <GroupInfoList items={item} key={item.label} />
               ))}
             </div>
 
-            {/* 버튼은 항상 맨 아래 */}
             <div className="relative z-10">
               {!isExpanded && (
                 <div
@@ -140,40 +169,45 @@ export const GroupHomePage = () => {
               <White_XS
                 label={isExpanded ? "간략하게" : "더보기"}
                 icon={isExpanded ? UpIcon : DownIcon}
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={() => setIsExpanded(prev => !prev)}
                 className="w-full"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
-          {partyDetail &&
-            partyDetail.keywords.map((data: string, idx: number) => (
+        {/* ✅ keywords 안전 처리 */}
+        {partyDetail?.keywords && partyDetail.keywords.length > 0 && (
+          <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
+            {partyDetail.keywords.map((kw: string, idx: number) => (
               <div
                 className="inline-flex items-center gap-1 rounded-full py-2 pl-2.5 pr-3 border-1 border-gy-200 shadow-ds50 body-rg-500"
-                key={idx}
+                key={`${kw}-${idx}`}
               >
                 <img src={HashIcon} className="w-4 h-4 shrink-0" />
-                <span>{data}</span>
+                <span>{kw}</span>
               </div>
             ))}
-        </div>
+          </div>
+        )}
 
-        <div className="w-full p-4 flex items-center gap-2 border-1 border-gr-500 border-soft">
-          <img src={CautionIcon} className="size-5" />
-          <div className="text-left body-rg-500">{partyDetail?.content}</div>
-        </div>
+        {partyDetail?.content && (
+          <div className="w-full p-4 flex items-center gap-2 border-1 border-gr-500 border-soft">
+            <img src={CautionIcon} className="size-5" />
+            <div className="text-left body-rg-500">{partyDetail.content}</div>
+          </div>
+        )}
       </div>
 
       <WeeklyCalendar shadow={false} />
 
+      {/* 아래는 데모 카드 */}
       <div className="flex flex-col">
         <div className="border-b-1 border-gy-200 mb-3">
           <ContentCardL
             id={1}
-            isUserJoined={true}
-            isGuestAllowedByOwner={true}
+            isUserJoined
+            isGuestAllowedByOwner
             isCompleted={false}
             title="하이콕콕"
             date="2000-05-01"
@@ -190,9 +224,9 @@ export const GroupHomePage = () => {
 
         <div className="border-b-1 border-gy-200 mb-3">
           <ContentCardL
-            id={1}
-            isUserJoined={true}
-            isGuestAllowedByOwner={true}
+            id={2}
+            isUserJoined
+            isGuestAllowedByOwner
             isCompleted={false}
             title="하이콕콕"
             date="2000-05-01"
@@ -214,10 +248,7 @@ export const GroupHomePage = () => {
             <div
               ref={modalRef}
               className="fixed z-[60] w-39 bg-white border-soft shadow-ds400 flex flex-col p-1"
-              style={{
-                right: rightOffset,
-                bottom: "6rem",
-              }}
+              style={{ right: rightOffset, bottom: "6rem" }}
             >
               <div
                 className="w-full px-2 pt-1.5 pb-2.5 border-b-1 border-gy-200 body-rg-400 flex items-center"
@@ -244,6 +275,7 @@ export const GroupHomePage = () => {
               </div>
             </div>
           )}
+
           <div className="fixed z-50 bottom-8" style={{ right: rightOffset }}>
             <div className="relative">
               <FloatingButton

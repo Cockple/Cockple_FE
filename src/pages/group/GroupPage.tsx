@@ -4,7 +4,6 @@ import White_L_Test from "../../components/common/Btn_Static/Text/White_L_Test";
 import { Group_S } from "../../components/common/contentcard/Group_S";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
 import ArrowRight from "@/assets/icons/arrow_right.svg";
-import { RecommendGroupData } from "../../components/home/mock/homeMock";
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import { Empty } from "../../components/group/main/Empty";
 import AddIcon from "@/assets/icons/add.svg";
@@ -12,13 +11,16 @@ import { useNavigate } from "react-router-dom";
 import { useGroupRecommendFilterState } from "../../store/useGroupRecommendFilterStore";
 import { useEffect, useMemo, useRef } from "react";
 import { useGetMyPartySimple } from "../../api/party/getMyPartySimple";
+import {
+  usePartySuggestion,
+  type PartySuggestion,
+} from "../../api/member/getPartySuggeston";
+import { formatLevel } from "../../utils/formatLevel";
 
 export const GroupPage = () => {
   const navigate = useNavigate();
-  const recommendDate = RecommendGroupData;
   const { resetFilter } = useGroupRecommendFilterState();
 
-  // ✅ 무한스크롤 훅
   const {
     data,
     fetchNextPage,
@@ -28,7 +30,8 @@ export const GroupPage = () => {
     error,
   } = useGetMyPartySimple(10);
 
-  // pages → 평탄화
+  const { data: partySuggestion } = usePartySuggestion();
+
   const myParties = useMemo(
     () => (data ? data.pages.flatMap(p => p.content) : []),
     [data],
@@ -39,11 +42,9 @@ export const GroupPage = () => {
     navigate("/group/recommend");
   };
 
-  // ✅ 수평 스크롤 컨테이너 + sentinel
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // IntersectionObserver (수평 감지)
   useEffect(() => {
     if (!scrollRef.current || !sentinelRef.current) return;
     if (!hasNextPage) return;
@@ -150,19 +151,19 @@ export const GroupPage = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            {recommendDate?.map(item => (
+            {partySuggestion?.content.map((item: PartySuggestion) => (
               <Group_M
-                key={item.id}
-                id={item.id}
-                groupName={item.groupName}
-                location={item.location}
-                femaleLevel={item.femaleLevel}
-                maleLevel={item.maleLevel}
-                nextActivitDate={item.nextActivitDate}
-                groupImage={item.groupImage}
-                upcomingCount={item.upcomingCount}
+                key={item.partyId}
+                id={item.partyId}
+                groupName={item.partyName}
+                location={item.addr1 + "/" + item.addr2}
+                femaleLevel={formatLevel(item.femaleLevel)}
+                maleLevel={formatLevel(item.maleLevel)}
+                nextActivitDate={item.nextExerciseInfo}
+                groupImage={item.partyImgUrl ?? "a"}
+                upcomingCount={item.totalExerciseCount}
                 isMine={true}
-                onClick={() => navigate(`/group/${item.id}`)}
+                onClick={() => navigate(`/group/${item.partyId}`)}
               />
             ))}
           </div>
