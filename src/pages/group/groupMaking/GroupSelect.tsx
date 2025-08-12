@@ -92,7 +92,7 @@ export const GroupSelect = () => {
     onSuccess: res => {
       console.log("성공");
       console.log(res.data);
-      navigate("/confirm", {
+      navigate(`/confirm/${res.data.partyId}`, {
         state: {
           onboarding: false,
         },

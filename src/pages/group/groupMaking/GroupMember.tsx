@@ -6,48 +6,16 @@ import { useState } from "react";
 import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import SearchInput from "../../../components/chat/SearchInput";
 import MemberCard from "../../../components/group/groupMaking/MemberCard";
+import { useMemberInfinite } from "../../../api/party/useMemberInfinite";
 
-type MemberStatus =
-  | "waiting"
-  | "invite"
-  | "request"
-  | "approved"
-  | "Participating";
-
-interface MemberProps {
-  name: string;
+interface ApiMember {
+  userId: number;
   gender: "MALE" | "FEMALE";
+  nickname: string;
   level: string;
-  birth?: string;
-  status: MemberStatus;
+  profileImageUrl: string | null;
+  status: "waiting";
 }
-
-const members: MemberProps[] = [
-  {
-    name: "누구겡",
-    gender: "MALE",
-    level: "D조",
-    status: "approved",
-  },
-  // {
-  //   name: "누구겡",
-  //   gender: "FEMALE",
-  //   level: "C조",
-  //   status: "approved",
-  // },
-  // {
-  //   name: "누구겡",
-  //   gender: "MALE",
-  //   level: "B조",
-  //   status: "approved",
-  // },
-  // {
-  //   name: "누구겡",
-  //   gender: "MALE",
-  //   level: "초급",
-  //   status: "approved",
-  // },
-];
 
 export const GroupMember = () => {
   const navigate = useNavigate();
@@ -71,10 +39,32 @@ export const GroupMember = () => {
   };
   const [search, setSearch] = useState("");
 
-  const filteredMembers = members.filter(member =>
+  const { data, isLoading } = useMemberInfinite({
+    levelSearch: search,
+    page: 0,
+    size: 10,
+  });
+
+  const members: ApiMember[] = data?.content || [];
+
+  const mamberList = members.map(member => ({
+    id: member.userId,
+    name: member.nickname,
+    gender: member.gender,
+    level: member.level,
+    avatar: member.profileImageUrl,
+    status: "waiting",
+  }));
+
+  const filteredMembers = mamberList.filter(member =>
     member.level.includes(search.trim()),
   );
 
+  if (!isLoading) {
+    console.log(data);
+  }
+
+  //--------------데이터 보고싶으면 partyId를 23로 하드코딩 하세요!!!----------
   return (
     <>
       <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>

@@ -191,8 +191,9 @@ const router = createBrowserRouter([
       { path: "/group/making/activity", element: <GroupActivity /> },
       { path: "/group/making/filter", element: <GroupFilter /> },
       { path: "/group/making/select", element: <GroupSelect /> },
-      { path: "/group/making/member", element: <GroupMember /> },
-      { path: "/confirm", element: <ConfirmPage /> }, //onboarding과 making동시 사용
+      { path: "/group/making/member/:partyId", element: <GroupMember /> },
+      { path: "/confirm", element: <ConfirmPage /> },
+      { path: "/confirm/:partyId", element: <ConfirmPage /> },
     ],
   },
 ]);
