@@ -14,7 +14,7 @@ import { useGetMyPartySimple } from "../../api/party/getMyPartySimple";
 import {
   usePartySuggestion,
   type PartySuggestion,
-} from "../../api/member/getPartySuggeston";
+} from "../../api/party/getPartySuggeston";
 import { formatLevel } from "../../utils/formatLevel";
 
 export const GroupPage = () => {
@@ -119,7 +119,7 @@ export const GroupPage = () => {
                     <Group_S
                       title={item.partyName}
                       location={`${item.addr1}/${item.addr2}`}
-                      imageSrc={item.partyImgUrl ?? ""}
+                      imageSrc={item.partyImgUrl ?? "a"}
                     />
                   </div>
                 ))}
