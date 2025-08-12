@@ -15,6 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { usePartyDetail } from "../../api/exercise/getpartyDetail";
 import { useGroupNameStore } from "../../store/useGroupNameStore";
+import { getJoinParty } from "../../api/party/getJoinParty";
 
 export const GroupHomePage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -99,7 +100,9 @@ export const GroupHomePage = () => {
     }
   }, [partyDetail?.partyName, setGroupName]);
 
-  const isOwner = partyDetail?.memberRole === "MANAGER";
+  const isOwner =
+    partyDetail?.memberRole === "party_MANAGER" ||
+    partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
 
   const items = useMemo(
@@ -146,6 +149,10 @@ export const GroupHomePage = () => {
     );
   }
 
+  const onClickJoin = () => {
+    getJoinParty(Number(groupId));
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
@@ -180,7 +187,6 @@ export const GroupHomePage = () => {
           </div>
         </div>
 
-        {/* ✅ keywords 안전 처리 */}
         {partyDetail?.keywords && partyDetail.keywords.length > 0 && (
           <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
             {partyDetail.keywords.map((kw: string, idx: number) => (
@@ -205,7 +211,6 @@ export const GroupHomePage = () => {
 
       <WeeklyCalendar shadow={false} />
 
-      {/* 아래는 데모 카드 */}
       <div className="flex flex-col">
         <div className="border-b-1 border-gy-200 mb-3">
           <ContentCardL
@@ -300,9 +305,13 @@ export const GroupHomePage = () => {
         </>
       )}
 
-      {isJoined && (
+      {!isJoined && (
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
-          <Grad_Mix_L type="chat_question" label="모임 가입하기" />
+          <Grad_Mix_L
+            type="chat_question"
+            label="모임 가입하기"
+            onClick={onClickJoin}
+          />
         </div>
       )}
     </div>
