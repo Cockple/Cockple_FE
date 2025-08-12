@@ -14,6 +14,7 @@ import PlusIcon from "@/assets/icons/add_white.svg?url";
 import { useNavigate, useParams } from "react-router-dom";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { usePartyDetail } from "../../api/exercise/getpartyDetail";
+import { useGroupNameStore } from "../../store/useGroupNameStore";
 
 export const GroupHomePage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -88,7 +89,15 @@ export const GroupHomePage = () => {
     );
   };
 
+  const { setGroupName } = useGroupNameStore();
+
   const { data: partyDetail, status, error } = usePartyDetail(Number(groupId));
+
+  useEffect(() => {
+    if (partyDetail?.partyName) {
+      setGroupName(partyDetail?.partyName);
+    }
+  }, [partyDetail?.partyName, setGroupName]);
 
   const isOwner = partyDetail?.memberRole === "MANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
