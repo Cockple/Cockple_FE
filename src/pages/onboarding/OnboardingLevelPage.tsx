@@ -54,7 +54,7 @@ export const OnboardingLevelPage = () => {
 
         <DropCheckBox
           title="전국 급수"
-          options={LEVEL_KEY}
+          options={LEVEL_KEY.slice(1)}
           checkLabel="급수 없음"
           value={levelValue}
           checked={levelValue === "disabled"}
