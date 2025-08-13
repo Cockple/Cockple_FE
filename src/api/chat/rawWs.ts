@@ -68,15 +68,6 @@ const WS_PATH = (import.meta.env.VITE_WS_PATH ?? "/ws/chats").replace(
   "",
 );
 
-// SockJS는 http/https 스킴 사용
-// const buildSockUrl = (originOverride?: string) => {
-//   const isHttps =
-//     typeof window !== "undefined" && window.location.protocol === "https:";
-//   // originOverride가 없으면 배포/로컬 자동 분기
-//   const origin =
-//     originOverride ?? (isHttps ? WS_ORIGIN : "http://localhost:8080");
-//   return `${origin}${WS_PATH}`;
-// };
 const buildSockUrl = (origin?: string) => {
   const base = (origin ?? WS_ORIGIN) + WS_PATH;
   return base; // SockJS는 http/https 사용
@@ -99,11 +90,7 @@ const sendJSON = (msg: OutgoingMessage) => {
 
 // --------- 공개 API ----------
 export const connectRawWs = (
-  {
-    memberId,
-    origin,
-    //chatRoomId,
-  }: { memberId: number; origin?: string },
+  { memberId, origin }: { memberId: number; origin?: string },
   handlers: Handlers = {},
 ) => {
   if (
@@ -130,10 +117,6 @@ export const connectRawWs = (
     reconnectAttempt = 0;
     handlers.onOpen?.();
 
-    //====== 이 부분 ============
-    //const payload = { type: "SUBSCRIBE", chatRoomId };
-    //console.log("[WS >>] SUBSCRIBE:", payload);
-    //sock.send(JSON.stringify(payload));
     // 자동 재구독
     if (currentRooms.size) {
       [...currentRooms].forEach(id =>

@@ -168,30 +168,6 @@ export const ChatPage = () => {
     };
   }, [isOpen, visibleRoomIds]);
 
-  // 🌟실시간 수신 → 마지막 메시지/미읽음 카운트 갱신
-  // useEffect(() => {
-  //   if (!lastMessage || lastMessage.type !== "SEND") return;
-  //   const { chatRoomId, content, createdAt } = lastMessage;
-
-  //   const patch = <T extends { chatRoomId:number; unreadCount:number; lastMessage }>(list: T[]) =>
-  //     list.map(item =>
-  //       item.chatRoomId === chatRoomId
-  //         ? {
-  //             ...item,
-  //             lastMessage: {
-  //               ...(item).lastMessage,
-  //               content,
-  //               timestamp: createdAt,
-  //             },
-  //             unreadCount: item.unreadCount + 1,
-  //           }
-  //         : item
-  //     );
-
-  //   setGroupChatRooms(prev => patch(prev));
-  //   setPersonalChatRooms(prev => patch(prev));
-  // }, [lastMessage]);
-
   return (
     <div className="flex flex-col w-full pt-14">
       <MainHeader />
