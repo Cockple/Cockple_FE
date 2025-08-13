@@ -22,6 +22,9 @@ type SelectedPlace = {
 };
 
 export const CreateExercise = () => {
+  const [selectedDate, setSelectedDate] = useState<string | number | null>(
+    null,
+  );
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -33,6 +36,7 @@ export const CreateExercise = () => {
   const [locationDetail, setLocationDetail] = useState<SelectedPlace | null>(
     null,
   );
+
   const location = useLocation();
   const selectedPlace = location.state?.selectedPlace;
   const { groupId } = useParams();
@@ -74,12 +78,17 @@ export const CreateExercise = () => {
     setLocationDetail(null);
   };
 
+  const handleDateSelect = (date: string | number) => {
+    setSelectedDate(date);
+    console.log("선택된 날짜: ", date);
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <PageHeader title="운동 만들기" />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">
-          <WeeklyCalendar shadow={false} />
+          <WeeklyCalendar shadow={false} onClick={handleDateSelect} />
         </div>
         <div className="flex flex-col gap-4">
           <LocationField label="위치" icon={true} />
