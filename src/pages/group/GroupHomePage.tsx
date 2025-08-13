@@ -261,7 +261,7 @@ export const GroupHomePage = () => {
             >
               <div
                 className="w-full px-2 pt-1.5 pb-2.5 border-b-1 border-gy-200 body-rg-400 flex items-center"
-                onClick={() => navigate("/group/exercise/create")}
+                onClick={() => navigate(`/group/exercise/${groupId}/create`)}
               >
                 운동 만들기
               </div>

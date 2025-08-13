@@ -10,7 +10,7 @@ import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import { LocationField } from "../../components/common/LocationField";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { Location } from "../../components/common/contentcard/Location";
 import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 
@@ -35,6 +35,7 @@ export const CreateExercise = () => {
   );
   const location = useLocation();
   const selectedPlace = location.state?.selectedPlace;
+  const { groupId } = useParams();
 
   useEffect(() => {
     if (selectedPlace) {

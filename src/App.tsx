@@ -172,7 +172,7 @@ const router = createBrowserRouter([
         element: <GroupRecommendFilterPage />,
       },
       {
-        path: "group/exercise/create",
+        path: "group/exercise/:groupId/create",
         element: <CreateExercise />,
       },
       {
