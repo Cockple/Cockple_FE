@@ -28,11 +28,27 @@ export const PersonalChat = ({
       onTouchStart={() => setPressing(true)}
       onTouchEnd={() => setPressing(false)}
     >
-      <img
-        src={imageSrc}
+      {/* <img
+        src={imageSrc || undefined}
         alt={userName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem]"
-      />
+      /> */}
+      {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt={userName}
+          className="w-[4rem] h-[4rem] rounded-[0.5rem] flex-shrink-0"
+        />
+      ) : (
+        <div
+          aria-label={`${userName} profile placeholder`}
+          className="w-[4rem] h-[4rem] rounded-[0.5rem] bg-[#F0F1F3] flex items-center justify-center flex-shrink-0"
+        >
+          <span className="body-md-500 text-[#9195A1]">
+            {userName?.[0] ?? "?"}
+          </span>
+        </div>
+      )}
 
       <div className="flex flex-col justify-between w-[11.9375rem] h-[4rem]">
         <div className="flex items-center gap-[0.25rem] max-w-full overflow-hidden">
@@ -56,9 +72,8 @@ export const PersonalChat = ({
         </span>
       </div>
 
-
       <div className="flex flex-col justify-between w-[4rem] h-[4rem] items-center">
-        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p> 
+        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p>
 
         <div className="flex items-center justify-center w-full">
           {unreadCount > 0 && <Num_Noti unreadCount={unreadCount} />}

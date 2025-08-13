@@ -10,23 +10,12 @@ import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
 import { formatTime } from "../../utils/formatDate";
 
-//import type { ChatMessageResponse } from "../../types/chat";
 import { useNavigate } from "react-router-dom";
-//import { fetchChatMessages } from "../../api/chat/chattingMessage";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
-//import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
-//import { useSocketConnection } from "../../hooks/useSocketConnection";
 
-// WS 연결만: CONNECT 전송 + 응답 수신
-//import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-
-// ─────────────────────────────────────────────────────────────
-// 모드 스위치: true면 mock 훅 사용, false면 실제 useChatInfinite 사용
-//const USE_MOCK = false;
-// ─────────────────────────────────────────────────────────────
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -56,11 +45,6 @@ export const ChatDetailTemplate = ({
   const navigate = useNavigate();
   const currentUserId = 1; // 실제 로그인 사용자 ID로 대체!!!!!!!!!!!!!!
 
-  // ===== 무한 스크롤 데이터 =====
-  // 훅 호출 순서 고정을 위해 real/mocking 모두 호출 후 결과만 선택
-  //const real = useChatInfinite(chatId);
-  //const mock = useMockChatInfinite(chatId);
-
   // ==== 무한 스크롤 데이터 ====
   const {
     //initial, //ChatRoomInfo, Participants 등
@@ -84,20 +68,6 @@ export const ChatDetailTemplate = ({
     //   return { lastReadMessageId: payload.lastReadMessageId };
     // },
   });
-
-  // ====== WS 연결 ======
-  // const memberId = Number(localStorage.getItem("memberId") || 1);
-  // const {
-  //   //status: wsStatus,
-  //   isOpen: wsOpen,
-  //   //lastMessage: wsLast, // 응답 수신
-  //   //subscribe, // 구독 전송
-  //   //send,
-  // } = useRawWsConnect({
-  //   memberId,
-  //   origin: "https://cockple.store", // 필요시 강제 지정 가능(옵션)
-  //   //chatRommId: chatId,
-  // });
 
   // 방 입장: 단일 구독
   useEffect(() => {
@@ -184,23 +154,6 @@ export const ChatDetailTemplate = ({
     const text = input.trim();
     if (!text) return;
 
-    // TODO(WS): destination 확정되면 여기서 publish
-    // if (connected) {
-    //   sendMessageWS(chatId, {
-    //     messageId: Date.now(),
-    //     senderId: currentUserId,
-    //     senderName: "나",
-    //     senderProfileImage: ProfileImg,
-    //     content: input,
-    //     messageType: "TEXT",
-    //     imgUrls: [],
-    //     timestamp: new Date().toISOString(),
-    //     isMyMessage: true,
-    //   });
-    // } else {
-    //   console.warn("WS not connected; fallback or queue");
-    // }
-
     // 1) 서버로 전송 (스펙: JSON string)
     const ok = send(chatId, text); // 또는 sendChatWS(chatId, text);
 
@@ -227,35 +180,6 @@ export const ChatDetailTemplate = ({
 
     const fileUrl = URL.createObjectURL(file);
     setPreviewImage(fileUrl);
-    //const now = new Date().toISOString();
-
-    // const newImageMessage: ChatMessageResponse = {
-    //   messageId: Date.now(),
-    //   //chatRoomId: Number(chatId),
-    //   senderId: currentUserId,
-    //   senderName: "나",
-    //   senderProfileImage: ProfileImg,
-    //   messageType: "IMAGE",
-    //   content: "", // content 필드는 사용하지 않지만 빈 문자열로 설정
-    //   imgUrls: [fileUrl],
-    //   timestamp: now,
-    //   isMyMessage: true,
-    //   //reactions: [],
-    //   // replyTo: null,
-    //   // isDeleted: false,
-    //   // fileInfo: {
-    //   //   fileId: Date.now(),
-    //   //   fileName: file.name,
-    //   //   fileSize: file.size,
-    //   //   mimeType: file.type,
-    //   //   thumbnailUrl: fileUrl,
-    //   //   downUrl: fileUrl,
-    //   // },
-    //   // createdAt: now,
-    //   // updatedAt: now,
-    // };
-
-    //setChattings(prev => [...prev, newImageMessage]);
 
     // 초기화
     e.target.value = "";
