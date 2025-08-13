@@ -1,5 +1,4 @@
 //운동 상세 조회 및 삭제 /api/exercises/{exerciseId}
-
 import api from "../api";
 
 // 타입 정의 (API 응답에 맞게)
@@ -39,7 +38,7 @@ export interface ExerciseApiResponse {
   };
 }
 
-// 우리가 쓸 UI용 멤버 타입 (MemberProps 예시)
+// UI에서 사용할 멤버 타입
 export interface MemberProps {
   id: number;
   status: string;
@@ -54,7 +53,7 @@ export interface MemberProps {
   guest: string | null;
 }
 
-// 최종 프론트에서 사용할 타입 (ExerciseDetailResponse)
+// 최종 변환 타입
 export interface ExerciseDetailResponse {
   partyId: number;
   notice: string;
@@ -68,14 +67,37 @@ export interface ExerciseDetailResponse {
   waitingMembers: MemberProps[];
 }
 
+interface RawExerciseResponse {
+  isManager: boolean;
+  info: {
+    notice: string;
+    buildingName: string;
+    location: string;
+  };
+  participants: {
+    currentParticipantCount: number;
+    totalCount: number;
+    manCount: number;
+    womenCount: number;
+    list: any[];
+  };
+  waiting: {
+    totalCount: number;
+    manCount: number;
+    womenCount: number;
+    list: any[];
+  };
+}
 
+// 운동 상세 조회
 export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDetailResponse> => {
-  const response = await api.get(`/api/exercises/${exerciseId}`);
-  console.log("API response data:", response.data);
-  const raw = response.data.data;
+  const response = await api.get<{ code: string; message: string; data: RawExerciseResponse; success: boolean }>(
+    `/api/exercises/${exerciseId}`
+  );
 
-  // raw 데이터를 ExerciseDetailResponse 타입으로 변환
-  const converted: ExerciseDetailResponse = {
+  const raw = response.data.data; 
+
+  return {
     partyId: exerciseId,
     notice: raw.info.notice,
     placeName: raw.info.buildingName,
@@ -94,11 +116,10 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
       isMe: false,
       isLeader: p.position === "모임장",
       position: p.position,
-      imgUrl: p.imgUrl ?? null,
-      canCancel: p.canCancel,
-      guest: p.guest,
+      imgUrl: p.profileImageUrl ?? null,
+      canCancel: true,
+      guest: p.inviterName ?? null,
     })),
-    
     waitingCount: raw.waiting.totalCount,
     waitingGenderCount: {
       male: raw.waiting.manCount,
@@ -112,19 +133,16 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
       level: w.level,
       isMe: false,
       isLeader: false,
-      position: w.position,
-      imgUrl: w.imgUrl ?? null,
-      canCancel: w.canCancel,
-      guest: w.guest,
+      position: w.partyPosition,
+      imgUrl: w.profileImageUrl ?? null,
+      canCancel: true,
+      guest: w.inviterName ?? null,
     })),
   };
-
-  return converted;
 };
 
-
-// 멤버 삭제 (예시)
-export const deleteParticipantMember = async (exerciseId: number, memberId: number) => {
+// 멤버 삭제
+export const cancelSelf = async (exerciseId: number, memberId: number) => {
   const response = await api.delete(`/api/exercises/${exerciseId}/participants/${memberId}`);
   return response.data;
 };
