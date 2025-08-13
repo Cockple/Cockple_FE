@@ -32,7 +32,22 @@ export const useRawWsConnect = (opts: {
       {
         onOpen: () => mounted.current && setOpen(true),
         onClose: () => mounted.current && setOpen(false),
-        onMessage: msg => mounted.current && setLastMessage(msg),
+        //onMessage: msg => mounted.current && setLastMessage(msg),
+        //🌟
+        onMessage: msg => {
+          if (!mounted.current) return;
+          setLastMessage(msg);
+          // 해제 ACK 로깅
+          if (
+            (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
+            "message" in msg &&
+            "chatRoomId" in msg
+          ) {
+            console.log(
+              `[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`,
+            );
+          }
+        },
         onError: () => mounted.current && setOpen(false),
       },
     );
