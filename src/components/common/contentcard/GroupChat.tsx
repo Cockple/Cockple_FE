@@ -32,11 +32,27 @@ export const GroupChat = ({
       onTouchStart={() => setPressing(true)}
       onTouchEnd={() => setPressing(false)}
     >
-      <img
+      {/* <img
         src={imageSrc}
         alt={chatName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem] flex-shrink-0"
-      />
+      /> */}
+      {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt={chatName}
+          className="w-[4rem] h-[4rem] rounded-[0.5rem] flex-shrink-0"
+        />
+      ) : (
+        <div
+          aria-label={`${chatName} profile placeholder`}
+          className="w-[4rem] h-[4rem] rounded-[0.5rem] bg-[#F0F1F3] flex items-center justify-center flex-shrink-0"
+        >
+          <span className="body-md-500 text-[#9195A1]">
+            {chatName?.[0] ?? "?"}
+          </span>
+        </div>
+      )}
 
       <div className="flex flex-col justify-between flex-grow h-[4rem] overflow-hidden">
         {/* 채팅방 이름 및 인원 */}
