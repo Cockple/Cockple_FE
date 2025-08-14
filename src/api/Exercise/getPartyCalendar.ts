@@ -1,5 +1,7 @@
+import { endOfMonth, format, startOfMonth } from "date-fns";
 import type { CommonResponse } from "../../types/common";
 import api from "../api";
+import { useQuery } from "@tanstack/react-query";
 
 export interface CalExercise {
   exerciseId: number;
@@ -66,3 +68,35 @@ export async function fetchPartyCalendar(params: {
 
   return data.data;
 }
+
+export const useMonthlyPartyCalendar = (
+  partyId?: number,
+  currentMonth?: Date,
+) => {
+  return useQuery({
+    queryKey: [
+      "partyCalendar",
+      partyId,
+      format(currentMonth || new Date(), "yyyy-MM"),
+    ],
+
+    queryFn: () => {
+      const startDate = format(
+        startOfMonth(currentMonth || new Date()),
+        "yyyy-MM-dd",
+      );
+      const endDate = format(
+        endOfMonth(currentMonth || new Date()),
+        "yyyy-MM-dd",
+      );
+
+      return fetchPartyCalendar({
+        partyId: partyId!,
+        startDate,
+        endDate,
+      });
+    },
+
+    enabled: !!partyId && !!currentMonth,
+  });
+};
