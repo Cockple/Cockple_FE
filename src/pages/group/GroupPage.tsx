@@ -42,6 +42,10 @@ export const GroupPage = () => {
     navigate("/group/recommend");
   };
 
+  useEffect(() => {
+    resetFilter();
+  }, [resetFilter]);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
