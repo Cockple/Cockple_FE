@@ -14,7 +14,7 @@ import { usePartySuggestionInfinite } from "../../api/party/getPartySuggeston";
 
 type SortLabel = "최신순" | "운동 많은 순";
 const mapSortToApi = (label: SortLabel) =>
-  label === "운동 많은 순" ? "POPULARITY" : "LATEST";
+  label === "운동 많은 순" ? "운동 많은 순" : "최신순";
 
 export const GroupRecommendPage = () => {
   const navigate = useNavigate();
@@ -30,6 +30,7 @@ export const GroupRecommendPage = () => {
     day,
     time,
     keyword,
+    resetFilter,
   } = useGroupRecommendFilterState();
 
   const filterStatus = isFilterDirty({
@@ -101,9 +102,14 @@ export const GroupRecommendPage = () => {
     return () => io.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const onBackClick = () => {
+    resetFilter();
+    navigate(-1);
+  };
+
   return (
     <div className="flex flex-col gap-2">
-      <PageHeader title="모임 추천" />
+      <PageHeader title="모임 추천" onBackClick={onBackClick} />
       <div className="flex flex-col gap-3">
         <div className="flex justify-between w-full h-7">
           <CheckBoxBtn checked={recommend} onClick={toggleRecommend}>
