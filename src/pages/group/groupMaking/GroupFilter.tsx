@@ -6,16 +6,31 @@ import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import InputSlider from "../../../components/common/Search_Filed/InputSlider";
 import CheckBoxInputFiled from "../../../components/group/groupMaking/CheckBoxInputField";
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
+import { useQuery } from "@tanstack/react-query";
+import { getMyProfile } from "../../../api/member/my";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
 
   const handleNext = () => {
-    navigate("/group/making/select");
+    if (myYear >= apiAgeRange[0] && myYear <= apiAgeRange[1]) {
+      navigate("/group/making/select");
+    } else {
+      alert("본인 나이를 포함해서 선택해주세요.");
+    }
   };
+
   const currentYear = new Date().getFullYear();
 
   const setFilter = useGroupMakingFilterStore(state => state.setFilter);
+  const apiAgeRange = useGroupMakingFilterStore(state => state.ageRange);
+
+  const { data: me } = useQuery({
+    queryKey: ["user"],
+    queryFn: getMyProfile,
+  });
+  const myYear = me?.birth.split("-")[0]; //내 년도
+
   const {
     money,
     joinMoney,

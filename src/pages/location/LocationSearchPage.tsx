@@ -35,10 +35,12 @@ export const LocationSearchPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const location = useLocation();
   //onboarding
-  const [isOnboarding, setIsOnboarding] = useState<boolean | undefined>(false);
-  const [returnPath, setIsReturnPath] = useState(
-    location.state?.returnPath ?? "/",
-  );
+  // const [isOnboarding, setIsOnboarding] = useState<boolean | undefined>(false);
+  const { user } = useUserStore();
+  const isOnboarding = !!user?.isNewMember;
+  const returnPath = isOnboarding
+    ? "/onboarding/profile"
+    : (location.state?.returnPath ?? "/");
   // const returnPath = location.state?.returnPath ?? "/";
 
   const mode = location.state?.mode ?? "fill-only";
@@ -128,6 +130,9 @@ export const LocationSearchPage = () => {
 
         navigate(
           `/location/map?x=${longitude}&y=${latitude}&place=${encodeURIComponent(place)}&address=${encodeURIComponent(address)}&query=${encodeURIComponent(input ?? "")}`,
+          {
+            state: { isOnboarding, returnPath, mode },
+          },
         );
       } catch (err) {
         console.error("주소 정보 가져오기 실패", err);
@@ -138,31 +143,22 @@ export const LocationSearchPage = () => {
 
   const handleSelect = async (place: Place) => {
     const payload = transformPlaceToPayload(place);
+    const isOnboardingNow = !!useUserStore.getState().user?.isNewMember;
+    const targetPath = isOnboardingNow
+      ? "/onboarding/profile"
+      : (location.state?.returnPath ?? "/");
 
     if (mode === "call-api") {
       // api 요청
       await postMyProfileLocation(payload);
-      navigate(returnPath);
+      navigate(targetPath);
     } else {
-      navigate(returnPath, {
+      navigate(targetPath, {
         state: { selectedPlace: place },
       });
       console.log(returnPath);
     }
   };
-
-  const { user } = useUserStore();
-
-  useEffect(() => {
-    const isValidMember = user?.isNewMember;
-    console.log(isValidMember);
-    setIsOnboarding(isValidMember);
-
-    const fromRouter = location.state?.returnPath;
-    const fallbackPath = fromRouter ?? "/";
-
-    setIsReturnPath(isValidMember ? "/onboarding/profile" : fallbackPath);
-  }, []);
 
   return (
     <div className="flex flex-col">
@@ -228,7 +224,7 @@ export const LocationSearchPage = () => {
         </div>
         {selectedId !== null && (
           <div
-            className="fixed bottom-0 w-full max-w-[444px] flex justify-center -ml-4 bg-white"
+            className="fixed bottom-0 w-full max-w-[444px] flex justify-center -mb-5 -ml-4 bg-white"
             onClick={() => handleSelect(results[selectedId])}
           >
             <Grad_GR400_L label="이 위치로 위치 등록" />

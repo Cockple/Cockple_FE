@@ -129,7 +129,10 @@ const router = createBrowserRouter([
 
       { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
-      { path: "/mypage/profile/medal/:memberId", element: <MyPageProfileMedal /> },
+      {
+        path: "/mypage/profile/medal/:memberId",
+        element: <MyPageProfileMedal />,
+      },
 
       { path: "/recommend", element: <RecommendPage /> },
       { path: "/mygroup-exercise", element: <MyGroupExercisePage /> },
@@ -185,7 +188,7 @@ const router = createBrowserRouter([
         ],
       },
 
-      { path: "/group/detail/inviteGuest", element: <InviteGuest /> },
+      { path: "/group/inviteGuest/:exerciseId", element: <InviteGuest /> },
       { path: "/group/making/basic", element: <GroupBasicInfo /> },
       { path: "/group/making/activity", element: <GroupActivity /> },
       { path: "/group/making/filter", element: <GroupFilter /> },
