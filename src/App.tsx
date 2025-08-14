@@ -120,19 +120,13 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
-      // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
-      {
-        path: "/mypage/mymedal/:contestId",
-        element: <MyPageMedalDetailPage />,
-      },
+      { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
-      // { path: "/mypage/profile", element: <MyPageProfile /> },
       { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
-      { path: "/mypage/profile/medal", element: <MyPageProfileMedal /> },
+      { path: "/mypage/profile/medal/:memberId", element: <MyPageProfileMedal /> },
 
       { path: "/recommend", element: <RecommendPage /> },
       { path: "/mygroup-exercise", element: <MyGroupExercisePage /> },
@@ -154,7 +148,7 @@ const router = createBrowserRouter([
       // 연두 모임
       { path: "/group/detail", element: <GroupDetailMemberDefault /> },
       {
-        path: "/group/Mygroup/MyExerciseDetail",
+        path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
         element: <MyExerciseDetail />,
       },
       {

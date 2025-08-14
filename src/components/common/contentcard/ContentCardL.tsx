@@ -127,7 +127,9 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          onClick={() => navigate("/group/Mygroup/MyExerciseDetail")}
+          onClick={() =>
+           navigate(`/group/Mygroup/MyExerciseDetail/${id}`)
+          }
         />
       </div>
 
