@@ -7,7 +7,7 @@ import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { DropBox } from "../../../components/common/DropBox";
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
-import { SEOUL_DISTRICTS } from "../../../constants/options";
+import { SEOUL_DISTRICTS, WEEKLY_KEY } from "../../../constants/options";
 
 const cities = [
   { value: "서울특별시", enabled: true },
@@ -96,7 +96,7 @@ export const GroupActivity = () => {
               <img src={Circle_Red} alt="icon-cicle" />
             </div>
             <MultiSelectButtonGroup
-              options={["전체", "월", "화", "수", "목", "금", "토", "일"]}
+              options={WEEKLY_KEY}
               selected={weekly}
               onChange={newVal => setFilter("weekly", newVal)}
             />
