@@ -13,6 +13,10 @@ import {
   bookmarkExercise,
   unbookmarkExercise,
 } from "../../../api/bookmark/bookmark";
+import {
+  joinExercise,
+  cancelExercise,
+} from "../../../api/exercise/exerciseApi";
 import CautionExerciseModals from "../../like/CautionExerciseModal";
 
 interface ContentCardLProps {
@@ -29,7 +33,7 @@ interface ContentCardLProps {
   currentCount: number;
   totalCount: number;
   like?: boolean;
-  LikeCount?: number; 
+  LikeCount?: number;
   onToggleFavorite?: (id: number) => void;
 }
 export type { ContentCardLProps };
@@ -61,6 +65,7 @@ export const ContentCardL = ({
   const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //운동 50개 넘어가면 모달창
   //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setFavorite(like);
@@ -103,13 +108,33 @@ export const ContentCardL = ({
     }
   };
 
-
   function getDayOfWeek(dateString: string): string {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     const dateObj = new Date(dateString);
     return days[dateObj.getDay()];
   }
   const day = getDayOfWeek(date);
+
+  const handleJoin = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const originalIsJoined = isStarted;
+    setIsStarted(!originalIsJoined);
+
+    try {
+      if (!originalIsJoined) {
+        await joinExercise(id);
+      } else {
+        await cancelExercise(id);
+      }
+    } catch (err) {
+      console.log("운동 신청, 취소 오류: ", err);
+      setIsStarted(originalIsJoined);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div
@@ -127,9 +152,7 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          onClick={() =>
-           navigate(`/group/Mygroup/MyExerciseDetail/${id}`)
-          }
+          onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
         />
       </div>
 
@@ -171,7 +194,7 @@ export const ContentCardL = ({
           className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}
         >
           <button
-            onClick={() => setIsStarted(prev => !prev)}
+            onClick={handleJoin}
             onMouseDown={() => setIsStartPressing(true)}
             onMouseUp={() => setIsStartPressing(false)}
             onMouseLeave={() => setIsStartPressing(false)}

@@ -171,13 +171,11 @@ export const GroupHomePage = () => {
     if (partyDetail?.partyName) setGroupName(partyDetail.partyName);
   }, [partyDetail?.partyName, setGroupName]);
 
-  // 권한/가입여부
   const isOwner =
     partyDetail?.memberRole === "party_MANAGER" ||
     partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
 
-  // 소개 섹션 아이템
   const items = useMemo(
     () => [
       {
@@ -210,7 +208,6 @@ export const GroupHomePage = () => {
   );
   const visibleItems = isExpanded ? items : items.slice(0, 4);
 
-  // ========= 모임 캘린더 =========
   const [cal, setCal] = useState<{
     startDate: string;
     endDate: string;
@@ -221,7 +218,6 @@ export const GroupHomePage = () => {
   const [fetchingMore, setFetchingMore] = useState(false);
   const swiperRef = useRef<SwiperClass | null>(null);
 
-  // 최초 로드(과거1주~미래3주 기본)
   useEffect(() => {
     if (!groupId) return;
     (async () => {
@@ -253,7 +249,6 @@ export const GroupHomePage = () => {
     })();
   }, [groupId]);
 
-  // 점 표시용 날짜 배열
   const exerciseDays = useMemo(() => {
     if (!cal) return [];
     const set = new Set<string>();
@@ -263,7 +258,6 @@ export const GroupHomePage = () => {
     return Array.from(set);
   }, [cal]);
 
-  // 선택 날짜 운동
   const selectedDayExercises: CalExercise[] = useMemo(() => {
     if (!cal) return [];
     const found = cal.weeks
@@ -272,14 +266,12 @@ export const GroupHomePage = () => {
     return found?.exercises ?? [];
   }, [cal, selectedDate]);
 
-  // 주 병합(중복 제거)
   const mergeWeeks = (base: CalWeek[], incoming: CalWeek[]) => {
     const seen = new Set(base.map(w => w.weekStartDate));
     const uniq = incoming.filter(w => !seen.has(w.weekStartDate));
     return [...base, ...uniq];
   };
 
-  // 슬라이드가 가장자리일 때 추가 로드
   const onSlideChange = async (swiper: SwiperClass) => {
     if (!cal || fetchingMore) return;
     const buffer = 1;
@@ -347,12 +339,9 @@ export const GroupHomePage = () => {
     }
   };
 
-  // UI용 Week[]로 변환 (any 제거)
   const processedWeeks: Week[] | null = useMemo(() => {
-    // ✅ cal 데이터와 partyDetail 데이터가 모두 준비되었을 때만 변환을 실행합니다.
     if (!cal || !cal.weeks || !partyDetail) return null;
 
-    // ✅ partyDetail을 함께 넘겨줍니다.
     return calWeeksToUiWeeks(cal.weeks, partyDetail);
   }, [cal, partyDetail]);
 
@@ -433,7 +422,6 @@ export const GroupHomePage = () => {
         )}
       </div>
 
-      {/* ▼ 모임 캘린더 + 선택 날짜 운동 리스트 */}
       <div className="w-full h-17">
         {processedWeeks && (
           <CustomWeekly
@@ -493,7 +481,6 @@ export const GroupHomePage = () => {
         )}
       </div>
 
-      {/* 플로팅 + 메뉴 */}
       {isOwner && (
         <>
           {plusModalOpen && (
@@ -548,7 +535,6 @@ export const GroupHomePage = () => {
         </>
       )}
 
-      {/* 가입 CTA */}
       {!isJoined && (
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
           <Grad_Mix_L
