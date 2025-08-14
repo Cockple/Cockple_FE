@@ -122,8 +122,8 @@ const router = createBrowserRouter([
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
-{ path: "/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
-{ path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
+      { path: "/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
+      { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
@@ -152,7 +152,6 @@ const router = createBrowserRouter([
       },
 
       // 연두 모임
-      // { path: "/group/detail", element: <GroupDetailMemberDefault /> },
       { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
 
       {

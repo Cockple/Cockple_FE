@@ -76,7 +76,7 @@ export const MyPageProfile = () => {
         <MyPage_Text
           textLabel="내 모임"
           numberValue={profileData?.myGroupCount ?? 0}
-          onClick={() => navigate("/mypage/mygroup")}
+          onClick={() => navigate("/mypage/profile/group")}
         />
 
        <MyPage_Profile_Medal
