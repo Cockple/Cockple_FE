@@ -68,11 +68,14 @@ export const CreateExercise = () => {
   const handleConfirmTime = () => {
     const selectedTime = pickerRef.current?.getDueString() ?? "";
 
-    if (!selectedTime) return;
-    const formattedTime = selectedTime.slice(0, 5);
+    // ✅ 불필요한 .slice() 코드를 삭제하고,
+    //    DateAndTimePicker에서 받은 값을 그대로 상태에 저장합니다.
+    if (timeType === "start") {
+      setStartTime(selectedTime);
+    } else if (timeType === "end") {
+      setEndTime(selectedTime);
+    }
 
-    if (timeType === "start") setStartTime(formattedTime);
-    else if (timeType === "end") setEndTime(formattedTime);
     setOpenModal(false);
   };
 
