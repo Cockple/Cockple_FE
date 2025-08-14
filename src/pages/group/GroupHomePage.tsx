@@ -35,6 +35,7 @@ export const GroupHomePage = () => {
       );
 
       setRequestCount(data.data.content.length);
+      console.log(requestCount);
     };
 
     requestMemberCount();
