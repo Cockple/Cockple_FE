@@ -67,8 +67,17 @@ const keywords = [
 ];
 
 export const GroupRecommendFilterPage = () => {
-  const { region, level, style, day, time, keyword, setFilter, resetFilter } =
-    useGroupRecommendFilterState();
+  const {
+    recommend,
+    region,
+    level,
+    style,
+    day,
+    time,
+    keyword,
+    setFilter,
+    resetFilter,
+  } = useGroupRecommendFilterState();
   const initialFilterRef = useRef({
     region,
     level,
@@ -76,6 +85,7 @@ export const GroupRecommendFilterPage = () => {
     day,
     time,
     keyword,
+    recommend,
   });
   const [showModal, setShowModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");

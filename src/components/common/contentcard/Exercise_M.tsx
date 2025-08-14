@@ -11,7 +11,7 @@ interface ExerciseMProps {
   date: string;
   time: string;
   location: string;
-  imageSrc: string | null;
+  imageSrc: string;
   isFavorite?: boolean;
   onToggleFavorite?: (id: number) => void;
   onClick?: () => void;
