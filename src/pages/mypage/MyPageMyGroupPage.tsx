@@ -42,13 +42,6 @@ export const MyPageMyGroupPage = () => {
     }
   }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading]);
 
-  // const handleToggleFavorite = (id: number) => {
-  //   setGroups(prev =>
-  //     prev.map(group =>
-  //       group.partyId === id ? { ...group, like: !group.like } : group,
-  //     ),
-  //   );
-  // };
 
   const hasGroups = groups.length > 0;
 

@@ -44,7 +44,7 @@ export const GroupDetailMemberDefault = () => {
   const [isApplied, setIsApplied] = useState(false); // 신청 여부
   const isApproved = false; // 서버 승인 여부
 
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
 
   // API 호출
 useEffect(() => {
@@ -69,15 +69,18 @@ useEffect(() => {
   fetchMembers();
 }, [numericPartyId]);
 
-  const filteredMembers = members.filter(member => {
+
+  const filteredMembers = members;
+
+  // const filteredMembers = members.filter(member => {
     // const nameMatch = member.nickname?.toLowerCase().includes(searchTerm.toLowerCase());
     // const levelMatch = member.level?.toLowerCase().includes(searchTerm.toLowerCase());
     // return nameMatch || levelMatch;
-  });
+  // });
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
+  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setSearchTerm(e.target.value);
+  // };
 
   // 멤버 삭제
   const handleDeleteMember = (idx: number) => {
@@ -111,7 +114,7 @@ useEffect(() => {
               type="text"
               placeholder="이름, 급수로 검색"
               className="w-full border rounded-xl	p-2 pr-14 body-md-500  text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
-              onChange={handleSearchChange}
+              // onChange={handleSearchChange}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2">
               <Search className="w-6 h-6" />

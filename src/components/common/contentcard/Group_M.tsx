@@ -11,8 +11,8 @@ interface GroupMProps {
   groupName: string;
   groupImage: string;
   location: string;
-  femaleLevel: string[];
-  maleLevel: string[];
+  femaleLevel?: string[];
+  maleLevel?: string[];
   nextActivitDate: string | null;
   upcomingCount: number;
   like?: boolean;
@@ -129,14 +129,14 @@ export const Group_M = ({
           <div className="flex gap-[0.625rem] w-full">
             <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
               <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
-              <span className="text-left truncate" title={femaleLevel.join(", ")}>
-                {femaleLevel.join(", ")}
+              <span className="text-left truncate" title={(femaleLevel ?? []).join(", ")}>
+                {(femaleLevel ?? []).join(", ")}
               </span>
             </div>
             <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
               <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
-              <span className="text-left truncate" title={maleLevel.join(", ")}>
-                {maleLevel.join(", ")}
+              <span className="text-left truncate" title={(maleLevel ?? []).join(", ")}>
+                {(maleLevel ?? []).join(", ")}
               </span>
             </div>
           </div>

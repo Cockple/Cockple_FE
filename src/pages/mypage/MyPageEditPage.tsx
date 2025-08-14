@@ -32,7 +32,6 @@ interface MyPageEditProps {
 }
 
 export const MyPageEditPage = ({
-  profileUrl: initialProfileFileProp,
   name: initialNameProp,
   gender,
   birth: initialBirthProp,
@@ -51,7 +50,7 @@ export const MyPageEditPage = ({
   // 상태
   const [name, setName] = useState(initialNameProp ?? "");
   const [profileImage, setProfileImage] = useState<string>("");
-  const [profileImageKey, setProfileImageKey] = useState<string>("");
+  const [profileImageKey] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState(initialBirthProp ?? "");
   const [selectedLevel, setSelectedLevel] = useState(initialRankProp ?? "NO_RANK");
   const [disabled, setDisabled] = useState(initialHasNoRankProp ?? false);
@@ -208,7 +207,7 @@ export const MyPageEditPage = ({
 
     try {
       const formattedBirth = selectedDate.replace(/\./g, "-");
-      const levelMap: Record<string, string> = { "왕초심":"NOVICE","초심":"BEGINNER","D조":"D","C조":"C","B조":"B","A조":"A","준자강":"SEMI_EXPERT","자강":"EXPERT","NO_RANK":"NONE","NONE":"NONE" };
+      // const levelMap: Record<string, string> = { "왕초심":"NOVICE","초심":"BEGINNER","D조":"D","C조":"C","B조":"B","A조":"A","준자강":"SEMI_EXPERT","자강":"EXPERT","NO_RANK":"NONE","NONE":"NONE" };
       const mappedLevel = disabled ? "NONE" : labelToServerMap[selectedLevel] || "NONE";
       const keywordMap: Record<string, string> = { "브랜드 스폰":"BRAND","가입비 무료":"FREE","친목":"FRIENDSHIP","운영진이 게임을 짜드려요":"MANAGER_MATCH","NONE":"NONE" };
       const mappedKeywords = selectedKeywords.length ? selectedKeywords.map(k => keywordMap[k] || "NONE") : ["NONE"];
