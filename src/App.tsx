@@ -110,6 +110,7 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ), // 로그인 필요하지만 navbar 없는 layout
     children: [
+      
       { path: "/edit/location", element: <EditLocationPage /> },
       { path: "/mypage/edit", element: <MyPageEditPage /> },
       { path: "/mypage/edit/location", element: <MyPageEditLocationPage /> },
@@ -120,10 +121,9 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      {
-        path: "/mypage/profile/medal/:memberId/contest/:contestId",
-        element: <MyPageMedalDetailPage />,
-      },
+      // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
+{ path: "/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
+{ path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
@@ -152,7 +152,9 @@ const router = createBrowserRouter([
       },
 
       // 연두 모임
-      { path: "/group/detail", element: <GroupDetailMemberDefault /> },
+      // { path: "/group/detail", element: <GroupDetailMemberDefault /> },
+      { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
+
       {
         path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
         element: <MyExerciseDetail />,
@@ -164,7 +166,7 @@ const router = createBrowserRouter([
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
-      { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
+      { path: "/group/admin/edit-info/:partyId", element: <EditGroupInfoDefault /> },
       { path: "/group/admin/invite", element: <InviteDefault /> },
 
       {
