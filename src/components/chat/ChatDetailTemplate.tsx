@@ -101,11 +101,6 @@ export const ChatDetailTemplate = ({
     if (!initLoading && messages.length) {
       bottomRef.current?.scrollIntoView({ behavior: "auto" });
     }
-
-    //🌟
-    //console.log(messages.map(m => new Date(m.timestamp)));
-    //console.log(messages.map(m => m.timestamp));
-    //console.log(liveMsgs.map(m => m.timestamp));
   }, [initLoading, messages.length]);
 
   // 위쪽 센티넬 교차 관찰 → 과거 페이지 로드

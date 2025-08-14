@@ -41,6 +41,23 @@ function toDateFromUTC(utcString: string): Date {
   return new Date(normalizeUtc(utcString)); // +9h 안 함
 }
 
+export function formatDate(utcString: string): string {
+  const d = toDateFromUTC(utcString);
+  const y = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+  }).format(d);
+  const m = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    month: "2-digit",
+  }).format(d);
+  const day = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    day: "2-digit",
+  }).format(d);
+  return `${y}.${m}.${day}`;
+}
+
 export function formatDateWithDay(utcString: string): string {
   const d = toDateFromUTC(utcString);
   const y = new Intl.DateTimeFormat("ko-KR", {
