@@ -26,10 +26,11 @@ export const MyMedal = ({
     if (!disabled) setIsPressing(true);
   };
   const handleClick = () => {
+    const idStr = contentId.toString(); 
     if (memberId) {
       navigate(`/mypage/profile/medal/${memberId}/contest/${contentId}`);
     } else {
-      navigate(`/mypage/mymedal/${contentId}`);
+      navigate(`/mypage/mymedal/${idStr}`);
     }
   };
   const handlePressEnd = () => setIsPressing(false);

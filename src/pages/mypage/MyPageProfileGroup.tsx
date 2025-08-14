@@ -10,14 +10,15 @@ interface GroupMProps {
   groupName: string;
   groupImage: string;
   location: string;
-  femaleLevel: string;
-  maleLevel: string;
+  femaleLevel: string[]
+  maleLevel: string[];  
   nextActivitDate: string;
   upcomingCount: number;
   like?: boolean;
   isMine: boolean;
   onToggleFavorite?: (id: number) => void;
 }
+
 
 interface MyPageProfileGroup {
   groups?: GroupMProps[];

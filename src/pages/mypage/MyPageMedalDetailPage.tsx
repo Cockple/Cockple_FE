@@ -34,71 +34,64 @@ interface MedalDetail {
 export const MyPageMedalDetailPage = ({
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
-  const { contestId } = useParams();
-  const { memberId } = useParams<{ memberId: string }>();
-  
-  console.log(contestId);
+  const params = useParams<{ memberId?: string; contestId?: string; contentId?: string }>();
+  const memberId = params.memberId;
+  const contestId = params.contestId;
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  //내 대회 기록 상세 조회
-  useEffect(() => {
-  if (!contestId) return;
 
-  const fetchData = async () => {
-    try {
-      const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
-      console.log("API 응답 데이터:", data);  
-
-      setMedalDetail({
-        title: data.contestName,
-        date: data.date,
-        participationType: `${data.type} - ${data.level}`,
-        record: data.content,
-        // photo: photos,
-        videoUrl: data.contestVideos,
-      });
-      console.log("대회명:", data.contestName);
-
-    } catch (error) {
-      console.error("대회 기록 상세 조회 실패", error);
-      setMedalDetail(null);
-    }
+  const contentId = params.contestId || params.contentId;
+  const participationMap: Record<string, string> = {
+    "WOMEN_DOUBLES": "여복",
+    "MEN_DOUBLES": "남복",
+    "MIXED_DOUBLES": "혼복",
+    "SINGLES": "단식",
+  };
+  const levelMap: Record<string, string> = {
+    "왕초심": "BEGINNER",
+    "초심": "BEGINNER",
+    "D조": "BEGINNER",
+    "C조": "INTERMEDIATE",
+    "B조": "INTERMEDIATE",
+    "A조": "ADVANCED",
+    "준자강": "ADVANCED",
+    "자강": "ADVANCED",
   };
 
-  fetchData();
-}, [contestId]);
-
-//다른 회원 대회 기록 상세 조회
- useEffect(() => {
-    if (!contestId || !memberId) return;
+  useEffect(() => {
+    if (!contentId) return;
 
     const fetchData = async () => {
       try {
-        const data: ContestDetailResponse | null = await getMemberContestDetail(
-          Number(memberId),
-          Number(contestId)
-        );
+        let data: ContestDetailResponse | ContestRecordDetailResponse | null = null;
+
+        if (memberId) {
+          data = await getMemberContestDetail(Number(memberId), Number(contentId));
+        } else {
+          data = await getContestRecordDetail(Number(contentId));
+        }
+
         if (!data) {
           setMedalDetail(null);
           return;
         }
 
         setMedalDetail({
-          title: data.contestName,
-          date: data.date,
-          participationType: `${data.type} - ${data.level}`,
-          record: data.content,
-          photo: data.contestImgs ?? [],
-          videoUrl: data.contestVideos ?? [],
+          title: data.contestName ?? "",
+          date: data.date ?? "",
+          participationType: `${data.type ?? ""} - ${data.level ?? ""}`,
+          record: data.content ?? "",
+          photo: (data as any).contestImgs ?? (data as any).photos ?? [],
+          videoUrl: (data as any).contestVideos ?? [],
         });
-      } catch (error) {
-        console.error("다른 회원 대회 기록 조회 실패", error);
+      } catch (err) {
+        console.error(err);
         setMedalDetail(null);
       }
     };
 
     fetchData();
-  }, [contestId, memberId]);
+  }, [contentId, memberId]);
 
   const images = medalDetail?.photo
     ? medalDetail.photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
@@ -108,7 +101,7 @@ export const MyPageMedalDetailPage = ({
   const record = medalDetail?.record ?? "";
   const date = medalDetail?.date ?? "";
   const participationType = medalDetail?.participationType ?? "";
-
+  const displayImages = images.length > 0 ? images : [Kitty]; 
   if (!medalDetail) return <div>로딩 중...</div>;
 
   return (
@@ -125,8 +118,26 @@ export const MyPageMedalDetailPage = ({
           slidesPerView={1}
           spaceBetween={0}
           style={{ width: "100%" }}
+          observer={true}       
+          observeParents={true}
         >
-          {images.map((img, idx) => (
+           {displayImages.map((img, idx) => (
+          <SwiperSlide
+            key={idx}
+            style={{ display: "flex", justifyContent: "center", padding: 0 }}
+          >
+            <img
+              src={img}
+              alt={`메달 이미지 ${idx + 1}`}
+              style={{
+                width: "100%",
+                height: "23.4375rem",
+                objectFit: "cover",
+              }}
+            />
+          </SwiperSlide>
+        ))}
+          {/* {images.map((img, idx) => (
             <SwiperSlide
               key={idx}
               style={{ display: "flex", justifyContent: "center", padding: 0 }}
@@ -141,7 +152,7 @@ export const MyPageMedalDetailPage = ({
                 }}
               />
             </SwiperSlide>
-          ))}
+          ))} */}
         </Swiper>
 
         {/* 오버레이 영역 */}
@@ -163,7 +174,16 @@ export const MyPageMedalDetailPage = ({
       {/* 참가 정보 */}
       <div className="flex justify-between items-center mt-5">
         <p className="header-h5">참여 형태 및 급수</p>
-        <p className="body-md-500">{participationType}</p>
+        {/* <p className="body-md-500">{participationType}</p> */}
+        <p className="body-md-500">
+          {(() => {
+            if (!participationType) return "-"; // 값 없으면 대체 표시
+            const [typeCode, levelCode] = participationType.split(" - ");
+            const typeKor = participationMap[typeCode] ?? typeCode;
+            const levelKor = levelMap[levelCode] ?? levelCode;
+            return `${typeKor} - ${levelKor}`;
+          })()}
+        </p>
       </div>
 
       {/* 대회 기록 */}
