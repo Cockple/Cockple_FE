@@ -8,12 +8,14 @@ import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import { getMyGroups } from "../../api/party/my";
 import type { PartyData } from "../../api/party/my";
+import { useLikedGroupIds } from "../../hooks/useLikedItems"; 
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
   const [isChecked, setIsChecked] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
 
   // 내 모임 조회
   useEffect(() => {
@@ -23,22 +25,30 @@ export const MyPageMyGroupPage = () => {
           created: isChecked,
           sort: sortOption,
         });
-        setGroups(result);
+        const resultWithLike = result.map(group => ({
+          ...group,
+          like: likedGroupIds.includes(group.partyId),
+        }));
+
+        setGroups(resultWithLike);
       } catch (err) {
         console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
       }
     };
 
-    fetchGroups();
-  }, [isChecked, sortOption]);
+    // 찜 데이터가 로딩 중이면 렌더링 미루기
+    if (!isGroupLikedLoading) {
+      fetchGroups();
+    }
+  }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading]);
 
-  const handleToggleFavorite = (id: number) => {
-    setGroups(prev =>
-      prev.map(group =>
-        group.partyId === id ? { ...group, like: !group.like } : group,
-      ),
-    );
-  };
+  // const handleToggleFavorite = (id: number) => {
+  //   setGroups(prev =>
+  //     prev.map(group =>
+  //       group.partyId === id ? { ...group, like: !group.like } : group,
+  //     ),
+  //   );
+  // };
 
   const hasGroups = groups.length > 0;
 
@@ -73,31 +83,34 @@ export const MyPageMyGroupPage = () => {
           </div>
         )}
 
-        <div className="flex-1 flex flex-col gap-4">
-          {hasGroups ? (
-            groups.map(group => (
+      <div className="flex-1 flex flex-col gap-4">
+        {hasGroups ? (
+          groups.map(group => {
+            const isLiked = likedGroupIds.includes(group.partyId); // 찜 상태 계산
+
+            return (
               <div key={group.partyId}>
                 <Group_M
-                  {...group}
                   id={group.partyId}
-                  groupName={group.groupName}
-                  groupImage={group.groupImage}
-                  location={group.location}
+                  groupName={group.partyName}
+                  groupImage={group.partyImgUrl}
+                  location={`${group.addr1} / ${group.addr2}`}
                   femaleLevel={group.femaleLevel}
                   maleLevel={group.maleLevel}
-                  nextActivitDate={group.nextActivitDate}
-                  upcomingCount={group.upcomingCount}
-                  like={group.like}
-                  isMine={group.isMine}
-                  onToggleFavorite={handleToggleFavorite}
+                  nextActivitDate={group.nextExerciseInfo}
+                  upcomingCount={group.totalExerciseCount}
+                  like={isLiked}
+                  isMine={group.isMine ?? false}
+                  // onToggleFavorite={handleToggleFavorite}
                 />
                 <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
               </div>
-            ))
-          ) : (
-            <MyGroupNone />
-          )}
-        </div>
+            );
+          })
+        ) : (
+          <MyGroupNone />
+        )}
+      </div>
       </div>
 
       <SortBottomSheet
