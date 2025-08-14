@@ -16,7 +16,6 @@ import type { Swiper as SwiperClass } from "swiper";
 import { generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Week } from "../../types/calendar";
 
-/* --------- 유틸 --------- */
 const getTodayString = () => {
   const d = new Date();
   const y = d.getFullYear();
@@ -33,20 +32,18 @@ const addDays = (dateStr: string, days: number) => {
   return `${y}-${m}-${day}`;
 };
 
-/** Week[](UI) → CalWeek[](API) 로 변환 (빈 주 채우기에 사용) */
 function uiWeeksToCalWeeks(ui: Week[]): CalWeek[] {
   return ui.map(w => ({
     weekStartDate: w.weekStartDate,
     weekEndDate: w.weekEndDate,
     days: w.days.map(d => ({
       date: d.date,
-      dayOfWeek: d.dayOfWeek, // Day["dayOfWeek"]가 API enum과 동일하다고 가정
-      exercises: [] as CalExercise[], // 빈 주 생성이므로 빈 배열
+      dayOfWeek: d.dayOfWeek,
+      exercises: [] as CalExercise[],
     })),
   }));
 }
 
-/** CalWeek[](API) → Week[](UI) 로 변환 (CustomWeekly에 내려줄 때 사용) */
 function calWeeksToUiWeeks(cal: CalWeek[]): Week[] {
   return cal.map(w => ({
     weekStartDate: w.weekStartDate,
@@ -62,11 +59,10 @@ function calWeeksToUiWeeks(cal: CalWeek[]): Week[] {
   }));
 }
 
-/** API 응답에 weeks가 비어있으면 Week[]로 채운 뒤 CalWeek[]로 변환해 넣어주는 보정 */
 function ensureCalWeeks(res: MyGroupCalendarResponse): MyGroupCalendarResponse {
   if (res.weeks && res.weeks.length > 0) return res;
-  const uiWeeks = generateWeeksFromRange(res.startDate, res.endDate); // Week[]
-  const calWeeks = uiWeeksToCalWeeks(uiWeeks); // CalWeek[]
+  const uiWeeks = generateWeeksFromRange(res.startDate, res.endDate);
+  const calWeeks = uiWeeksToCalWeeks(uiWeeks);
   return { ...res, weeks: calWeeks };
 }
 
@@ -74,7 +70,6 @@ export const MyGroupExercisePage = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"최신순" | "인기순">("최신순");
 
-  /** ✅ 상태에는 항상 API 타입만 */
   const [calendar, setCalendar] = useState<MyGroupCalendarResponse | null>(
     null,
   );
@@ -88,7 +83,6 @@ export const MyGroupExercisePage = () => {
   const hasSnappedToToday = useRef(false);
   const initialSlideRef = useRef<number>(0);
 
-  /* 초기 로딩 */
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -99,21 +93,19 @@ export const MyGroupExercisePage = () => {
           startDate: null,
           endDate: null,
         });
-        setCalendar(ensureCalWeeks(raw)); // ✅ 상태 보관은 CalWeek[]
+        setCalendar(ensureCalWeeks(raw));
       } finally {
         setLoading(false);
       }
     })();
   }, [sortOption]);
 
-  /* 주 병합(중복 제거) - 모두 CalWeek[] */
   const mergeWeeks = (base: CalWeek[], incoming: CalWeek[]) => {
     const seen = new Set(base.map(w => w.weekStartDate));
     const uniq = incoming.filter(w => !seen.has(w.weekStartDate));
     return [...base, ...uniq];
   };
 
-  /* 추가 로딩 */
   const loadMore = useCallback(
     async (direction: "past" | "future") => {
       if (!calendar) return;
@@ -129,7 +121,7 @@ export const MyGroupExercisePage = () => {
             startDate: reqStart,
             endDate: reqEnd,
           });
-          const res = ensureCalWeeks(raw); // ✅ 보정
+          const res = ensureCalWeeks(raw);
           setCalendar(prev =>
             prev
               ? {
@@ -147,7 +139,7 @@ export const MyGroupExercisePage = () => {
             startDate: reqStart,
             endDate: reqEnd,
           });
-          const res = ensureCalWeeks(raw); // ✅ 보정
+          const res = ensureCalWeeks(raw);
 
           const current = swiperRef.current?.activeIndex ?? 0;
           const added = res.weeks.filter(
@@ -196,7 +188,6 @@ export const MyGroupExercisePage = () => {
     [calendar, fetchingMore, loadMore],
   );
 
-  /** ✅ UI에 내려줄 주 = 항상 Week[] 로 변환 */
   const processedWeeks: Week[] | null = useMemo(() => {
     if (!calendar) return null;
     return calWeeksToUiWeeks(calendar.weeks);
@@ -225,7 +216,6 @@ export const MyGroupExercisePage = () => {
     swiperRef.current.slideTo(initialSlideIndex, 0);
   }, [processedWeeks, initialSlideIndex]);
 
-  /** 점 표시 날짜 (UI용) */
   const exerciseDays = useMemo(() => {
     if (!calendar) return [];
     const s = new Set<string>();
@@ -235,7 +225,6 @@ export const MyGroupExercisePage = () => {
     return Array.from(s);
   }, [calendar]);
 
-  /** 선택 날짜 운동 목록 (API 상태에서 직접 찾기 → 타입 깔끔) */
   const selectedDayExercises: CalExercise[] = useMemo(() => {
     if (!calendar) return [];
     const found = calendar.weeks
