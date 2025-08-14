@@ -43,7 +43,7 @@ export const MyPageMyGroupPage = () => {
   const hasGroups = groups.length > 0;
 
   return (
-    <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
+    <div className="flex flex-col min-h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
       <div className="sticky top-0 z-20">
         <PageHeader title="내 모임" />
       </div>
