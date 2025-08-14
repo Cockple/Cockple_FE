@@ -46,55 +46,6 @@ const ChatList = ({
 
   return (
     <div className="flex flex-col gap-[0.625rem] w-full">
-      {/* {tab === "group"
-        ? groupChats.map(chat => (
-            <div
-              key={chat.chatRoomId}
-              onClick={() => {
-                navigate(`/chat/group/${chat.chatRoomId}`, {
-                  state: {
-                    tab: "group",
-                    chatName: chat.partyName,
-                    partyId: chat.partyId,
-                  },
-                });
-              }}
-              className="border-b border-gy-200 pb-1"
-            >
-              <GroupChat
-                imageSrc={chat.partyImgUrl}
-                chatName={chat.partyName}
-                memberCount={chat.memberCount}
-                lastMessage={chat.lastMessage.content}
-                lastMessageTime={chat.lastMessage.timestamp}
-                unreadCount={chat.unreadCount}
-              />
-            </div>
-          ))
-        : personalChats.map(chat => (
-            <div
-              key={chat.chatRoomId}
-              onClick={() =>
-                navigate(`/chat/personal/${chat.chatRoomId}`, {
-                  state: {
-                    tab: "personal",
-                    chatName: chat.displayName,
-                  },
-                })
-              }
-              className="border-b border-gy-200 pb-1"
-            >
-              <PersonalChat
-                imageSrc={chat.profileImageUrl}
-                userName={chat.displayName}
-                lastMessage={chat.lastMessage ? chat.lastMessage.content : ""}
-                lastMessageTime={
-                  chat.lastMessage ? chat.lastMessage.timestamp : ""
-                }
-                unreadCount={chat.unreadCount}
-              />
-            </div>
-          ))} */}
       {tab === "group"
         ? groupChats.map(chat => {
             const lm = chat.lastMessage;

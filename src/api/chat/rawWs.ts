@@ -67,6 +67,25 @@ type Handlers = {
   onClose?: (ev: CloseEvent) => void;
 };
 
+// 🌟전역 리스너 레지스트리
+const listeners = new Set<Handlers>();
+export const addWsListener = (h: Handlers) => {
+  listeners.add(h);
+  // 현재가 OPEN이면 즉시 알림(초기 렌더에서 상태 동기화 용)
+  if (ws?.readyState === WebSocket.OPEN) {
+    queueMicrotask(() => h.onOpen?.());
+  }
+  return () => listeners.delete(h);
+};
+
+//🌟
+const emit = {
+  open: () => listeners.forEach(l => l.onOpen?.()),
+  msg: (m: IncomingMessage) => listeners.forEach(l => l.onMessage?.(m)),
+  err: (e: Event | Error) => listeners.forEach(l => l.onError?.(e)),
+  close: (e: CloseEvent) => listeners.forEach(l => l.onClose?.(e)),
+};
+
 const WS_ORIGIN = (
   import.meta.env.VITE_WS_ORIGIN ?? window.location.origin
 ).replace(/\/$/, "");
@@ -99,7 +118,8 @@ const sendJSON = (msg: OutgoingMessage) => {
 // --------- 공개 API ----------
 export const connectRawWs = (
   { memberId, origin }: { memberId: number; origin?: string },
-  handlers: Handlers = {},
+  //🌟
+  // handlers: Handlers = {},
 ) => {
   if (
     ws &&
@@ -123,7 +143,7 @@ export const connectRawWs = (
   // readyState가 OPEN이 되면 onopen 호출
   sock.onopen = () => {
     reconnectAttempt = 0;
-    handlers.onOpen?.();
+    emit.open?.();
 
     // 자동 재구독
     if (currentRooms.size) {
@@ -136,18 +156,18 @@ export const connectRawWs = (
   sock.onmessage = (e: MessageEvent) => {
     try {
       const parsed: IncomingMessage = JSON.parse(e.data);
-      handlers.onMessage?.(parsed);
+      emit.msg?.(parsed);
     } catch {
       console.warn("[SockJS] Non-JSON message:", e.data);
     }
   };
 
   sock.onerror = (ev: Event) => {
-    handlers.onError?.(ev);
+    emit.err?.(ev);
   };
 
   sock.onclose = (ev: CloseEvent) => {
-    handlers.onClose?.(ev);
+    emit.close?.(ev);
     ws = null;
 
     // 백오프 재연결
@@ -156,7 +176,9 @@ export const connectRawWs = (
       reconnectTimer = window.setTimeout(() => {
         reconnectTimer = null;
         reconnectAttempt++;
-        connectRawWs({ memberId, origin }, handlers);
+        //🌟
+        //connectRawWs({ memberId, origin }, handlers);
+        connectRawWs({ memberId, origin });
       }, delay);
     }
   };
