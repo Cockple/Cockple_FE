@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const Footer = () => {
   return (
     <div
@@ -5,7 +7,9 @@ export const Footer = () => {
       style={{ width: "calc(100% + 2rem)" }}
     >
       <div className="flex flex-col gap-1 body-sm-400 text-gy-500">
-        <span>UMC 8th Ain : 콕플</span>
+        <Link to={"https://www.instagram.com/cock_ple/"}>
+          UMC 8th Ain : 콕플
+        </Link>
         <span>@COCKPLE. All Rights Reserved.</span>
       </div>
 
