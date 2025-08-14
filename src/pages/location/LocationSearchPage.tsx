@@ -10,11 +10,13 @@ import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import useUserStore from "../../store/useUserStore";
+import { postMyProfileLocation } from "../../api/member/my";
+import { transformPlaceToPayload } from "../../utils/address";
 
 export interface Place {
-  id?: string;
   place_name: string;
   address_name: string;
+  road_address_name: string;
   x: string;
   y: string;
 }
@@ -134,26 +136,23 @@ export const LocationSearchPage = () => {
     });
   };
 
-  const handleSelect = (place: Place) => {
-    const selectedPlace = {
-      name: place.place_name,
-      address: place.address_name,
-      x: place.x,
-      y: place.y,
-    };
+  const handleSelect = async (place: Place) => {
+    const payload = transformPlaceToPayload(place);
 
     if (mode === "call-api") {
       // api 요청
+      await postMyProfileLocation(payload);
       navigate(returnPath);
     } else {
       navigate(returnPath, {
-        state: { selectedPlace },
+        state: { selectedPlace: place },
       });
       console.log(returnPath);
     }
   };
 
   const { user } = useUserStore();
+
   useEffect(() => {
     const isValidMember = user?.isNewMember;
     console.log(isValidMember);
@@ -164,6 +163,7 @@ export const LocationSearchPage = () => {
 
     setIsReturnPath(isValidMember ? "/onboarding/profile" : fallbackPath);
   }, []);
+
   return (
     <div className="flex flex-col">
       <PageHeader title="주소 검색" />
@@ -209,8 +209,10 @@ export const LocationSearchPage = () => {
                   id={idx}
                   isMainAddr={item.place_name}
                   streetAddr={item.address_name}
+                  roadAddr={item.road_address_name}
                   x={item.x}
                   y={item.y}
+                  mode={mode}
                   input={debouncedInput}
                   initialClicked={selectedId === idx}
                   onClick={(id, clicked) => setSelectedId(clicked ? id : null)}

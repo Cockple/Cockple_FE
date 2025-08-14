@@ -1,6 +1,6 @@
 // 그룹 채팅창과 개인 채팅창에 사용되는 공통 컴포넌트(템플릿)
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
@@ -10,21 +10,17 @@ import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
 import { formatTime } from "../../utils/formatDate";
 
-//import type { ChatMessageResponse } from "../../types/chat";
 import { useNavigate } from "react-router-dom";
-//import { fetchChatMessages } from "../../api/chat/chattingMessage";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
-import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
-//import { useSocketConnection } from "../../hooks/useSocketConnection";
 
-// WS 연결만: CONNECT 전송 + 응답 수신
+import {
+  subscribeRoom,
+  unsubscribeRoom,
+  //type BroadcastMessage,
+} from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-
-// ─────────────────────────────────────────────────────────────
-// 모드 스위치: true면 mock 훅 사용, false면 실제 useChatInfinite 사용
-const USE_MOCK = false;
-// ─────────────────────────────────────────────────────────────
+import type { ChatMessageResponse } from "../../types/chat";
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -34,7 +30,7 @@ const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
 );
 
 interface ChatDetailTemplateProps {
-  chatId: string;
+  chatId: number;
   chatName: string;
   chatType: "group" | "personal";
   //chatData: Record<string, ChatMessageResponse[]>;
@@ -52,17 +48,14 @@ export const ChatDetailTemplate = ({
   partyId,
 }: ChatDetailTemplateProps) => {
   const navigate = useNavigate();
-  const currentUserId = 1; // 실제 로그인 사용자 ID로 대체!!!!!!!!!!!!!!
 
-  // ===== 무한 스크롤 데이터 =====
-  // 훅 호출 순서 고정을 위해 real/mocking 모두 호출 후 결과만 선택
-  const real = useChatInfinite(Number(chatId));
-  const mock = useMockChatInfinite(currentUserId);
+  // 실제 로그인 사용자 정보로 대체
+  const currentUserId = Number(localStorage.getItem("memberId") || 1);
+  const currentUserName = localStorage.getItem("memberName") || "나";
 
   // ==== 무한 스크롤 데이터 ====
   const {
-    //initial, //ChatRoomInfo, Participants 등
-    messages, // 렌더용 편탄화 메시지(오름차순)
+    messages, // 오름차순
     initLoading,
     initError,
     isEmpty,
@@ -70,9 +63,9 @@ export const ChatDetailTemplate = ({
     isFetchingNextPage,
     fetchNextPage,
     refetchInitial,
-  } = USE_MOCK ? mock : real;
+  } = useChatInfinite(chatId);
 
-  // ===== 읽음 처리: 진입/포커스 시 자동 전송(현재 mock, 나중에 rest/ws로 변경) =====
+  // ===== 읽음 처리 =====
   const { markReadNow } = useChatRead({
     roomId: Number(chatId),
     messages,
@@ -83,49 +76,28 @@ export const ChatDetailTemplate = ({
     // },
   });
 
-  // ====== WS 연결 ======
-  const memberId = Number(localStorage.getItem("memberId") || 1);
-  const {
-    status: wsStatus,
-    isOpen: wsOpen,
-    //lastMessage: wsLast,
-    //subscribe,
-    //send,
-  } = useRawWsConnect({
-    memberId,
-    origin: "https://cockple.store", // 필요시 강제 지정 가능(옵션)
-  });
+  // 방 입장/퇴장: 단일 구독 유지
+  useEffect(() => {
+    subscribeRoom(chatId);
+    return () => {
+      // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
+      unsubscribeRoom(chatId);
+    };
+  }, [chatId]);
 
   // ===== 로컬 상태 ====
-  //const [chattings, setChattings] = useState<ChatMessageResponse[]>([]);
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  //🌟낙관적/실시간 메시지 보관
+  const [liveMsgs, setLiveMsgs] = useState<ChatMessageResponse[]>([]);
+
   // ==== Refs ====
   const fileInputRef = useRef<HTMLInputElement>(null!);
-  //const chatEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  // useEffect(() => {
-  //   const loadInitialMessages = async () => {
-  //     try {
-  //       const res = await fetchChatMessages(chatId);
-  //       setChattings(res.messages);
-  //       // 필요하면 nextCursor 저장
-  //     } catch (error) {
-  //       console.error("채팅 메시지 불러오기 실패:", error);
-  //     }
-  //   };
-
-  //   loadInitialMessages();
-  // }, [chatId]);
-
-  // useEffect(() => {
-  //   chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [chattings]);
 
   // 초기 로드시 맨 아래로
   useEffect(() => {
@@ -177,34 +149,58 @@ export const ChatDetailTemplate = ({
     return () => root.removeEventListener("scroll", onScroll);
   }, [markReadNow]);
 
-  // 메시지 전송(WS 경로 확정 전까지는 스크롤만)
+  //===== WS 연결 및 전송 =====
+  //🌟
+  const { send, lastMessage } = useRawWsConnect({
+    memberId: currentUserId,
+    origin: "https://cockple.store",
+  });
+
+  const rendered = useMemo(() => {
+    // messages가 오름차순이므로 live는 뒤에 붙인다.
+    // 정렬이 필요하면 여기에서 정렬.
+    return [...messages, ...liveMsgs];
+  }, [messages, liveMsgs]);
+
+  // 전송 (낙관적 추가 + 실패 롤백)
   const handleSendMessage = () => {
-    if (!input.trim()) return;
+    const text = input.trim();
+    if (!text) return;
 
-    // TODO(WS): destination 확정되면 여기서 publish
-    // if (connected) {
-    //   sendMessageWS(chatId, {
-    //     messageId: Date.now(),
-    //     senderId: currentUserId,
-    //     senderName: "나",
-    //     senderProfileImage: ProfileImg,
-    //     content: input,
-    //     messageType: "TEXT",
-    //     imgUrls: [],
-    //     timestamp: new Date().toISOString(),
-    //     isMyMessage: true,
-    //   });
-    // } else {
-    //   console.warn("WS not connected; fallback or queue");
-    // }
+    const tempId = -Date.now(); // 임시 음수 id
+    const optimistic: ChatMessageResponse = {
+      messageId: tempId,
+      senderId: currentUserId,
+      senderName: currentUserName,
+      senderProfileImage: "",
+      content: text,
+      messageType: "TEXT",
+      imgUrls: [],
+      timestamp: new Date().toISOString(),
+      isMyMessage: true,
+    };
 
-    // 입력 초기화 + 스크롤만
+    // 1) 즉시 화면 반영
+    setLiveMsgs(prev => [...prev, optimistic]);
+
+    // 2) 서버로 SEND
+    const ok = send(chatId, text); // 또는 sendChatWS(chatId, text);
+    // 실패 시 사용자 안내
+    if (!ok) {
+      console.warn("WS 미연결로 전송 실패");
+      // TODO: 토스트/스낵바 등 사용자 피드백
+      // 전송 실패 시 롤백(선택)
+      setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId));
+      return;
+    }
+
+    // 3) 입력 초기화 + 스크롤
     setInput("");
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
 
-    console.log("메시지 전송(WS 미구현):", input.trim());
+    console.log("메시지 전송:", text);
   };
 
   // 이미지 업로드(미연결 - 로컬 프리뷰만)
@@ -214,39 +210,51 @@ export const ChatDetailTemplate = ({
 
     const fileUrl = URL.createObjectURL(file);
     setPreviewImage(fileUrl);
-    //const now = new Date().toISOString();
-
-    // const newImageMessage: ChatMessageResponse = {
-    //   messageId: Date.now(),
-    //   //chatRoomId: Number(chatId),
-    //   senderId: currentUserId,
-    //   senderName: "나",
-    //   senderProfileImage: ProfileImg,
-    //   messageType: "IMAGE",
-    //   content: "", // content 필드는 사용하지 않지만 빈 문자열로 설정
-    //   imgUrls: [fileUrl],
-    //   timestamp: now,
-    //   isMyMessage: true,
-    //   //reactions: [],
-    //   // replyTo: null,
-    //   // isDeleted: false,
-    //   // fileInfo: {
-    //   //   fileId: Date.now(),
-    //   //   fileName: file.name,
-    //   //   fileSize: file.size,
-    //   //   mimeType: file.type,
-    //   //   thumbnailUrl: fileUrl,
-    //   //   downUrl: fileUrl,
-    //   // },
-    //   // createdAt: now,
-    //   // updatedAt: now,
-    // };
-
-    //setChattings(prev => [...prev, newImageMessage]);
 
     // 초기화
     e.target.value = "";
   };
+
+  // 🌟
+  useEffect(() => {
+    if (!lastMessage || lastMessage.type !== "SEND") return;
+    if (lastMessage.chatRoomId !== chatId) return;
+
+    const incoming: ChatMessageResponse = {
+      messageId: lastMessage.messageId ?? Date.now(),
+      senderId: lastMessage.senderId ?? 0,
+      senderName: lastMessage.senderName ?? "",
+      senderProfileImage: lastMessage.senderProfileImage ?? "",
+      content: lastMessage.content ?? "",
+      messageType: "TEXT",
+      imgUrls: [],
+      timestamp: lastMessage.createdAt ?? new Date().toISOString(),
+      isMyMessage: (lastMessage.senderId ?? 0) === currentUserId,
+    };
+
+    // 내 임시와 동일하면 교체(에코가 올 경우)
+    setLiveMsgs(prev => {
+      const idx = prev.findIndex(
+        m =>
+          m.messageId < 0 &&
+          m.isMyMessage &&
+          m.content === incoming.content &&
+          Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
+            5000,
+      );
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = incoming;
+        return copy;
+      }
+      // 상대 메시지면 추가
+      return [...prev, incoming];
+    });
+
+    requestAnimationFrame(() =>
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+    );
+  }, [lastMessage, chatId, currentUserId]);
 
   // 채팅창 날짜 표시
   const formatDateLabel = (dateString: string) => {
@@ -264,19 +272,6 @@ export const ChatDetailTemplate = ({
     <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
       {/* 헤더 */}
       <PageHeader title={chatName} onBackClick={onBack} />
-
-      {/* WS 연결 상태 뱃지 */}
-      <div className="absolute top-14 right-4 text-xs">
-        {wsOpen ? (
-          <span className="rounded-md bg-gr-100 text-gr-800 px-2 py-1">
-            WS 연결됨
-          </span>
-        ) : (
-          <span className="rounded-md bg-gy-200 text-gy-700 px-2 py-1">
-            {wsStatus === "connecting" ? "WS 연결 중…" : wsStatus.toUpperCase()}
-          </span>
-        )}
-      </div>
 
       {/* 스크롤 영역 */}
       <div
@@ -298,35 +293,6 @@ export const ChatDetailTemplate = ({
           </div>
         )}
 
-        {/* <div className="flex flex-col gap-5 shrink-0 p-4"> */}
-        {/* 위쪽 센티넬 */}
-        {/* <div ref={topSentinelRef} /> */}
-
-        {/* {chattings.map((chat, index) => {
-            const currentDate = chat.timestamp;
-            const prevDate = index > 0 ? chattings[index - 1].timestamp : null;
-            //const showDate = index === 0 || currentDate !== prevDate;
-            const getDateOnly = (isoString: string) =>
-              new Date(isoString).toISOString().split("T")[0];
-            const showDate =
-              index === 0 ||
-              (prevDate && getDateOnly(currentDate) !== getDateOnly(prevDate));
-
-            return (
-              <React.Fragment key={chat.messageId}>
-                {showDate && (
-                  <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
-                )}
-                <ChattingComponent
-                  message={chat}
-                  isMe={chat.senderId === currentUserId}
-                  onImageClick={setPreviewImage}
-                  time={formatTime(chat.timestamp)}
-                />
-              </React.Fragment>
-            );
-          })} */}
-
         {/* 상태 UI */}
         {initLoading && <CenterBox>불러오는 중…</CenterBox>}
         {initError && (
@@ -345,37 +311,13 @@ export const ChatDetailTemplate = ({
         {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
 
         {/* 메시지 리스트 */}
-        {/* {initLoading ? (
-            <div className="text-center py-8">불러오는 중…</div>
-          ) : (
-            messages.map((chat, idx) => {
-              const prev = idx > 0 ? messages[idx - 1] : undefined;
-              const dateOnly = (s: string) =>
-                new Date(s).toISOString().split("T")[0];
-              const showDate =
-                !prev || dateOnly(chat.timestamp) !== dateOnly(prev.timestamp);
-
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatTime(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })
-          )} */}
         {!initLoading && !initError && !isEmpty && (
           <div className="flex flex-col gap-5 shrink-0 p-4">
             {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
             <div ref={topSentinelRef} />
 
-            {messages.map((chat, idx) => {
+            {/* 🌟 messages -> rendered */}
+            {rendered.map((chat, idx) => {
               const prev = idx > 0 ? messages[idx - 1] : undefined;
               const onlyDate = (s: string) =>
                 new Date(s).toISOString().split("T")[0];

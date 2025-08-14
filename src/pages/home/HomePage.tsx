@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
 import { Footer } from "../../components/common/system/Footer";
-import { dailyExerciseData } from "../../components/home/mock/homeMock";
 import { MyGroupWorkoutSection } from "../../components/home/MyGroupWorkoutSection";
 import { RecommendedWorkoutSection } from "../../components/home/RecommendedWorkoutSection";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
@@ -27,8 +26,8 @@ export type GroupExerciseItem = {
 };
 
 export const HomePage = () => {
-  const exerciseData = dailyExerciseData;
   const navigate = useNavigate();
+  const [count, setCount] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [rightOffset, setRightOffset] = useState(0);
 
@@ -73,7 +72,7 @@ export const HomePage = () => {
           {/* 문구 */}
           <div className="flex flex-col items-start pb-5">
             <div className="body-lg-700">
-              {exerciseData ? (
+              {count ? (
                 <div>
                   오늘의 운동은<span className="text-gr-600 mx-1">2</span>개!
                 </div>
@@ -82,7 +81,7 @@ export const HomePage = () => {
               )}
             </div>
             <div className="body-md-700">
-              {exerciseData ? (
+              {count ? (
                 <div>화이팅 넘치는 하루가 될 거에요!</div>
               ) : (
                 <div>내일 더 힘차게 달려봐요!</div>
@@ -90,7 +89,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          <MyExerciseCalendar />
+          <MyExerciseCalendar setCount={setCount} />
         </div>
       </div>
 

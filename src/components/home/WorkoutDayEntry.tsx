@@ -13,7 +13,9 @@ export const WorkoutDayEntry = ({ exerciseData }: WorkoutDayEntryProps) => {
   if (!exerciseData || exerciseData.length === 0) {
     return (
       <div className="w-full h-20 flex items-center justify-center">
-        <TextIconBtnM>운동 둘러보기</TextIconBtnM>
+        <TextIconBtnM onClick={() => navigate("/recommend")}>
+          운동 둘러보기
+        </TextIconBtnM>
       </div>
     );
   }

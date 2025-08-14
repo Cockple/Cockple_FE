@@ -70,6 +70,7 @@ export const GroupFilter = () => {
   };
 
   const handleMoneyFocus = () => {
+    console.log(money);
     if (money.endsWith("원")) {
       const plain = money.replace("원", "").replaceAll(",", "");
       setFilter("money", Number(plain).toLocaleString());
@@ -82,11 +83,14 @@ export const GroupFilter = () => {
   };
 
   const handleJoinMoneyFocus = () => {
+    console.log(joinMoney);
+
     if (joinMoney.endsWith("원")) {
       const plain = joinMoney.replace("원", "").replaceAll(",", "");
       setFilter("joinMoney", Number(plain).toLocaleString());
     }
   };
+
   const isFormValid =
     (kock.length > 0 || kock === "disabled") &&
     (joinMoney.length > 0 || joinMoney === "disabled") &&

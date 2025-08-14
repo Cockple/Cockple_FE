@@ -1,5 +1,7 @@
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
+import ArrowRightFill from "@/assets/icons/arrow_right_fill.svg?url";
+import ArrowRight from "@/assets/icons/arrow_right.svg?url";
 
 export default function TextIconBtnM({
   children,
@@ -16,19 +18,19 @@ export default function TextIconBtnM({
   const statusMap: Record<TextIconStatus, { bg?: string; icon: string }> = {
     clicked: {
       bg: "text-gr-700",
-      icon: "/src/assets/icons/arrow_right_fill.svg",
+      icon: ArrowRightFill,
     },
     pressing: {
       bg: "bg-gr-200 text-gr-700",
-      icon: "/src/assets/icons/arrow_right_fill.svg",
+      icon: ArrowRightFill,
     },
     default: {
       bg: "text-gr-700",
-      icon: "/src/assets/icons/arrow_right_fill.svg",
+      icon: ArrowRightFill,
     },
     disabled: {
       bg: "border-gy-200 ",
-      icon: "/src/assets/icons/arrow_right.svg",
+      icon: ArrowRight,
     },
   };
 
