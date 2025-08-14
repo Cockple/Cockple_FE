@@ -18,6 +18,7 @@ import { useGroupNameStore } from "../../store/useGroupNameStore";
 import { getJoinParty } from "../../api/party/getJoinParty";
 import api from "../../api/api";
 import type { MemberJoinRequestResponse } from "../../types/memberJoinRequest";
+import clsx from "clsx";
 
 export const GroupHomePage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -171,7 +172,14 @@ export const GroupHomePage = () => {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <div className="flex p-3 gap-3">
-          <div className="w-30 h-30 border-hard bg-gy-500 shrink-0" />
+          <div
+            className={clsx(
+              "w-30 h-30 border-hard  shrink-0 overflow-hidden flex items-center",
+              !partyDetail.partyImgUrl ? "bg-gray-500" : "",
+            )}
+          >
+            {partyDetail.partyImgUrl && <img src={partyDetail.partyImgUrl} />}
+          </div>
           <div className="flex flex-col flex-1">
             <div className="body-rg-500 text-left mb-2">
               {partyDetail?.partyName}

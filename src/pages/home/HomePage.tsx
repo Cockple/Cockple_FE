@@ -74,7 +74,8 @@ export const HomePage = () => {
             <div className="body-lg-700">
               {count ? (
                 <div>
-                  오늘의 운동은<span className="text-gr-600 mx-1">2</span>개!
+                  오늘의 운동은<span className="text-gr-600 mx-1">{count}</span>
+                  개!
                 </div>
               ) : (
                 <div>오늘은 쉬는 날!</div>
