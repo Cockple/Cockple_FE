@@ -16,6 +16,8 @@ import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { usePartyDetail } from "../../api/exercise/getpartyDetail";
 import { useGroupNameStore } from "../../store/useGroupNameStore";
 import { getJoinParty } from "../../api/party/getJoinParty";
+import api from "../../api/api";
+import type { MemberJoinRequestResponse } from "../../types/memberJoinRequest";
 
 export const GroupHomePage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -24,8 +26,19 @@ export const GroupHomePage = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
+  const [requestCount, setRequestCount] = useState(0);
 
-  const requestCount = 2;
+  useEffect(() => {
+    const requestMemberCount = async () => {
+      const { data } = await api.get<MemberJoinRequestResponse>(
+        `/api/parties/${groupId}/join-requests?status=PENDING`,
+      );
+
+      setRequestCount(data.data.content.length);
+    };
+
+    requestMemberCount();
+  }, [groupId]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -267,7 +280,7 @@ export const GroupHomePage = () => {
               </div>
               <div
                 className="w-full px-2 pt-1.5 pb-2.5 border-b-1 border-gy-200 body-rg-400 flex items-center"
-                onClick={() => navigate("/group/admin/invite")}
+                onClick={() => navigate(`/group/making/member/${groupId}`)}
               >
                 신규 멤버 초대하기
               </div>

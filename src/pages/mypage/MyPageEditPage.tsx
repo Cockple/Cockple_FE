@@ -16,7 +16,12 @@ import { LocationField } from "../../components/common/LocationField";
 import { Location } from "../../components/common/contentcard/Location";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 import { getMyProfile, patchMyProfile } from "../../api/member/my";
-import { getMyProfileLocations, postMyProfileLocation, deleteAddress, setMainAddress } from "../../api/member/my";
+import {
+  getMyProfileLocations,
+  postMyProfileLocation,
+  deleteAddress,
+  setMainAddress,
+} from "../../api/member/my";
 import type { UserAddress } from "../../api/member/my";
 
 interface MyPageEditProps {
@@ -46,11 +51,11 @@ export const MyPageEditPage = ({
   const location = useLocation();
   // const selectedPlace = location.state?.selectedPlace;
   // const selectedPlace = location.state?.selectedPlace as UserAddress | undefined;
-  const selectedPlace = location.state?.selectedPlace as UserAddress | undefined;;
+  const selectedPlace = location.state?.selectedPlace as
+    | UserAddress
+    | undefined;
   const [locations, setLocations] = useState<UserAddress[]>([]);
-  const {
-    setValue,
-  } = useForm();
+  const { setValue } = useForm();
   const [openModal, setOpenModal] = useState(false); //생년월일 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");
@@ -64,15 +69,23 @@ export const MyPageEditPage = ({
     ["브랜드 스폰", "가입비 무료"],
     ["친목", "운영진이 게임을 짜드려요"],
   ];
-  const level = ["왕초심","초심","D조","C조","B조","A조","준자강","자강",];
+  const level = [
+    "왕초심",
+    "초심",
+    "D조",
+    "C조",
+    "B조",
+    "A조",
+    "준자강",
+    "자강",
+  ];
   const [open, setOpen] = useState(false);
   const [disabled, setDisabled] = useState(false);
   // const [selectedId, setSelectedId] = useState(1);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [profileImageKey, setProfileImageKey] = useState<string>(""); // 이미지 업로드 키 -> 추후에 연동
-  void setProfileImageKey;  // 배포용 임시 코드 (TS unused 변수 경고 회피용)
-
+  void setProfileImageKey; // 배포용 임시 코드 (TS unused 변수 경고 회피용)
 
   const selectedRank = initialBirthProp ?? "";
   const hasNoRank = initialHasNoRankProp ?? false;
@@ -111,12 +124,14 @@ export const MyPageEditPage = ({
     });
   };
 
- useEffect(() => {
+  useEffect(() => {
     if (selectedPlace) {
       // 중복 체크 후 locations 상태에 추가
       setLocations(prev => {
         const exists = prev.some(
-          loc => loc.buildingName === selectedPlace.buildingName && loc.streetAddr === selectedPlace.streetAddr
+          loc =>
+            loc.buildingName === selectedPlace.buildingName &&
+            loc.streetAddr === selectedPlace.streetAddr,
         );
         if (exists) return prev;
 
@@ -132,7 +147,7 @@ export const MyPageEditPage = ({
             addr1: "",
             addr2: "",
             addr3: "",
-          }
+          },
         ];
       });
 
@@ -166,21 +181,20 @@ export const MyPageEditPage = ({
   //   }
   // }, [selectedPlace]);
 
-
   useEffect(() => {
     if (location.state?.selectedPlace) {
       const selectedPlace = location.state.selectedPlace;
 
       addLocation({
-        addrId: Date.now(),           
-        buildingName: selectedPlace.name || selectedPlace.buildingName || "", 
-        streetAddr: selectedPlace.address || selectedPlace.streetAddr || "",  
+        addrId: Date.now(),
+        buildingName: selectedPlace.name || selectedPlace.buildingName || "",
+        streetAddr: selectedPlace.address || selectedPlace.streetAddr || "",
         addr1: "",
         addr2: "",
         addr3: "",
         latitude: 0,
         longitude: 0,
-        isMainAddr: false,             
+        isMainAddr: false,
       });
     }
   }, [location.state]);
@@ -195,21 +209,24 @@ export const MyPageEditPage = ({
   //     console.error(err);
   //   }
   // };
- useEffect(() => {
-  if (selectedPlace) {
-    const saveLocation = async () => {
-      try {
-        const savedLocation = await postMyProfileLocation(selectedPlace);
-        setLocations(prev => [...prev, savedLocation]);
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } catch (err) {
-        alert("주소 추가 실패");
-      }
-    };
-    saveLocation();
-  }
-}, [selectedPlace]);
-
+  useEffect(() => {
+    if (selectedPlace) {
+      const saveLocation = async () => {
+        try {
+          const savedLocation = await postMyProfileLocation(selectedPlace);
+          setLocations(prev => [...prev, savedLocation]);
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+        } catch (err) {
+          alert("주소 추가 실패");
+        }
+      };
+      saveLocation();
+    }
+  }, [selectedPlace]);
 
   //내 프로필 불러오기
   useEffect(() => {
@@ -222,18 +239,15 @@ export const MyPageEditPage = ({
         setSelectedLevel(data.level || "NO_RANK");
 
         if (data.profileImgUrl) {
-          setProfileImage(data.profileImgUrl); 
+          setProfileImage(data.profileImgUrl);
         }
-
       } catch (error) {
         console.error("프로필 불러오기 실패", error);
       }
-  };
+    };
 
-  fetchProfile();
-}, []);
-
-
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     let initialProfileImageUrl: string | undefined = undefined;
@@ -321,7 +335,7 @@ export const MyPageEditPage = ({
     }
     setEditMode(prev => !prev);
   };
-  
+
   if (locations.length > 5) {
     alert(
       "위치 정보는 최대 5개까지 저장 가능합니다. 수정 버튼을 통해 등록된 위치를 삭제해주세요",
@@ -370,29 +384,30 @@ export const MyPageEditPage = ({
       const formattedBirth = selectedDate.replace(/\./g, "-");
 
       const levelMap: Record<string, string> = {
-        "왕초심": "NOVICE",
-        "초심": "BEGINNER",
-        "D조": "D",
-        "C조": "C",
-        "B조": "B",
-        "A조": "A",
-        "준자강": "SEMI_EXPERT",
-        "자강": "EXPERT",
-        "NO_RANK": "NONE",
-        "NONE": "NONE"
+        왕초심: "NOVICE",
+        초심: "BEGINNER",
+        D조: "D",
+        C조: "C",
+        B조: "B",
+        A조: "A",
+        준자강: "SEMI_EXPERT",
+        자강: "EXPERT",
+        NO_RANK: "NONE",
+        NONE: "NONE",
       };
-      const mappedLevel = disabled ? "NONE" : (levelMap[selectedLevel] || "NONE");
+      const mappedLevel = disabled ? "NONE" : levelMap[selectedLevel] || "NONE";
 
       const keywordMap: Record<string, string> = {
         "브랜드 스폰": "BRAND",
         "가입비 무료": "FREE",
-        "친목": "FRIENDSHIP",
+        친목: "FRIENDSHIP",
         "운영진이 게임을 짜드려요": "MANAGER_MATCH",
-        "NONE": "NONE",
+        NONE: "NONE",
       };
-      const mappedKeywords = selectedKeywords.length > 0 
-        ? selectedKeywords.map(k => keywordMap[k] || "NONE")
-        : ["NONE"];
+      const mappedKeywords =
+        selectedKeywords.length > 0
+          ? selectedKeywords.map(k => keywordMap[k] || "NONE")
+          : ["NONE"];
 
       // TODO: 실제 이미지 업로드 후 받아오는 키를 넣어야 함
       const imgKey = profileImageKey || "";
@@ -680,7 +695,7 @@ export const MyPageEditPage = ({
             ))}
           </div>
         </div>
-        
+
         <div className="mt-8 mb-8 flex justify-center">
           <Btn_Static
             kind="GR400"

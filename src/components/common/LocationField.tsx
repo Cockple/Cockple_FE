@@ -18,7 +18,7 @@ export const LocationField = ({
   label,
   showLabel = true,
   icon = true,
-  mode = "fill-only",
+  mode = "call-api",
   returnPath,
 }: LocationFieldProps) => {
   const navigate = useNavigate();
