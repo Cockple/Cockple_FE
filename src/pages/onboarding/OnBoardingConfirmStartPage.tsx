@@ -1,12 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
-import KittyImg from "@/assets/images/kitty.png?url";
+import medal1 from "@/assets/icons/medal_1.svg";
+import medal2 from "@/assets/icons/medal_2.svg";
+import medal3 from "@/assets/icons/medal_3.svg";
 import AddIcon from "@/assets/icons/add.svg";
 
 export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
-
+  const MEDAL = [
+    { label: "금메달", icon: medal1 },
+    {
+      label: "은메달",
+      icon: medal2,
+    },
+    {
+      label: "동메달",
+      icon: medal3,
+    },
+  ];
   return (
     <div
       className="w-full  flex flex-col -mb-8 pt-14"
@@ -28,18 +40,16 @@ export const OnboardingConfirmStartPage = () => {
           </div>
 
           <div className="flex gap-5">
-            <div className="flex gap-3 py-2 flex-col">
-              <img src={KittyImg} alt="" className="size-15" />
-              <p>금메달</p>
-            </div>
-            <div className="flex gap-3 py-2 flex-col">
-              <img src={KittyImg} alt="" className="size-15" />
-              <p>은메달</p>
-            </div>
-            <div className="flex gap-3 py-2 flex-col">
-              <img src={KittyImg} alt="" className="size-15" />
-              <p>동메달</p>
-            </div>
+            {MEDAL.map(item => {
+              return (
+                <>
+                  <div className="flex gap-3 py-2 flex-col">
+                    <img src={item.icon} alt={item.label} className="size-15" />
+                    <p>{item.label}</p>
+                  </div>
+                </>
+              );
+            })}
           </div>
 
           <button

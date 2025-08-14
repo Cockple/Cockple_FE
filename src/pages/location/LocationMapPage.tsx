@@ -96,7 +96,7 @@ export const LocationMapPage = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 w-full max-w-[444px] pt-5 pb-10 flex flex-col items-center gap-5 bg-white z-20 rounded-t-2xl">
+      <div className="absolute bottom-0 w-full max-w-[444px] pt-5 pb-4 flex flex-col items-center gap-5 bg-white z-20 rounded-t-2xl">
         <div className="flex flex-col px-2 w-86.75 items-start gap-1">
           <span className="body-md-500">{place}</span>
           <span className="body-rg-500">{address}</span>

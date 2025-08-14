@@ -1,6 +1,6 @@
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import TextBox from "../../components/common/Text_Box/TextBox";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import DateAndTimePicker, {
   type DateAndTimePickerHandle,
 } from "../../components/common/Date_Time/DateAndPicker";
@@ -23,12 +23,6 @@ export const OnboardingInfoPage = () => {
   const [openModal, setOpenModal] = useState(false);
 
   //초기화
-
-  useEffect(() => {
-    setLocalName(memberName);
-    isSelected(gender);
-    setSelectedDate(birth);
-  }, []);
 
   const pickerRef = useRef<DateAndTimePickerHandle>(null);
 
