@@ -8,19 +8,16 @@ import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
-import { formatTime } from "../../utils/formatDate";
+//import { formatTime } from "../../utils/formatDate";
 
 import { useNavigate } from "react-router-dom";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
 
-import {
-  subscribeRoom,
-  unsubscribeRoom,
-  //type BroadcastMessage,
-} from "../../api/chat/rawWs";
+import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import type { ChatMessageResponse } from "../../types/chat";
+import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -199,7 +196,10 @@ export const ChatDetailTemplate = ({
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
-
+    console.log(
+      "handleSendMessage: ",
+      liveMsgs.map(m => m.timestamp),
+    );
     console.log("메시지 전송:", text);
   };
 
@@ -215,7 +215,6 @@ export const ChatDetailTemplate = ({
     e.target.value = "";
   };
 
-  // 🌟
   useEffect(() => {
     if (!lastMessage || lastMessage.type !== "SEND") return;
     if (lastMessage.chatRoomId !== chatId) return;
@@ -228,7 +227,9 @@ export const ChatDetailTemplate = ({
       content: lastMessage.content ?? "",
       messageType: "TEXT",
       imgUrls: [],
-      timestamp: lastMessage.createdAt ?? new Date().toISOString(),
+      //🌟
+      //timestamp: lastMessage.createdAt ?? new Date().toISOString(),
+      timestamp: lastMessage.timestamp ?? "",
       isMyMessage: (lastMessage.senderId ?? 0) === currentUserId,
     };
 
@@ -256,15 +257,18 @@ export const ChatDetailTemplate = ({
     );
   }, [lastMessage, chatId, currentUserId]);
 
+  //🌟
   // 채팅창 날짜 표시
-  const formatDateLabel = (dateString: string) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-    const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
-    return `${year}.${month}.${day} (${weekday})`;
-  };
+  // const formatDateLabel = (dateString: string) => {
+  //   //const date = new Date(dateString);
+  //   const date = toDate(dateString);
+  //   const year = date.getFullYear();
+  //   const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  //   const day = ("0" + date.getDate()).slice(-2);
+  //   const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+  //   return `${year}.${month}.${day} (${weekday})`;
+  // };
+  //const DateSeperator = (dateString: string) => KSTDate(dateString);
 
   if (initError) return <div className="p-6">메시지 불러오기 실패</div>;
 
@@ -316,24 +320,30 @@ export const ChatDetailTemplate = ({
             {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
             <div ref={topSentinelRef} />
 
-            {/* 🌟 messages -> rendered */}
             {rendered.map((chat, idx) => {
-              const prev = idx > 0 ? messages[idx - 1] : undefined;
-              const onlyDate = (s: string) =>
-                new Date(s).toISOString().split("T")[0];
+              const prev = idx > 0 ? rendered[idx - 1] : undefined;
+              //🌟
+              // const onlyDate = (s: string) =>
+              //   new Date(s).toISOString().split("T")[0];
+              //const onlyDate = (s: string) => s;
+              // const showDate =
+              //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
               const showDate =
-                !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
-
+                !prev ||
+                formatDateWithDay(chat.timestamp) !==
+                  formatDateWithDay(prev.timestamp);
               return (
                 <React.Fragment key={chat.messageId}>
                   {showDate && (
-                    <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
+                    <ChatDateSeparator
+                      date={formatDateWithDay(chat.timestamp)}
+                    />
                   )}
                   <ChattingComponent
                     message={chat}
                     isMe={chat.senderId === currentUserId}
                     onImageClick={setPreviewImage}
-                    time={formatTime(chat.timestamp)}
+                    time={formatEnLowerAmPm(chat.timestamp)}
                   />
                 </React.Fragment>
               );
@@ -347,8 +357,6 @@ export const ChatDetailTemplate = ({
 
             {/* 하단 앵커 */}
             <div className="h-5" ref={bottomRef} />
-
-            {/* <div className="h-5" ref={chatEndRef}></div> */}
           </div>
         )}
 
@@ -359,7 +367,7 @@ export const ChatDetailTemplate = ({
           />
         )}
       </div>
-      {/* 입력창(지금은 WS 전송 미구현) */}
+      {/* 입력창 */}
       <div className="sticky bottom-0">
         <BottomChatInput
           input={input}

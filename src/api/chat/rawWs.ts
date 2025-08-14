@@ -29,6 +29,12 @@ export type SubscriptionResponse = {
   message: string;
   timestamp: string;
 };
+export type UnsubscribeResponse = {
+  type: "UNSUBSCRIBE" | "SUBSCRIBE"; // 문서/예시 상 불일치 대비
+  chatRoomId: number;
+  message: string;
+  timestamp: string;
+};
 export type BroadcastMessage = {
   type: "SEND" | "SYSTEM";
   chatRoomId: number;
@@ -37,13 +43,14 @@ export type BroadcastMessage = {
   senderId?: number | null;
   senderName?: string | null;
   senderProfileImage?: string | null;
-  createdAt?: string;
+  timestamp?: string;
 };
 
 export type IncomingMessage =
   | ConnectResponse
   | ErrorResponse
   | SubscriptionResponse
+  | UnsubscribeResponse
   | BroadcastMessage;
 
 //현재 구독 중인 방 목록을 전역으로 유지
@@ -76,6 +83,7 @@ const buildSockUrl = (origin?: string) => {
 // 서버로 보낼 메시지 타입
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
+  | { type: "UNSUBSCRIBE"; chatRoomId: number }
   | { type: "SEND"; chatRoomId: number; content: string };
 
 const sendJSON = (msg: OutgoingMessage) => {
@@ -185,14 +193,21 @@ export const subscribeMany = (roomIds: number[]) => {
 export const unsubscribeRoom = (roomId: number) => {
   if (!currentRooms.has(roomId)) return;
   currentRooms.delete(roomId);
-  // 서버가 UNSUBSCRIBE 지원하면 다음 줄 활성화
-  // sendJSON({ type: "UNSUBSCRIBE", chatRoomId: roomId });
+  //🌟
+  const ok = sendJSON({ type: "UNSUBSCRIBE", chatRoomId: roomId });
+  if (!ok) {
+    // 소켓이 닫혀있으면 재접속 시 자동 재구독되지 않도록만 유지.
+    console.warn("[WS] UNSUBSCRIBE send failed (socket closed)");
+  }
 };
 
 //
 export const unsubscribeAll = () => {
-  // 서버가 UNSUBSCRIBE 지원하면 room별 전송
-  // currentRooms.forEach(id => sendJSON({ type:"UNSUBSCRIBE", chatRoomId:id }));
+  // 🌟서버 명세에 따라 개별 방마다 UNSUBSCRIBE 전송
+  [...currentRooms].forEach(id =>
+    sendJSON({ type: "UNSUBSCRIBE", chatRoomId: id }),
+  );
+
   currentRooms.clear();
 };
 

@@ -5,6 +5,7 @@ import { PersonalChat } from "../common/contentcard/PersonalChat";
 //import type { PersonalChatProps } from "../common/contentcard/PersonalChat";
 import type { NavigateFunction } from "react-router-dom";
 import type { GroupChatRoom, PersonalChatRoom } from "../../types/chat";
+import { formatEnLowerAmPm } from "../../utils/time";
 
 interface Props {
   tab: "group" | "personal";
@@ -100,7 +101,10 @@ const ChatList = ({
             const lastText =
               lm?.content ??
               (lm?.messageType === "IMAGE" ? "사진" : "메시지가 없습니다");
-            const lastTime = lm?.timestamp ?? "";
+            //const lastTime = lm?.timestamp ?? "";
+            const lastTime = lm?.timestamp
+              ? formatEnLowerAmPm(lm.timestamp)
+              : "";
 
             return (
               <div

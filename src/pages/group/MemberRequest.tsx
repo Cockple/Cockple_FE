@@ -2,62 +2,43 @@ import { useEffect, useState } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import TabSelector from "../../components/common/TabSelector";
 import { Member } from "../../components/common/contentcard/Member";
-import type { MemberProps } from "../../components/common/contentcard/Member";
+//import type { MemberProps } from "../../components/common/contentcard/Member";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
 import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
 import { useParams } from "react-router-dom";
 import type {
-  MemberJoinReqeust,
+  JoinRequestActionBody,
+  MemberJoinRequest,
   MemberJoinRequestResponse,
 } from "../../types/memberJoinRequest";
 import api from "../../api/api";
+import { formatDate } from "../../utils/time";
 
 const MemberRequestPage = () => {
   const { partyId } = useParams();
   const [activeTab, setActiveTab] = useState<"request" | "approved">("request");
 
-  // 멤버 상태 관리
-  // const [requests, setRequests] = useState<MemberProps[]>([
-  //   {
-  //     status: "request",
-  //     name: "김세익스피어",
-  //     gender: "female",
-  //     level: "전국 D조",
-  //     birth: "2000.05.05",
-  //   },
-  //   {
-  //     status: "request",
-  //     name: "김철수",
-  //     gender: "female",
-  //     level: "전국 D조",
-  //     birth: "2000.05.05",
-  //   },
-  //   {
-  //     status: "request",
-  //     name: "김그레이스",
-  //     gender: "female",
-  //     level: "전국 D조",
-  //     birth: "2000.05.05",
-  //   },
-  // ]);
-  const [requests, setRequests] = useState<MemberProps[]>([]);
-  const [approved, setApproved] = useState<MemberProps[]>([]);
+  // 페이지 상태
+  const [requests, setRequests] = useState<MemberJoinRequest[]>([]);
+  const [approved, setApproved] = useState<MemberJoinRequest[]>([]);
 
   // 모달 상태
-  const [selectedMember, setSelectedMember] = useState<MemberProps | null>(
-    null,
-  );
+  const [selectedMember, setSelectedMember] =
+    useState<MemberJoinRequest | null>(null);
   const [modalType, setModalType] = useState<"approve" | "reject" | null>(null);
-
+  //🌟
+  const [submitting, setSubmitting] = useState(false);
   // 멤버 신청 목록 요청 (PENDING)
   const fetchPendingMembers = async () => {
     const res = await api.get<MemberJoinRequestResponse>(
       `/api/parties/${partyId}/join-requests?status=PENDING`,
     );
-    const data = res.data.data.content;
-    const mapped = data.map(toMemberProps("request"));
-    setRequests(mapped);
+    //🌟
+    // const data = res.data.data.content;
+    // const mapped = data.map(toMemberProps("request"));
+    // setRequests(mapped);
+    setRequests(res.data.data.content);
   };
 
   // 승인된 멤버 목록 요청 (APPROVED)
@@ -65,31 +46,34 @@ const MemberRequestPage = () => {
     const res = await api.get<MemberJoinRequestResponse>(
       `/api/parties/${partyId}/join-requests?status=APPROVED`,
     );
-    const data = res.data.data.content;
-    const mapped = data.map(toMemberProps("approved"));
-    setApproved(mapped);
+    //🌟
+    // const data = res.data.data.content;
+    // const mapped = data.map(toMemberProps("approved"));
+    // setApproved(mapped);
+    setApproved(res.data.data.content);
   };
 
   useEffect(() => {
+    if (!partyId) return;
     fetchPendingMembers();
     fetchApprovedMembers();
   }, [partyId]);
 
   // MemberJoinRequest → MemberProps 변환 함수
-  const toMemberProps =
-    (status: "request" | "approved") =>
-    (item: MemberJoinReqeust): MemberProps => ({
-      requestId: item.joinRequestId,
-      status,
-      name: item.nickname,
-      gender: item.gender,
-      level: item.level,
-      birth: status === "request" ? item.createdAt : item.updatedAt,
-    });
+  // const toMemberProps =
+  //   (status: "request" | "approved") =>
+  //   (item: MemberJoinReqeust): MemberProps => ({
+  //     requestId: item.joinRequestId,
+  //     status,
+  //     name: item.nickname,
+  //     gender: item.gender,
+  //     level: item.level,
+  //     birth: status === "request" ? item.createdAt : item.updatedAt,
+  //   });
 
   // 승인 처리
   const handleApprove = async () => {
-    if (!selectedMember) return;
+    if (!selectedMember || !partyId) return;
 
     // 1.
     // const { name, gender, level } = selectedMember;
@@ -114,63 +98,57 @@ const MemberRequestPage = () => {
 
     //3.
     try {
+      setSubmitting(true);
+      const body: JoinRequestActionBody = { action: "APPROVE" };
       await api.patch(
         `/api/parties/${partyId}/join-requests/${selectedMember.requestId}`,
-        {
-          action: "APPROVE",
-        },
+        body,
       );
-
-      const updated: MemberProps = {
-        ...selectedMember,
-        status: "approved",
-        birth: getToday(),
-      };
-      setApproved(prev => [...prev, updated]);
+      // 낙관 업데이트(서버 재조회로 바꿔도 됨)
+      setApproved(prev => [
+        { ...selectedMember, updatedAt: new Date().toISOString() },
+        ...prev,
+      ]);
       setRequests(prev =>
-        prev.filter(m => m.requestId !== selectedMember.requestId),
+        prev.filter(r => r.requestId !== selectedMember.requestId),
       );
-    } catch (error) {
-      console.error("승인 실패", error);
+    } catch (e) {
+      console.error(e);
       alert("승인 처리 중 오류가 발생했습니다.");
     } finally {
+      setSubmitting(false);
       closeModal();
     }
   };
 
   // 거절 처리
   const handleReject = async () => {
-    if (!selectedMember) return;
-    //1.
-    // setRequests(prev => prev.filter(m => m.name !== selectedMember.name));
-    // closeModal();
-
-    //2.
+    if (!selectedMember || !partyId) return;
     try {
+      setSubmitting(true);
+      const body: JoinRequestActionBody = { action: "REJECT" };
       await api.patch(
         `/api/parties/${partyId}/join-requests/${selectedMember.requestId}`,
-        {
-          action: "REJECT",
-        },
+        body,
       );
-
       setRequests(prev =>
-        prev.filter(m => m.requestId !== selectedMember.requestId),
+        prev.filter(r => r.requestId !== selectedMember.requestId),
       );
-    } catch (error) {
-      console.error("거절 실패", error);
+    } catch (e) {
+      console.error(e);
       alert("거절 처리 중 오류가 발생했습니다.");
     } finally {
+      setSubmitting(false);
       closeModal();
     }
   };
 
-  const openApproveModal = (member: MemberProps) => {
+  const openApproveModal = (member: MemberJoinRequest) => {
     setSelectedMember(member);
     setModalType("approve");
   };
 
-  const openRejectModal = (member: MemberProps) => {
+  const openRejectModal = (member: MemberJoinRequest) => {
     setSelectedMember(member);
     setModalType("reject");
   };
@@ -214,13 +192,22 @@ const MemberRequestPage = () => {
                 <NoAlertMessage message="멤버 신청 내역" />
               </div>
             ) : (
-              requests.map(member => (
+              requests.map(req => (
                 <div className="border-b border-gy-200 pb-1">
                   <Member
-                    key={member.name}
-                    {...member}
-                    onAccept={() => openApproveModal(member)}
-                    onReject={() => openRejectModal(member)}
+                    status="request"
+                    requestId={req.requestId}
+                    name={req.nickname}
+                    gender={req.gender}
+                    level={req.level}
+                    birth={formatDate(req.createdAt)}
+                    imgUrl={req.profileImageUrl}
+                    onAccept={
+                      submitting ? undefined : () => openApproveModal(req)
+                    }
+                    onReject={
+                      submitting ? undefined : () => openRejectModal(req)
+                    }
                   />
                 </div>
               ))
@@ -235,8 +222,17 @@ const MemberRequestPage = () => {
                 <NoAlertMessage message="승인 완료 내역" />
               </div>
             ) : (
-              approved.map(member => (
-                <Member key={member.name} {...member} status="approved" />
+              approved.map(req => (
+                <Member
+                  key={req.requestId}
+                  status="approved"
+                  requestId={req.requestId}
+                  name={req.nickname}
+                  gender={req.gender}
+                  level={req.level}
+                  birth={formatDate(req.updatedAt ?? req.createdAt)}
+                  imgUrl={req.profileImageUrl}
+                />
               ))
             )}
           </>
@@ -247,9 +243,9 @@ const MemberRequestPage = () => {
       {modalType === "approve" && selectedMember && (
         <div className="fixed inset-0 flex items-center justify-center bg-black-60 z-50">
           <ApproveModal
-            onClose={closeModal}
-            onApprove={handleApprove}
-            memberName={selectedMember.name}
+            onClose={submitting ? () => {} : closeModal}
+            onApprove={submitting ? () => {} : handleApprove}
+            memberName={selectedMember.nickname}
           />
         </div>
       )}
@@ -258,9 +254,9 @@ const MemberRequestPage = () => {
       {modalType === "reject" && selectedMember && (
         <div className="fixed inset-0 flex items-center justify-center bg-black-60 z-50">
           <RejectModal
-            onClose={closeModal}
-            onReject={handleReject}
-            memberName={selectedMember.name}
+            onClose={submitting ? () => {} : closeModal}
+            onReject={submitting ? () => {} : handleReject}
+            memberName={selectedMember.nickname}
           />
         </div>
       )}
@@ -269,11 +265,11 @@ const MemberRequestPage = () => {
 };
 
 // 오늘 날짜 yyyy.mm.dd 형식
-const getToday = () => {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60000;
-  const localTime = new Date(now.getTime() - offset);
-  return localTime.toISOString().split("T")[0].replace(/-/g, ".");
-};
+// const getToday = () => {
+//   const now = new Date();
+//   const offset = now.getTimezoneOffset() * 60000;
+//   const localTime = new Date(now.getTime() - offset);
+//   return localTime.toISOString().split("T")[0].replace(/-/g, ".");
+// };
 
 export default MemberRequestPage;
