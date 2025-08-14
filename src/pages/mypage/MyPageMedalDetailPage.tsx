@@ -9,6 +9,8 @@ import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
 import Kitty from "../../assets/images/Image Carousel.png";
 import { getContestRecordDetail, deleteContestRecord } from "../../api/contest/contestmy";
+import { getMemberContestDetail } from "../../api/contest/member";
+import type { ContestDetailResponse } from   "../../api/contest/member";
 import type { ContestRecordDetailResponse } from  "../../api/contest/contestmy";
 
 interface MyPageMedalDetailPageProps {
@@ -33,10 +35,12 @@ export const MyPageMedalDetailPage = ({
 }: MyPageMedalDetailPageProps) => {
   const navigate = useNavigate();
   const { contestId } = useParams();
+  const { memberId } = useParams<{ memberId: string }>();
+  
   console.log(contestId);
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+  //내 대회 기록 상세 조회
   useEffect(() => {
   if (!contestId) return;
 
@@ -44,9 +48,6 @@ export const MyPageMedalDetailPage = ({
     try {
       const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
       console.log("API 응답 데이터:", data);  
-      // 서버 상대 경로를 절대 URL로 변환 (예: 이미지 서버 주소 앞에 붙이기)
-      // const baseUrl = "https://yourserver.com/"; // 실제 서버 주소로 변경 필요
-      // const photos = data.contestImgs.map(img => img.startsWith("http") ? img : baseUrl + img);
 
       setMedalDetail({
         title: data.contestName,
@@ -67,6 +68,37 @@ export const MyPageMedalDetailPage = ({
   fetchData();
 }, [contestId]);
 
+//다른 회원 대회 기록 상세 조회
+ useEffect(() => {
+    if (!contestId || !memberId) return;
+
+    const fetchData = async () => {
+      try {
+        const data: ContestDetailResponse | null = await getMemberContestDetail(
+          Number(memberId),
+          Number(contestId)
+        );
+        if (!data) {
+          setMedalDetail(null);
+          return;
+        }
+
+        setMedalDetail({
+          title: data.contestName,
+          date: data.date,
+          participationType: `${data.type} - ${data.level}`,
+          record: data.content,
+          photo: data.contestImgs ?? [],
+          videoUrl: data.contestVideos ?? [],
+        });
+      } catch (error) {
+        console.error("다른 회원 대회 기록 조회 실패", error);
+        setMedalDetail(null);
+      }
+    };
+
+    fetchData();
+  }, [contestId, memberId]);
 
   const images = medalDetail?.photo
     ? medalDetail.photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))

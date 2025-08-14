@@ -15,7 +15,11 @@ const getTodayString = () => {
   return `${year}-${month}-${day}`;
 };
 
-export const MyExerciseCalendar = () => {
+interface MyExerciseCalendarProps {
+  setCount: (count: number) => void;
+}
+
+export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -23,6 +27,18 @@ export const MyExerciseCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
 
   const swiperRef = useRef<SwiperClass | null>(null);
+
+  // 오늘 날짜 운동 개수 계산
+  useEffect(() => {
+    if (!calendarData) return;
+
+    const todayStr = getTodayString();
+    const allDays = calendarData.weeks.flatMap(w => w.days);
+    const todayExercises =
+      allDays.find(d => d.date === todayStr)?.exercises ?? [];
+
+    setCount(todayExercises.length);
+  }, [calendarData, setCount]);
 
   // 데이터 로딩 함수
   const fetchAndProcessData = useCallback(
