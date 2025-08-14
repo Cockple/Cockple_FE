@@ -21,7 +21,7 @@ type MemberStatus =
   | "approved";
 
 interface MemberProps {
-  participantId: number; // 참여자 Id
+  participantI?: number; // 참여자 Id
    memberId?: number;  // 고유 Id
   requestId?: number; // joinRequestId를 매핑
   status: MemberStatus;
