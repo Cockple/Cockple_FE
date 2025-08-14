@@ -60,7 +60,7 @@ export const Exercise_M = ({
       {/* 이미지 영역 */}
       <div className="relative">
         <img
-          src={imageSrc}
+          src={imageSrc || undefined}
           alt="운동 이미지"
           className="w-[5.5rem] h-[5.5rem] rounded-[0.5rem] object-cover"
         />

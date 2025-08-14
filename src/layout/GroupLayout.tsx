@@ -2,6 +2,7 @@ import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../components/common/system/header/PageHeader";
 import TabSelector from "../components/common/TabSelector";
 import { useEffect, useState } from "react";
+import { useGroupNameStore } from "../store/useGroupNameStore";
 
 const options = [
   { label: "홈", value: "" },
@@ -15,6 +16,7 @@ export const GroupLayout = () => {
   const { groupId } = useParams();
   const location = useLocation();
   const [select, setSelect] = useState("");
+  const { groupName } = useGroupNameStore();
 
   useEffect(() => {
     const currentPath = location.pathname.split(`/group/${groupId}/`)[1] ?? "";
@@ -27,7 +29,7 @@ export const GroupLayout = () => {
   };
   return (
     <div className="flex flex-col">
-      <PageHeader title="그룹이름" onBackClick={() => navigate("/group")} />
+      <PageHeader title={groupName} onBackClick={() => navigate("/group")} />
       <TabSelector
         options={options}
         selected={select}

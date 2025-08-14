@@ -6,6 +6,8 @@ import Search from "@/assets/icons/search.svg?react";
 import type { Place } from "./LocationSearchPage";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import Marker from "@/assets/icons/map_marker.svg?url";
+import { transformPlaceToPayload } from "../../utils/address";
+import { postMyProfileLocation } from "../../api/member/my";
 
 declare global {
   interface Window {
@@ -23,6 +25,7 @@ export const LocationMapPage = () => {
   const y = searchParams.get("y");
   const place = searchParams.get("place");
   const address = searchParams.get("address");
+  const road = searchParams.get("road");
   const query = searchParams.get("query");
 
   const location = useLocation();
@@ -31,21 +34,17 @@ export const LocationMapPage = () => {
 
   const user = false;
 
-  const handleSelect = (place: Place) => {
-    const selectedPlace = {
-      name: place.place_name,
-      address: place.address_name,
-      x: place.x,
-      y: place.y,
-    };
+  const handleSelect = async (place: Place) => {
+    const payload = transformPlaceToPayload(place);
 
     if (mode === "call-api") {
-      // api 요청
+      await postMyProfileLocation(payload);
       navigate(returnPath);
     } else {
       navigate(returnPath, {
-        state: { selectedPlace },
+        state: { payload },
       });
+      console.log(returnPath);
     }
   };
 
@@ -76,6 +75,7 @@ export const LocationMapPage = () => {
       });
     });
   }, [x, y]);
+
   return (
     <div className="flex flex-col h-dvh -mx-4 overflow-y-hidden relativ -mb-8">
       <PageHeader
@@ -107,6 +107,7 @@ export const LocationMapPage = () => {
             handleSelect({
               place_name: place ?? "",
               address_name: address ?? "",
+              road_address_name: road ?? "",
               x: x ?? "",
               y: y ?? "",
             })

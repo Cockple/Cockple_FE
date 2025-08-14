@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import Btn_Static from "../../common/Btn_Static/Btn_Static";
 import AddIcon from "@/assets/icons/add.svg";
 
 export const Empty = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center w-full h-33 py-4 gap-5">
       <div className="flex flex-col w-full items-center justify-center">
@@ -20,6 +22,7 @@ export const Empty = () => {
         }}
         label="모임 만들기"
         gap="gap-2"
+        onClick={() => navigate("/group/making/basic")}
       />
     </div>
   );
