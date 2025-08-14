@@ -8,7 +8,7 @@ import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   bookmarkExercise,
   unbookmarkExercise,
@@ -56,9 +56,11 @@ export const ContentCardL = ({
   onToggleFavorite,
 }: ContentCardLProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isStarted, setIsStarted] = useState(false);
   const [isStartPressing, setIsStartPressing] = useState(false);
   const [isGuestPressing, setIsGuestPressing] = useState(false);
+  const [current, setCurrent] = useState(currentCount);
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
@@ -125,9 +127,13 @@ export const ContentCardL = ({
     try {
       if (!originalIsJoined) {
         await joinExercise(id);
+        setCurrent(current + 1);
       } else {
         await cancelExercise(id);
+        setCurrent(current - 1);
       }
+      await queryClient.invalidateQueries({ queryKey: ["partyCalendar"] });
+      await queryClient.invalidateQueries({ queryKey: ["partyDetail"] });
     } catch (err) {
       console.log("운동 신청, 취소 오류: ", err);
       setIsStarted(originalIsJoined);
@@ -184,7 +190,7 @@ export const ContentCardL = ({
 
         <div className="flex items-center gap-1">
           <People className="w-[0.875rem] h-[0.875rem]" />
-          <span>{`${currentCount} / ${totalCount}`}</span>
+          <span>{`${current} / ${totalCount}`}</span>
         </div>
       </div>
 
