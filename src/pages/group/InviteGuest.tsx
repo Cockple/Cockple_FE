@@ -15,6 +15,7 @@ import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import type { ResponseInviteGuest } from "../../types/guest";
 import { LEVEL_KEY } from "../../constants/options";
+import { useParams } from "react-router-dom";
 
 export const InviteGuest = () => {
   //정보
@@ -53,6 +54,8 @@ export const InviteGuest = () => {
   const apiGender = selected === "male" ? "남성" : "여성";
 
   const ReauestLevelValue = levelValue === "disabled" ? "급수없음" : levelValue;
+  const { exerciseId } = useParams();
+  console.log(exerciseId);
   const handleInviteForm = useMutation({
     mutationFn: () => {
       const body = {
@@ -60,7 +63,7 @@ export const InviteGuest = () => {
         gender: apiGender,
         level: ReauestLevelValue,
       };
-      return axios.post(`/api/exercises/${1}/guests`, body);
+      return axios.post(`/api/exercises/${exerciseId}/guests`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -78,7 +81,7 @@ export const InviteGuest = () => {
   //모임 불러오기---------------------------------
   const { data, isLoading } = useQuery({
     queryKey: ["exerciseId"],
-    queryFn: () => getInviteGuestList(),
+    queryFn: () => getInviteGuestList(exerciseId),
     select: res => res.data,
   });
 
