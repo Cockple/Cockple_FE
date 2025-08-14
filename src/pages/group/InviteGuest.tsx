@@ -14,22 +14,14 @@ import api from "../../api/api";
 import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import type { ResponseInviteGuest } from "../../types/guest";
+import { LEVEL_KEY } from "../../constants/options";
 
 export const InviteGuest = () => {
   //정보
   const [localName, setLocalName] = useState(name ?? "");
   const [selected, isSelected] = useState<"male" | "female" | null>(null);
 
-  const levelOptions = [
-    "왕초심",
-    "초심",
-    "D조",
-    "C조",
-    "B조",
-    "A조",
-    "준자강",
-    "자강",
-  ];
+  const levelOptions = LEVEL_KEY.slice(1);
   const queryClient = useQueryClient();
   const axios = api;
 
