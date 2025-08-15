@@ -7,7 +7,7 @@ import ArrowRight from "@/assets/icons/arrow_right.svg";
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import { Empty } from "../../components/group/main/Empty";
 import AddIcon from "@/assets/icons/add.svg";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useGroupRecommendFilterState } from "../../store/useGroupRecommendFilterStore";
 import { useEffect, useMemo, useRef } from "react";
 import { useGetMyPartySimple } from "../../api/party/getMyPartySimple";
@@ -17,6 +17,7 @@ import {
 } from "../../api/party/getPartySuggeston";
 
 export const GroupPage = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { resetFilter } = useGroupRecommendFilterState();
 
@@ -93,7 +94,11 @@ export const GroupPage = () => {
                   pressing: ArrowRight,
                   clicked: ArrowRight,
                 }}
-                onClick={() => navigate("/mypage/mygroup")}
+                onClick={() =>
+                  navigate(
+                    `/mypage/mygroup?return=${encodeURIComponent(location.pathname + location.search)}`,
+                  )
+                }
               />
             )}
           </div>
@@ -171,7 +176,7 @@ export const GroupPage = () => {
               ))
             ) : (
               <div className="text-center py-8 text-gray-500">
-                예정된 추천 운동이 없습니다
+                추천 운동이 없습니다
               </div>
             )}
           </div>

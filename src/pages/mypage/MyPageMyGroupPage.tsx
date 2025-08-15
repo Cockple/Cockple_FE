@@ -18,10 +18,12 @@ export const MyPageMyGroupPage = () => {
   const [sortOption, setSortOption] = useState("최신순");
   const location = useLocation();
   const navigate = useNavigate();
+
+  const returnParam = new URLSearchParams(location.search).get("return");
+
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
     useLikedGroupIds();
 
-  // 내 모임 조회
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -40,7 +42,6 @@ export const MyPageMyGroupPage = () => {
       }
     };
 
-    // 찜 데이터가 로딩 중이면 렌더링 미루기
     if (!isGroupLikedLoading) {
       fetchGroups();
     }
@@ -48,10 +49,18 @@ export const MyPageMyGroupPage = () => {
 
   const hasGroups = groups.length > 0;
 
+  const onBackClick = () => {
+    if (returnParam) {
+      navigate(returnParam);
+    } else {
+      navigate("/mypage");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
       <div className="sticky top-0 z-20">
-        <PageHeader title="내 모임" />
+        <PageHeader title="내 모임" onBackClick={onBackClick} />
       </div>
 
       <div className="flex-1 flex flex-col mt-4">
