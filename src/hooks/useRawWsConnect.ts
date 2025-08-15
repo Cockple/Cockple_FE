@@ -1,7 +1,7 @@
 // hooks/useRawWsConnect.ts
 import { useEffect, useRef, useState } from "react";
 import {
-  addWsListener,
+  //addWsListener,
   connectRawWs,
   sendChatWS,
   //disconnectRawWs,
@@ -29,49 +29,49 @@ export const useRawWsConnect = (opts: {
     //setStatus("connecting");
 
     //🌟
-    // connectRawWs(
-    //   { memberId: opts.memberId, origin: opts.origin },
-    //   {
-    //     onOpen: () => mounted.current && setOpen(true),
-    //     onClose: () => mounted.current && setOpen(false),
-    //     //onMessage: msg => mounted.current && setLastMessage(msg),
-    //     onMessage: msg => {
-    //       if (!mounted.current) return;
-    //       setLastMessage(msg);
-    //       // 해제 ACK 로깅
-    //       if (
-    //         (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
-    //         "message" in msg &&
-    //         "chatRoomId" in msg
-    //       ) {
-    //         console.log(
-    //           `[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`,
-    //         );
-    //       }
-    //     },
-    //     onError: () => mounted.current && setOpen(false),
-    //   },
-    // );
-    connectRawWs({ memberId: opts.memberId, origin: opts.origin });
-    // 내 리스너 등록
-    const off = addWsListener({
-      onOpen: () => mounted.current && setOpen(true),
-      onClose: () => mounted.current && setOpen(false),
-      onError: () => mounted.current && setOpen(false),
-      onMessage: msg => {
-        if (!mounted.current) return;
-        setLastMessage(msg);
-        if (
-          (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
-          "message" in msg &&
-          "chatRoomId" in msg
-        ) {
-          console.log(
-            `[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`,
-          );
-        }
+    connectRawWs(
+      { memberId: opts.memberId, origin: opts.origin },
+      {
+        onOpen: () => mounted.current && setOpen(true),
+        onClose: () => mounted.current && setOpen(false),
+        //onMessage: msg => mounted.current && setLastMessage(msg),
+        onMessage: msg => {
+          if (!mounted.current) return;
+          setLastMessage(msg);
+          // 해제 ACK 로깅
+          if (
+            (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
+            "message" in msg &&
+            "chatRoomId" in msg
+          ) {
+            console.log(
+              `[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`,
+            );
+          }
+        },
+        onError: () => mounted.current && setOpen(false),
       },
-    });
+    );
+    // connectRawWs({ memberId: opts.memberId, origin: opts.origin });
+    // // 내 리스너 등록
+    // const off = addWsListener({
+    //   onOpen: () => mounted.current && setOpen(true),
+    //   onClose: () => mounted.current && setOpen(false),
+    //   onError: () => mounted.current && setOpen(false),
+    //   onMessage: msg => {
+    //     if (!mounted.current) return;
+    //     setLastMessage(msg);
+    //     if (
+    //       (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
+    //       "message" in msg &&
+    //       "chatRoomId" in msg
+    //     ) {
+    //       console.log(
+    //         `[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`,
+    //       );
+    //     }
+    //   },
+    // });
 
     return () => {
       mounted.current = false;
@@ -80,7 +80,7 @@ export const useRawWsConnect = (opts: {
       // disconnectRawWs();
 
       //🌟
-      off(); // 내 핸들러만 깔끔히 해제
+      //off(); // 내 핸들러만 깔끔히 해제
     };
   }, [opts.memberId, opts.origin]);
 
@@ -90,7 +90,12 @@ export const useRawWsConnect = (opts: {
     //isOpen: status === "open",
     isOpen,
     lastMessage,
+    //🌟
     send: (chatRoomId: number, content: string) =>
       sendChatWS(chatRoomId, content),
+    // sendText: (chatRoomId: number, content: string) =>
+    //   sendChatWS(chatRoomId, { kind: "text", content }),
+    // sendImage: (chatRoomId: number, imgKeys: string[], caption?: string) =>
+    //   sendChatWS(chatRoomId, { kind: "image", imgKeys, caption }),
   };
 };

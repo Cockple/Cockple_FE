@@ -11,12 +11,12 @@ interface GroupMProps {
   groupName: string;
   groupImage: string;
   location: string;
-  femaleLevel: string;
-  maleLevel: string;
+  femaleLevel: string[];
+  maleLevel: string[];
   nextActivitDate: string;
   upcomingCount: number;
   like?: boolean;
-  LikeCount?: number; 
+  LikeCount?: number;
   isMine: boolean;
   onToggleFavorite?: (id: number) => void;
   onClick?: () => void;
@@ -129,15 +129,11 @@ export const Group_M = ({
           <div className="flex gap-[0.625rem] w-full">
             <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
               <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
-              <span className="text-left truncate" title={femaleLevel}>
-                {femaleLevel}
-              </span>
+              <span className="text-left truncate">{femaleLevel}</span>
             </div>
             <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
               <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
-              <span className="text-left  truncate" title={maleLevel}>
-                {maleLevel}
-              </span>
+              <span className="text-left  truncate">{maleLevel}</span>
             </div>
           </div>
 

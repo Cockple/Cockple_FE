@@ -24,12 +24,12 @@ interface ContentCardLProps {
   date: string;
   location: string;
   time: string;
-  femaleLevel: string;
-  maleLevel: string;
+  femaleLevel: string[];
+  maleLevel: string[];
   currentCount: number;
   totalCount: number;
   like?: boolean;
-  LikeCount?: number; 
+  LikeCount?: number;
   onToggleFavorite?: (id: number) => void;
 }
 export type { ContentCardLProps };
@@ -103,7 +103,6 @@ export const ContentCardL = ({
     }
   };
 
-
   function getDayOfWeek(dateString: string): string {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     const dateObj = new Date(dateString);
@@ -127,9 +126,7 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          onClick={() =>
-           navigate(`/group/Mygroup/MyExerciseDetail/${id}`)
-          }
+          onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
         />
       </div>
 

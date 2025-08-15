@@ -110,6 +110,10 @@ export const AlertPage = () => {
           //   },
           // },
         );
+        console.log(
+          "모임으로 승인 요청 보냄, 초대 아이디: ",
+          data.invitationId,
+        );
       }
     },
     onSuccess: () => {
