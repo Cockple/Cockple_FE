@@ -1,26 +1,29 @@
-export const IMAGE_DOMAIN_TYPES = [
-  "PROFILE",
-  "CONTEST",
-  "CHAT",
-  "PARTY",
-] as const;
-export type ImageDomainType = (typeof IMAGE_DOMAIN_TYPES)[number];
+// 이미지 업로드 API Response 타입
+// export interface ImageUploadResponse {
+//   code: string;
+//   message: string;
+//   data: {
+//     imgUrl: string; // 업로드된 이미지 접근 URL
+//     imgKey: string; // 이미지 Key (DB 저장용)
+//   };
+//   success: boolean;
+// }
 
-// 공통 응답 래퍼
-export interface ApiEnvelope<T> {
-  code: string;
-  message: string;
-  data: T;
-  success: boolean;
-  errorReason?: {
-    code: string;
-    message: string;
-    httpStatus?: string;
-  };
-}
+import type { CommonResponse } from "./common";
 
-// 업로드 성공 시 data 필드
-export interface ImageUploadData {
-  imgUrl: string; // S3 접근 가능 URL
-  imgKey: string; // 이후 API에 전달할 key (DB 저장 대상)
-}
+// 이미지 업로드 API Request params 타입
+export type DomainType = "PROFILE" | "PARTY" | "CONTEST" | "CHAT"; // Swagger에 정의된 값에 맞게 확장 가능
+
+// 업로드된 단일 이미지 정보
+export type ImageUploadItem = {
+  /** S3 퍼블릭 접근 URL */
+  imgUrl: string;
+  /** DB 저장용 Key (API 요청 시 서버로 넘겨줄 값) */
+  imgKey: string;
+};
+
+/** 단일 이미지 업로드 응답 (data: ImageUploadItem) */
+export type SingleImageUploadResponse = CommonResponse<ImageUploadItem>;
+
+/** 여러 장 이미지 업로드 응답 (data: ImageUploadItem[]) */
+export type MultiImageUploadResponse = CommonResponse<ImageUploadItem[]>;

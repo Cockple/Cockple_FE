@@ -91,11 +91,11 @@ export const useRawWsConnect = (opts: {
     isOpen,
     lastMessage,
     //🌟
-    send: (chatRoomId: number, content: string) =>
-      sendChatWS(chatRoomId, content),
-    // sendText: (chatRoomId: number, content: string) =>
-    //   sendChatWS(chatRoomId, { kind: "text", content }),
-    // sendImage: (chatRoomId: number, imgKeys: string[], caption?: string) =>
-    //   sendChatWS(chatRoomId, { kind: "image", imgKeys, caption }),
+    // send: (chatRoomId: number, content: string) =>
+    //   sendChatWS(chatRoomId, content),
+    sendText: (chatRoomId: number, content: string) =>
+      sendChatWS(chatRoomId, { kind: "text", content }),
+    sendImage: (chatRoomId: number, imgKeys: string[]) =>
+      sendChatWS(chatRoomId, { kind: "image", imgKeys }),
   };
 };

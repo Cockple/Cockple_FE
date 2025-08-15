@@ -1,58 +1,73 @@
+// src/api/image/upload.ts
 import api from "../api";
 import type {
-  ApiEnvelope,
-  ImageDomainType,
-  ImageUploadData,
+  DomainType,
+  ImageUploadItem,
+  MultiImageUploadResponse,
+  SingleImageUploadResponse,
 } from "../../types/image";
 
-// 단일 이미지 업로드
-export async function uploadImage(
-  file: File,
-  domainType: ImageDomainType,
-  opts?: {
-    signal?: AbortSignal;
-    /** 업로드 진행률 콜백 (0~1) */
-    onProgress?: (ratio: number) => void;
-  },
-): Promise<ImageUploadData> {
-  const form = new FormData();
-  form.append("image", file);
+/**
+ * 단일 이미지 업로드
+ * @param domainType PROFILE | PARTY | CONTEST | CHAT
+ * @param imageFile  업로드할 File
+ * @returns { imgUrl, imgKey, raw }
+ */
 
-  const res = await api.post<ApiEnvelope<ImageUploadData>>(
-    "/api/s3/upload/img",
-    form,
+// 단일 이미지 업로드
+export const uploadImage = async (domainType: DomainType, imageFile: File) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  const res = await api.post<SingleImageUploadResponse>(
+    `/api/s3/upload/img`,
+    formData,
     {
-      params: { domainType }, // ← 스웨거 그대로
-      // Content-Type은 생략(브라우저가 boundary 포함해서 자동 지정)
-      signal: opts?.signal,
-      onUploadProgress: e => {
-        if (opts?.onProgress && e.total) opts.onProgress(e.loaded / e.total);
-      },
+      params: { domainType }, // ?domainType=CHAT
+      headers: { "Content-Type": "multipart/form-data" },
     },
   );
 
-  const body = res.data;
-  if (!body?.success) {
-    throw new Error(body?.errorReason?.message || "이미지 업로드 실패");
-  }
-  return body.data;
-}
-
-// 여러 이미지 업로드
-export async function uploadImages(
-  files: File[],
-  domainType: ImageDomainType,
-  opts?: {
-    signal?: AbortSignal;
-    onEachProgress?: (index: number, ratio: number) => void;
-  },
-): Promise<ImageUploadData[]> {
-  return Promise.all(
-    files.map((f, i) =>
-      uploadImage(f, domainType, {
-        signal: opts?.signal,
-        onProgress: r => opts?.onEachProgress?.(i, r),
-      }),
-    ),
+  console.log(
+    `imageUrl: ${res.data.data.imgUrl}, imageKey: ${res.data.data.imgKey}`,
   );
-}
+  //return response.data;
+  // 사용하기 편하도록 평탄화해서 반환
+  return {
+    imgUrl: res.data.data.imgUrl,
+    imgKey: res.data.data.imgKey,
+    raw: res.data, //원본 응답값
+  };
+};
+
+/**
+ * 여러 장 이미지 업로드
+ * @param domainType PROFILE | PARTY | CONTEST | CHAT
+ * @param imageFiles 업로드할 File 배열
+ * @returns { images: [{ imgUrl, imgKey }, ...], raw }
+ */
+export const uploadImages = async (
+  domainType: DomainType,
+  imageFiles: File[],
+): Promise<{
+  images: ImageUploadItem[];
+  raw: MultiImageUploadResponse;
+}> => {
+  const formData = new FormData();
+  // 백엔드가 "image"를 반복 필드로 받도록 구현되어 있음
+  imageFiles.forEach(file => formData.append("image", file));
+
+  const res = await api.post<MultiImageUploadResponse>(
+    "/api/s3/upload/imgs",
+    formData,
+    {
+      params: { domainType }, // ?domainType=CHAT
+      headers: { "Content-Type": "multipart/form-data" },
+    },
+  );
+
+  return {
+    images: res.data.data, // [{ imgUrl, imgKey }, ...]
+    raw: res.data,
+  };
+};

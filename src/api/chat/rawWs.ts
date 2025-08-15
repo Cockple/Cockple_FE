@@ -247,22 +247,29 @@ export const unsubscribeAll = () => {
 
 // 채팅 SEND
 //🌟
-export const sendChatWS = (chatRoomId: number, content: string) => {
-  // 백엔드 명세: 반드시 JSON 문자열로 보냄
-  return sendJSON({ type: "SEND", chatRoomId, content });
+// export const sendChatWS = (chatRoomId: number, content: string) => {
+//   // 백엔드 명세: 반드시 JSON 문자열로 보냄
+//   return sendJSON({ type: "SEND", chatRoomId, content });
+// };
+export const sendChatWS = (
+  chatRoomId: number,
+  payload:
+    | { kind: "text"; content: string }
+    | { kind: "image"; imgKeys: string[] },
+) => {
+  if (payload.kind === "text") {
+    return sendJSON({
+      type: "SEND",
+      chatRoomId,
+      messageType: "TEXT",
+      content: payload.content,
+    });
+  } else {
+    return sendJSON({
+      type: "SEND",
+      chatRoomId,
+      messageType: "IMAGE",
+      imgKeys: payload.imgKeys,
+    });
+  }
 };
-// export const sendChatWS = (
-//   chatRoomId: number,
-//   payload:
-//     | { kind: "text"; content: string }
-//     | { kind: "image"; imgKeys: string[]; caption?: string },
-// ) => {
-//   if (payload.kind === "text") {
-//     return sendJSON({
-//       type: "SEND",
-//       chatRoomId,
-//       messageType: "TEXT",
-//       content: payload.content,
-//     });
-//   }
-//};
