@@ -76,11 +76,10 @@ const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
   //
-  {
-    element: <NavbarLayout />, //인증체크x
-    children: [{ path: "/", element: <HomePage /> }],
-  },
-
+  // {
+  //   element: <NavbarLayout />, //인증체크x
+  //   children: [{ path: "/", element: <HomePage /> }],
+  // },
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
