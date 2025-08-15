@@ -21,11 +21,6 @@ export interface ApiResponse<T = any> {
   success: boolean;
 }
 
-// interface ContestDetailResponse {
-//   imgUrl: string;
-//   imgKey: string;
-// }
-// member.ts
 export interface ContestDetailResponse {
   contestName: string;
   date: string;

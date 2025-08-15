@@ -9,11 +9,17 @@ import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_
 import TagBtn from "../../../components/common/DynamicBtn/TagBtn";
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams  } from "react-router-dom";
+import { updateParty } from "../../../api/party/patchParties";
+import type { UpdatePartyRequest } from "../../../api/party/patchParties";
+
 const dayOptions = ["전체", "월", "화", "수", "목", "금", "토", "일"];
 const timeOptions = ["상시", "오전", "오후"];
 
 export const EditGroupInfoDefault = () => {
+  const { partyId } = useParams<{ partyId: string }>(); 
+  const numericPartyId = Number(partyId);
+
   const navigate = useNavigate();
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -34,6 +40,36 @@ export const EditGroupInfoDefault = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+const handleUpdateParty = async () => {
+  if (!numericPartyId) return;
+
+  try {
+    const payload: UpdatePartyRequest = {
+      activityDay: selectedDays,         // 요일 배열
+      activityTime: selectedTime,        // 시간
+      designatedCock: designatedText || undefined,
+      joinPrice: joinFeeText ? Number(joinFeeText) : undefined,
+      price: monthlyFeeText ? Number(monthlyFeeText) : undefined,
+      content: "", // InputField에서 값 받아서 넣어야 함
+      keyword: ["브랜드 스폰", "가입비 무료"], // 실제 선택 키워드 반영
+      imgKey: photos[0] || undefined, // 대표 이미지 key
+    };
+
+    const res = await updateParty(numericPartyId, payload);
+
+    if (res.success) {
+      alert("모임 정보가 성공적으로 수정되었습니다.");
+      navigate(-1); // 수정 후 뒤로 이동
+    } else {
+      console.error(res.errorReason);
+      alert("모임 정보 수정 실패");
+    }
+  } catch (err) {
+    console.error("API 호출 에러", err);
+    alert("API 호출 중 에러가 발생했습니다.");
+  }
+};
 
   useEffect(() => {
     if (selectedDays.length > 0 || selectedTime !== "" || photos.length > 0) {
@@ -250,6 +286,7 @@ export const EditGroupInfoDefault = () => {
         <Grad_GR400_L
           label="수정하기"
           initialStatus={isFormValid ? "default" : "disabled"}
+          onClick={handleUpdateParty}
         />
       </div>
     </div>

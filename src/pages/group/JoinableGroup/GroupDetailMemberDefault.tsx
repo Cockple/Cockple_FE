@@ -6,126 +6,92 @@ import { Member } from "../../../components/common/contentcard/Member";
 import { useNavigate } from "react-router-dom";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { Modal_Join } from "../../../components/group/Modal_Join";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TabSelector from "../../../components/common/TabSelector";
 import Grad_Mix_L from "../../../components/common/Btn_Static/Text/Grad_Mix_L";
-import { useLocation } from "react-router-dom";
+import { useLocation,useParams  } from "react-router-dom";
+import { getPartyMembers, type Member as ApiMember} from "../../../api/party/members";
+import { joinParty } from "../../../api/party/JoinRequests";
 
-interface MyPageExerciseDetailPageProps {
-  notice?: string;
-  placeName?: string;
-  placeAddress?: string;
+const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
+  memberId: m.memberId,
+  name: m.nickname,
+  imgUrl: m.profileImageUrl || null,
+  // role: m.role,
+  gender: m.gender,
+  level: m.level,
+  isMe: m.isMe,
+  isLeader: m.role === "OWNER",
+  position: m.role === "OWNER" ? "leader" : m.role === "SUBOWNER" ? "sub_leader" : null,
+  status: "Participating", 
+});
 
-  participantsCount?: number;
-  participantGenderCount?: { male: number; female: number };
-  participantMembers?: MemberProps[];
+export const GroupDetailMemberDefault = () => {
+  const { partyId } = useParams<{ partyId: string }>(); 
+  const numericPartyId = Number(partyId);
 
-  waitingCount?: number;
-  waitingGenderCount?: { male: number; female: number };
-  waitingMembers?: MemberProps[];
-}
-
-export const GroupDetailMemberDefault = (
-  props: MyPageExerciseDetailPageProps,
-) => {
-  const {
-    // notice = "명찰을 위한 신분증",
-    // placeName = "산성 배드민턴장",
-    // placeAddress = "수정로456번길 19",
-    participantsCount = 5,
-    participantGenderCount = { male: 2, female: 3 },
-    participantMembers = [
-        {
-          requestId: 1,
-          status: "Participating",
-          name: "홍길동",
-          gender: "MALE", 
-          level: "A조",
-          isMe: false,
-          isLeader: true,
-          position: "leader",
-        },
-        {
-          requestId: 2,
-          status: "Participating",
-          name: "김민수",
-          gender: "MALE",
-          level: "B조",
-          isMe: true,
-          isLeader: false,
-          position: "sub_leader",
-        },
-        {
-          requestId: 3,
-          status: "Participating",
-          name: "이지은",
-          gender: "FEMALE",
-          level: "C조",
-          isMe: false,
-          isLeader: false,
-          position: null,
-        },
-        {
-          requestId: 4,
-          status: "Participating",
-          name: "박서준",
-          gender: "MALE",
-          level: "D조",
-          isMe: false,
-          isLeader: false,
-          position: null,
-        },
-      ],
-      } = props;
-
-  const [members, setMembers] = useState<MemberProps[]>(participantMembers);
-
-  const [participantsCountState, setParticipantsCount] =
-    useState(participantsCount);
-
-  // ‼️ 배포 오류를 위한 임시 코드
-  console.log(participantsCountState);
-
-  const location = useLocation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isApplied, setIsApplied] = useState(false); // 신청 여부
-
-  // ‼️ 배포 오류를 위한 임시 코드
-  const isApproved = false;
-  // const [isApproved, setIsApproved] = useState(false); // 모임장이 승인했는지 여부 -> 서버
-
-  //검색 기능
-  const [searchTerm, setSearchTerm] = useState("");
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-  const filteredMembers = members.filter(member => {
-    const nameMatch = member.name
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const levelMatch = member.level
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return nameMatch || levelMatch;
+  const [members, setMembers] = useState<MemberProps[]>([]);
+  const [participantsCount, setParticipantsCount] = useState<number>(0);
+  const [participantGenderCount, setParticipantGenderCount] = useState<{ male: number; female: number }>({
+    male: 0,
+    female: 0,
   });
 
-  // 참여 멤버 삭제 함수
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isApplied, setIsApplied] = useState(false); // 신청 여부
+  const isApproved = false; // 서버 승인 여부
+
+  // const [searchTerm, setSearchTerm] = useState("");
+
+  // API 호출
+useEffect(() => {
+  const fetchMembers = async () => {
+    try {
+      const res = await getPartyMembers(numericPartyId);
+   if (res.success) {
+  const { summary, members } = res.data; // content → members로 변경
+
+  const mappedMembers: MemberProps[] = members.map(mapApiMemberToMemberProps);
+  setMembers(mappedMembers);
+
+  setParticipantsCount(summary.totalCount);
+  setParticipantGenderCount({ male: summary.maleCount, female: summary.femaleCount });
+}
+
+    } catch (err) {
+      console.error("멤버 조회 실패", err);
+    }
+  };
+
+  fetchMembers();
+}, [numericPartyId]);
+
+
+  const filteredMembers = members;
+
+  // const filteredMembers = members.filter(member => {
+    // const nameMatch = member.nickname?.toLowerCase().includes(searchTerm.toLowerCase());
+    // const levelMatch = member.level?.toLowerCase().includes(searchTerm.toLowerCase());
+    // return nameMatch || levelMatch;
+  // });
+
+  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setSearchTerm(e.target.value);
+  // };
+
+  // 멤버 삭제
   const handleDeleteMember = (idx: number) => {
     const updated = members.filter((_, i) => i !== idx);
     setMembers(updated);
     setParticipantsCount(updated.length);
   };
 
-  const initialTab = (location.state?.tab ?? "home") as
-    | "home"
-    | "chat"
-    | "Calendar"
-    | "member";
-  const [activeTab, setActiveTab] = useState<
-    "home" | "chat" | "Calendar" | "member"
-  >(initialTab);
+  const initialTab = (location.state?.tab ?? "home") as "home" | "chat" | "Calendar" | "member";
+  const [activeTab, setActiveTab] = useState<"home" | "chat" | "Calendar" | "member">(initialTab);
 
-  const navigate = useNavigate();
   return (
     <>
       <PageHeader title="운동 상세" />
@@ -148,7 +114,7 @@ export const GroupDetailMemberDefault = (
               type="text"
               placeholder="이름, 급수로 검색"
               className="w-full border rounded-xl	p-2 pr-14 body-md-500  text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
-              onChange={handleSearchChange}
+              // onChange={handleSearchChange}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2">
               <Search className="w-6 h-6" />
@@ -195,30 +161,34 @@ export const GroupDetailMemberDefault = (
             if (!isApproved) {
               setIsModalOpen(true);
             }
+
           }}
         />
       </div>
 
-      {isModalOpen && (
+     {isModalOpen && (
         <Modal_Join
-          title={
-            isApplied ? "가입 신청이 완료되었어요!" : "모임에 가입하시겠어요?"
-          }
+          title={isApplied ? "가입 신청이 완료되었어요!" : "모임에 가입하시겠어요?"}
           messages={
             isApplied
-              ? [
-                  "모임장의 승인을 받아 가입이 완료되면,",
-                  "알림으로 알려드릴게요",
-                ]
-              : [
-                  "‘가입 신청하기’를 누르시면, 가입 신청이 완료되며",
-                  "모임장의 승인 이후 가입이 완료돼요.",
-                ]
+              ? ["모임장의 승인을 받아 가입이 완료되면,", "알림으로 알려드릴게요"]
+              : ["‘가입 신청하기’를 누르시면, 가입 신청이 완료되며", "모임장의 승인 이후 가입이 완료돼요."]
           }
           confirmLabel={isApplied ? "확인" : "가입 신청하기"}
-          onConfirm={() => {
+          onConfirm={async () => {
             if (!isApplied) {
-              setIsApplied(true); // 신청 상태로 전환
+              try {
+                const res = await joinParty(numericPartyId); 
+                if (res.success) {
+                  alert("가입 신청 성공!");
+                  setIsApplied(true); 
+                } else {
+                  alert(res.message || "가입 신청 실패");
+                  console.error(res.errorReason);
+                }
+              } catch (err) {
+                console.error("가입 신청 API 호출 실패", err);
+              }
             }
             setIsModalOpen(false);
           }}

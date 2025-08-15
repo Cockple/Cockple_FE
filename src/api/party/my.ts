@@ -2,15 +2,14 @@ import api from "../api";
 
 export interface PartyData {
   partyId: number;
-  createdAt: string;
-  groupName: string;
-  groupImage: string;
-  location: string;
-  femaleLevel: string;
-  maleLevel: string;
-  nextActivitDate: string;
-  upcomingCount: number;
-  like?: boolean;
+  partyName: string;
+  addr1: string;
+  addr2: string;
+  femaleLevel: string[];
+  maleLevel: string[];
+  nextExerciseInfo: string | null;
+  totalExerciseCount: number;
+  partyImgUrl: string;
   isMine: boolean;
 }
 
