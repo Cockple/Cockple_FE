@@ -91,29 +91,37 @@ api.interceptors.request.use(
 
 // 응답 인터셉터
 api.interceptors.response.use(
-  response => response,
-  async e => {
-    const originalRequest: CustomInternalAxiosRequestConfig = e.config;
+  res => res,
+  async error => {
+    const originalRequest = error.config as CustomInternalAxiosRequestConfig;
 
-    if (e.response && e.response.status === 401 && !originalRequest._retry) {
+    // 응답 자체가 없으면(네트워크 장애 등) 그대로 반환
+    if (!error.response) return Promise.reject(error);
+
+    const status = error.response.status;
+    const isRefresh = isRefreshUrl(originalRequest?.url);
+
+    if (status === 401 && !originalRequest?._retry) {
       originalRequest._retry = true;
 
-      // refresh 자체 401 -> 로그아웃
-      if (isRefreshUrl(originalRequest.url)) {
+      // refresh 호출이 401이면 세션 정리
+      if (isRefresh) {
         clearTokensAndRedirect();
-        return Promise.reject(e);
+        return Promise.reject(error);
       }
 
       if (!refreshPromise) {
         refreshPromise = (async () => {
           try {
-            // 바디 불필요, Authorization 제거 보장
+            // 쿠키 기반, Authorization 제거
             const { data } = await api.post("/api/auth/refresh", undefined, {
               withCredentials: true,
               headers: { Authorization: "" },
             });
+
             const newAccessToken: string = data?.accessToken;
             const newRefreshToken: string | undefined = data?.refreshToken;
+
             if (!newAccessToken)
               throw new Error("No access token in refresh response");
 
@@ -128,14 +136,23 @@ api.interceptors.response.use(
         })();
       }
 
-      return refreshPromise.then(newAccessToken => {
+      const newAccessToken = await refreshPromise;
+
+      // 타입 안전하게 Authorization 헤더 주입
+      if (originalRequest.headers?.set) {
+        originalRequest.headers.set(
+          "Authorization",
+          `Bearer ${newAccessToken}`,
+        );
+      } else {
         originalRequest.headers = originalRequest.headers ?? {};
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`; // 공백 포함
-        return api.request(originalRequest);
-      });
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      }
+
+      return api.request(originalRequest);
     }
 
-    return Promise.reject(e);
+    return Promise.reject(error);
   },
 );
 
