@@ -117,6 +117,28 @@ export const GroupRecommendFilterPage = () => {
     }
   };
 
+  const isAllSelected = (selected: string[]) =>
+    ALL_LEVELS.every(level => selected.includes(level));
+
+  const ALL_LEVELS = [
+    "왕초심",
+    "초심",
+    "D조",
+    "C조",
+    "B조",
+    "A조",
+    "준자강",
+    "자강",
+  ];
+  const ALL_STYLES = ["여복", "남복", "혼복"];
+  const isAllStyleSelected = style === "전체";
+
+  const ALL_DAYS = ["월", "화", "수", "목", "금", "토", "일"];
+  const isAllDaySelected = ALL_DAYS.every(dayItem => day.includes(dayItem));
+
+  const ALL_TIMES = ["오전", "오후"];
+  const isAllTimeSelected = ALL_TIMES.every(t => t === time);
+
   return (
     <div className="pb-24 flex flex-col justify-between">
       <div className="flex flex-col gap-5">
@@ -132,7 +154,12 @@ export const GroupRecommendFilterPage = () => {
                 onChange={city => {
                   setSelectedCity(city);
                   setSelectedDistrict("전체");
-                  setFilter("region", [city, "전체"]);
+
+                  if (city === "전국구" || city === "전체") {
+                    setFilter("region", []);
+                  } else {
+                    setFilter("region", [city, "전체"]);
+                  }
                 }}
               />
 
@@ -143,7 +170,11 @@ export const GroupRecommendFilterPage = () => {
                 value={selectedDistrict}
                 onChange={gu => {
                   setSelectedDistrict(gu);
-                  setFilter("region", [selectedCity, gu]);
+                  if (gu === "전체") {
+                    setFilter("region", [selectedCity, "전체"]);
+                  } else {
+                    setFilter("region", [selectedCity, gu]);
+                  }
                 }}
                 disabled={!selectedCity}
                 placeholder="전체"
@@ -152,42 +183,56 @@ export const GroupRecommendFilterPage = () => {
           </Toggle>
           <Toggle title="전국 급수">
             <MultiSelectButtonGroup
-              options={[
-                "전체",
-                "왕초심",
-                "초심",
-                "D조",
-                "C조",
-                "B조",
-                "A조",
-                "준자강",
-                "자강",
-              ]}
-              selected={level}
-              onChange={newVal => setFilter("level", newVal)}
+              options={["전체", ...ALL_LEVELS]}
+              selected={isAllSelected(level) ? ["전체"] : level}
+              onChange={newVal => {
+                if (Array.isArray(newVal) && newVal.includes("전체")) {
+                  setFilter("level", ALL_LEVELS);
+                } else {
+                  setFilter("level", newVal);
+                }
+              }}
             />
           </Toggle>
           <Toggle title="운동 스타일">
             <MultiSelectButtonGroup
-              options={["전체", "여복", "남복", "혼복"]}
-              selected={style}
+              options={["전체", ...ALL_STYLES]}
+              selected={isAllStyleSelected ? "전체" : style}
               singleSelect={true}
-              onChange={newVal => setFilter("style", newVal)}
+              onChange={newVal => {
+                if (newVal === "전체") {
+                  setFilter("style", "전체");
+                } else {
+                  setFilter("style", newVal);
+                }
+              }}
             />
           </Toggle>
           <Toggle title="운동 요일">
             <MultiSelectButtonGroup
-              options={["전체", "월", "화", "수", "목", "금", "토", "일"]}
-              selected={day}
-              onChange={newVal => setFilter("day", newVal)}
+              options={["전체", ...ALL_DAYS]}
+              selected={isAllDaySelected ? ["전체"] : day}
+              onChange={newVal => {
+                if (Array.isArray(newVal) && newVal.includes("전체")) {
+                  setFilter("day", ALL_DAYS);
+                } else {
+                  setFilter("day", newVal);
+                }
+              }}
             />
           </Toggle>
           <Toggle title="활동 시간">
             <MultiSelectButtonGroup
-              options={["상시", "오전", "오후"]}
-              selected={time}
-              singleSelect={true}
-              onChange={newVal => setFilter("time", newVal)}
+              options={["전체", ...ALL_TIMES]}
+              selected={isAllTimeSelected ? "전체" : time}
+              singleSelect
+              onChange={newVal => {
+                if (newVal === "전체") {
+                  setFilter("time", "전체");
+                } else {
+                  setFilter("time", newVal);
+                }
+              }}
             />
           </Toggle>
           <Toggle title="키워드">
