@@ -20,8 +20,8 @@ export type GroupCard = {
   partyName: string;
   addr1: string;
   addr2: string;
-  femaleLevel: string;
-  maleLevel: string;
+  femaleLevel: string[];
+  maleLevel: string[];
   latestExerciseDate: string;
   latestExerciseTime: string;
   exerciseCnt: number;
