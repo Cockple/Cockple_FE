@@ -8,14 +8,18 @@ import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import { getMyGroups } from "../../api/party/my";
 import type { PartyData } from "../../api/party/my";
-import { useLikedGroupIds } from "../../hooks/useLikedItems"; 
+import { useLikedGroupIds } from "../../hooks/useLikedItems";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
   const [isChecked, setIsChecked] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
-  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
+    useLikedGroupIds();
 
   // 내 모임 조회
   useEffect(() => {
@@ -41,7 +45,6 @@ export const MyPageMyGroupPage = () => {
       fetchGroups();
     }
   }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading]);
-
 
   const hasGroups = groups.length > 0;
 
@@ -76,34 +79,39 @@ export const MyPageMyGroupPage = () => {
           </div>
         )}
 
-      <div className="flex-1 flex flex-col gap-4">
-        {hasGroups ? (
-          groups.map(group => {
-            const isLiked = likedGroupIds.includes(group.partyId); // 찜 상태 계산
+        <div className="flex-1 flex flex-col gap-4">
+          {hasGroups ? (
+            groups.map(group => {
+              const isLiked = likedGroupIds.includes(group.partyId); // 찜 상태 계산
 
-            return (
-              <div key={group.partyId}>
-                <Group_M
-                  id={group.partyId}
-                  groupName={group.partyName}
-                  groupImage={group.partyImgUrl}
-                  location={`${group.addr1} / ${group.addr2}`}
-                  femaleLevel={group.femaleLevel}
-                  maleLevel={group.maleLevel}
-                  nextActivitDate={group.nextExerciseInfo}
-                  upcomingCount={group.totalExerciseCount}
-                  like={isLiked}
-                  isMine={group.isMine ?? false}
-                  // onToggleFavorite={handleToggleFavorite}
-                />
-                <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-              </div>
-            );
-          })
-        ) : (
-          <MyGroupNone />
-        )}
-      </div>
+              return (
+                <div key={group.partyId}>
+                  <Group_M
+                    id={group.partyId}
+                    groupName={group.partyName}
+                    groupImage={group.partyImgUrl}
+                    location={`${group.addr1} / ${group.addr2}`}
+                    femaleLevel={group.femaleLevel}
+                    maleLevel={group.maleLevel}
+                    nextActivitDate={group.nextExerciseInfo}
+                    upcomingCount={group.totalExerciseCount}
+                    like={isLiked}
+                    isMine={group.isMine ?? false}
+                    onClick={() =>
+                      navigate(
+                        `/group/${group.partyId}?return=${encodeURIComponent(location.pathname + location.search)}`,
+                      )
+                    }
+                    // onToggleFavorite={handleToggleFavorite}
+                  />
+                  <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                </div>
+              );
+            })
+          ) : (
+            <MyGroupNone />
+          )}
+        </div>
       </div>
 
       <SortBottomSheet
