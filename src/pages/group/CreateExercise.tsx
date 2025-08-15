@@ -47,6 +47,7 @@ export const CreateExercise = () => {
   const [openModal, setOpenModal] = useState(false);
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
   const { groupId } = useParams();
+  // const isEditMode = !!exerciseId;
 
   useEffect(() => {
     const selectedPlace = location.state?.selectedPlace;
