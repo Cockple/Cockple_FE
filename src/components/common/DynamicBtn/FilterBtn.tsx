@@ -2,7 +2,7 @@ import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import Filter_Fill from "@/assets/icons/filter_fill.svg?url";
 import FilterIcon from "@/assets/icons/filter.svg?url";
 import Filter_G from "@/assets/icons/filterG.svg?url";
-import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, IconTextStatus } from "../../../types/dynamicBtn";
 
 interface FilterBtnProps extends BaseBtnProps {
   forceStatus?: IconTextStatus; // 외부에서 상태를 강제 지정할 수 있도록

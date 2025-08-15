@@ -1,7 +1,7 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import arrowDown from "@/assets/icons/arrow_down.svg?url";
 import arrowDownG from "@/assets/icons/arrow_downG.svg?url";
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 
 export default function DropDownBtn({
   children,

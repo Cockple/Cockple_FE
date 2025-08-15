@@ -1,7 +1,7 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import ArrowRight from "@/assets/icons/arrow_right.svg?url";
 import ArrowRight_G from "@/assets/icons/arrow_rightG.svg?url";
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 
 export default function ChatBtn({
   children,

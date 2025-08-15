@@ -1,4 +1,4 @@
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 import ArrowRightFill from "@/assets/icons/arrow_right_fill.svg?url";
 import ArrowRight from "@/assets/icons/arrow_right.svg?url";

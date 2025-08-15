@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 
 interface TabBtnProps extends BaseBtnProps {
   isSelected: boolean;
