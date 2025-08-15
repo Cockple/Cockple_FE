@@ -6,16 +6,18 @@ export type FilterKey =
   | "style"
   | "day"
   | "time"
-  | "keyword";
+  | "keyword"
+  | "recommend";
 
 export interface GroupRecommendFilterState {
-  region: string[]; // 지역 (2단계)
-  level: string[]; // 전국 급수
-  style: string; // 운동 스타일
-  day: string[]; // 운동 요일
-  time: string; // 활동 시간
-  keyword: string[]; // 키워드
-
+  region: string[];
+  level: string[];
+  style: string;
+  day: string[];
+  time: string;
+  keyword: string[];
+  recommend: boolean;
+  toggleRecommend: () => void;
   setFilter: (key: FilterKey, value: string[] | string) => void;
   resetFilter: () => void;
 }
@@ -28,11 +30,13 @@ export const useGroupRecommendFilterState = create<GroupRecommendFilterState>(
     day: [],
     time: "",
     keyword: [],
+    recommend: true,
     setFilter: (key, value) =>
       set(state => ({
         ...state,
         [key]: value,
       })),
+    toggleRecommend: () => set(state => ({ recommend: !state.recommend })),
     resetFilter: () =>
       set(() => ({
         region: [],
@@ -41,6 +45,7 @@ export const useGroupRecommendFilterState = create<GroupRecommendFilterState>(
         day: [],
         time: "",
         keyword: [],
+        recommend: true,
       })),
   }),
 );

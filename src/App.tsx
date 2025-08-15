@@ -49,7 +49,6 @@ import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirm
 import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
 import { useEffect } from "react";
-// import { OnboardingProfileInputPage } from "./pages/onboarding/OnBoardingProfileInputPage";
 import { ExerciseFilterPage } from "./pages/home/ExerciseFilterPage";
 import { GroupLayout } from "./layout/GroupLayout";
 import { GroupHomePage } from "./pages/group/GroupHomePage";
@@ -71,11 +70,17 @@ import { EditLocationPage } from "./pages/home/EditLocationPage";
 import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
-
+import { useRawWsConnect } from "./hooks/useRawWsConnect";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
+  //
+  {
+    element: <NavbarLayout />, //인증체크x
+    children: [{ path: "/", element: <HomePage /> }],
+  },
+
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
@@ -84,9 +89,7 @@ const router = createBrowserRouter([
       { path: "info", element: <OnboardingInfoPage /> },
       { path: "level", element: <OnboardingLevelPage /> },
       { path: "address", element: <OnboardingAddressPage /> },
-      // { path: "address/search", element: <OnboardingAddressSearchPage /> },
       { path: "profile", element: <OnboardingProfilePage /> },
-      // { path: "profile/input", element: <OnboardingProfileInputPage /> },
       { path: "confirm/start", element: <OnboardingConfirmStartPage /> },
     ],
   },
@@ -123,16 +126,24 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      // { path: "/mypage/mymedal/:medalId", element: <MyPageMedalDetailPage /> },
-      // { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
-      { path: "/mypage/mymedal/:contestId", element: <MyPageMedalDetailPage /> },
+      // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
+      {
+        path: "/mypage/profile/medal/:memberId/contest/:contestId",
+        element: <MyPageMedalDetailPage />,
+      },
+      {
+        path: "/mypage/mymedal/:contentId",
+        element: <MyPageMedalDetailPage />,
+      },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
-      // { path: "/mypage/profile", element: <MyPageProfile /> },
       { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
-      { path: "/mypage/profile/medal", element: <MyPageProfileMedal /> },
+      {
+        path: "/mypage/profile/medal/:memberId",
+        element: <MyPageProfileMedal />,
+      },
 
       { path: "/recommend", element: <RecommendPage /> },
       { path: "/mygroup-exercise", element: <MyGroupExercisePage /> },
@@ -152,9 +163,10 @@ const router = createBrowserRouter([
       },
 
       // 연두 모임
-      { path: "/group/detail", element: <GroupDetailMemberDefault /> },
+      { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
+
       {
-        path: "/group/Mygroup/MyExerciseDetail",
+        path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
         element: <MyExerciseDetail />,
       },
       {
@@ -164,7 +176,10 @@ const router = createBrowserRouter([
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
-      { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
+      {
+        path: "/group/admin/edit-info/:partyId",
+        element: <EditGroupInfoDefault />,
+      },
       { path: "/group/admin/invite", element: <InviteDefault /> },
 
       {
@@ -172,7 +187,11 @@ const router = createBrowserRouter([
         element: <GroupRecommendFilterPage />,
       },
       {
-        path: "group/exercise/create",
+        path: "group/exercise/:groupId/create",
+        element: <CreateExercise />,
+      },
+      {
+        path: "group/exercise/:groupId/edit/:exerciseId",
         element: <CreateExercise />,
       },
       {
@@ -186,26 +205,32 @@ const router = createBrowserRouter([
         ],
       },
 
-      { path: "/group/detail/inviteGuest", element: <InviteGuest /> },
+      { path: "/group/inviteGuest/:exerciseId", element: <InviteGuest /> },
       { path: "/group/making/basic", element: <GroupBasicInfo /> },
       { path: "/group/making/activity", element: <GroupActivity /> },
       { path: "/group/making/filter", element: <GroupFilter /> },
       { path: "/group/making/select", element: <GroupSelect /> },
-      { path: "/group/making/member", element: <GroupMember /> },
-      { path: "/confirm", element: <ConfirmPage /> }, //onboarding과 making동시 사용
+      { path: "/group/making/member/:partyId", element: <GroupMember /> },
+      { path: "/confirm", element: <ConfirmPage /> },
+      { path: "/confirm/:partyId", element: <ConfirmPage /> },
     ],
   },
 ]);
 
 function App() {
   const { isSplashShown, hasShownSplash, showSplash } = useSplashStore();
+
+  // 전역으로 한 번만 웹소켓 연결
+  const memberId = Number(localStorage.getItem("memberId") || 1);
+  useRawWsConnect({ memberId, origin: "https://cockple.store" });
+
   useEffect(() => {
     // 스플래시 화면이 한 번도 표시되지 않은 경우에만 실행
     if (!hasShownSplash) {
       showSplash(); // 스플래시 화면 표시 및 상태 변경
     }
   }, [hasShownSplash, showSplash]);
-  
+
   return (
     <div className="w-full flex justify-center items-center">
       <main

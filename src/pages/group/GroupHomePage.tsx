@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { GroupInfoList } from "../../components/group/home/GroupInfoList";
 import FemaleIcon from "@/assets/icons/female.svg?react";
 import MaleIcon from "@/assets/icons/male.svg?react";
@@ -7,13 +7,81 @@ import UpIcon from "@/assets/icons/arrow_up.svg?url";
 import DownIcon from "@/assets/icons/arrow_down.svg?url";
 import HashIcon from "@/assets/icons/hash.svg?url";
 import CautionIcon from "@/assets/icons/caution.svg?url";
-import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import PlusIcon from "@/assets/icons/add_white.svg?url";
 import { useNavigate, useParams } from "react-router-dom";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
-import { usePartyDetail } from "../../api/exercise/getpartyDetail";
+import {
+  usePartyDetail,
+  type PartyDetailResponse,
+} from "../../api/exercise/getpartyDetail";
+import { useGroupNameStore } from "../../store/useGroupNameStore";
+import { getJoinParty } from "../../api/party/getJoinParty";
+import api from "../../api/api";
+import type { MemberJoinRequestResponse } from "../../types/memberJoinRequest";
+import clsx from "clsx";
+
+import CustomWeekly from "../../components/home/CustomWeekly";
+import {
+  fetchPartyCalendar,
+  type CalExercise,
+  type CalWeek,
+  addDays as addDaysStr,
+} from "../../api/exercise/getPartyCalendar";
+import type { Swiper as SwiperClass } from "swiper";
+import "swiper/css";
+
+import { generateWeeksFromRange } from "../../utils/dateUtils";
+import type { Week } from "../../types/calendar";
+
+// 오늘 YYYY-MM-DD
+const todayStr = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+function uiWeeksToCalWeeks(ui: Week[]): CalWeek[] {
+  return ui.map(w => ({
+    weekStartDate: w.weekStartDate,
+    weekEndDate: w.weekEndDate,
+    days: w.days.map(d => ({
+      date: d.date,
+      dayOfWeek: d.dayOfWeek,
+      exercises: [] as CalExercise[],
+    })),
+  }));
+}
+
+function calWeeksToUiWeeks(
+  cal: CalWeek[],
+  partyDetail: PartyDetailResponse,
+): Week[] {
+  return cal.map(w => ({
+    weekStartDate: w.weekStartDate,
+    weekEndDate: w.weekEndDate,
+    days: w.days.map(d => ({
+      date: d.date,
+      dayOfWeek: d.dayOfWeek,
+      exercises: d.exercises.map(ex => ({
+        ...ex,
+
+        partyId: partyDetail.partyId,
+        partyName: partyDetail.partyName,
+        profileImageUrl: partyDetail.partyImgUrl || "",
+      })),
+    })),
+  }));
+}
+
+function ensureCalWeeks(startDate: string, endDate: string, weeks: CalWeek[]) {
+  if (weeks && weeks.length > 0) return weeks;
+  const ui = generateWeeksFromRange(startDate, endDate);
+  return uiWeeksToCalWeeks(ui);
+}
 
 export const GroupHomePage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,8 +90,18 @@ export const GroupHomePage = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
+  const [requestCount, setRequestCount] = useState(0);
 
-  const requestCount = 2;
+  useEffect(() => {
+    const requestMemberCount = async () => {
+      if (!groupId) return;
+      const { data } = await api.get<MemberJoinRequestResponse>(
+        `/api/parties/${groupId}/join-requests?status=PENDING`,
+      );
+      setRequestCount(data.data.content.length);
+    };
+    requestMemberCount();
+  }, [groupId]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -35,7 +113,6 @@ export const GroupHomePage = () => {
         setPlusModalOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [plusModalOpen]);
@@ -47,165 +124,361 @@ export const GroupHomePage = () => {
       const offset = (screenWidth - contentWidth) / 2 + 16;
       setRightOffset(offset);
     };
-
     updateOffset();
     window.addEventListener("resize", updateOffset);
     return () => window.removeEventListener("resize", updateOffset);
   }, []);
 
-  // 요일 변환 함수
-  const formatActivityDays = (days: string[]) => {
-    const formatted = days.join(" "); // 배열을 문자열로 변환 (공백 구분)
-    return formatted;
-  };
+  const formatActivityDays = (days?: string[] | null) =>
+    Array.isArray(days) ? days.join(" ") : "";
 
-  // 레벨 변환 함수
-  const getLevelValue = (femaleLevel: string[], maleLevel: string[]) => {
+  const toLevelString = (arr?: string[] | null) => {
+    if (!Array.isArray(arr) || arr.length === 0) return "";
+    if (arr.length === 1) return `${arr[0]} 이상`;
+    return `${arr[0]} ~ ${arr[arr.length - 1]}`;
+  };
+  const LevelBlock = ({
+    female,
+    male,
+  }: {
+    female?: string[] | null;
+    male?: string[] | null;
+  }) => {
+    const femaleText = toLevelString(female);
+    const maleText = toLevelString(male);
+    if (!femaleText && !maleText) return null;
     return (
       <div className="flex flex-col gap-1">
-        {femaleLevel.length > 0 && (
+        {femaleText && (
           <div className="flex gap-1 items-center">
             <FemaleIcon />
-            <span>{femaleLevel.join(" · ")}</span>
+            <span>{femaleText}</span>
           </div>
         )}
-        {maleLevel.length > 0 && (
+        {maleText && (
           <div className="flex gap-1 items-center">
             <MaleIcon />
-            <span>{maleLevel.join(" · ")}</span>
+            <span>{maleText}</span>
           </div>
         )}
       </div>
     );
   };
 
-  const { data: partyDetail } = usePartyDetail(Number(groupId));
-  console.log(partyDetail);
+  const { setGroupName } = useGroupNameStore();
+  const { data: partyDetail, status, error } = usePartyDetail(Number(groupId));
+  useEffect(() => {
+    if (partyDetail?.partyName) setGroupName(partyDetail.partyName);
+  }, [partyDetail?.partyName, setGroupName]);
 
-  const isOwner = partyDetail?.memberRole === "MANAGER";
+  const isOwner =
+    partyDetail?.memberRole === "party_MANAGER" ||
+    partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
-  const items = [
-    { label: "지역", value: `${partyDetail?.addr1} / ${partyDetail?.addr2}` },
-    {
-      label: "날짜",
-      value: partyDetail ? formatActivityDays(partyDetail?.activityDays) : "",
-    },
-    { label: "시간", value: partyDetail?.activityTime },
-    {
-      label: "급수",
-      value: partyDetail ? (
-        getLevelValue(partyDetail?.femaleLevel, partyDetail?.maleLevel)
-      ) : (
-        <></>
-      ),
-    },
-    {
-      label: "나이",
-      value: `${partyDetail?.minBirthYear} ~ ${partyDetail?.maxBirthYear}`,
-    },
-    { label: "회비", value: partyDetail?.price },
-    { label: "가입비", value: partyDetail?.joinPrice },
-    {
-      label: "지정콕",
-      value: partyDetail?.designatedCock,
-    },
-  ];
 
+  const items = useMemo(
+    () => [
+      {
+        label: "지역",
+        value: partyDetail ? `${partyDetail.addr1} / ${partyDetail.addr2}` : "",
+      },
+      { label: "날짜", value: formatActivityDays(partyDetail?.activityDays) },
+      { label: "시간", value: partyDetail?.activityTime ?? "" },
+      {
+        label: "급수",
+        value: partyDetail ? (
+          <LevelBlock
+            female={partyDetail.femaleLevel}
+            male={partyDetail.maleLevel}
+          />
+        ) : null,
+      },
+      {
+        label: "나이",
+        value:
+          partyDetail?.minBirthYear && partyDetail?.maxBirthYear
+            ? `${partyDetail.minBirthYear} ~ ${partyDetail.maxBirthYear}`
+            : "",
+      },
+      { label: "회비", value: partyDetail?.price ?? "" },
+      { label: "가입비", value: partyDetail?.joinPrice ?? "" },
+      { label: "지정콕", value: partyDetail?.designatedCock ?? "" },
+    ],
+    [partyDetail],
+  );
   const visibleItems = isExpanded ? items : items.slice(0, 4);
+
+  const [cal, setCal] = useState<{
+    startDate: string;
+    endDate: string;
+    weeks: CalWeek[];
+  } | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(todayStr());
+  const [loadingCal, setLoadingCal] = useState(true);
+  const [fetchingMore, setFetchingMore] = useState(false);
+  const swiperRef = useRef<SwiperClass | null>(null);
+
+  useEffect(() => {
+    if (!groupId) return;
+    (async () => {
+      setLoadingCal(true);
+      try {
+        const res = await fetchPartyCalendar({
+          partyId: Number(groupId),
+          startDate: null,
+          endDate: null,
+        });
+        const filledWeeks = ensureCalWeeks(
+          res.startDate,
+          res.endDate,
+          res.weeks,
+        );
+        setCal({
+          startDate: res.startDate,
+          endDate: res.endDate,
+          weeks: filledWeeks,
+        });
+        const within =
+          todayStr() >= res.startDate && todayStr() <= res.endDate
+            ? todayStr()
+            : res.startDate;
+        setSelectedDate(within);
+      } finally {
+        setLoadingCal(false);
+      }
+    })();
+  }, [groupId]);
+
+  const exerciseDays = useMemo(() => {
+    if (!cal) return [];
+    const set = new Set<string>();
+    cal.weeks.forEach(w =>
+      w.days.forEach(d => d.exercises.length && set.add(d.date)),
+    );
+    return Array.from(set);
+  }, [cal]);
+
+  const selectedDayExercises: CalExercise[] = useMemo(() => {
+    if (!cal) return [];
+    const found = cal.weeks
+      .flatMap(w => w.days)
+      .find(d => d.date === selectedDate);
+    return found?.exercises ?? [];
+  }, [cal, selectedDate]);
+
+  const mergeWeeks = (base: CalWeek[], incoming: CalWeek[]) => {
+    const seen = new Set(base.map(w => w.weekStartDate));
+    const uniq = incoming.filter(w => !seen.has(w.weekStartDate));
+    return [...base, ...uniq];
+  };
+
+  const onSlideChange = async (swiper: SwiperClass) => {
+    if (!cal || fetchingMore) return;
+    const buffer = 1;
+    const atEnd = swiper.activeIndex >= cal.weeks.length - 1 - buffer;
+    const atStart = swiper.activeIndex <= buffer;
+
+    if (atEnd) {
+      setFetchingMore(true);
+      try {
+        const nextStart = addDaysStr(cal.endDate, 1);
+        const nextEnd = addDaysStr(nextStart, 13);
+        const res = await fetchPartyCalendar({
+          partyId: Number(groupId),
+          startDate: nextStart,
+          endDate: nextEnd,
+        });
+        const filled = ensureCalWeeks(res.startDate, res.endDate, res.weeks);
+        setCal(prev =>
+          !prev
+            ? { startDate: res.startDate, endDate: res.endDate, weeks: filled }
+            : {
+                startDate: prev.startDate,
+                endDate: res.endDate,
+                weeks: mergeWeeks(prev.weeks, filled),
+              },
+        );
+      } finally {
+        setFetchingMore(false);
+      }
+    }
+
+    if (atStart) {
+      setFetchingMore(true);
+      try {
+        const prevEnd = addDaysStr(cal.startDate, -1);
+        const prevStart = addDaysStr(prevEnd, -13);
+        const res = await fetchPartyCalendar({
+          partyId: Number(groupId),
+          startDate: prevStart,
+          endDate: prevEnd,
+        });
+        const filled = ensureCalWeeks(res.startDate, res.endDate, res.weeks);
+
+        const current = swiper.activeIndex;
+        const added = filled.filter(
+          w => !cal.weeks.some(x => x.weekStartDate === w.weekStartDate),
+        ).length;
+
+        setCal(prev =>
+          !prev
+            ? { startDate: res.startDate, endDate: res.endDate, weeks: filled }
+            : {
+                startDate: res.startDate,
+                endDate: prev.endDate,
+                weeks: mergeWeeks(filled, prev.weeks),
+              },
+        );
+
+        if (added > 0) {
+          setTimeout(() => swiper.slideTo(current + added, 0), 0);
+        }
+      } finally {
+        setFetchingMore(false);
+      }
+    }
+  };
+
+  const processedWeeks: Week[] | null = useMemo(() => {
+    if (!cal || !cal.weeks || !partyDetail) return null;
+
+    return calWeeksToUiWeeks(cal.weeks, partyDetail);
+  }, [cal, partyDetail]);
+
+  // 가입 버튼
+  const onClickJoin = () => {
+    if (groupId) getJoinParty(Number(groupId));
+  };
+
+  // 로딩/에러
+  if (status === "pending") {
+    return <div className="p-4 text-gray-500">불러오는 중…</div>;
+  }
+  if (status === "error") {
+    return (
+      <div className="p-4 text-red-500">
+        {(error as Error)?.message || "오류가 발생했어요."}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
+      {/* 상단 소개 */}
       <div className="flex flex-col gap-3">
         <div className="flex p-3 gap-3">
-          <div className="w-30 h-30 border-hard bg-gy-500 shrink-0"></div>
+          <div
+            className={clsx(
+              "w-30 h-30 border-hard shrink-0 overflow-hidden flex items-center",
+              !partyDetail?.partyImgUrl ? "bg-gray-500" : "",
+            )}
+          >
+            {partyDetail?.partyImgUrl && <img src={partyDetail.partyImgUrl} />}
+          </div>
           <div className="flex flex-col flex-1">
             <div className="body-rg-500 text-left mb-2">
               {partyDetail?.partyName}
             </div>
+
             <div className="flex flex-col gap-2">
               {visibleItems.map(item => (
                 <GroupInfoList items={item} key={item.label} />
               ))}
             </div>
 
-            {/* 버튼은 항상 맨 아래 */}
             <div className="relative z-10">
               {!isExpanded && (
-                <div
-                  className="absolute bottom-8 left-0 right-0 h-16 
-                    bg-[linear-gradient(180deg,rgba(252,252,255,0)_0%,rgba(252,252,255,0.8)_50%,#FCFCFF_90%)] 
-                    pointer-events-none z-0"
-                />
+                <div className="absolute bottom-8 left-0 right-0 h-16 bg-[linear-gradient(180deg,rgba(252,252,255,0)_0%,rgba(252,252,255,0.8)_50%,#FCFCFF_90%)] pointer-events-none z-0" />
               )}
               <White_XS
                 label={isExpanded ? "간략하게" : "더보기"}
                 icon={isExpanded ? UpIcon : DownIcon}
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={() => setIsExpanded(prev => !prev)}
                 className="w-full"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
-          {partyDetail &&
-            partyDetail.keywords.map((data: string, idx: number) => (
+        {partyDetail?.keywords && partyDetail.keywords.length > 0 && (
+          <div className="flex gap-3 overflow-x-scroll whitespace-nowrap scrollbar-hide">
+            {partyDetail.keywords.map((kw: string, idx: number) => (
               <div
                 className="inline-flex items-center gap-1 rounded-full py-2 pl-2.5 pr-3 border-1 border-gy-200 shadow-ds50 body-rg-500"
-                key={idx}
+                key={`${kw}-${idx}`}
               >
                 <img src={HashIcon} className="w-4 h-4 shrink-0" />
-                <span>{data}</span>
+                <span>{kw}</span>
               </div>
             ))}
-        </div>
+          </div>
+        )}
 
-        <div className="w-full p-4 flex items-center gap-2 border-1 border-gr-500 border-soft">
-          <img src={CautionIcon} className="size-5" />
-          <div className="text-left body-rg-500">{partyDetail?.content}</div>
-        </div>
+        {partyDetail?.content && (
+          <div className="w-full p-4 flex items-center gap-2 border-1 border-gr-500 border-soft">
+            <img src={CautionIcon} className="size-5" />
+            <div className="text-left body-rg-500">{partyDetail.content}</div>
+          </div>
+        )}
       </div>
 
-      <WeeklyCalendar shadow={false} />
+      <div className="w-full h-17">
+        {processedWeeks && (
+          <CustomWeekly
+            shadow={false}
+            weeks={processedWeeks} // ✅ any 제거, UI 타입으로 전달
+            selectedDate={selectedDate}
+            onClick={setSelectedDate}
+            exerciseDays={exerciseDays}
+            initialSlide={(() => {
+              const idx = processedWeeks.findIndex(w =>
+                w.days.some(d => d.date === todayStr()),
+              );
+              return idx >= 0 ? idx : 0;
+            })()}
+            onSlideChange={onSlideChange}
+            setSwiperRef={swiper => (swiperRef.current = swiper)}
+          />
+        )}
+      </div>
 
       <div className="flex flex-col">
-        <div className="border-b-1 border-gy-200 mb-3">
-          <ContentCardL
-            id={1}
-            isUserJoined={true}
-            isGuestAllowedByOwner={true}
-            isCompleted={false}
-            title="하이콕콕"
-            date="2000-05-01"
-            location="산성 실내 배드민턴장"
-            time="08:00 am ~ 10:00 am"
-            femaleLevel="전국 초심 ~ 준자강"
-            maleLevel="전국 준자강 이상"
-            currentCount={0}
-            totalCount={0}
-            like={false}
-            onToggleFavorite={id => console.log(`즐겨찾기 토글: ${id}`)}
-          />
-        </div>
-
-        <div className="border-b-1 border-gy-200 mb-3">
-          <ContentCardL
-            id={1}
-            isUserJoined={true}
-            isGuestAllowedByOwner={true}
-            isCompleted={false}
-            title="하이콕콕"
-            date="2000-05-01"
-            location="산성 실내 배드민턴장"
-            time="08:00 am ~ 10:00 am"
-            femaleLevel="전국 초심 ~ 준자강"
-            maleLevel="전국 준자강 이상"
-            currentCount={0}
-            totalCount={0}
-            like={false}
-            onToggleFavorite={id => console.log(`즐겨찾기 토글: ${id}`)}
-          />
-        </div>
+        {loadingCal ? (
+          <div className="py-6 text-gray-500">운동을 불러오는 중…</div>
+        ) : selectedDayExercises.length > 0 ? (
+          selectedDayExercises.map(ex => (
+            <div className="border-b-1 border-gy-200 mb-3" key={ex.exerciseId}>
+              <ContentCardL
+                id={ex.exerciseId}
+                isUserJoined={!!isJoined}
+                isGuestAllowedByOwner
+                isCompleted={false}
+                title={partyDetail?.partyName ?? "모임 운동"}
+                date={selectedDate}
+                location={ex.buildingName}
+                time={`${ex.startTime} ~ ${ex.endTime}`}
+                femaleLevel={
+                  ex.femaleLevel.length === 1
+                    ? `${ex.femaleLevel[0]} 이상`
+                    : `${ex.femaleLevel[0]} ~ ${ex.femaleLevel.at(-1)}`
+                }
+                maleLevel={
+                  ex.maleLevel.length === 1
+                    ? `${ex.maleLevel[0]} 이상`
+                    : `${ex.maleLevel[0]} ~ ${ex.maleLevel.at(-1)}`
+                }
+                currentCount={ex.currentParticipants}
+                totalCount={ex.maxCapacity}
+                like={ex.isBookmarked}
+                onToggleFavorite={() => {}}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-6 text-gray-500">
+            선택한 날짜에 등록된 운동이 없어요.
+          </div>
+        )}
       </div>
 
       {isOwner && (
@@ -214,20 +487,17 @@ export const GroupHomePage = () => {
             <div
               ref={modalRef}
               className="fixed z-[60] w-39 bg-white border-soft shadow-ds400 flex flex-col p-1"
-              style={{
-                right: rightOffset,
-                bottom: "6rem",
-              }}
+              style={{ right: rightOffset, bottom: "6rem" }}
             >
               <div
                 className="w-full px-2 pt-1.5 pb-2.5 border-b-1 border-gy-200 body-rg-400 flex items-center"
-                onClick={() => navigate("/group/exercise/create")}
+                onClick={() => navigate(`/group/exercise/${groupId}/create`)}
               >
                 운동 만들기
               </div>
               <div
                 className="w-full px-2 pt-1.5 pb-2.5 border-b-1 border-gy-200 body-rg-400 flex items-center"
-                onClick={() => navigate("/group/admin/invite")}
+                onClick={() => navigate(`/group/making/member/${groupId}`)}
               >
                 신규 멤버 초대하기
               </div>
@@ -244,6 +514,7 @@ export const GroupHomePage = () => {
               </div>
             </div>
           )}
+
           <div className="fixed z-50 bottom-8" style={{ right: rightOffset }}>
             <div className="relative">
               <FloatingButton
@@ -264,9 +535,13 @@ export const GroupHomePage = () => {
         </>
       )}
 
-      {isJoined && (
+      {!isJoined && (
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
-          <Grad_Mix_L type="chat_question" label="모임 가입하기" />
+          <Grad_Mix_L
+            type="chat_question"
+            label="모임 가입하기"
+            onClick={onClickJoin}
+          />
         </div>
       )}
     </div>

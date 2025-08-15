@@ -2,29 +2,27 @@ import { MyPage_Text } from "../../components/common/contentcard/MyPage_Text";
 import { Profile } from "../../components/MyPage/Profile";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { MyPage_Profile_Medal } from "../../components/common/contentcard/MyPage_Profile_Medal";
 import { getProfile } from "../../api/member/profile";
-// import { getOtherUserMedals } from "../../api/contest/member"; //이거 확인해라
+import { getOtherUserMedals } from "../../api/contest/member"; 
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 
 export const MyPageProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const numericMemberId = memberId ? Number(memberId) : null;
-  // 숫자가 아닌 경우 에러 처리
-  if (numericMemberId === null || Number.isNaN(numericMemberId)) {
-  }
+  const navigate = useNavigate();
 
   const [profileData, setProfileData] = useState<ProfileResponseData | null>(null);
+  const [medalData, setMedalData] = useState({
+    myMedalTotal: 0,
+    goldCount: 0,
+    silverCount: 0,
+    bronzeCount: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const totalMedals = profileData?.myGoldMedalCnt! + profileData?.mySilverMedalCnt! + profileData?.myBronzeMedalCnt! || 0;
-  const gold = profileData?.myGoldMedalCnt || 0;
-  const silver = profileData?.mySilverMedalCnt || 0;
-  const bronze = profileData?.myBronzeMedalCnt || 0;
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (numericMemberId === null || Number.isNaN(numericMemberId)) {
@@ -32,72 +30,70 @@ export const MyPageProfile = () => {
       setLoading(false);
       return;
     }
-    const fetchProfile = async () => {
+
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await getProfile(numericMemberId);
-        setProfileData(data);
+        // 프로필 조회
+        const profile = await getProfile(numericMemberId);
+        setProfileData(profile);
+
+        // 다른 회원 메달 조회
+        const medals = await getOtherUserMedals(numericMemberId);
+        console.log("medals:", medals);
+        setMedalData({
+          myMedalTotal: medals.myMedalTotal,
+          goldCount: medals.goldCount,
+          silverCount: medals.silverCount,
+          bronzeCount: medals.bronzeCount,
+        });
+
       } catch (e: any) {
-        setError(e.message);
+        setError(e.message || "데이터를 불러오는 중 오류가 발생했습니다.");
       } finally {
         setLoading(false);
       }
     };
-    fetchProfile();
+
+    fetchData();
   }, [numericMemberId]);
 
-  if (loading) {
-  return <div className="text-center py-10">로딩 중...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-10 text-red-500">에러: {error}</div>;
-  }
-
+  if (loading) return <div className="text-center py-10">로딩 중...</div>;
+  if (error) return <div className="text-center py-10 text-red-500">에러: {error}</div>;
 
   return (
     <div className="flex flex-col overflow-hidden w-full">
-      <div className="flex flex-col gap-[1.25rem] w-full">
-        <PageHeader title="프로필" />
-        <Profile
-          name={profileData?.memberName || ""}
-          gender={profileData?.gender === "MALE" ? "male" : "female"}
-          level={profileData?.level || ""}
-          birth={profileData?.birth || ""}
-          profileImage={profileData?.profileImgUrl || ""}
-        />
-      </div>
+      <PageHeader title="프로필" />
+      <Profile
+        name={profileData?.memberName || ""}
+        gender={profileData?.gender === "MALE" ? "male" : "female"}
+        level={profileData?.level || ""}
+        birth={profileData?.birth || ""}
+        profileImage={profileData?.profileImgUrl || ""}
+      />
 
       <div className="my-8 flex flex-col gap-4 w-full items-center">
         <MyPage_Text
           textLabel="내 모임"
           numberValue={profileData?.myGroupCount ?? 0}
-          onClick={() => navigate("/mypage/mygroup")}
+          onClick={() => navigate("/mypage/profile/group")}
         />
 
-        <MyPage_Profile_Medal
-            myMedalTotal={totalMedals}
-            goldCount={gold}
-            silverCount={silver}
-            bronzeCount={bronze}
-              onClick={() => {
-                console.log("navigate with state:", {
-                  // medals: dummyMedals,
-                  goldCount: gold,
-                  silverCount: silver,
-                  bronzeCount: bronze,
-                  myMedalTotal: totalMedals,
-                });
-                navigate("/myPage/mymedal", {
-                  state: {
-                    // medals: dummyMedals,
-                    goldCount: gold,
-                    silverCount: silver,
-                    bronzeCount: bronze,
-                    myMedalTotal: totalMedals,
-                  },
-                });
-              }}
+       <MyPage_Profile_Medal
+          myMedalTotal={medalData.myMedalTotal}
+          goldCount={medalData.goldCount}
+          silverCount={medalData.silverCount}
+          bronzeCount={medalData.bronzeCount}
+          onClick={() =>
+            navigate(`/mypage/profile/medal/${numericMemberId}`, {
+              state: {
+                myMedalTotal: medalData.myMedalTotal,
+                goldCount: medalData.goldCount,
+                silverCount: medalData.silverCount,
+                bronzeCount: medalData.bronzeCount,
+              },
+            })
+          }
         />
       </div>
 

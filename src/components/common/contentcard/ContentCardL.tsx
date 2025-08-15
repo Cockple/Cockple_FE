@@ -8,11 +8,15 @@ import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   bookmarkExercise,
   unbookmarkExercise,
 } from "../../../api/bookmark/bookmark";
+import {
+  joinExercise,
+  cancelExercise,
+} from "../../../api/exercise/exerciseApi";
 import CautionExerciseModals from "../../like/CautionExerciseModal";
 
 interface ContentCardLProps {
@@ -29,7 +33,7 @@ interface ContentCardLProps {
   currentCount: number;
   totalCount: number;
   like?: boolean;
-  LikeCount?: number; 
+  LikeCount?: number;
   onToggleFavorite?: (id: number) => void;
 }
 export type { ContentCardLProps };
@@ -52,15 +56,18 @@ export const ContentCardL = ({
   onToggleFavorite,
 }: ContentCardLProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isStarted, setIsStarted] = useState(false);
   const [isStartPressing, setIsStartPressing] = useState(false);
   const [isGuestPressing, setIsGuestPressing] = useState(false);
+  const [current, setCurrent] = useState(currentCount);
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
   const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //운동 50개 넘어가면 모달창
   //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setFavorite(like);
@@ -103,13 +110,37 @@ export const ContentCardL = ({
     }
   };
 
-
   function getDayOfWeek(dateString: string): string {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     const dateObj = new Date(dateString);
     return days[dateObj.getDay()];
   }
   const day = getDayOfWeek(date);
+
+  const handleJoin = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const originalIsJoined = isStarted;
+    setIsStarted(!originalIsJoined);
+
+    try {
+      if (!originalIsJoined) {
+        await joinExercise(id);
+        setCurrent(current + 1);
+      } else {
+        await cancelExercise(id);
+        setCurrent(current - 1);
+      }
+      await queryClient.invalidateQueries({ queryKey: ["partyCalendar"] });
+      await queryClient.invalidateQueries({ queryKey: ["partyDetail"] });
+    } catch (err) {
+      console.log("운동 신청, 취소 오류: ", err);
+      setIsStarted(originalIsJoined);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div
@@ -127,7 +158,7 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          onClick={() => navigate("/group/Mygroup/MyExerciseDetail")}
+          onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
         />
       </div>
 
@@ -159,7 +190,7 @@ export const ContentCardL = ({
 
         <div className="flex items-center gap-1">
           <People className="w-[0.875rem] h-[0.875rem]" />
-          <span>{`${currentCount} / ${totalCount}`}</span>
+          <span>{`${current} / ${totalCount}`}</span>
         </div>
       </div>
 
@@ -169,7 +200,7 @@ export const ContentCardL = ({
           className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}
         >
           <button
-            onClick={() => setIsStarted(prev => !prev)}
+            onClick={handleJoin}
             onMouseDown={() => setIsStartPressing(true)}
             onMouseUp={() => setIsStartPressing(false)}
             onMouseLeave={() => setIsStartPressing(false)}
@@ -191,7 +222,7 @@ export const ContentCardL = ({
               onTouchStart={() => setIsGuestPressing(true)}
               onTouchEnd={() => setIsGuestPressing(false)}
               className="w-[9.5625rem] h-[2.25rem] rounded bg-[#F4F5F6] body-rg-500 text-black transition-colors duration-150"
-              onClick={() => navigate("/group/detail/inviteGuest")}
+              onClick={() => navigate(`/group/inviteGuest/${id}`)}
             >
               게스트 초대하기
             </button>

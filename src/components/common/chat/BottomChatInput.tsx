@@ -47,8 +47,8 @@ const BottomChatInput = ({
     const value = e.currentTarget.value;
     onInputChange(value);
     adjustTextareaHeight();
-    console.log("scrollHeight:", textareaRef.current?.scrollHeight);
-    console.log("isMultiline: ", isMultiLine);
+    //console.log("scrollHeight:", textareaRef.current?.scrollHeight);
+    //console.log("isMultiline: ", isMultiLine);
   };
 
   // -----> 추가

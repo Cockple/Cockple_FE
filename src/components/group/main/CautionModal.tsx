@@ -20,7 +20,10 @@ export const CautionModal = ({ onClose, initialFilter }: CautionModalProps) => {
   const handleBackAndReset = () => {
     (Object.keys(initialFilter) as (keyof typeof initialFilter)[]).forEach(
       key => {
-        setFilter(key, initialFilter[key]);
+        const value = initialFilter[key];
+        if (typeof value === "string" || Array.isArray(value)) {
+          setFilter(key, value);
+        }
       },
     );
     navigate(-1);

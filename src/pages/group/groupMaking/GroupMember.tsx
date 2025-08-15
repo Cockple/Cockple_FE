@@ -1,80 +1,105 @@
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 
 import { useState } from "react";
 import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import SearchInput from "../../../components/chat/SearchInput";
 import MemberCard from "../../../components/group/groupMaking/MemberCard";
+import { useMemberInfinite } from "../../../api/party/useMemberInfinite";
+import { useMutation } from "@tanstack/react-query";
+import api from "../../../api/api";
+import axiosLib from "axios";
 
-type MemberStatus =
-  | "waiting"
-  | "invite"
-  | "request"
-  | "approved"
-  | "Participating";
-
-interface MemberProps {
-  name: string;
+interface ApiMember {
+  userId: number;
   gender: "MALE" | "FEMALE";
+  nickname: string;
   level: string;
-  birth?: string;
-  status: MemberStatus;
+  profileImageUrl: string | null;
+  status: "invite";
 }
-
-const members: MemberProps[] = [
-  {
-    name: "누구겡",
-    gender: "MALE",
-    level: "D조",
-    status: "approved",
-  },
-  // {
-  //   name: "누구겡",
-  //   gender: "FEMALE",
-  //   level: "C조",
-  //   status: "approved",
-  // },
-  // {
-  //   name: "누구겡",
-  //   gender: "MALE",
-  //   level: "B조",
-  //   status: "approved",
-  // },
-  // {
-  //   name: "누구겡",
-  //   gender: "MALE",
-  //   level: "초급",
-  //   status: "approved",
-  // },
-];
 
 export const GroupMember = () => {
   const navigate = useNavigate();
 
   const handleNext = () => {
-    navigate("/group/1"); //임시 하드코딩
+    navigate(`/group/${partyId}`); //임시 하드코딩
   };
 
   const [isOpenModal, setIsOpenModal] = useState(false);
-
-  const openModal = () => {
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const paramsId = useParams();
+  const partyId = Number(paramsId.partyId);
+  console.log(partyId);
+  const openModal = (userId: number) => {
+    setSelectedUserId(userId);
     setIsOpenModal(true);
   };
 
-  const handleInviteLeave = () => {
-    setIsOpenModal(false);
-  };
+  const axios = api;
 
   const handleCloseLeave = () => {
     setIsOpenModal(false);
   };
   const [search, setSearch] = useState("");
 
-  const filteredMembers = members.filter(member =>
+  const { data: page, isLoading } = useMemberInfinite({
+    levelSearch: search,
+    page: 0,
+    size: 10,
+  });
+
+  const submitInvite = async (userId: number) => {
+    const res = await axios.post(`/api/parties/${partyId}/invitations`, {
+      userId,
+    });
+    return res.data;
+  };
+
+  const handleInviteConfirm = () => {
+    if (selectedUserId != null) handleInviteLeave.mutate(selectedUserId);
+  };
+
+  const handleInviteLeave = useMutation({
+    mutationFn: submitInvite,
+    onSuccess: () => {
+      console.log("성공");
+      setIsOpenModal(false);
+    },
+    onError: err => {
+      if (axiosLib.isAxiosError(err)) {
+        if (err.response?.data?.code === "PARTY409") {
+          setIsOpenModal(false);
+          alert("이미 초대를 보내고,대기상태임");
+        } else {
+          console.error("실패임~", err.response?.data);
+        }
+      }
+    },
+  });
+
+  const members: ApiMember[] = page?.content || [];
+
+  const mamberList = members.map(member => ({
+    id: member.userId,
+    name: member.nickname,
+    gender: member.gender,
+    level: member.level,
+    avatar: member.profileImageUrl,
+    status: "invite" as const,
+  }));
+  console.log(members);
+
+  const filteredMembers = mamberList.filter(member =>
     member.level.includes(search.trim()),
   );
 
+  if (!isLoading) {
+    console.log(page);
+  }
+
+  //--------------데이터 보고싶으면 partyId를 23로 하드코딩 하세요!!!----------
   return (
     <>
       <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
@@ -89,15 +114,13 @@ export const GroupMember = () => {
             />
           </div>
           {/* 두번째 */}
-          <div>
-            {filteredMembers.map((member, idx) => (
-              <MemberCard
-                key={idx}
-                member={member}
-                onMessageClick={openModal}
-              />
-            ))}
-          </div>
+          {filteredMembers.map(member => (
+            <MemberCard
+              key={member.id}
+              member={member}
+              onMessageClick={() => openModal(member.id)}
+            />
+          ))}
         </section>
 
         {/* 버튼 */}
@@ -115,7 +138,7 @@ export const GroupMember = () => {
         {isOpenModal && (
           <div className="fixed inset-0 flex justify-center items-center z-50">
             <InviteModal
-              onInvite={handleInviteLeave}
+              onInvite={handleInviteConfirm}
               onClose={handleCloseLeave}
             />
           </div>

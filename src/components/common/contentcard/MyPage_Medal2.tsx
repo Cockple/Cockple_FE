@@ -1,4 +1,7 @@
 // /mypage/mymedal에 보이는 내 메달 현황 갯수를 나타내는 컴포넌트입니다.
+import Medal_1 from "../../../assets/icons/Medal_1.svg?react";
+import Medal_2 from "../../../assets/icons/Medal_2.svg?react";
+import Medal_3 from "../../../assets/icons/Medal_3.svg?react";
 
 interface MyPageProps {
   myMedalTotal?: number;
@@ -28,8 +31,7 @@ export const MyPage_Medal2 = ({
         <div className="flex flex-row justify-center gap-[1.25rem]">
           {/* 금메달 */}
           <div className="flex flex-col items-center gap-[0.5rem]">
-            <div className="w-[3.75rem] h-[3.75rem] bg-[#E4E7EA] rounded-[0.5rem]" />
-
+            <Medal_1 className="w-[3.75rem] h-[3.75rem]"/>
             <div className="flex flex-col items-center justify-center gap-[0.25rem]">
               <p className="body-rg-500 text-center">금메달</p>
               <p className="header-h3 text-[#1ABB65] text-center">
@@ -40,8 +42,7 @@ export const MyPage_Medal2 = ({
 
           {/* 은메달 */}
           <div className="flex flex-col items-center gap-[0.5rem]">
-            <div className="w-[3.75rem] h-[3.75rem] bg-[#E4E7EA] rounded-[0.5rem]" />
-
+            <Medal_2 className="w-[3.75rem] h-[3.75rem]"/>
             <div className="flex flex-col items-center justify-center gap-[0.25rem]">
               <p className="body-rg-500 text-center">은메달</p>
               <p className="header-h3 text-[#1ABB65] text-center">
@@ -52,8 +53,7 @@ export const MyPage_Medal2 = ({
 
           {/* 동메달 */}
           <div className="flex flex-col items-center gap-[0.5rem]">
-            <div className="w-[3.75rem] h-[3.75rem] bg-[#E4E7EA] rounded-[0.5rem]" />
-
+            <Medal_3 className="w-[3.75rem] h-[3.75rem]"/>
             <div className="flex flex-col items-center justify-center gap-[0.25rem]">
               <p className="body-rg-500 text-center">동메달</p>
               <p className="header-h3 text-[#1ABB65] text-center">

@@ -1,5 +1,9 @@
 import Arrow_right_GY from "../../../assets/icons/arrow_right_GY.svg?react";
 import Arrow_right from "../../../assets/icons/arrow_right.svg?react";
+import Medal_1 from "../../../assets/icons/Medal_1.svg?react";
+import Medal_2 from "../../../assets/icons/Medal_2.svg?react";
+import Medal_3 from "../../../assets/icons/Medal_3.svg?react";
+
 // 내 메달만 볼 수 있는 컴포넌트로 수정했습니다.
 // 내 메달이 있는 경우 내 메달 클릭 시 화면 전환
 interface MyPageProps {
@@ -54,7 +58,7 @@ export const MyPage_Medal = ({
         <div className="flex flex-row justify-center gap-[1.25rem]">
           {/* 금메달 */}
           <div className="flex flex-col items-center gap-[0.5rem]">
-            <div className="w-[3.75rem] h-[3.75rem] bg-[#E4E7EA] rounded-[0.5rem]" />
+            <Medal_1 className="w-[3.75rem] h-[3.75rem]"/>
             <div className="flex flex-row items-center justify-center gap-[0.25rem]">
               <p className="body-rg-500 text-center">금메달</p>
               <p className="body-rg-500 text-center">{goldCount}</p>
@@ -63,7 +67,7 @@ export const MyPage_Medal = ({
 
           {/* 은메달 */}
           <div className="flex flex-col items-center gap-[0.5rem]">
-            <div className="w-[3.75rem] h-[3.75rem] bg-[#E4E7EA] rounded-[0.5rem]" />
+            <Medal_2 className="w-[3.75rem] h-[3.75rem]"/>
             <div className="flex flex-row items-center justify-center gap-[0.25rem]">
               <p className="body-rg-500 text-center">은메달</p>
               <p className="body-rg-500 text-center">{silverCount}</p>
@@ -72,7 +76,7 @@ export const MyPage_Medal = ({
 
           {/* 동메달 */}
           <div className="flex flex-col items-center gap-[0.5rem]">
-            <div className="w-[3.75rem] h-[3.75rem] bg-[#E4E7EA] rounded-[0.5rem]" />
+            <Medal_3 className="w-[3.75rem] h-[3.75rem]"/>
             <div className="flex flex-row items-center justify-center gap-[0.25rem]">
               <p className="body-rg-500 text-center">동메달</p>
               <p className="body-rg-500 text-center">{bronzeCount}</p>

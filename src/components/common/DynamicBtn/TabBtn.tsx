@@ -1,4 +1,4 @@
-import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
 import { useState } from "react";
 
 interface TabBtnProps extends BaseBtnProps {

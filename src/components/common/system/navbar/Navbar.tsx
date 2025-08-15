@@ -54,9 +54,22 @@ const NAV_ITEMS = [
   },
 ];
 
+// const PROTECTED_PATHS = ["/group", "/chat", "/liked", "/mypage"];
+// const isProtectedPath = (to: string) =>
+//   PROTECTED_PATHS.some(base => to === base || to.startsWith(base + "/"));
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // const user = useUserStore(state => state.user);
+
+  // const go = (to: string) => {
+  //   if (!user && isProtectedPath(to)) {
+  //     navigate("/login");
+  //   } else {
+  //     navigate(to);
+  //   }
+  // };
   return (
     <nav className="fixed w-full max-w-[444px] bottom-0 -ml-4 flex px-4 pt-2 pb-8 justify-between box-border bg-white shadow-ds50">
       {NAV_ITEMS.map(item => {

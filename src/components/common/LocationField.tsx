@@ -18,7 +18,7 @@ export const LocationField = ({
   label,
   showLabel = true,
   icon = true,
-  mode = "fill-only",
+  mode = "call-api",
   returnPath,
 }: LocationFieldProps) => {
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ export const LocationField = ({
       },
     });
   };
+
   return (
     <>
       <div className="text-left flex flex-col gap-2">

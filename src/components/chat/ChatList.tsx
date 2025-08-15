@@ -5,6 +5,7 @@ import { PersonalChat } from "../common/contentcard/PersonalChat";
 //import type { PersonalChatProps } from "../common/contentcard/PersonalChat";
 import type { NavigateFunction } from "react-router-dom";
 import type { GroupChatRoom, PersonalChatRoom } from "../../types/chat";
+import { formatEnLowerAmPm } from "../../utils/time";
 
 interface Props {
   tab: "group" | "personal";
@@ -23,6 +24,12 @@ const ChatList = ({
   searchTerm,
   navigate,
 }: Props) => {
+  //🌟
+  console.log(
+    "rooms with null lastMessage",
+    (tab === "group" ? groupChats : personalChats).filter(r => !r.lastMessage),
+  );
+
   const chatData = tab === "group" ? groupChats : personalChats;
 
   if (searchTerm !== "" && !isValidSearch) {
@@ -39,7 +46,7 @@ const ChatList = ({
 
   return (
     <div className="flex flex-col gap-[0.625rem] w-full">
-      {tab === "group"
+      {/* {tab === "group"
         ? groupChats.map(chat => (
             <div
               key={chat.chatRoomId}
@@ -87,7 +94,70 @@ const ChatList = ({
                 unreadCount={chat.unreadCount}
               />
             </div>
-          ))}
+          ))} */}
+      {tab === "group"
+        ? groupChats.map(chat => {
+            const lm = chat.lastMessage;
+            const lastText =
+              lm?.content ??
+              (lm?.messageType === "IMAGE" ? "사진" : "메시지가 없습니다");
+            //const lastTime = lm?.timestamp ?? "";
+            const lastTime = lm?.timestamp
+              ? formatEnLowerAmPm(lm.timestamp)
+              : "";
+
+            return (
+              <div
+                key={chat.chatRoomId}
+                onClick={() => {
+                  navigate(`/chat/group/${chat.chatRoomId}`, {
+                    state: {
+                      tab: "group",
+                      chatName: chat.partyName,
+                      partyId: chat.partyId,
+                    },
+                  });
+                }}
+                className="border-b border-gy-200 pb-1"
+              >
+                <GroupChat
+                  imageSrc={chat.partyImgUrl ?? ""}
+                  chatName={chat.partyName}
+                  memberCount={chat.memberCount}
+                  lastMessage={lastText} // 안전
+                  lastMessageTime={lastTime} // 안전
+                  unreadCount={chat.unreadCount}
+                />
+              </div>
+            );
+          })
+        : personalChats.map(chat => {
+            const lm = chat.lastMessage;
+            const lastText =
+              lm?.content ??
+              (lm?.messageType === "IMAGE" ? "사진" : "메시지가 없습니다");
+            const lastTime = lm?.timestamp ?? "";
+
+            return (
+              <div
+                key={chat.chatRoomId}
+                onClick={() =>
+                  navigate(`/chat/personal/${chat.chatRoomId}`, {
+                    state: { tab: "personal", chatName: chat.displayName },
+                  })
+                }
+                className="border-b border-gy-200 pb-1"
+              >
+                <PersonalChat
+                  imageSrc={chat.profileImageUrl ?? ""}
+                  userName={chat.displayName}
+                  lastMessage={lastText} // 안전
+                  lastMessageTime={lastTime} // 안전
+                  unreadCount={chat.unreadCount}
+                />
+              </div>
+            );
+          })}
     </div>
   );
 };

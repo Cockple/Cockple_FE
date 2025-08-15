@@ -9,9 +9,7 @@ import { useMyExerciseApi } from "../../api/exercise/getMyExerciseApi";
 export const MyGroupWorkoutSection = () => {
   const navigate = useNavigate();
 
-  const { data, isLoading } = useMyExerciseApi();
-
-  if (isLoading) return <div>Loading...</div>;
+  const { data } = useMyExerciseApi();
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -38,7 +36,7 @@ export const MyGroupWorkoutSection = () => {
               date={item.date}
               time={item.startTime + " - " + item.endTime}
               location={item.buildingName}
-              imageSrc={item.imageUrl ?? ""}
+              imageSrc={item.profileImageUrl ?? ""}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))}
