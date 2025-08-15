@@ -5,6 +5,7 @@ import type { Swiper as SwiperClass } from "swiper";
 import type { CalendarData, Exercise } from "../../types/calendar";
 import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
 import CustomhomeWeekly from "./CustomhomeWeekly";
+import { useNavigate } from "react-router-dom";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {
@@ -20,6 +21,7 @@ interface MyExerciseCalendarProps {
 }
 
 export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -162,6 +164,10 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
   if (isLoading) return <div>캘린더를 불러오는 중입니다...</div>;
   if (error) return <div>오류가 발생했습니다: {error.message}</div>;
 
+  const handleExerciseClick = (partyId: number) => {
+    navigate(`/group/${partyId}?date=${selectedDate}`);
+  };
+
   return (
     <>
       <div className="w-full h-17">
@@ -176,7 +182,10 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
           />
         )}
       </div>
-      <WorkoutDayEntry exerciseData={selectedDayExercises} />
+      <WorkoutDayEntry
+        exerciseData={selectedDayExercises}
+        onExerciseClick={handleExerciseClick}
+      />
     </>
   );
 };

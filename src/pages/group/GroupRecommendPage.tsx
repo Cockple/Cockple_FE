@@ -142,22 +142,28 @@ export const GroupRecommendPage = () => {
             </div>
           )}
 
-          {items.map(it => (
-            <div
-              className="flex flex-col pb-3 border-b-[1px] border-gy-200"
-              key={it.partyId}
-            >
-              <Exercise_M
-                id={it.partyId}
-                title={it.partyName}
-                date={it.nextExerciseInfo}
-                time=""
-                location={`${it.addr1} ${it.addr2}`}
-                imageSrc={it.partyImgUrl || "a"}
-                onClick={() => navigate(`/group/${it.partyId}`)}
-              />
+          {items.length ? (
+            items.map(it => (
+              <div
+                className="flex flex-col pb-3 border-b-[1px] border-gy-200"
+                key={it.partyId}
+              >
+                <Exercise_M
+                  id={it.partyId}
+                  title={it.partyName}
+                  date={it.nextExerciseInfo}
+                  time=""
+                  location={`${it.addr1} ${it.addr2}`}
+                  imageSrc={it.partyImgUrl || "a"}
+                  onClick={() => navigate(`/group/${it.partyId}`)}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              콕플 추천운동이 없습니다
             </div>
-          ))}
+          )}
 
           {hasNextPage && <div ref={sentinelRef} className="h-6" />}
 

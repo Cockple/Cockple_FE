@@ -7,7 +7,7 @@ import ArrowRight from "@/assets/icons/arrow_right.svg";
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import { Empty } from "../../components/group/main/Empty";
 import AddIcon from "@/assets/icons/add.svg";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useGroupRecommendFilterState } from "../../store/useGroupRecommendFilterStore";
 import { useEffect, useMemo, useRef } from "react";
 import { useGetMyPartySimple } from "../../api/party/getMyPartySimple";
@@ -17,6 +17,7 @@ import {
 } from "../../api/party/getPartySuggeston";
 
 export const GroupPage = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { resetFilter } = useGroupRecommendFilterState();
 
@@ -93,7 +94,11 @@ export const GroupPage = () => {
                   pressing: ArrowRight,
                   clicked: ArrowRight,
                 }}
-                onClick={() => navigate("/mypage/mygroup")}
+                onClick={() =>
+                  navigate(
+                    `/mypage/mygroup?return=${encodeURIComponent(location.pathname + location.search)}`,
+                  )
+                }
               />
             )}
           </div>
@@ -153,21 +158,27 @@ export const GroupPage = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            {partySuggestion?.content.map((item: PartySuggestion) => (
-              <Group_M
-                key={item.partyId}
-                id={item.partyId}
-                groupName={item.partyName}
-                location={item.addr1 + "/" + item.addr2}
-                femaleLevel={item.femaleLevel}
-                maleLevel={item.maleLevel}
-                nextActivitDate={item.nextExerciseInfo}
-                groupImage={item.partyImgUrl ?? "a"}
-                upcomingCount={item.totalExerciseCount}
-                isMine={true}
-                onClick={() => navigate(`/group/${item.partyId}`)}
-              />
-            ))}
+            {partySuggestion?.content?.length ? (
+              partySuggestion?.content.map((item: PartySuggestion) => (
+                <Group_M
+                  key={item.partyId}
+                  id={item.partyId}
+                  groupName={item.partyName}
+                  location={item.addr1 + "/" + item.addr2}
+                  femaleLevel={item.femaleLevel}
+                  maleLevel={item.maleLevel}
+                  nextActivitDate={item.nextExerciseInfo}
+                  groupImage={item.partyImgUrl ?? "a"}
+                  upcomingCount={item.totalExerciseCount}
+                  isMine={true}
+                  onClick={() => navigate(`/group/${item.partyId}`)}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                추천 운동이 없습니다
+              </div>
+            )}
           </div>
         </div>
       </div>
