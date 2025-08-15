@@ -153,21 +153,27 @@ export const GroupPage = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            {partySuggestion?.content.map((item: PartySuggestion) => (
-              <Group_M
-                key={item.partyId}
-                id={item.partyId}
-                groupName={item.partyName}
-                location={item.addr1 + "/" + item.addr2}
-                femaleLevel={item.femaleLevel}
-                maleLevel={item.maleLevel}
-                nextActivitDate={item.nextExerciseInfo}
-                groupImage={item.partyImgUrl ?? "a"}
-                upcomingCount={item.totalExerciseCount}
-                isMine={true}
-                onClick={() => navigate(`/group/${item.partyId}`)}
-              />
-            ))}
+            {partySuggestion?.content?.length ? (
+              partySuggestion?.content.map((item: PartySuggestion) => (
+                <Group_M
+                  key={item.partyId}
+                  id={item.partyId}
+                  groupName={item.partyName}
+                  location={item.addr1 + "/" + item.addr2}
+                  femaleLevel={item.femaleLevel}
+                  maleLevel={item.maleLevel}
+                  nextActivitDate={item.nextExerciseInfo}
+                  groupImage={item.partyImgUrl ?? "a"}
+                  upcomingCount={item.totalExerciseCount}
+                  isMine={true}
+                  onClick={() => navigate(`/group/${item.partyId}`)}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                예정된 추천 운동이 없습니다
+              </div>
+            )}
           </div>
         </div>
       </div>
