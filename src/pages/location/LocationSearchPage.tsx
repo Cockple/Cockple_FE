@@ -161,7 +161,7 @@ export const LocationSearchPage = () => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pt-14">
       <PageHeader title="주소 검색" />
       {returnPath === "/onboarding/profile" && (
         <ProgressBar width={selectedId !== null ? "72" : "52"} />
