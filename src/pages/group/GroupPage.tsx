@@ -15,7 +15,6 @@ import {
   usePartySuggestion,
   type PartySuggestion,
 } from "../../api/party/getPartySuggeston";
-import { formatLevel } from "../../utils/formatLevel";
 
 export const GroupPage = () => {
   const navigate = useNavigate();
@@ -160,8 +159,8 @@ export const GroupPage = () => {
                 id={item.partyId}
                 groupName={item.partyName}
                 location={item.addr1 + "/" + item.addr2}
-                femaleLevel={formatLevel(item.femaleLevel)}
-                maleLevel={formatLevel(item.maleLevel)}
+                femaleLevel={item.femaleLevel}
+                maleLevel={item.maleLevel}
                 nextActivitDate={item.nextExerciseInfo}
                 groupImage={item.partyImgUrl ?? "a"}
                 upcomingCount={item.totalExerciseCount}
