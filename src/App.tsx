@@ -75,6 +75,8 @@ import { useRawWsConnect } from "./hooks/useRawWsConnect";
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
+  { path: "/location/search", element: <LocationSearchPage /> },
+  { path: "/location/map", element: <LocationMapPage /> },
   //
   // {
   //   element: <NavbarLayout />, //인증체크x
@@ -152,8 +154,6 @@ const router = createBrowserRouter([
       { path: "/chat/group/:chatId", element: <GroupChatDetailPage /> },
       { path: "/chat/personal/:chatId", element: <PersonalChatDetailPage /> },
       { path: "/alert", element: <AlertPage /> },
-      { path: "/location/search", element: <LocationSearchPage /> },
-      { path: "/location/map", element: <LocationMapPage /> },
 
       { path: "/group/recommend", element: <GroupRecommendPage /> },
       {

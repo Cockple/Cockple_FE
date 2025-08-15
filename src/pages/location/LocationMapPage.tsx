@@ -77,7 +77,7 @@ export const LocationMapPage = () => {
   }, [x, y]);
 
   return (
-    <div className="flex flex-col h-dvh -mx-4 overflow-y-hidden relativ -mb-8">
+    <div className="flex flex-col h-dvh -mx-4 overflow-y-hidden relativ -mb-8 pt-14">
       <PageHeader
         title="주소 검색"
         className="px-4"
