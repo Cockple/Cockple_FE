@@ -75,6 +75,11 @@ import { useRawWsConnect } from "./hooks/useRawWsConnect";
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
+  //
+  // {
+  //   element: <NavbarLayout />, //인증체크x
+  //   children: [{ path: "/", element: <HomePage /> }],
+  // },
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
@@ -120,13 +125,24 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
+      // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
+      {
+        path: "/mypage/profile/medal/:memberId/contest/:contestId",
+        element: <MyPageMedalDetailPage />,
+      },
+      {
+        path: "/mypage/mymedal/:contentId",
+        element: <MyPageMedalDetailPage />,
+      },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
       { path: "/mypage/profile/:memberId", element: <MyPageProfile /> },
       { path: "/mypage/profile/group", element: <MyPageProfileGroup /> },
-      { path: "/mypage/profile/medal/:memberId", element: <MyPageProfileMedal /> },
+      {
+        path: "/mypage/profile/medal/:memberId",
+        element: <MyPageProfileMedal />,
+      },
 
       { path: "/recommend", element: <RecommendPage /> },
       { path: "/mygroup-exercise", element: <MyGroupExercisePage /> },
@@ -146,7 +162,8 @@ const router = createBrowserRouter([
       },
 
       // 연두 모임
-      { path: "/group/detail", element: <GroupDetailMemberDefault /> },
+      { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
+
       {
         path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
         element: <MyExerciseDetail />,
@@ -158,7 +175,10 @@ const router = createBrowserRouter([
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
-      { path: "/group/admin/edit-info", element: <EditGroupInfoDefault /> },
+      {
+        path: "/group/admin/edit-info/:partyId",
+        element: <EditGroupInfoDefault />,
+      },
       { path: "/group/admin/invite", element: <InviteDefault /> },
 
       {
@@ -167,6 +187,10 @@ const router = createBrowserRouter([
       },
       {
         path: "group/exercise/:groupId/create",
+        element: <CreateExercise />,
+      },
+      {
+        path: "group/exercise/:groupId/edit/:exerciseId",
         element: <CreateExercise />,
       },
       {
@@ -180,7 +204,7 @@ const router = createBrowserRouter([
         ],
       },
 
-      { path: "/group/detail/inviteGuest", element: <InviteGuest /> },
+      { path: "/group/inviteGuest/:exerciseId", element: <InviteGuest /> },
       { path: "/group/making/basic", element: <GroupBasicInfo /> },
       { path: "/group/making/activity", element: <GroupActivity /> },
       { path: "/group/making/filter", element: <GroupFilter /> },

@@ -19,7 +19,7 @@ export function transformPlaceToPayload(place: Place): AddLocationPayload {
   const streetAddr =
     place.road_address_name && place.road_address_name.length > 0
       ? place.road_address_name
-      : "";
+      : place.address_name;
 
   return {
     addr1,

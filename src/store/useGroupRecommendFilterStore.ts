@@ -45,6 +45,7 @@ export const useGroupRecommendFilterState = create<GroupRecommendFilterState>(
         day: [],
         time: "",
         keyword: [],
+        recommend: true,
       })),
   }),
 );

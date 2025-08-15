@@ -11,25 +11,19 @@ import { Member } from "../../components/common/contentcard/Member";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api";
-import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
+
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import type { ResponseInviteGuest } from "../../types/guest";
+import { LEVEL_KEY } from "../../constants/options";
+import { useParams } from "react-router-dom";
+import { getInviteGuestList } from "../../api/exercise/InviteGuest";
 
 export const InviteGuest = () => {
   //정보
   const [localName, setLocalName] = useState(name ?? "");
   const [selected, isSelected] = useState<"male" | "female" | null>(null);
 
-  const levelOptions = [
-    "왕초심",
-    "초심",
-    "D조",
-    "C조",
-    "B조",
-    "A조",
-    "준자강",
-    "자강",
-  ];
+  const levelOptions = LEVEL_KEY.slice(1);
   const queryClient = useQueryClient();
   const axios = api;
 
@@ -61,6 +55,8 @@ export const InviteGuest = () => {
   const apiGender = selected === "male" ? "남성" : "여성";
 
   const ReauestLevelValue = levelValue === "disabled" ? "급수없음" : levelValue;
+  const { exerciseId } = useParams();
+  console.log(exerciseId);
   const handleInviteForm = useMutation({
     mutationFn: () => {
       const body = {
@@ -68,7 +64,7 @@ export const InviteGuest = () => {
         gender: apiGender,
         level: ReauestLevelValue,
       };
-      return axios.post(`/api/exercises/${1}/guests`, body);
+      return axios.post(`/api/exercises/${exerciseId}/guests`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -86,7 +82,7 @@ export const InviteGuest = () => {
   //모임 불러오기---------------------------------
   const { data, isLoading } = useQuery({
     queryKey: ["exerciseId"],
-    queryFn: () => getInviteGuestList(),
+    queryFn: () => getInviteGuestList(exerciseId),
     select: res => res.data,
   });
 

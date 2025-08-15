@@ -36,7 +36,6 @@ export const MyExerciseDetail = () => {
   const memberId = Number(localStorage.getItem("memberId") || 1);
   
   // 운동 상세 조회
-    // 운동 상세 조회
   useEffect(() => {
     if (exerciseIdNumber) {
       getExerciseDetail(exerciseIdNumber).then(res => {
@@ -73,6 +72,7 @@ export const MyExerciseDetail = () => {
       });
     }
   }, [exerciseIdNumber, memberId]);
+
 // 더미 들어오면 삭제 모달 확인
   const handleDeleteMember = async (
     participantId: number,
@@ -171,8 +171,11 @@ export const MyExerciseDetail = () => {
                 position={member.position}
                 memberId={member.memberId}
                 onClick={() => navigate(`/mypage/profile/${memberId}`)}
-                // onClick={() => navigate("/mypage/profile")}
-                onDelete={() => handleDeleteMember(member.participantId)}
+                onDelete={() => {
+                  if (member.participantId !== undefined) {
+                    handleDeleteMember(member.participantId);
+                  }
+                }}
                 showDeleteButton={
                   isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
                 }

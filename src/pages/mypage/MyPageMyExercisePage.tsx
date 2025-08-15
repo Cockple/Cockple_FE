@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import Sort from "../../components/common/Sort";
@@ -7,18 +7,17 @@ import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
 import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
-
+import { useLikedExerciseIds } from "../../hooks/useLikedItems";
 
 export const MyPageMyExercisePage = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"최신순" | "오래된 순">("최신순");
   const [selectedTab, setSelectedTab] = useState<"전체" | "참여 예정" | "참여 완료">("전체");
-  type MyExerciseItem = ExerciseItem;
-
-  const [exerciseList, setExerciseList] = useState<MyExerciseItem[]>([]);
+  const [exerciseList, setExerciseList] = useState<ExerciseItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } = useLikedExerciseIds();
 
-  // 탭 -> filterType 매핑
+  // 탭 → filterType 매핑
   const mapTabToFilterType = (tab: string): FilterType => {
     switch (tab) {
       case "참여 예정":
@@ -31,6 +30,7 @@ export const MyPageMyExercisePage = () => {
     }
   };
 
+  // 정렬 → orderType 매핑
   const mapSortToOrderType = (sort: string): OrderType => {
     return sort === "오래된 순" ? "OLDEST" : "LATEST";
   };
@@ -38,14 +38,18 @@ export const MyPageMyExercisePage = () => {
   useEffect(() => {
     const fetchExercises = async () => {
       setIsLoading(true);
-   try {
-        const data = await getMyExercises({
-          filterType: mapTabToFilterType(selectedTab),
-          orderType: mapSortToOrderType(sortOption),
-        });
-        setExerciseList(data); 
+      try {
+      const data = await getMyExercises({
+        filterType: mapTabToFilterType(selectedTab), // "ALL" | "UPCOMING" | "COMPLETED"
+        orderType: mapSortToOrderType(sortOption),  // "LATEST" | "OLDEST"
+        page: 0,
+        size: 10,
+      });
+      setExerciseList(data);
+
       } catch (err) {
         console.error("운동 데이터 불러오기 실패", err);
+        setExerciseList([]);
       } finally {
         setIsLoading(false);
       }
@@ -59,6 +63,9 @@ export const MyPageMyExercisePage = () => {
     { label: "참여 예정", value: "참여 예정" },
     { label: "참여 완료", value: "참여 완료" },
   ];
+  if (isExerciseLikedLoading) {
+    return <div className="text-center py-10">하트 불러오는 중...</div>;
+  }
 
   return (
     <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto pt-14">
@@ -86,24 +93,28 @@ export const MyPageMyExercisePage = () => {
               />
             </div>
             <div className="flex flex-col items-center justify-center">
-           {exerciseList.map((item) => (
-            <ContentCardL
-              key={item.exerciseId}
-              id={item.exerciseId}
-              isUserJoined={item.access.ispartyMember}
-              isGuestAllowedByOwner={item.access.allowGuestInvitation}
-              isCompleted={item.isCompleted}
-              title={item.partyName}
-              date={item.date}
-              location={item.buildingName}
-              time={`${item.startTime} ~ ${item.endTime}`}
-              femaleLevel={item.levelRequirement.female}
-              maleLevel={item.levelRequirement.male}
-              currentCount={item.participation.current}
-              totalCount={item.participation.max}
-              like={item.isBookmarked}
-            />
-          ))}
+            {exerciseList.map(item => {
+              const isLiked = likedExerciseIds.includes(item.exerciseId);
+
+              return (
+                <ContentCardL
+                  key={item.exerciseId}
+                  id={item.exerciseId}
+                  isUserJoined={item.access.ispartyMember}
+                  isGuestAllowedByOwner={item.access.allowGuestInvitation}
+                  isCompleted={item.isCompleted}
+                  title={item.partyName}
+                  date={item.date}
+                  location={item.buildingName}
+                  time={`${item.startTime} ~ ${item.endTime}`}
+                  femaleLevel={item.levelRequirement.female}
+                  maleLevel={item.levelRequirement.male}
+                  currentCount={item.participation.current}
+                  totalCount={item.participation.max}
+                  like={isLiked}
+                />
+              );
+            })}
             </div>
           </>
         ) : (

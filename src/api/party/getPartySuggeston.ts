@@ -89,6 +89,7 @@ const fetchPartySuggestionPage = async (params: Record<string, unknown>) => {
     },
   });
 
+  console.log(data.data);
   return data.data;
 };
 

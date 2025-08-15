@@ -4,7 +4,7 @@ import api from "../api";
 
 ///////주소 관련 interface//////
 export interface UserAddress {
-    // id: number;   
+  // id: number;
   addrId: number;
   addr1: string;
   addr2: string;
@@ -62,7 +62,6 @@ export const patchMyProfile = async (payload: ProfileUpdatePayload) => {
   return response.data;
 };
 
-
 //회원 주소 전체 조회
 export const getMyProfileLocations = async () => {
   const res = await api.get("/api/my/profile/locations");
@@ -72,7 +71,7 @@ export const getMyProfileLocations = async () => {
 //회원 주소 추가
 export const postMyProfileLocation = async (payload: AddLocationPayload) => {
   const res = await api.post("/api/my/profile/locations", payload);
-  return res.data.data; 
+  return res.data.data;
 };
 
 //회원 주소 삭제
@@ -93,7 +92,10 @@ export const deleteAddress = async (memberAddrId: number) => {
 //회원 대표 주소 변경
 export const setMainAddress = async (memberAddrId: number) => {
   try {
-    const res = await api.patch(`/api/my/profile/locations/${memberAddrId}`, {}); 
+    const res = await api.patch(
+      `/api/my/profile/locations/${memberAddrId}`,
+      {},
+    );
     if (res.data.success) {
       console.log("대표 주소 변경 성공", res.data.message);
     } else {

@@ -4,19 +4,22 @@ import { LocationField } from "../../components/common/LocationField";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { Location } from "../../components/common/contentcard/Location";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   deleteAddress,
   getMyProfileLocations,
   setMainAddress,
   type UserAddress,
 } from "../../api/member/my";
+import { CautionModalLocation } from "../../components/home/CautionModalLocation";
 
 export const EditLocationPage = () => {
   const [edit, setEdit] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(1);
   const [locationList, setLocationList] = useState<UserAddress[]>([]);
+  const [modal, setModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDelete = async (id: number) => {
     await deleteAddress(id);
@@ -53,12 +56,34 @@ export const EditLocationPage = () => {
     getMyLocations();
   }, []);
 
+  const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (locationList.length >= 5) {
+      setModal(true);
+    } else {
+      navigate("/location/search", {
+        state: {
+          returnPath: location.pathname,
+          mode: "call-api",
+        },
+      });
+    }
+  };
+
+  const handleEditModal = () => {
+    setEdit(true);
+    setModal(false);
+  };
+
   return (
     <div className="flex flex-col pb-27">
-      <PageHeader title="위치 수정하기" />
+      <PageHeader title="위치 수정하기" onBackClick={() => navigate(-1)} />
 
       <div className="flex flex-col mt-5 gap-8">
-        <LocationField label="위치" icon={false} mode="call-api" />
+        <div className="relative">
+          <LocationField label="위치" icon={false} mode="call-api" />
+          <div className="absolute inset-0 cursor-pointer" onClick={onClick} />
+        </div>
 
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
@@ -88,6 +113,13 @@ export const EditLocationPage = () => {
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
           <Grad_GR400_L label="수정 완료" onClick={onClickEdit} />
         </div>
+      )}
+
+      {modal && (
+        <CautionModalLocation
+          onClick={handleEditModal}
+          onclose={() => setModal(false)}
+        />
       )}
     </div>
   );

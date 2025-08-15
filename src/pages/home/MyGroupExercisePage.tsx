@@ -6,15 +6,16 @@ import { SortBottomSheet } from "../../components/common/SortBottomSheet";
 import Sort from "../../components/common/Sort";
 import CustomWeekly from "../../components/home/CustomWeekly";
 import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
+
+import type { Swiper as SwiperClass } from "swiper";
+import { generateWeeksFromRange } from "../../utils/dateUtils";
+import type { Week } from "../../types/calendar";
 import {
   fetchMyGroupCalendar,
   type CalExercise,
   type CalWeek,
   type MyGroupCalendarResponse,
 } from "../../api/exercise/getMyGroupCalendar";
-import type { Swiper as SwiperClass } from "swiper";
-import { generateWeeksFromRange } from "../../utils/dateUtils";
-import type { Week } from "../../types/calendar";
 
 const getTodayString = () => {
   const d = new Date();
