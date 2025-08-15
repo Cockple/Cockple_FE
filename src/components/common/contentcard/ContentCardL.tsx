@@ -35,6 +35,7 @@ interface ContentCardLProps {
   like?: boolean;
   LikeCount?: number;
   onToggleFavorite?: (id: number) => void;
+  isParticipating?: boolean;
 }
 export type { ContentCardLProps };
 
@@ -54,10 +55,11 @@ export const ContentCardL = ({
   like = false,
   LikeCount,
   onToggleFavorite,
+  isParticipating,
 }: ContentCardLProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isStarted, setIsStarted] = useState(false);
+  const [isStarted, setIsStarted] = useState(isParticipating);
   const [isStartPressing, setIsStartPressing] = useState(false);
   const [isGuestPressing, setIsGuestPressing] = useState(false);
   const [current, setCurrent] = useState(currentCount);

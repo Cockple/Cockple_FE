@@ -18,6 +18,8 @@ export const GroupLayout = () => {
   const [select, setSelect] = useState("");
   const { groupName } = useGroupNameStore();
 
+  const returnParam = new URLSearchParams(location.search).get("return");
+
   useEffect(() => {
     const currentPath = location.pathname.split(`/group/${groupId}/`)[1] ?? "";
     setSelect(currentPath);
@@ -27,9 +29,18 @@ export const GroupLayout = () => {
     setSelect(value);
     navigate(`/group/${groupId}/${value}`);
   };
+
+  const handleBackClick = () => {
+    if (returnParam) {
+      navigate(returnParam);
+    } else {
+      navigate("/group");
+    }
+  };
+
   return (
     <div className="flex flex-col">
-      <PageHeader title={groupName} onBackClick={() => navigate("/group")} />
+      <PageHeader title={groupName} onBackClick={handleBackClick} />
       <TabSelector
         options={options}
         selected={select}

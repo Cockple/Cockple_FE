@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { useState } from "react";
+import circleImg from "@/assets/icons/cicle_s_fill.svg?url";
 
 type ColorType = "black" | "red";
 type StatusType = "default" | "pressing" | "clicked";
@@ -67,7 +68,7 @@ export default function MonthNum({
         <p className="pb-[2px]">{date}</p>
         {hasDot && (
           <img
-            src="/src/assets/icons/cicle_s_fill.svg"
+            src={circleImg}
             alt=""
             className="size-3 absolute pl-[2px]  -bottom-0.5 left-1/2 -translate-x-1/2"
           />

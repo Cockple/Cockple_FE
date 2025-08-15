@@ -58,6 +58,19 @@ const seoulDistricts = [
   "강동구",
 ];
 
+const ALL_LEVELS = [
+  "왕초심",
+  "초심",
+  "D조",
+  "C조",
+  "B조",
+  "A조",
+  "준자강",
+  "자강",
+];
+const ALL_STYLES = ["여복", "남복", "혼복"];
+const ALL_TIMES = ["상시", "오전", "오후"];
+
 export const ExerciseFilterPage = () => {
   const { region, level, style, time, setFilter, resetFilter } =
     useExerciseFilterStore();
@@ -85,6 +98,9 @@ export const ExerciseFilterPage = () => {
       navigate(-1);
     }
   };
+  const isAllLevelSelected = ALL_LEVELS.every(l => level.includes(l));
+  const isAllStyleSelected = style === "전체";
+
   return (
     <div className="pb-24 flex flex-col">
       <div className="flex flex-col gap-5">
@@ -120,35 +136,39 @@ export const ExerciseFilterPage = () => {
           </Toggle>
           <Toggle title="전국 급수">
             <MultiSelectButtonGroup
-              options={[
-                "전체",
-                "왕초심",
-                "초심",
-                "D조",
-                "C조",
-                "B조",
-                "A조",
-                "준자강",
-                "자강",
-              ]}
-              selected={level}
-              onChange={newVal => setFilter("level", newVal)}
+              options={["전체", ...ALL_LEVELS]}
+              selected={isAllLevelSelected ? ["전체"] : level}
+              onChange={newVal => {
+                if (Array.isArray(newVal) && newVal.includes("전체")) {
+                  setFilter("level", ALL_LEVELS);
+                } else {
+                  setFilter("level", newVal);
+                }
+              }}
             />
           </Toggle>
           <Toggle title="운동 스타일">
             <MultiSelectButtonGroup
-              options={["전체", "여복", "남복", "혼복"]}
-              selected={style}
-              singleSelect={true}
-              onChange={newVal => setFilter("style", newVal)}
+              options={["전체", ...ALL_STYLES]}
+              selected={isAllStyleSelected ? "전체" : style}
+              singleSelect
+              onChange={newVal => {
+                if (newVal === "전체") {
+                  setFilter("style", "전체");
+                } else {
+                  setFilter("style", newVal);
+                }
+              }}
             />
           </Toggle>
           <Toggle title="활동 시간">
             <MultiSelectButtonGroup
-              options={["상시", "오전", "오후"]}
+              options={ALL_TIMES}
               selected={time}
-              singleSelect={true}
-              onChange={newVal => setFilter("time", newVal)}
+              singleSelect
+              onChange={newVal => {
+                setFilter("time", newVal);
+              }}
             />
           </Toggle>
         </div>
