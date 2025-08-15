@@ -32,7 +32,7 @@ const getTodayString = () => {
 
 export const RecommendPage = () => {
   const navigate = useNavigate();
-  // --- UI 및 필터 상태 ---
+
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
   const { region, level, style, time, recommend, toggleRecommend } =
@@ -44,7 +44,6 @@ export const RecommendPage = () => {
   );
   const filterStatus = isFilterDirty(filterState) ? "clicked" : "default";
 
-  // --- 데이터 상태 ---
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -52,7 +51,6 @@ export const RecommendPage = () => {
     useState<RecommendCalendarData | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
 
-  // --- 데이터 로딩 함수 ---
   const fetchAndProcessData = useCallback(
     async (
       startDate: string | null,
@@ -122,8 +120,6 @@ export const RecommendPage = () => {
     [recommend, sortOption, region, level, style, time],
   );
 
-  // 🔥 1. 필터/정렬 변경 시 데이터 새로고침을 위한 useEffect
-  // useRef를 사용하여 첫 렌더링 시에는 실행되지 않도록 방지
   const isInitialMount = useRef(true);
   useEffect(() => {
     if (isInitialMount.current) {
@@ -160,7 +156,6 @@ export const RecommendPage = () => {
     [calendarData, isFetchingMore, fetchAndProcessData],
   );
 
-  // --- 렌더링을 위한 데이터 가공 ---
   const processedWeeks = useMemo(() => {
     if (!calendarData) return null;
     if (calendarData.weeks.length === 0) {
@@ -169,7 +164,7 @@ export const RecommendPage = () => {
         calendarData.endDate,
       );
     }
-    // Map weeks/days/exercises to ensure profileImageUrl is always a string
+
     return calendarData.weeks.map(week => ({
       ...week,
       days: week.days.map(day => ({

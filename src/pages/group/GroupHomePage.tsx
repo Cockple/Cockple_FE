@@ -10,7 +10,7 @@ import CautionIcon from "@/assets/icons/caution.svg?url";
 import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import PlusIcon from "@/assets/icons/add_white.svg?url";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import {
   usePartyDetail,
@@ -91,6 +91,12 @@ export const GroupHomePage = () => {
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
   const [requestCount, setRequestCount] = useState(0);
+
+  const [searchParams] = useSearchParams();
+  const initialDateParam = searchParams.get("date");
+  const [selectedDate, setSelectedDate] = useState<string>(
+    initialDateParam ?? todayStr(),
+  );
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -215,7 +221,6 @@ export const GroupHomePage = () => {
     endDate: string;
     weeks: CalWeek[];
   } | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(todayStr());
   const [loadingCal, setLoadingCal] = useState(true);
   const [fetchingMore, setFetchingMore] = useState(false);
   const swiperRef = useRef<SwiperClass | null>(null);
@@ -240,11 +245,14 @@ export const GroupHomePage = () => {
           endDate: res.endDate,
           weeks: filledWeeks,
         });
-        const within =
-          todayStr() >= res.startDate && todayStr() <= res.endDate
-            ? todayStr()
-            : res.startDate;
-        setSelectedDate(within);
+
+        setSelectedDate(prev =>
+          prev
+            ? prev
+            : todayStr() >= res.startDate && todayStr() <= res.endDate
+              ? todayStr()
+              : res.startDate,
+        );
       } finally {
         setLoadingCal(false);
       }
@@ -365,7 +373,7 @@ export const GroupHomePage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 pb-15">
       {/* 상단 소개 */}
       <div className="flex flex-col gap-3">
         <div className="flex p-3 gap-3">
@@ -434,7 +442,7 @@ export const GroupHomePage = () => {
             exerciseDays={exerciseDays}
             initialSlide={(() => {
               const idx = processedWeeks.findIndex(w =>
-                w.days.some(d => d.date === todayStr()),
+                w.days.some(d => d.date === selectedDate),
               );
               return idx >= 0 ? idx : 0;
             })()}

@@ -6,9 +6,13 @@ import type { Exercise } from "../../types/calendar";
 
 interface WorkoutDayEntryProps {
   exerciseData: Exercise[] | null;
+  onExerciseClick?: (partyId: number) => void;
 }
 
-export const WorkoutDayEntry = ({ exerciseData }: WorkoutDayEntryProps) => {
+export const WorkoutDayEntry = ({
+  exerciseData,
+  onExerciseClick,
+}: WorkoutDayEntryProps) => {
   const navigate = useNavigate();
   if (!exerciseData || exerciseData.length === 0) {
     return (
@@ -29,7 +33,7 @@ export const WorkoutDayEntry = ({ exerciseData }: WorkoutDayEntryProps) => {
           location={item.buildingName}
           time={item.startTime + " - " + item.endTime}
           imageSrc={item.profileImageUrl}
-          onClick={() => navigate(`/group/${item.partyId}`)}
+          onClick={() => onExerciseClick?.(Number(item.partyId))}
         />
       ))}
     </div>
