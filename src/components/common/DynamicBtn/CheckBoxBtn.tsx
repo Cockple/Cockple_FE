@@ -1,11 +1,12 @@
 import type { BaseBtnProps, IconTextStatus } from "../../../types/dynamicBtn";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import CheckFill from "@/assets/icons/check_circled_filled.svg?url";
 import CheckEmpty from "@/assets/icons/check_circled.svg?url";
 import CheckCircle_G from "@/assets/icons/check_circledG.svg?url";
 
 interface CheckBtnProps extends BaseBtnProps {
   checked?: boolean; // 외부에서 상태를 강제 지정할 수 있도록
+  children?: ReactNode;
 }
 export default function CheckBoxBtn({
   children,
