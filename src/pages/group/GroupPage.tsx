@@ -42,6 +42,10 @@ export const GroupPage = () => {
     navigate("/group/recommend");
   };
 
+  useEffect(() => {
+    resetFilter();
+  }, [resetFilter]);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -58,9 +62,9 @@ export const GroupPage = () => {
         }
       },
       {
-        root: rootEl, // 수평 컨테이너를 루트로
+        root: rootEl,
         threshold: 0.1,
-        rootMargin: "0px 200px 0px 0px", // 오른쪽 여유
+        rootMargin: "0px 200px 0px 0px",
       },
     );
 
@@ -68,7 +72,6 @@ export const GroupPage = () => {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // (대비용) 스크롤 이벤트 기반 프리페치
   const onScroll = () => {
     const el = scrollRef.current;
     if (!el || !hasNextPage || isFetchingNextPage) return;
