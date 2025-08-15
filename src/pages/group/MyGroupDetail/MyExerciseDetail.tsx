@@ -35,7 +35,7 @@ export const MyExerciseDetail = () => {
 
   const memberId = Number(localStorage.getItem("memberId") || 1);
   
-  // 운동 상세 조회
+  // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
     if (exerciseIdNumber) {
       getExerciseDetail(exerciseIdNumber).then(res => {
