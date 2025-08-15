@@ -21,9 +21,6 @@ const LikedList = ({
   activeTab,
   groupCards,
   exerciseCards,
-  //onToggleFavorite,
-  //tempUnbookmarkedGroupIds = [],
-  //tempUnbookmarkedExerciseIds = [],
 }: LikedListProps) => {
   const isGroupTab = activeTab === "group";
 
@@ -34,16 +31,15 @@ const LikedList = ({
   const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
     useState<number[]>([]);
 
-  // const { data: likedGroupIds = [] } = useLikedGroupIds();
-  // const { data: likedExerciseIds = [] } = useLikedExerciseIds();
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
     useLikedGroupIds();
   const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
     useLikedExerciseIds();
+
   useEffect(() => {
     console.log(likedGroupIds);
     console.log(likedExerciseIds);
-  }, []);
+  });
 
   const isLikedLoading = isGroupTab
     ? isGroupLikedLoading
@@ -85,46 +81,6 @@ const LikedList = ({
   return (
     <>
       <div className="flex flex-col gap-4 w-full">
-        {/* {isGroupTab
-          ? groupCards.map(card => (
-              <div key={card.partyId} className="border-b border-gy-200 pb-1">
-                <Group_M
-                  id={card.partyId}
-                  groupName={card.partyName}
-                  groupImage={card.profileImgUrl}
-                  location={`${card.addr1}/${card.addr2}`}
-                  femaleLevel={card.femaleLevel}
-                  maleLevel={card.maleLevel}
-                  nextActivitDate={card.latestExerciseDate}
-                  upcomingCount={card.exerciseCnt}
-                  //like={card.isFavorite}
-                  like={likedGroupIds.includes(card.partyId)}
-                  isMine={false}
-                  onToggleFavorite={onToggleFavorite}
-                />
-              </div>
-            ))
-          : exerciseCards.map(card => (
-              <div key={card.exerciseId}>
-                <ContentCardL
-                  id={card.exerciseId}
-                  isUserJoined={card.includeParty}
-                  isGuestAllowedByOwner={card.includeExercise}
-                  isCompleted={false}
-                  title={card.partyName}
-                  date={card.date}
-                  location={card.buildingAddr || card.streetAddr}
-                  time={`${card.startExerciseTime}~${card.endExerciseTime}`}
-                  femaleLevel={card.femaleLevel}
-                  maleLevel={card.maleLevel}
-                  currentCount={card.nowMemberCnt}
-                  totalCount={card.maxMemberCnt}
-                  //like={card.isFavorite}
-                  like={likedExerciseIds.includes(card.exerciseId)}
-                  onToggleFavorite={onToggleFavorite}
-                />
-              </div>
-            ))} */}
         {isGroupTab
           ? groupCards.map(card => {
               const isLiked =

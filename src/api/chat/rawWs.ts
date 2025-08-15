@@ -44,6 +44,10 @@ export type BroadcastMessage = {
   senderName?: string | null;
   senderProfileImage?: string | null;
   timestamp?: string;
+  //🌟
+  messageType?: "TEXT" | "IMAGE";
+  //🌟
+  imgUrls?: string[];
 };
 
 export type IncomingMessage =
@@ -67,6 +71,25 @@ type Handlers = {
   onClose?: (ev: CloseEvent) => void;
 };
 
+// 🌟전역 리스너 레지스트리
+// const listeners = new Set<Handlers>();
+// export const addWsListener = (h: Handlers) => {
+//   listeners.add(h);
+//   // 현재가 OPEN이면 즉시 알림(초기 렌더에서 상태 동기화 용)
+//   if (ws?.readyState === WebSocket.OPEN) {
+//     queueMicrotask(() => h.onOpen?.());
+//   }
+//   return () => listeners.delete(h);
+// };
+
+//🌟
+// const emit = {
+//   open: () => listeners.forEach(l => l.onOpen?.()),
+//   msg: (m: IncomingMessage) => listeners.forEach(l => l.onMessage?.(m)),
+//   err: (e: Event | Error) => listeners.forEach(l => l.onError?.(e)),
+//   close: (e: CloseEvent) => listeners.forEach(l => l.onClose?.(e)),
+// };
+
 const WS_ORIGIN = (
   import.meta.env.VITE_WS_ORIGIN ?? window.location.origin
 ).replace(/\/$/, "");
@@ -84,11 +107,21 @@ const buildSockUrl = (origin?: string) => {
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "UNSUBSCRIBE"; chatRoomId: number }
-  | { type: "SEND"; chatRoomId: number; content: string };
+  | { type: "SEND"; chatRoomId: number; messageType?: "TEXT"; content: string }
+  // 🌟
+  | {
+      type: "SEND";
+      chatRoomId: number;
+      messageType?: "IMAGE";
+      imgKeys: string[];
+      content?: string;
+    };
 
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
   if (ws && ws.readyState === WebSocket.OPEN) {
+    //🌟
+    console.log("[WS→] SEND", msg);
     ws.send(JSON.stringify(msg));
     return true;
   }
@@ -99,6 +132,7 @@ const sendJSON = (msg: OutgoingMessage) => {
 // --------- 공개 API ----------
 export const connectRawWs = (
   { memberId, origin }: { memberId: number; origin?: string },
+  //🌟
   handlers: Handlers = {},
 ) => {
   if (
@@ -156,7 +190,9 @@ export const connectRawWs = (
       reconnectTimer = window.setTimeout(() => {
         reconnectTimer = null;
         reconnectAttempt++;
+        //🌟
         connectRawWs({ memberId, origin }, handlers);
+        //connectRawWs({ memberId, origin });
       }, delay);
     }
   };
@@ -193,7 +229,6 @@ export const subscribeMany = (roomIds: number[]) => {
 export const unsubscribeRoom = (roomId: number) => {
   if (!currentRooms.has(roomId)) return;
   currentRooms.delete(roomId);
-  //🌟
   const ok = sendJSON({ type: "UNSUBSCRIBE", chatRoomId: roomId });
   if (!ok) {
     // 소켓이 닫혀있으면 재접속 시 자동 재구독되지 않도록만 유지.
@@ -203,7 +238,6 @@ export const unsubscribeRoom = (roomId: number) => {
 
 //
 export const unsubscribeAll = () => {
-  // 🌟서버 명세에 따라 개별 방마다 UNSUBSCRIBE 전송
   [...currentRooms].forEach(id =>
     sendJSON({ type: "UNSUBSCRIBE", chatRoomId: id }),
   );
@@ -212,7 +246,30 @@ export const unsubscribeAll = () => {
 };
 
 // 채팅 SEND
-export const sendChatWS = (chatRoomId: number, content: string) => {
-  // 백엔드 명세: 반드시 JSON 문자열로 보냄
-  return sendJSON({ type: "SEND", chatRoomId, content });
+//🌟
+// export const sendChatWS = (chatRoomId: number, content: string) => {
+//   // 백엔드 명세: 반드시 JSON 문자열로 보냄
+//   return sendJSON({ type: "SEND", chatRoomId, content });
+// };
+export const sendChatWS = (
+  chatRoomId: number,
+  payload:
+    | { kind: "text"; content: string }
+    | { kind: "image"; imgKeys: string[] },
+) => {
+  if (payload.kind === "text") {
+    return sendJSON({
+      type: "SEND",
+      chatRoomId,
+      messageType: "TEXT",
+      content: payload.content,
+    });
+  } else {
+    return sendJSON({
+      type: "SEND",
+      chatRoomId,
+      messageType: "IMAGE",
+      imgKeys: payload.imgKeys,
+    });
+  }
 };
