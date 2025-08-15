@@ -1,4 +1,4 @@
-import type { BaseBtnProps, TextIconStatus } from "../../../types/dynamicBtn";
+import type { BaseBtnProps, TextIconStatus } from "../../../types/DynamicBtn";
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
 
 export default function TextIconBtnS({

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { IconTextStatus } from "../types/dynamicBtn";
+import type { IconTextStatus } from "../types/DynamicBtn";
 
 export default function useDynamicStatus(
   disabled: boolean,

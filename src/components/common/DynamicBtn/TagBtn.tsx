@@ -1,5 +1,5 @@
 import useDynamicStatus from "../../../hooks/useDynamicStatus";
-import type { BaseBtnProps, IconTextStatus } from "../../../types/dynamicBtn";
+import type { BaseBtnProps, IconTextStatus } from "../../../types/DynamicBtn";
 import DissMissIcon from "@/assets/icons/dismiss_fill.svg?url";
 import HashIcon from "@/assets/icons/hash.svg?url";
 
