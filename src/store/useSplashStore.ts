@@ -20,7 +20,7 @@ const SplashStore: import("zustand").StateCreator<SplashState> = set => ({
 const useSplashStore = create(
   persist(SplashStore, {
     name: "isShown",
-    storage: createJSONStorage(() => localStorage),
+    storage: createJSONStorage(() => sessionStorage),
   }),
 );
 
