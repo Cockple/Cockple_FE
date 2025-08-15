@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Female from "../../assets/icons/female.svg?react";
 import Male from "../../assets/icons/male.svg?react";
+import BaseProfileImg from "@/assets/images/base_profile_img.png?url";
 
 interface ProfileProps {
   name: string;
@@ -17,7 +18,6 @@ export const Profile = ({
   birth,
   profileImage,
 }: ProfileProps) => {
-
   //이미지 File로 받기 위한 처리부분
   const [imageUrl, setImageUrl] = useState<string>("");
   useEffect(() => {
@@ -30,17 +30,13 @@ export const Profile = ({
       };
     } else if (typeof profileImage === "string") {
       setImageUrl(profileImage);
-    } else {
-      setImageUrl("/default-profile.png");
     }
   }, [profileImage]);
-
-
 
   return (
     <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-[0.8125rem]">
       <img
-        src={imageUrl || "/default-profile.png"}
+        src={imageUrl || BaseProfileImg}
         alt="프로필 이미지"
         className="w-[4.75rem] h-[4.75rem] rounded-full object-cover"
       />
