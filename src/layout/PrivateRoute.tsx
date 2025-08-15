@@ -9,6 +9,7 @@ interface PrivateRouteProps {
 export const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem("accessToken");
+  console.log(isAuthenticated);
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
