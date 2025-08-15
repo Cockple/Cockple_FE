@@ -93,17 +93,6 @@ export const GroupHomePage = () => {
   const [requestCount, setRequestCount] = useState(0);
 
   useEffect(() => {
-    const requestMemberCount = async () => {
-      if (!groupId) return;
-      const { data } = await api.get<MemberJoinRequestResponse>(
-        `/api/parties/${groupId}/join-requests?status=PENDING`,
-      );
-      setRequestCount(data.data.content.length);
-    };
-    requestMemberCount();
-  }, [groupId]);
-
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
         plusModalOpen &&
@@ -175,6 +164,19 @@ export const GroupHomePage = () => {
     partyDetail?.memberRole === "party_MANAGER" ||
     partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
+
+  useEffect(() => {
+    const requestMemberCount = async () => {
+      if (!groupId) return;
+      if (isOwner) {
+        const { data } = await api.get<MemberJoinRequestResponse>(
+          `/api/parties/${groupId}/join-requests?status=PENDING`,
+        );
+        setRequestCount(data.data.content.length);
+      }
+    };
+    requestMemberCount();
+  }, [groupId]);
 
   const items = useMemo(
     () => [
@@ -426,7 +428,7 @@ export const GroupHomePage = () => {
         {processedWeeks && (
           <CustomWeekly
             shadow={false}
-            weeks={processedWeeks} // ✅ any 제거, UI 타입으로 전달
+            weeks={processedWeeks}
             selectedDate={selectedDate}
             onClick={setSelectedDate}
             exerciseDays={exerciseDays}
@@ -471,6 +473,7 @@ export const GroupHomePage = () => {
                 totalCount={ex.maxCapacity}
                 like={ex.isBookmarked}
                 onToggleFavorite={() => {}}
+                isParticipating={ex.isParticipating}
               />
             </div>
           ))

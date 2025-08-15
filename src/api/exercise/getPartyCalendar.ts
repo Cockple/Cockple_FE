@@ -13,6 +13,7 @@ export interface CalExercise {
   maleLevel: string[];
   currentParticipants: number;
   maxCapacity: number;
+  isParticipating: boolean;
 }
 
 export type DayOfWeek =
@@ -65,7 +66,7 @@ export async function fetchPartyCalendar(params: {
       params: { startDate, endDate },
     },
   );
-
+  console.log(data.data);
   return data.data;
 }
 
