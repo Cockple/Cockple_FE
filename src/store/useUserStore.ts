@@ -25,7 +25,7 @@ const UserStore: StateCreator<UserStoreType> = set => ({
 const useUserStore = create<UserStoreType>()(
   persist(UserStore, {
     name: "user",
-    storage: createJSONStorage(() => sessionStorage),
+    storage: createJSONStorage(() => localStorage),
   }),
 );
 

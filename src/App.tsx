@@ -75,6 +75,12 @@ import { useRawWsConnect } from "./hooks/useRawWsConnect";
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/login/kakao", element: <KakaoLogin /> },
+  //
+  {
+    element: <NavbarLayout />, //인증체크x
+    children: [{ path: "/", element: <HomePage /> }],
+  },
+
   {
     path: "/onboarding",
     element: <OnboardingLayout />, //공통
@@ -110,7 +116,6 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ), // 로그인 필요하지만 navbar 없는 layout
     children: [
-      
       { path: "/edit/location", element: <EditLocationPage /> },
       { path: "/mypage/edit", element: <MyPageEditPage /> },
       { path: "/mypage/edit/location", element: <MyPageEditLocationPage /> },
@@ -122,8 +127,14 @@ const router = createBrowserRouter([
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
       // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
-      { path: "/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
-      { path: "/mypage/mymedal/:contentId", element: <MyPageMedalDetailPage /> },
+      {
+        path: "/mypage/profile/medal/:memberId/contest/:contestId",
+        element: <MyPageMedalDetailPage />,
+      },
+      {
+        path: "/mypage/mymedal/:contentId",
+        element: <MyPageMedalDetailPage />,
+      },
 
       { path: "/mypage/mymedal/add", element: <MyPageMedalAddPage /> },
 
@@ -165,7 +176,10 @@ const router = createBrowserRouter([
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
-      { path: "/group/admin/edit-info/:partyId", element: <EditGroupInfoDefault /> },
+      {
+        path: "/group/admin/edit-info/:partyId",
+        element: <EditGroupInfoDefault />,
+      },
       { path: "/group/admin/invite", element: <InviteDefault /> },
 
       {
