@@ -77,7 +77,7 @@ export const EditLocationPage = () => {
 
   return (
     <div className="flex flex-col pb-27">
-      <PageHeader title="위치 수정하기" onBackClick={() => navigate(-1)} />
+      <PageHeader title="위치 수정하기" onBackClick={() => navigate("/")} />
 
       <div className="flex flex-col mt-5 gap-8">
         <div className="relative">
