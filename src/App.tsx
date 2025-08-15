@@ -191,6 +191,10 @@ const router = createBrowserRouter([
         element: <CreateExercise />,
       },
       {
+        path: "group/exercise/:groupId/edit/:exerciseId",
+        element: <CreateExercise />,
+      },
+      {
         path: "/group/:groupId",
         element: <GroupLayout />,
         children: [

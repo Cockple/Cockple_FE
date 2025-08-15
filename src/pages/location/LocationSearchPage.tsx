@@ -38,10 +38,10 @@ export const LocationSearchPage = () => {
   // const [isOnboarding, setIsOnboarding] = useState<boolean | undefined>(false);
   const { user } = useUserStore();
   const isOnboarding = !!user?.isNewMember;
-  const returnPath = isOnboarding
-    ? "/onboarding/profile"
-    : (location.state?.returnPath ?? "/");
-  // const returnPath = location.state?.returnPath ?? "/";
+  // const returnPath = isOnboarding
+  //   ? "/onboarding/profile"
+  //   : (location.state?.returnPath ?? "/");
+  const returnPath = location.state?.returnPath ?? "/";
 
   const mode = location.state?.mode ?? "fill-only";
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
@@ -163,7 +163,7 @@ export const LocationSearchPage = () => {
   return (
     <div className="flex flex-col">
       <PageHeader title="주소 검색" />
-      {isOnboarding && (
+      {returnPath === "/onboarding/profile" && (
         <ProgressBar width={selectedId !== null ? "72" : "52"} />
       )}
 
