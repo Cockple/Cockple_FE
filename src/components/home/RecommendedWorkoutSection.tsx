@@ -7,9 +7,8 @@ import { useRecommendedExerciseApi } from "../../api/exercise/getRecommendedExer
 export const RecommendedWorkoutSection = () => {
   const navigate = useNavigate();
 
-  const { data, isLoading, isError } = useRecommendedExerciseApi();
+  const { data, isError } = useRecommendedExerciseApi();
 
-  if (isLoading) return <div>로딩 중...</div>;
   if (isError || !data) return <div>오류 발생</div>;
 
   return (
@@ -28,7 +27,7 @@ export const RecommendedWorkoutSection = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {data &&
+        {data.exercises.length > 0 ? (
           data.exercises.map((item, index) => (
             <Exercise_M
               id={index}
@@ -40,7 +39,12 @@ export const RecommendedWorkoutSection = () => {
               imageSrc={item.imageUrl ?? ""}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
-          ))}
+          ))
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            예정된 추천 운동이 없습니다
+          </div>
+        )}
       </div>
     </div>
   );
