@@ -19,6 +19,7 @@ import type {
 } from "../../types/exerciseRecommend";
 import { fetchRecommendedCalendar } from "../../api/exercise/getRecommendedExerciseApi";
 import { transformFiltersForApi } from "../../utils/filterUtils";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {
@@ -132,12 +133,10 @@ export const RecommendPage = () => {
     }
   }, [recommend, sortOption, region, level, style, time]);
 
-  // 🔥 2. 최초 1회만 실행되는 초기 데이터 로딩 useEffect
   useEffect(() => {
     fetchAndProcessData(null, null);
   }, []);
 
-  // --- 이벤트 핸들러 ---
   const handleDateClick = (date: string) => {
     setSelectedDate(date);
   };
@@ -146,16 +145,15 @@ export const RecommendPage = () => {
     (swiper: SwiperClass) => {
       if (isFetchingMore || !calendarData) return;
 
-      // 🔥 3. 요청하신대로 3주치씩 데이터를 가져오도록 수정
       if (swiper.isEnd) {
         const newStartDate = addDays(calendarData.endDate, 1);
-        const newEndDate = addDays(newStartDate, 20); // 3주
+        const newEndDate = addDays(newStartDate, 20);
         fetchAndProcessData(newStartDate, newEndDate, "future", swiper);
       }
 
       if (swiper.isBeginning) {
         const newEndDate = addDays(calendarData.startDate, -1);
-        const newStartDate = addDays(newEndDate, -20); // 3주
+        const newStartDate = addDays(newEndDate, -20);
         fetchAndProcessData(newStartDate, newEndDate, "past", swiper);
       }
     },
@@ -212,7 +210,11 @@ export const RecommendPage = () => {
   }, [selectedDate, calendarData]);
 
   if (isLoading && !isFetchingMore)
-    return <div>페이지를 불러오는 중입니다...</div>;
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
   if (error) return <div>오류가 발생했습니다: {error.message}</div>;
 
   return (
@@ -256,7 +258,7 @@ export const RecommendPage = () => {
         </div>
 
         <div className="flex flex-col gap-3">
-          {isLoading && !isFetchingMore ? ( // 전체 로딩시에만 목록 로딩 표시
+          {isLoading && !isFetchingMore ? (
             <div>운동 목록을 불러오는 중...</div>
           ) : selectedDayExercises && selectedDayExercises.length > 0 ? (
             selectedDayExercises.map(item => (

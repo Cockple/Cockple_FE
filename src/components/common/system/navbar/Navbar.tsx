@@ -10,7 +10,6 @@ import MypageIcon from "@/assets/icons/mypage.svg";
 import MypageIconFilled from "@/assets/icons/mypage_filled.svg";
 import { NavItem } from "./NavItem";
 import { useLocation, useNavigate } from "react-router-dom";
-import useUserStore from "../../../../store/useUserStore";
 
 const NAV_ITEMS = [
   {
@@ -55,22 +54,22 @@ const NAV_ITEMS = [
   },
 ];
 
-const PROTECTED_PATHS = ["/group", "/chat", "/liked", "/mypage"];
-const isProtectedPath = (to: string) =>
-  PROTECTED_PATHS.some(base => to === base || to.startsWith(base + "/"));
+// const PROTECTED_PATHS = ["/group", "/chat", "/liked", "/mypage"];
+// const isProtectedPath = (to: string) =>
+//   PROTECTED_PATHS.some(base => to === base || to.startsWith(base + "/"));
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = useUserStore(state => state.user);
+  // const user = useUserStore(state => state.user);
 
-  const go = (to: string) => {
-    if (!user && isProtectedPath(to)) {
-      navigate("/login");
-    } else {
-      navigate(to);
-    }
-  };
+  // const go = (to: string) => {
+  //   if (!user && isProtectedPath(to)) {
+  //     navigate("/login");
+  //   } else {
+  //     navigate(to);
+  //   }
+  // };
   return (
     <nav className="fixed w-full max-w-[444px] bottom-0 -ml-4 flex px-4 pt-2 pb-8 justify-between box-border bg-white shadow-ds50">
       {NAV_ITEMS.map(item => {
@@ -82,7 +81,7 @@ export const Navbar = () => {
             label={item.label}
             icon={IconComponent}
             active={isActive}
-            onClick={() => go(item.path)}
+            onClick={() => navigate(item.path)}
           />
         );
       })}
