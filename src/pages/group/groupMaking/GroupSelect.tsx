@@ -4,7 +4,6 @@ import { ProgressBar } from "../../../components/common/ProgressBar";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import SingleImageUploadBtn from "../../../components/group/groupMaking/SingleImgUploadBtn";
 import InputField from "../../../components/common/Search_Filed/InputField";
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import api from "../../../api/api";
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
@@ -17,7 +16,6 @@ import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
 import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupSelect = () => {
-  const [text, setText] = useState<string>();
   const {
     region,
     femaleLevel,
@@ -31,11 +29,13 @@ export const GroupSelect = () => {
     joinMoney,
     time,
     imgKey,
+    content,
+    setFilter,
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
   const handleInputDetected = handleInput(45, v => {
-    setText(v);
+    setFilter("content", v);
   });
   const parsePrice = (value: string) => {
     if (value === "disabled") return 0;
@@ -72,7 +72,7 @@ export const GroupSelect = () => {
       price: apiMoney,
       minBirthYear: ageRange[0],
       maxBirthYear: ageRange[1],
-      content: text || "",
+      content: content || "",
       imgKey: imgKey,
     };
     const { data } = await axios.post<GroupMakingResponseDTO>(
@@ -114,9 +114,9 @@ export const GroupSelect = () => {
               isRequired={false}
               labelName="멤버에게 하고 싶은 말 / 소개"
               InputMaxLength={45}
-              InputLength={text?.length}
+              InputLength={content?.length}
               onChange={handleInputDetected}
-              value={text}
+              value={content}
               isTextArea={true}
             />
           </div>
