@@ -34,6 +34,7 @@ export default function KakaoLogin() {
         isNewMember: data.isNewMember,
       };
       setUser(newUserData);
+      localStorage.setItem("accessToken", data.accessToken);
       if (data.isNewMember) {
         //미사용자
         navigate("/onboarding");
