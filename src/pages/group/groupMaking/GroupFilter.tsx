@@ -6,8 +6,7 @@ import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import InputSlider from "../../../components/common/Search_Filed/InputSlider";
 import CheckBoxInputFiled from "../../../components/group/groupMaking/CheckBoxInputField";
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
-import { useQuery } from "@tanstack/react-query";
-import { getMyProfile } from "../../../api/member/my";
+import { useMyProfile } from "../../../api/member/my";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
@@ -25,10 +24,8 @@ export const GroupFilter = () => {
   const setFilter = useGroupMakingFilterStore(state => state.setFilter);
   const apiAgeRange = useGroupMakingFilterStore(state => state.ageRange);
 
-  const { data: me } = useQuery({
-    queryKey: ["user"],
-    queryFn: getMyProfile,
-  });
+  const { data: me } = useMyProfile();
+
   const myYear = me?.birth.split("-")[0]; //내 년도
 
   const {
