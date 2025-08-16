@@ -16,12 +16,16 @@ interface GetPersonalChatsResponse {
 export const getGroupChatRooms = async () => {
   const response = await api.get<CommonResponse<GetGroupChatsResponse>>(
     `/api/chats/parties`,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    },
+    // {
+    //   headers: {
+    //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    //   },
+    // },
   );
+
+  // if (response.data.code === "CHAT202" || response.data.errorReason.code === "CHAT202") {
+  //   return {content: [], hasNext: false};
+  // }
   console.log("party: ", response);
   return response.data.data;
 };
@@ -29,12 +33,19 @@ export const getGroupChatRooms = async () => {
 export const getPersonalChatRooms = async () => {
   const response = await api.get<CommonResponse<GetPersonalChatsResponse>>(
     "/api/chats/direct",
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    },
+    // {
+    //   headers: {
+    //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    //   },
+    // },
   );
+
+  // if (
+  //   response.data.code === "CHAT202" ||
+  //   response.data.errorReason.code === "CHAT202"
+  // ) {
+  //   return { content: [], hasNext: false };
+  // }
   console.log("direct: ", response);
   return response.data.data;
 };
@@ -44,9 +55,9 @@ export const searchGroupChatRooms = async (name: string) => {
     `/api/chats/parties/search`,
     {
       params: { name },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      // headers: {
+      //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      // },
     },
   );
   console.log("groupChatRoomSearch: ", res.data.data.content);
@@ -58,9 +69,9 @@ export const searchPersonalChatRooms = async (name: string) => {
     `/api/chats/direct/search`,
     {
       params: { name },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      // headers: {
+      //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      // },
     },
   );
   console.log("personalChatRoomSearch: ", res);

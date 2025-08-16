@@ -18,6 +18,7 @@ import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
+import { uploadImage } from "../../api/image/imageUpload";
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -55,7 +56,7 @@ export const ChatDetailTemplate = ({
     messages, // 오름차순
     initLoading,
     initError,
-    isEmpty,
+    //isEmpty,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -148,7 +149,8 @@ export const ChatDetailTemplate = ({
 
   //===== WS 연결 및 전송 =====
   //🌟
-  const { send, lastMessage } = useRawWsConnect({
+  //const { send, lastMessage } = useRawWsConnect({
+  const { sendText, sendImage, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
   });
@@ -181,7 +183,7 @@ export const ChatDetailTemplate = ({
     setLiveMsgs(prev => [...prev, optimistic]);
 
     // 2) 서버로 SEND
-    const ok = send(chatId, text); // 또는 sendChatWS(chatId, text);
+    const ok = sendText(chatId, text); // 또는 sendChatWS(chatId, text);
     // 실패 시 사용자 안내
     if (!ok) {
       console.warn("WS 미연결로 전송 실패");
@@ -203,32 +205,122 @@ export const ChatDetailTemplate = ({
     console.log("메시지 전송:", text);
   };
 
+  //🌟
+  //const [uploading, setUploading] = useState(false);
+
   // 이미지 업로드(미연결 - 로컬 프리뷰만)
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    //🌟
+    // const file = e.target.files?.[0];
+    // if (!file) return;
+
+    // const fileUrl = URL.createObjectURL(file);
+    // setPreviewImage(fileUrl);
+
+    // // 초기화
+    // e.target.value = "";
+    //===========================================================
     const file = e.target.files?.[0];
+    e.currentTarget.value = ""; // 같은 파일 재선택 가능
     if (!file) return;
 
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewImage(fileUrl);
+    // 간단 용량 가드
+    const MAX_MB = 10;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      console.warn("파일이 너무 큽니다");
+      return;
+    }
 
-    // 초기화
-    e.target.value = "";
+    // // 1) 낙관적 미리보기
+    // const previewUrl = URL.createObjectURL(file);
+    const tempId = -Date.now();
+    // const optimistic: ChatMessageResponse = {
+    //   messageId: tempId,
+    //   senderId: currentUserId,
+    //   senderName: currentUserName,
+    //   senderProfileImage: "",
+    //   content: "",
+    //   messageType: "IMAGE",
+    //   imgUrls: [previewUrl],
+    //   timestamp: new Date().toISOString(),
+    //   isMyMessage: true,
+    // };
+    // setLiveMsgs(prev => [...prev, optimistic]);
+    // requestAnimationFrame(() =>
+    //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+    // );
+
+    // 2) S3 업로드
+    try {
+      const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+
+      // 3) WS로 IMAGE 메시지 전송 (imgKey 사용)
+      const ok = sendImage(chatId, [imgKey]);
+      if (!ok) throw new Error("WS SEND 실패");
+
+      // 4) 서버 에코가 imgUrls를 내려주지 않는 경우 대비해
+      //    낙관적 메시지의 preview를 실제 imgUrl로 치환
+      // setLiveMsgs(prev => {
+      //   const i = prev.findIndex(m => m.messageId === tempId);
+      //   if (i < 0) return prev;
+      //   const copy = [...prev];
+      //   copy[i] = { ...copy[i], imgUrls: [imgUrl] };
+      //   return copy;
+      // });
+
+      const optimistic: ChatMessageResponse = {
+        messageId: tempId,
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderProfileImage: "",
+        content: "",
+        messageType: "IMAGE",
+        imgUrls: [imgUrl],
+        timestamp: new Date().toISOString(),
+        isMyMessage: true,
+      };
+      setLiveMsgs(prev => [...prev, optimistic]);
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    } catch (err) {
+      console.error(err);
+      setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 롤백
+    } finally {
+      //setUploading(false);
+    }
   };
 
   useEffect(() => {
     if (!lastMessage || lastMessage.type !== "SEND") return;
     if (lastMessage.chatRoomId !== chatId) return;
 
+    //🌟
+    const isImage =
+      lastMessage.messageType === "IMAGE" ||
+      (lastMessage.imgUrls?.length ?? 0) > 0 ||
+      // fallback: content가 URL이면 이미지로 간주
+      (lastMessage.content &&
+        /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif)$/i.test(
+          lastMessage.content,
+        ));
+
     const incoming: ChatMessageResponse = {
       messageId: lastMessage.messageId ?? Date.now(),
       senderId: lastMessage.senderId ?? 0,
       senderName: lastMessage.senderName ?? "",
       senderProfileImage: lastMessage.senderProfileImage ?? "",
-      content: lastMessage.content ?? "",
-      messageType: "TEXT",
-      imgUrls: [],
       //🌟
-      //timestamp: lastMessage.createdAt ?? new Date().toISOString(),
+      // content: lastMessage.content ?? "",
+      // messageType: "TEXT",
+      // imgUrls: [],
+      content: isImage ? "" : (lastMessage.content ?? ""),
+      messageType: isImage ? "IMAGE" : "TEXT",
+      imgUrls: isImage
+        ? (lastMessage.imgUrls ??
+          (lastMessage.content ? [lastMessage.content] : []))
+        : [],
       timestamp: lastMessage.timestamp ?? "",
       isMyMessage: (lastMessage.senderId ?? 0) === currentUserId,
     };
@@ -312,53 +404,57 @@ export const ChatDetailTemplate = ({
             </div>
           </CenterBox>
         )}
-        {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
+        {/* {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>} */}
 
         {/* 메시지 리스트 */}
-        {!initLoading && !initError && !isEmpty && (
-          <div className="flex flex-col gap-5 shrink-0 p-4">
-            {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
-            <div ref={topSentinelRef} />
+        {!initLoading &&
+          !initError &&
+          (rendered.length === 0 ? (
+            <CenterBox>아직 메시지가 없습니다</CenterBox>
+          ) : (
+            <div className="flex flex-col gap-5 shrink-0 p-4">
+              {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
+              <div ref={topSentinelRef} />
 
-            {rendered.map((chat, idx) => {
-              const prev = idx > 0 ? rendered[idx - 1] : undefined;
-              //🌟
-              // const onlyDate = (s: string) =>
-              //   new Date(s).toISOString().split("T")[0];
-              //const onlyDate = (s: string) => s;
-              // const showDate =
-              //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
-              const showDate =
-                !prev ||
-                formatDateWithDay(chat.timestamp) !==
-                  formatDateWithDay(prev.timestamp);
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator
-                      date={formatDateWithDay(chat.timestamp)}
+              {rendered.map((chat, idx) => {
+                const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                //🌟
+                // const onlyDate = (s: string) =>
+                //   new Date(s).toISOString().split("T")[0];
+                //const onlyDate = (s: string) => s;
+                // const showDate =
+                //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
+                const showDate =
+                  !prev ||
+                  formatDateWithDay(chat.timestamp) !==
+                    formatDateWithDay(prev.timestamp);
+                return (
+                  <React.Fragment key={chat.messageId}>
+                    {showDate && (
+                      <ChatDateSeparator
+                        date={formatDateWithDay(chat.timestamp)}
+                      />
+                    )}
+                    <ChattingComponent
+                      message={chat}
+                      isMe={chat.senderId === currentUserId}
+                      onImageClick={setPreviewImage}
+                      time={formatEnLowerAmPm(chat.timestamp)}
                     />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatEnLowerAmPm(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })}
+                  </React.Fragment>
+                );
+              })}
 
-            {isFetchingNextPage && (
-              <div className="text-center text-gy-600 text-sm">
-                이전 메시지 불러오는 중…
-              </div>
-            )}
+              {isFetchingNextPage && (
+                <div className="text-center text-gy-600 text-sm">
+                  이전 메시지 불러오는 중…
+                </div>
+              )}
 
-            {/* 하단 앵커 */}
-            <div className="h-5" ref={bottomRef} />
-          </div>
-        )}
+              {/* 하단 앵커 */}
+              <div className="h-5" ref={bottomRef} />
+            </div>
+          ))}
 
         {previewImage && (
           <ImagePreviewModal

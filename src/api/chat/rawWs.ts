@@ -44,6 +44,10 @@ export type BroadcastMessage = {
   senderName?: string | null;
   senderProfileImage?: string | null;
   timestamp?: string;
+  //🌟
+  messageType?: "TEXT" | "IMAGE";
+  //🌟
+  imgUrls?: string[];
 };
 
 export type IncomingMessage =
@@ -80,15 +84,27 @@ const buildSockUrl = (origin?: string) => {
   return base; // SockJS는 http/https 사용
 };
 
+//🌟 ---- 토큰 유틸 & 가드
+const getToken = () => localStorage.getItem("accessToken") || "";
+const hasToken = () => !!getToken();
+
 // 서버로 보낼 메시지 타입
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "UNSUBSCRIBE"; chatRoomId: number }
-  | { type: "SEND"; chatRoomId: number; content: string };
+  | { type: "SEND"; chatRoomId: number; messageType?: "TEXT"; content: string }
+  | {
+      type: "SEND";
+      chatRoomId: number;
+      messageType?: "IMAGE";
+      imgKeys: string[];
+      content?: string;
+    };
 
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
   if (ws && ws.readyState === WebSocket.OPEN) {
+    console.log("[WS→] SEND", msg);
     ws.send(JSON.stringify(msg));
     return true;
   }
@@ -101,6 +117,12 @@ export const connectRawWs = (
   { memberId, origin }: { memberId: number; origin?: string },
   handlers: Handlers = {},
 ) => {
+  // 🌟 accessToken 없으면 연결 시도 안 함
+  if (!hasToken()) {
+    console.info("[WS] skipped: no accessToken");
+    return null;
+  }
+
   if (
     ws &&
     (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)
@@ -110,10 +132,13 @@ export const connectRawWs = (
 
   const base = buildSockUrl(origin);
   const url = new URL(base);
-  const token = localStorage.getItem("accessToken") ?? "";
+  //🌟
+  //const token = localStorage.getItem("accessToken") ?? "";
 
   url.searchParams.set("memberId", String(memberId));
-  url.searchParams.set("token", token);
+  //🌟
+  //url.searchParams.set("token", token);
+  url.searchParams.set("token", getToken()); // 서버가 헤더 대신 쿼리 파라미터로 읽는 형태라면 유지
 
   // SockJS 생성 (NOTE: SockJS는 http/https URL 사용)
   // 타입 호환 위해 any 캐스팅. 런타임은 WebSocket 유사 API 제공.
@@ -150,6 +175,9 @@ export const connectRawWs = (
     handlers.onClose?.(ev);
     ws = null;
 
+    // 🌟토큰 없으면 재시도 안 함
+    if (!hasToken()) return;
+
     // 백오프 재연결
     if (!reconnectTimer) {
       const delay = Math.min(500 * 2 ** reconnectAttempt, 8000);
@@ -157,6 +185,7 @@ export const connectRawWs = (
         reconnectTimer = null;
         reconnectAttempt++;
         connectRawWs({ memberId, origin }, handlers);
+        //connectRawWs({ memberId, origin });
       }, delay);
     }
   };
@@ -193,7 +222,6 @@ export const subscribeMany = (roomIds: number[]) => {
 export const unsubscribeRoom = (roomId: number) => {
   if (!currentRooms.has(roomId)) return;
   currentRooms.delete(roomId);
-  //🌟
   const ok = sendJSON({ type: "UNSUBSCRIBE", chatRoomId: roomId });
   if (!ok) {
     // 소켓이 닫혀있으면 재접속 시 자동 재구독되지 않도록만 유지.
@@ -203,7 +231,6 @@ export const unsubscribeRoom = (roomId: number) => {
 
 //
 export const unsubscribeAll = () => {
-  // 🌟서버 명세에 따라 개별 방마다 UNSUBSCRIBE 전송
   [...currentRooms].forEach(id =>
     sendJSON({ type: "UNSUBSCRIBE", chatRoomId: id }),
   );
@@ -212,7 +239,30 @@ export const unsubscribeAll = () => {
 };
 
 // 채팅 SEND
-export const sendChatWS = (chatRoomId: number, content: string) => {
-  // 백엔드 명세: 반드시 JSON 문자열로 보냄
-  return sendJSON({ type: "SEND", chatRoomId, content });
+//🌟
+// export const sendChatWS = (chatRoomId: number, content: string) => {
+//   // 백엔드 명세: 반드시 JSON 문자열로 보냄
+//   return sendJSON({ type: "SEND", chatRoomId, content });
+// };
+export const sendChatWS = (
+  chatRoomId: number,
+  payload:
+    | { kind: "text"; content: string }
+    | { kind: "image"; imgKeys: string[] },
+) => {
+  if (payload.kind === "text") {
+    return sendJSON({
+      type: "SEND",
+      chatRoomId,
+      messageType: "TEXT",
+      content: payload.content,
+    });
+  } else {
+    return sendJSON({
+      type: "SEND",
+      chatRoomId,
+      messageType: "IMAGE",
+      imgKeys: payload.imgKeys,
+    });
+  }
 };

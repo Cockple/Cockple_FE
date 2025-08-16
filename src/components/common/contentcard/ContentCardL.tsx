@@ -28,8 +28,8 @@ interface ContentCardLProps {
   date: string;
   location: string;
   time: string;
-  femaleLevel: string;
-  maleLevel: string;
+  femaleLevel: string[];
+  maleLevel: string[];
   currentCount: number;
   totalCount: number;
   like?: boolean;

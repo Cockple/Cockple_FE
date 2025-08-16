@@ -17,11 +17,14 @@ import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
-  const response = await api.get<AlertListResponse>("/api/notifications", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    },
-  });
+  const response = await api.get<AlertListResponse>(
+    "/api/notifications",
+    // {
+    // headers: {
+    //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    // },
+    // }
+  );
 
   console.log("내 알림 목록: ", response.data.data);
   return response.data.data;
@@ -55,30 +58,6 @@ export const AlertPage = () => {
     ["INVITE", "CHANGE", "SIMPLE"].includes(alert.type),
   );
 
-  // 알림 목록 조회 api
-  // useEffect(() => {
-  //   const fetchNotifications = async () => {
-  //     try {
-  //       const response = await api.get<AlertListResponse>(
-  //         `/api/notifications`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //           },
-  //         },
-  //       );
-  //       console.log("알림 목록 : ", response.data);
-
-  //       const { data } = response.data;
-  //       setNotifications(data);
-  //     } catch (error) {
-  //       console.error("알림 목록 조회 실패:", error);
-  //     }
-  //   };
-
-  //   fetchNotifications();
-  // }, []);
-
   const handleAccept = (id: number) => {
     setTargetId(id);
     //setShowApproveModal(true);
@@ -106,78 +85,57 @@ export const AlertPage = () => {
     }
   };
 
-  //모임 초대 수락 api
-  //알림 invite_accept patch
-  // const confirmApprove = async () => {
-  //   if (targetId !== null) {
+  // 안전 파서
+  function extractInvitationId(data: ResponseAlertDto["data"]): number | null {
+    if (!data) return null;
 
-  //     try {
-  //       // 알림 상태 먼저 수정 (INVITE → INVITE_ACCEPT)
-  //       const patchNotificationRes = await api.patch(
-  //         `/api/notifications/${targetId}`,
-  //         { type: "INVITE_ACCEPT" },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //           },
-  //         },
-  //       );
-  //       console.log("알림 승인 성공:", patchNotificationRes.data);
+    // data가 문자열(JSON)로 오는 케이스 대응
+    if (typeof data === "string") {
+      try {
+        const parsed = JSON.parse(data);
+        const id = parsed?.invitationId;
+        return typeof id === "number" ? id : Number(id ?? NaN);
+      } catch {
+        return null;
+      }
+    }
 
-  //       // invitationId가 있다면 모임 초대 승인도 추가
-  //       const targetAlert = notifications.find(
-  //         alert => alert.notificationId === targetId,
-  //       );
+    // 객체로 오는 케이스도 대비
+    const id = data?.invitationId;
+    return typeof id === "number" ? id : Number(id ?? NaN);
+  }
 
-  //       const invitationId = targetAlert?.data?.invitationId;
-  //       if (invitationId) {
-  //         const patchInviteRes = await api.patch(
-  //           `/api/parties/invitations/${invitationId}`,
-  //           { action: "APPROVE" },
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //             },
-  //           },
-  //         );
-  //         console.log("모임 초대 승인 성공:", patchInviteRes.data);
-  //       }
-
-  //       // 알림 목록에서 제거
-  //       setNotifications(prev =>
-  //         prev.filter(alert => alert.notificationId !== targetId),
-  //       );
-  //     } catch (error) {
-  //       console.error("승인 처리 중 오류:", error);
-  //     }
-  //     setShowApproveModal(false);
-  //   }
-  // };
   const approveMutation = useMutation({
     mutationFn: async (notification: ResponseAlertDto) => {
-      const { notificationId, data } = notification;
+      const { notificationId, partyId } = notification;
+      const invitationId = extractInvitationId(notification.data);
 
       // 알림 상태 수정 (INVITE → INVITE_ACCEPT)
       await api.patch(
-        `/api/notifications/${notificationId}`,
-        { type: "INVITE_ACCEPT" },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
+        `/api/notifications/${notificationId}?type=INVITE_ACCEPT`,
+        //{ type: "INVITE_ACCEPT" },
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        //   },
+        // },
       );
 
-      if (data?.invitationId) {
+      if (partyId && invitationId) {
         await api.patch(
-          `/api/parties/invitations/${data.invitationId}`,
+          `/api/parties/invitations/${invitationId}`,
           { action: "APPROVE" },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          //   },
+          // },
         );
+        console.log("모임으로 승인 요청 보냄, 초대 아이디: ", invitationId);
+      } else if (partyId && !invitationId) {
+        console.log("모임 있지만 invitationId 없음");
+      } else {
+        console.log("모임도 없고 invitationId도 없음");
       }
     },
     onSuccess: () => {
@@ -189,79 +147,29 @@ export const AlertPage = () => {
     },
   });
 
-  // const confirmReject = async () => {
-  //   if (targetId !== null) {
-  //     // 알림에서 제거
-  //     // setNotifications(prev =>
-  //     //   prev.filter(alert => alert.notificationId !== targetId),
-  //     // );
-
-  //     // console.log("거절 처리", targetId); // 실제 로직 대체 가능
-  //     try {
-  //       // 알림 상태 변경 (INVITE → INVITE_REJECT)
-  //       const patchNotificationRes = await api.patch(
-  //         `/api/notifications/${targetId}`,
-  //         { type: "INVITE_REJECT" },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //           },
-  //         },
-  //       );
-  //       console.log("알림 거절 성공:", patchNotificationRes.data);
-
-  //       // invitationId 있으면 모임 초대 거절 처리
-  //       const targetAlert = notifications.find(
-  //         alert => alert.notificationId === targetId,
-  //       );
-
-  //       const invitationId = targetAlert?.data?.invitationId;
-  //       if (invitationId) {
-  //         const patchInviteRes = await api.patch(
-  //           `/api/parties/invitations/${invitationId}`,
-  //           { action: "REJECT" },
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //             },
-  //           },
-  //         );
-  //         console.log("모임 초대 거절 성공:", patchInviteRes.data);
-  //       }
-
-  //       // 알림 목록에서 제거
-  //       setNotifications(prev =>
-  //         prev.filter(alert => alert.notificationId !== targetId),
-  //       );
-  //     } catch (error) {
-  //       console.error("거절 처리 중 오류:", error);
-  //     }
-  //     setShowRejectModal(false);
-  //   }
-  // };
   const rejectMutation = useMutation({
     mutationFn: async (notification: ResponseAlertDto) => {
       const { notificationId, data } = notification;
 
       await api.patch(
-        `/api/notifications/${notificationId}`,
-        { type: "INVITE_REJECT" },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
+        `/api/notifications/${notificationId}?type=INVITE_REJECT`,
+        //{ type: "INVITE_REJECT" },
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        //   },
+        // },
       );
 
       if (data?.invitationId) {
         await api.patch(
           `/api/parties/invitations/${data.invitationId}`,
           { action: "REJECT" },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          //   },
+          // },
         );
       }
     },
@@ -298,38 +206,6 @@ export const AlertPage = () => {
 
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
-        {/* {visibleNotifications.length === 0 ? (
-          <div className="flex flex-1 justify-center items-center">
-            <NoAlertMessage />
-          </div>
-        ) : (
-          visibleNotifications.map(alert => {
-            return alert.type === "INVITE" ? (
-              <AlertInvite
-                key={alert.notificationId}
-                groupName={alert.title}
-                alertText={alert.content}
-                imageSrc={alert.imgUrl}
-                onAccept={() => handleAccept(alert.notificationId)}
-                onReject={() => handleReject(alert.notificationId)}
-              />
-            ) : (
-              <AlertTest1
-                key={alert.notificationId}
-                groupName={alert.title}
-                alertText={alert.content}
-                imageSrc={alert.imgUrl}
-                alertType={alert.type}
-                descriptionText={getDescriptionText(alert.type)}
-                onClick={
-                  shouldMoveToDetail(alert.type)
-                    ? () => handleDetail(alert.partyId, alert.data)
-                    : undefined
-                }
-              />
-            );
-          })
-        )} */}
         {isLoading ? (
           <div className="text-center mt-10">로딩 중...</div>
         ) : isError ? (
@@ -368,15 +244,6 @@ export const AlertPage = () => {
         )}
       </div>
 
-      {/* 승인 모달 */}
-      {/* {showApproveModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
-          <ApproveModal
-            onClose={() => setShowApproveModal(false)}
-            onApprove={confirmApprove}
-          />
-        </div>
-      )} */}
       {modalType === "approve" && selectedAlert && (
         <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
           <ApproveModal
@@ -386,15 +253,6 @@ export const AlertPage = () => {
         </div>
       )}
 
-      {/* 거절 모달 */}
-      {/* {showRejectModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
-          <RejectModal
-            onClose={() => setShowRejectModal(false)}
-            onReject={confirmReject}
-          />
-        </div>
-      )} */}
       {modalType === "reject" && selectedAlert && (
         <div className="fixed inset-0 flex justify-center items-center bg-black-60 z-50">
           <RejectModal

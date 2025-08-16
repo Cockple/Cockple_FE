@@ -37,8 +37,8 @@ export type ExerciseCard = {
   date: string;
   startExerciseTime: string;
   endExerciseTime: string;
-  femaleLevel: string;
-  maleLevel: string;
+  femaleLevel: string[];
+  maleLevel: string[];
   nowMemberCnt: number;
   maxMemberCnt: number;
   includeParty: boolean;
