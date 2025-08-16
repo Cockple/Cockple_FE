@@ -26,6 +26,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 // store
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId } from "../../utils/auth";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ export const ChatPage = () => {
   const [personalChatRooms, setPersonalChatRooms] = useState<
     PersonalChatRoom[]
   >([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // ws 연결
   const memberId = resolveMemberId() ?? 0;
@@ -64,6 +66,7 @@ export const ChatPage = () => {
 
   // 전체 목록(최초 로드)
   useEffect(() => {
+    setIsLoading(true); // 🌟 로딩 시작
     const fetchChats = async () => {
       try {
         const [groupRes, personalRes] = await Promise.all([
@@ -91,6 +94,8 @@ export const ChatPage = () => {
         hydrateFromAPI(seed);
       } catch (err) {
         console.error("전체 채팅방 목록 불러오기 실패", err);
+      } finally {
+        setIsLoading(false); // 🌟 로딩 종료
       }
     };
 
@@ -100,6 +105,7 @@ export const ChatPage = () => {
   // 검색/복원
   useEffect(() => {
     const run = async () => {
+      setIsLoading(true); // 🌟 로딩 시작
       try {
         if (activeTab === "group") {
           // 그룹 탭일 때만 그룹 검색/복원
@@ -144,6 +150,8 @@ export const ChatPage = () => {
         console.error("검색 실패:", e);
         if (activeTab === "group") setGroupChatRooms([]);
         else setPersonalChatRooms([]);
+      } finally {
+        setIsLoading(false); // 🌟 로딩 종료
       }
     };
     run();
@@ -243,17 +251,21 @@ export const ChatPage = () => {
 
           {/* 채팅 리스트 또는 결과 없음 */}
           <div className="flex min-h-[60dvh] overflow-hidden">
-            <ChatList
-              tab={activeTab}
-              //🌟
-              //groupChats={groupChatRooms}
-              //personalChats={personalChatRooms}
-              groupChats={mergedGroup}
-              personalChats={mergedPersonal}
-              isValidSearch={true}
-              searchTerm={searchTerm}
-              navigate={navigate}
-            />
+            {isLoading ? ( // 🌟로딩 중일 때
+              <LoadingSpinner />
+            ) : (
+              <ChatList
+                tab={activeTab}
+                //🌟
+                //groupChats={groupChatRooms}
+                //personalChats={personalChatRooms}
+                groupChats={mergedGroup}
+                personalChats={mergedPersonal}
+                //isValidSearch={true}
+                searchTerm={searchTerm}
+                navigate={navigate}
+              />
+            )}
           </div>
         </section>
       </div>

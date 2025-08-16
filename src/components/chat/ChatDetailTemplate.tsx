@@ -24,6 +24,7 @@ import { uploadImage } from "../../api/image/imageUpload";
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import useUserStore from "../../store/useUserStore";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -404,7 +405,7 @@ export const ChatDetailTemplate = ({
         )}
 
         {/* 상태 UI */}
-        {initLoading && <CenterBox>불러오는 중…</CenterBox>}
+        {initLoading && <LoadingSpinner />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">
