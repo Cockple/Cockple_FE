@@ -15,7 +15,7 @@ export type GroupMakingRequestDto = {
   minBirthYear: number;
   maxBirthYear: number;
   content?: string;
-  imgUrl?: string;
+  imgKey?: string;
 };
 
 export type GroupMaking = {
@@ -30,5 +30,4 @@ export type SuggestParms = {
   levelSearch?: string;
   page?: number;
   size?: number;
-  sort?: string[];
 };

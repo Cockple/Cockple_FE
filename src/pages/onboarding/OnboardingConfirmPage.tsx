@@ -23,7 +23,7 @@ export const ConfirmPage = () => {
     "운영진이 게임을 짜드려요",
   ];
 
-  const { level, memberName, gender, birth, keyword, setTemp } =
+  const { level, memberName, gender, birth, keyword, imgKey, setTemp } =
     useOnboardingState();
 
   const [selectedTag, setSelectedTag] = useState<string[]>(keyword ?? []);
@@ -56,6 +56,7 @@ export const ConfirmPage = () => {
       birth: birth.split(".").join("-"),
       level: toEng(level),
       keywords: mappedKeywords,
+      imgKey: imgKey,
     };
     const { data } = await axios.post<OnBoardingResponseDto>(
       "/api/my/details",

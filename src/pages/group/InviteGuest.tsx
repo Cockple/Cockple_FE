@@ -16,7 +16,8 @@ import { userLevelMapper } from "../../utils/levelValueExchange";
 import type { ResponseInviteGuest } from "../../types/guest";
 import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
-import { getInviteGuestList } from "../../api/exercise/InviteGuest";
+import { handleInput } from "../../utils/handleDetected";
+import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
 
 export const InviteGuest = () => {
   //정보
@@ -27,17 +28,9 @@ export const InviteGuest = () => {
   const queryClient = useQueryClient();
   const axios = api;
 
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    //한글,영어만 입력되도록, 공백포함 17글자
-    input = input.slice(0, 17);
-    const filtered = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setLocalName(filtered);
-  };
-
+  const handleInputDetected = handleInput(17, v => {
+    setLocalName(v);
+  });
   const { setValue, watch } = useForm({
     defaultValues: {
       levelOptions: "",
