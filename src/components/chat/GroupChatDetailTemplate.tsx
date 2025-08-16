@@ -52,7 +52,7 @@ export const GroupChatDetailTemplate: React.FC<
     messages, // 정렬된 평탄화(오름차순)
     initLoading,
     initError,
-    isEmpty,
+    //isEmpty,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -323,53 +323,57 @@ export const GroupChatDetailTemplate: React.FC<
             </div>
           </CenterBox>
         )}
-        {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
+        {/* {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>} */}
 
         {/* 메시지 리스트 */}
-        {!initLoading && !initError && !isEmpty && (
-          <div className="flex flex-col gap-5 shrink-0 p-4">
-            {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
-            <div ref={topSentinelRef} />
+        {!initLoading &&
+          !initError &&
+          (rendered.length === 0 ? (
+            <CenterBox>아직 메시지가 없습니다</CenterBox>
+          ) : (
+            <div className="flex flex-col gap-5 shrink-0 p-4">
+              {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
+              <div ref={topSentinelRef} />
 
-            {rendered.map((chat, idx) => {
-              const prev = idx > 0 ? rendered[idx - 1] : undefined;
-              //🌟
-              // const onlyDate = (s: string) =>
-              //   new Date(s).toISOString().split("T")[0];
-              //const onlyDate = (s: string) => s;
-              // const showDate =
-              //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
-              const showDate =
-                !prev ||
-                formatDateWithDay(chat.timestamp) !==
-                  formatDateWithDay(prev.timestamp);
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator
-                      date={formatDateWithDay(chat.timestamp)}
+              {rendered.map((chat, idx) => {
+                const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                //🌟
+                // const onlyDate = (s: string) =>
+                //   new Date(s).toISOString().split("T")[0];
+                //const onlyDate = (s: string) => s;
+                // const showDate =
+                //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
+                const showDate =
+                  !prev ||
+                  formatDateWithDay(chat.timestamp) !==
+                    formatDateWithDay(prev.timestamp);
+                return (
+                  <React.Fragment key={chat.messageId}>
+                    {showDate && (
+                      <ChatDateSeparator
+                        date={formatDateWithDay(chat.timestamp)}
+                      />
+                    )}
+                    <ChattingComponent
+                      message={chat}
+                      isMe={chat.senderId === currentUserId}
+                      onImageClick={setPreviewImage}
+                      time={formatEnLowerAmPm(chat.timestamp)}
                     />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatEnLowerAmPm(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })}
+                  </React.Fragment>
+                );
+              })}
 
-            {isFetchingNextPage && (
-              <div className="text-center text-gy-600 text-sm">
-                이전 메시지 불러오는 중…
-              </div>
-            )}
+              {isFetchingNextPage && (
+                <div className="text-center text-gy-600 text-sm">
+                  이전 메시지 불러오는 중…
+                </div>
+              )}
 
-            {/* 하단 앵커 */}
-            <div className="h-5" ref={bottomRef} />
-          </div>
-        )}
+              {/* 하단 앵커 */}
+              <div className="h-5" ref={bottomRef} />
+            </div>
+          ))}
 
         {previewImage && (
           <ImagePreviewModal
