@@ -24,6 +24,11 @@ import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
+// 유저 정보
+import useUserStore from "../../store/useUserStore";
+import { resolveMemberId, resolveNickname } from "../../utils/auth";
+import { LoadingSpinner } from "../common/LoadingSpinner";
+
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
     {children}
@@ -45,8 +50,9 @@ export const GroupChatDetailTemplate: React.FC<
   //const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
-  const currentUserId = Number(localStorage.getItem("memberId") || 1);
-  const currentUserName = localStorage.getItem("memberName") || "나";
+  const storeUser = useUserStore(s => s.user);
+  const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
+  const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
 
   const {
     messages, // 정렬된 평탄화(오름차순)
@@ -74,12 +80,6 @@ export const GroupChatDetailTemplate: React.FC<
       unsubscribeRoom(roomId);
     };
   }, [roomId]);
-
-  // ===== WebSocket 연결 상태 뱃지 =====
-  // const { status: wsStatus, isOpen: wsOpen } = useRawWsConnect({
-  //   memberId: currentUserId,
-  //   origin: "https://cockple.store", // 필요 시 고정
-  // });
 
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
@@ -309,7 +309,7 @@ export const GroupChatDetailTemplate: React.FC<
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
       >
         {/* 상태 UI */}
-        {initLoading && <CenterBox>불러오는 중…</CenterBox>}
+        {initLoading && <LoadingSpinner />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">

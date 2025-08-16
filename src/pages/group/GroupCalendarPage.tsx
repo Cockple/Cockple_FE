@@ -62,8 +62,8 @@ export const GroupCalendarPage = () => {
                 date={selectedDate}
                 location={exercise.buildingName}
                 time={`${exercise.startTime} ~ ${exercise.endTime}`}
-                femaleLevel={exercise.femaleLevel.join(", ")}
-                maleLevel={exercise.maleLevel.join(", ")}
+                femaleLevel={exercise.femaleLevel}
+                maleLevel={exercise.maleLevel}
                 currentCount={exercise.currentParticipants}
                 totalCount={exercise.maxCapacity}
                 like={exercise.isBookmarked}

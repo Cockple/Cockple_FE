@@ -467,16 +467,8 @@ export const GroupHomePage = () => {
                 date={selectedDate}
                 location={ex.buildingName}
                 time={`${ex.startTime} ~ ${ex.endTime}`}
-                femaleLevel={
-                  ex.femaleLevel.length === 1
-                    ? `${ex.femaleLevel[0]} 이상`
-                    : `${ex.femaleLevel[0]} ~ ${ex.femaleLevel.at(-1)}`
-                }
-                maleLevel={
-                  ex.maleLevel.length === 1
-                    ? `${ex.maleLevel[0]} 이상`
-                    : `${ex.maleLevel[0]} ~ ${ex.maleLevel.at(-1)}`
-                }
+                femaleLevel={ex.femaleLevel}
+                maleLevel={ex.maleLevel}
                 currentCount={ex.currentParticipants}
                 totalCount={ex.maxCapacity}
                 like={ex.isBookmarked}

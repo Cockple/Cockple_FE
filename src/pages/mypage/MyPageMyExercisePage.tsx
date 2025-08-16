@@ -6,16 +6,25 @@ import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
-import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
+import type {
+  FilterType,
+  OrderType,
+  ExerciseItem,
+} from "../../api/exercise/my";
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
 
 export const MyPageMyExercisePage = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [sortOption, setSortOption] = useState<"최신순" | "오래된 순">("최신순");
-  const [selectedTab, setSelectedTab] = useState<"전체" | "참여 예정" | "참여 완료">("전체");
+  const [sortOption, setSortOption] = useState<"최신순" | "오래된 순">(
+    "최신순",
+  );
+  const [selectedTab, setSelectedTab] = useState<
+    "전체" | "참여 예정" | "참여 완료"
+  >("전체");
   const [exerciseList, setExerciseList] = useState<ExerciseItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } = useLikedExerciseIds();
+  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
+    useLikedExerciseIds();
 
   // 탭 → filterType 매핑
   const mapTabToFilterType = (tab: string): FilterType => {
@@ -39,14 +48,13 @@ export const MyPageMyExercisePage = () => {
     const fetchExercises = async () => {
       setIsLoading(true);
       try {
-      const data = await getMyExercises({
-        filterType: mapTabToFilterType(selectedTab), // "ALL" | "UPCOMING" | "COMPLETED"
-        orderType: mapSortToOrderType(sortOption),  // "LATEST" | "OLDEST"
-        page: 0,
-        size: 10,
-      });
-      setExerciseList(data);
-
+        const data = await getMyExercises({
+          filterType: mapTabToFilterType(selectedTab), // "ALL" | "UPCOMING" | "COMPLETED"
+          orderType: mapSortToOrderType(sortOption), // "LATEST" | "OLDEST"
+          page: 0,
+          size: 10,
+        });
+        setExerciseList(data);
       } catch (err) {
         console.error("운동 데이터 불러오기 실패", err);
         setExerciseList([]);
@@ -74,7 +82,7 @@ export const MyPageMyExercisePage = () => {
         <TabSelector
           options={tabOptions}
           selected={selectedTab}
-          onChange={(value) =>
+          onChange={value =>
             setSelectedTab(value as "전체" | "참여 예정" | "참여 완료")
           }
         />
@@ -93,28 +101,28 @@ export const MyPageMyExercisePage = () => {
               />
             </div>
             <div className="flex flex-col items-center justify-center">
-            {exerciseList.map(item => {
-              const isLiked = likedExerciseIds.includes(item.exerciseId);
+              {exerciseList.map(item => {
+                const isLiked = likedExerciseIds.includes(item.exerciseId);
 
-              return (
-                <ContentCardL
-                  key={item.exerciseId}
-                  id={item.exerciseId}
-                  isUserJoined={item.access.ispartyMember}
-                  isGuestAllowedByOwner={item.access.allowGuestInvitation}
-                  isCompleted={item.isCompleted}
-                  title={item.partyName}
-                  date={item.date}
-                  location={item.buildingName}
-                  time={`${item.startTime} ~ ${item.endTime}`}
-                  femaleLevel={item.levelRequirement.female}
-                  maleLevel={item.levelRequirement.male}
-                  currentCount={item.participation.current}
-                  totalCount={item.participation.max}
-                  like={isLiked}
-                />
-              );
-            })}
+                return (
+                  <ContentCardL
+                    key={item.exerciseId}
+                    id={item.exerciseId}
+                    isUserJoined={item.access.ispartyMember}
+                    isGuestAllowedByOwner={item.access.allowGuestInvitation}
+                    isCompleted={item.isCompleted}
+                    title={item.partyName}
+                    date={item.date}
+                    location={item.buildingName}
+                    time={`${item.startTime} ~ ${item.endTime}`}
+                    femaleLevel={[item.levelRequirement.female]}
+                    maleLevel={[item.levelRequirement.male]}
+                    currentCount={item.participation.current}
+                    totalCount={item.participation.max}
+                    like={isLiked}
+                  />
+                );
+              })}
             </div>
           </>
         ) : (
@@ -128,9 +136,7 @@ export const MyPageMyExercisePage = () => {
         isOpen={isSortOpen}
         onClose={() => setIsSortOpen(false)}
         selected={sortOption}
-        onSelect={(option) =>
-          setSortOption(option as "최신순" | "오래된 순")
-        }
+        onSelect={option => setSortOption(option as "최신순" | "오래된 순")}
         options={["최신순", "오래된 순"]}
       />
     </div>

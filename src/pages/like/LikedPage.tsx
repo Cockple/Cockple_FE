@@ -91,80 +91,12 @@ export const LikedPage = () => {
     enabled: activeTab === "exercise",
   });
 
-  // 모임 찜
-  // const groupBookmarkMutation = useMutation({
-  //   mutationFn: (partyId: number) => bookmarkGroup(partyId),
-  // });
-
-  // 모임 찜 해제
-  // const groupUnbookmarkMutation = useMutation({
-  //   mutationFn: (partyId: number) => unbookmarkGroup(partyId),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["groupBookmarks", selectedSort],
-  //     });
-  //   },
-  // });
-
-  // 운동 찜
-  // const exerciseBookmarkMutation = useMutation({
-  //   mutationFn: (partyId: number) => bookmarkExercise(partyId),
-  // });
-
-  // 운동 찜 해제
-  // const exerciseUnbookmarkMutation = useMutation({
-  //   mutationFn: (exerciseId: number) => unbookmarkExercise(exerciseId),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["exerciseBookmarks", selectedSort],
-  //     });
-  //   },
-  // });
-
-  // 찜 해제 핸들러
-  // const handleToggleFavorite = (id: number) => {
-  //   if (activeTab === "group") {
-  //     //groupUnbookmarkMutation.mutate(id);
-  //     setTempUnbookmarkedGroupIds(prev =>
-  //       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
-  //     );
-  //   } else {
-  //     //exerciseUnbookmarkMutation.mutate(id);
-  //     setTempUnbookmarkedExerciseIds(prev =>
-  //       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
-  //     );
-  //   }
-  // };
-
   const handleSortClick = () => setIsSortOpen(prev => !prev);
 
   const handleSelectSort = (option: string) => {
     setSelectedSort(option);
     setIsSortOpen(false);
   };
-
-  // const handleToggleFavorite = (id: number) => {
-  //   console.log("하트 토글", id);
-  //   if (activeTab === "group") {
-  //     setGroupCards(prev =>
-  //       prev.map(card =>
-  //         card.partyId === id
-  //           ? { ...card, isFavorite: !card.isFavorite }
-  //           : card,
-  //       ),
-  //     );
-  //   } else {
-  //     setExerciseCards(prev =>
-  //       prev.map(card =>
-  //         card.exerciseId === id
-  //           ? { ...card, isFavorite: !card.isFavorite }
-  //           : card,
-  //       ),
-  //     );
-  //   }
-  //   // 배포 오류 해결을 위한 임시 코드
-  //   console.log(exerciseCards);
-  // };
 
   const isLoading = activeTab === "group" ? isGroupLoading : isExerciseLoading;
   const isError = activeTab === "group" ? isGroupError : isExerciseError;
