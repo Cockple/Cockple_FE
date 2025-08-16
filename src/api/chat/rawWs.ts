@@ -2,6 +2,7 @@
 // SockJS 전용 (STOMP 미사용). 기존 함수명/시그니처 유지.
 
 import SockJS from "sockjs-client";
+import useUserStore from "../../store/useUserStore";
 
 let ws: WebSocket | null = null;
 
@@ -84,8 +85,12 @@ const buildSockUrl = (origin?: string) => {
   return base; // SockJS는 http/https 사용
 };
 
-//🌟 ---- 토큰 유틸 & 가드
-const getToken = () => localStorage.getItem("accessToken") || "";
+//토큰 유틸 & 가드
+//const getToken = () => localStorage.getItem("accessToken") || "";
+const getToken = () => {
+  const { user } = useUserStore.getState();
+  return user?.accessToken ?? localStorage.getItem("accessToken") ?? "";
+};
 const hasToken = () => !!getToken();
 
 // 서버로 보낼 메시지 타입
@@ -117,7 +122,7 @@ export const connectRawWs = (
   { memberId, origin }: { memberId: number; origin?: string },
   handlers: Handlers = {},
 ) => {
-  // 🌟 accessToken 없으면 연결 시도 안 함
+  // accessToken 없으면 연결 시도 안 함
   if (!hasToken()) {
     console.info("[WS] skipped: no accessToken");
     return null;
@@ -132,16 +137,10 @@ export const connectRawWs = (
 
   const base = buildSockUrl(origin);
   const url = new URL(base);
-  //🌟
-  //const token = localStorage.getItem("accessToken") ?? "";
-
   url.searchParams.set("memberId", String(memberId));
-  //🌟
-  //url.searchParams.set("token", token);
   url.searchParams.set("token", getToken()); // 서버가 헤더 대신 쿼리 파라미터로 읽는 형태라면 유지
 
   // SockJS 생성 (NOTE: SockJS는 http/https URL 사용)
-  // 타입 호환 위해 any 캐스팅. 런타임은 WebSocket 유사 API 제공.
   const sock = new SockJS(url.toString());
   ws = sock as WebSocket;
 
@@ -172,10 +171,12 @@ export const connectRawWs = (
   };
 
   sock.onclose = (ev: CloseEvent) => {
+    //🌟
+    console.warn("[WS close]", ev.code, ev.reason);
     handlers.onClose?.(ev);
     ws = null;
 
-    // 🌟토큰 없으면 재시도 안 함
+    // 토큰 없으면 재시도 안 함
     if (!hasToken()) return;
 
     // 백오프 재연결
