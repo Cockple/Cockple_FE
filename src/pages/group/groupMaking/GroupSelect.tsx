@@ -29,6 +29,7 @@ export const GroupSelect = () => {
     ageRange,
     joinMoney,
     time,
+    imgKey,
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
@@ -78,7 +79,7 @@ export const GroupSelect = () => {
       minBirthYear: ageRange[0],
       maxBirthYear: ageRange[1],
       content: text || "",
-      // imgKey:""
+      imgKey: imgKey,
     };
     const { data } = await axios.post<GroupMakingResponseDTO>(
       "/api/parties",

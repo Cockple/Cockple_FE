@@ -15,7 +15,7 @@ export type GroupMakingRequestDto = {
   minBirthYear: number;
   maxBirthYear: number;
   content?: string;
-  imgUrl?: string;
+  imgKey?: string;
 };
 
 export type GroupMaking = {

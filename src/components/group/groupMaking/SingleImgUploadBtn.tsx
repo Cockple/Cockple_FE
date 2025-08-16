@@ -1,23 +1,51 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CameraIcon from "@/assets/icons/camera.svg?url";
 import DissMiss_GY from "@/assets/icons/dismiss_gy800.svg?url";
+import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
+import { uploadImage } from "../../../api/image/imageUpload";
 
 export default function SingleImageUploadBtn() {
-  const [image, setImage] = useState<string | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null); // imgKey, imgUrl는 store에서 가져다 씀
+  const { setFilter } = useGroupMakingFilterStore();
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
-      // fileInput.current = file;
+    if (!file) return;
+
+    if (preview) URL.revokeObjectURL(preview);
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+
+    try {
+      const { imgUrl, imgKey } = await uploadImage("PARTY", file);
+      setFilter("imgKey", imgKey);
+      setFilter("imgUrl", imgUrl);
+    } catch (err) {
+      console.error(err);
+      alert("이미지 업로드에 실패했어요. 잠시 후 다시 시도해주세요.");
+      URL.revokeObjectURL(objectUrl);
+      setPreview(null);
+      setFilter("imgKey", "");
+      setFilter("imgUrl", "");
+    } finally {
+      e.currentTarget.value = "";
     }
   };
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setImage(null);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(null);
+    setFilter("imgKey", "");
+    setFilter("imgUrl", "");
+    // input 초기화
+    if (fileInput.current) fileInput.current.value = "";
   };
 
   return (
@@ -26,12 +54,12 @@ export default function SingleImageUploadBtn() {
         htmlFor="image-upload"
         className={`relative flex flex-col justify-center items-center gap-1 w-[100px] h-[100px] rounded-xl border ${"cursor-pointer border-gray-300"} flex-shrink-0`}
       >
-        {!image && <img src={CameraIcon} alt="" className="absolute" />}
+        {!preview && <img src={CameraIcon} alt="" className="absolute" />}
         {/* 이미지 있 */}
-        {image && (
+        {preview && (
           <>
             <img
-              src={image}
+              src={preview}
               alt="업로드된 이미지"
               className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
             />
