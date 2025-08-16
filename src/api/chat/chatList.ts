@@ -40,12 +40,12 @@ export const getPersonalChatRooms = async () => {
     // },
   );
 
-  if (
-    response.data.code === "CHAT202" ||
-    response.data.errorReason.code === "CHAT202"
-  ) {
-    return { content: [], hasNext: false };
-  }
+  // if (
+  //   response.data.code === "CHAT202" ||
+  //   response.data.errorReason.code === "CHAT202"
+  // ) {
+  //   return { content: [], hasNext: false };
+  // }
   console.log("direct: ", response);
   return response.data.data;
 };
