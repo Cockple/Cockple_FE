@@ -50,8 +50,8 @@ export const Default: Story = {
     date: "2024.07.08",
     location: "산성 실내 배드민턴장",
     time: "08:00 am ~ 10:00 am",
-    femaleLevel: "전국 초심~준자강",
-    maleLevel: "전국 준자강 이상",
+    femaleLevel: ["초심"],
+    maleLevel: ["준자강"],
     currentCount: 8,
     totalCount: 10,
   },
@@ -110,8 +110,8 @@ export const LongLevels: Story = {
   args: {
     ...Default.args,
     id: 6, // ✅ id 추가
-    femaleLevel: "전국 초심~준자강 (경력 5년 이상)",
-    maleLevel: "전국 준자강 이상 (경력 10년 이상)",
+    femaleLevel: ["초심"],
+    maleLevel: ["준자강"],
   },
 };
 
@@ -125,8 +125,8 @@ export const Completed: Story = {
     date: "2024.07.08",
     location: "산성 실내 배드민턴장",
     time: "08:00 am ~ 10:00 am",
-    femaleLevel: "전국 초심~준자강",
-    maleLevel: "전국 준자강 이상",
+    femaleLevel: ["초심"],
+    maleLevel: ["준자강"],
     currentCount: 8,
     totalCount: 10,
   },
