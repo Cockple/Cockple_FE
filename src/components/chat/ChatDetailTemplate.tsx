@@ -20,6 +20,9 @@ import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
+// 🌟 store
+import { useChatWsStore } from "../../store/useChatWsStore";
+
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
@@ -74,21 +77,36 @@ export const ChatDetailTemplate = ({
     // },
   });
 
+  // 🌟 활성 방/읽음카운트 스토어 연동
+  const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
+  const clearUnread = useChatWsStore(s => s.clearUnread);
+
+  //🌟
   // 방 입장/퇴장: 단일 구독 유지
+  // useEffect(() => {
+  //   subscribeRoom(chatId);
+  //   return () => {
+  //     // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
+  //     unsubscribeRoom(chatId);
+  //   };
+  // }, [chatId]);
   useEffect(() => {
     subscribeRoom(chatId);
+    setActiveRoom(chatId); // 상세 입장
+    clearUnread(chatId); // 입장 즉시 0으로 (서버 PATCH는 useChatRead에서)
+
     return () => {
-      // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
       unsubscribeRoom(chatId);
+      setActiveRoom(null); // 상세 퇴장
     };
-  }, [chatId]);
+  }, [chatId, setActiveRoom, clearUnread]);
 
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  //🌟낙관적/실시간 메시지 보관
+  //낙관적/실시간 메시지 보관
   const [liveMsgs, setLiveMsgs] = useState<ChatMessageResponse[]>([]);
 
   // ==== Refs ====
@@ -148,8 +166,6 @@ export const ChatDetailTemplate = ({
   }, [markReadNow]);
 
   //===== WS 연결 및 전송 =====
-  //🌟
-  //const { send, lastMessage } = useRawWsConnect({
   const { sendText, sendImage, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
@@ -204,11 +220,6 @@ export const ChatDetailTemplate = ({
     );
     console.log("메시지 전송:", text);
   };
-
-  //🌟
-  //const [uploading, setUploading] = useState(false);
-
-  // 이미지 업로드(미연결 - 로컬 프리뷰만)
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     //🌟
