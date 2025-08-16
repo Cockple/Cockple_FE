@@ -10,8 +10,10 @@ import type { Area } from "react-easy-crop";
 import ProfileImgIcon from "@/assets/images/profile_Image.png?url";
 import Basic_ProfileImg from "@/assets/images/base_profile_img.png?url";
 import { uploadImage } from "../../api/image/imageUpload";
+import { useOnboardingState } from "../../store/useOnboardingStore";
 
 export const OnboardingProfilePage = () => {
+  const setTemp = useOnboardingState(state => state.setTemp);
   const [isProfile, setIsProfile] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -45,6 +47,7 @@ export const OnboardingProfilePage = () => {
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
+
       setOriginalImage(imageUrl);
       setIsCropping(true);
       e.currentTarget.value = "";
@@ -100,9 +103,10 @@ export const OnboardingProfilePage = () => {
       const croppedFile = await dataURLToFile(croppedDataURL, "profile.jpg");
 
       // 이미지 업로드
-      const { imgUrl } = await uploadImage("PROFILE", croppedFile);
+      const { imgUrl, imgKey } = await uploadImage("PROFILE", croppedFile);
 
       // 미리보기 갱신
+      setTemp({ imgKey });
       setPreview(imgUrl);
       setIsProfile(true);
       setIsCropping(false);
