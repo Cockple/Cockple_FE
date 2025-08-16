@@ -7,6 +7,7 @@ import InputSlider from "../../../components/common/Search_Filed/InputSlider";
 import CheckBoxInputFiled from "../../../components/group/groupMaking/CheckBoxInputField";
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { useMyProfile } from "../../../api/member/my";
+import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
@@ -44,64 +45,36 @@ export const GroupFilter = () => {
 
   //슬라이드
   const [ageTouched, setAgeTouched] = useState(isAgeRangeFilled);
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    //한글,영어만 입력되도록, 공백포함 17글자
-    input = input.slice(0, 20);
-    const filtered = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setFilter("kock", filtered);
-  };
+  //유효성
+  const handleInputDetected = handleInput(20, v => {
+    setFilter("kock", v);
+  });
+  // ===== Utils =====
+  const digits = (s: string) => s.replace(/\D/g, "");
+  const fmtKRW = (s: string) =>
+    s === "" ? "" : Number(digits(s)).toLocaleString();
+  const addWon = (s: string) => (s && s !== "0" ? `${s}원` : s);
+  const stripWon = (s: string) =>
+    s.endsWith("원") ? s.slice(0, -1).replaceAll(",", "") : s;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const filtered = e.target.value.replace(/[^0-9]/g, "");
-    if (filtered === "") {
-      setFilter("money", "");
-      return;
-    }
-    const commaMoney = Number(filtered).toLocaleString();
-    setFilter("money", commaMoney);
-  };
-
-  const handleJoinMoneyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const filtered = e.target.value.replace(/[^0-9]/g, "");
-    if (filtered === "") {
-      setFilter("joinMoney", "");
-      return;
-    }
-    const commaMoney = Number(filtered).toLocaleString();
-    setFilter("joinMoney", commaMoney);
-  };
-
-  const handleMoneyBlur = () => {
-    if (money !== "0" && money) {
-      setFilter("money", `${money}원`);
-    }
-  };
-
-  const handleMoneyFocus = () => {
-    console.log(money);
-    if (money.endsWith("원")) {
-      const plain = money.replace("원", "").replaceAll(",", "");
-      setFilter("money", Number(plain).toLocaleString());
-    }
-  };
-  const handleJoinMoneyBlur = () => {
-    if (joinMoney !== "0" && joinMoney) {
-      setFilter("joinMoney", `${joinMoney}원`);
-    }
-  };
-
-  const handleJoinMoneyFocus = () => {
-    console.log(joinMoney);
-
-    if (joinMoney.endsWith("원")) {
-      const plain = joinMoney.replace("원", "").replaceAll(",", "");
-      setFilter("joinMoney", Number(plain).toLocaleString());
-    }
-  };
+  // 핸들러
+  const moneyHandlers = (key: "money" | "joinMoney", value: string) => ({
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = fmtKRW(e.target.value);
+      setFilter(key, v === "0" ? "" : v);
+    },
+    onBlur: () => {
+      if (value && value !== "0") setFilter(key, addWon(value));
+    },
+    onFocus: () => {
+      if (value?.endsWith?.("원")) {
+        const plain = stripWon(value);
+        setFilter(key, fmtKRW(plain));
+      }
+    },
+  });
+  const moneyH = moneyHandlers("money", money);
+  const joinMoneyH = moneyHandlers("joinMoney", joinMoney);
 
   const isFormValid =
     (kock.length > 0 || kock === "disabled") &&
@@ -138,9 +111,9 @@ export const GroupFilter = () => {
           <CheckBoxInputFiled
             value={joinMoney}
             checkLabel="없음"
-            onChange={handleJoinMoneyChange}
-            onBlur={handleJoinMoneyBlur}
-            onFocus={handleJoinMoneyFocus}
+            onChange={joinMoneyH.onChange}
+            onBlur={joinMoneyH.onBlur}
+            onFocus={joinMoneyH.onFocus}
             labelName={"가입비"}
             checked={joinMoney === "disabled"}
             onCheckChange={checked => {
@@ -151,9 +124,9 @@ export const GroupFilter = () => {
           <CheckBoxInputFiled
             value={money}
             checkLabel="없음"
-            onChange={handleChange}
-            onBlur={handleMoneyBlur}
-            onFocus={handleMoneyFocus}
+            onChange={moneyH.onChange}
+            onBlur={moneyH.onBlur}
+            onFocus={moneyH.onFocus}
             labelName={"회비"}
             checked={money === "disabled"}
             onCheckChange={checked => {

@@ -12,6 +12,7 @@ import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { useMyProfile } from "../../../api/member/my";
 import { LEVEL_KEY } from "../../../constants/options";
+import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
@@ -42,18 +43,10 @@ export const GroupBasicInfo = () => {
     ((selected === "female" && femaleLevel.length > 0) ||
       (selected === "mixed" && femaleLevel.length > 0 && maleLevel.length > 0));
 
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    //한글,영어만 입력되도록, 공백포함 17글자
-    input = input.slice(0, 17);
-    const filtered = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setLocalName(filtered);
-    setFilter("name", filtered);
-  };
-
+  const handleInputDetected = handleInput(20, v => {
+    setFilter("name", v);
+    setLocalName(v);
+  });
   const { data: me, isLoading } = useMyProfile();
   // console.log(me);
   const gender = me?.gender;

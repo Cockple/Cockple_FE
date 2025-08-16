@@ -14,6 +14,7 @@ import type {
 } from "../../../types/groupMaking";
 import { groupMaking } from "../../../utils/groupMaking";
 import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
+import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupSelect = () => {
   const [text, setText] = useState<string>();
@@ -33,16 +34,9 @@ export const GroupSelect = () => {
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    input = input.slice(0, 45);
-    const filterd = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setText(filterd);
-  };
-
+  const handleInputDetected = handleInput(45, v => {
+    setText(v);
+  });
   const parsePrice = (value: string) => {
     if (value === "disabled") return 0;
     return Number(value.split(",").join("").slice(0, -1));
