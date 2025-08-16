@@ -8,6 +8,7 @@ import CheckBoxInputFiled from "../../../components/group/groupMaking/CheckBoxIn
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { useMyProfile } from "../../../api/member/my";
 import { handleInput } from "../../../utils/handleDetected";
+import { addWon, fmtKRW, stripWon } from "../../../utils/moneychange";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
@@ -49,19 +50,11 @@ export const GroupFilter = () => {
   const handleInputDetected = handleInput(20, v => {
     setFilter("kock", v);
   });
-  // ===== Utils =====
-  const digits = (s: string) => s.replace(/\D/g, "");
-  const fmtKRW = (s: string) =>
-    s === "" ? "" : Number(digits(s)).toLocaleString();
-  const addWon = (s: string) => (s && s !== "0" ? `${s}원` : s);
-  const stripWon = (s: string) =>
-    s.endsWith("원") ? s.slice(0, -1).replaceAll(",", "") : s;
 
   // 핸들러
   const moneyHandlers = (key: "money" | "joinMoney", value: string) => ({
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-      const v = fmtKRW(e.target.value);
-      setFilter(key, v === "0" ? "" : v);
+      setFilter(key, fmtKRW(e.target.value));
     },
     onBlur: () => {
       if (value && value !== "0") setFilter(key, addWon(value));
