@@ -75,12 +75,6 @@ export const GroupChatDetailTemplate: React.FC<
     };
   }, [roomId]);
 
-  // ===== WebSocket 연결 상태 뱃지 =====
-  // const { status: wsStatus, isOpen: wsOpen } = useRawWsConnect({
-  //   memberId: currentUserId,
-  //   origin: "https://cockple.store", // 필요 시 고정
-  // });
-
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
