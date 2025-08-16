@@ -25,6 +25,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 
 // store
 import { useChatWsStore } from "../../store/useChatWsStore";
+import { resolveMemberId } from "../../utils/auth";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export const ChatPage = () => {
   >([]);
 
   // ws 연결
-  const memberId = Number(localStorage.getItem("memberId") || 1);
+  const memberId = resolveMemberId() ?? 0;
   const { isOpen } = useRawWsConnect({
     memberId,
     origin: "https://cockple.store",

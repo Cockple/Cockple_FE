@@ -2,6 +2,7 @@
 // SockJS 전용 (STOMP 미사용). 기존 함수명/시그니처 유지.
 
 import SockJS from "sockjs-client";
+import useUserStore from "../../store/useUserStore";
 
 let ws: WebSocket | null = null;
 
@@ -85,7 +86,11 @@ const buildSockUrl = (origin?: string) => {
 };
 
 //토큰 유틸 & 가드
-const getToken = () => localStorage.getItem("accessToken") || "";
+//const getToken = () => localStorage.getItem("accessToken") || "";
+const getToken = () => {
+  const { user } = useUserStore.getState();
+  return user?.accessToken ?? localStorage.getItem("accessToken") ?? "";
+};
 const hasToken = () => !!getToken();
 
 // 서버로 보낼 메시지 타입
@@ -166,10 +171,12 @@ export const connectRawWs = (
   };
 
   sock.onclose = (ev: CloseEvent) => {
+    //🌟
+    console.warn("[WS close]", ev.code, ev.reason);
     handlers.onClose?.(ev);
     ws = null;
 
-    // 🌟토큰 없으면 재시도 안 함
+    // 토큰 없으면 재시도 안 함
     if (!hasToken()) return;
 
     // 백오프 재연결

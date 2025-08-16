@@ -5,8 +5,9 @@ import {
   type IncomingMessage,
 } from "../api/chat/rawWs";
 import { useChatWsStore } from "../store/useChatWsStore";
+import useUserStore from "../store/useUserStore";
 
-const getToken = () => localStorage.getItem("accessToken") || "";
+//const getToken = () => localStorage.getItem("accessToken") || "";
 
 export const useRawWsConnect = (opts: {
   memberId: number;
@@ -16,15 +17,22 @@ export const useRawWsConnect = (opts: {
   const mounted = useRef(false);
   const [isOpen, setOpen] = useState(false);
 
-  // 🌟스토어 디스패처
+  const token =
+    useUserStore(s => s.user?.accessToken) ??
+    localStorage.getItem("accessToken") ??
+    "";
+
+  // 스토어 디스패처
   const applyInbound = useChatWsStore(s => s.applyInbound);
 
   useEffect(() => {
     mounted.current = true;
 
     //토큰이 없으면 연결 시도 안 함
-    const token = getToken();
-    if (!token) {
+    //🌟
+    //if (!token) {
+    // 토큰 없거나 memberId 무효면 연결 시도하지 않음
+    if (!token || !opts.memberId) {
       setOpen(false);
       console.log("토큰 없음: ");
       return () => {
@@ -67,7 +75,7 @@ export const useRawWsConnect = (opts: {
     return () => {
       mounted.current = false;
     };
-  }, [opts.memberId, opts.origin]);
+  }, [opts.memberId, opts.origin, token]);
 
   return {
     isOpen,
