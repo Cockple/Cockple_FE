@@ -22,11 +22,7 @@ import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
-
-// ─────────────────────────────────────────────────────────────
-// Mock/Real 스위치: 개발 중엔 true로 목업 스택 점검 가능
-//const USE_MOCK = false;
-// ─────────────────────────────────────────────────────────────
+import { uploadImage } from "../../api/image/imageUpload";
 
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
@@ -35,17 +31,16 @@ const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
 );
 
 interface GroupChatDetailTemplateProps {
-  chatId: number; // 방 ID
+  roomId: number; // 채팅방 ID
   chatName: string; // 상단 타이틀
   onBack: () => void; // 뒤로가기
-  partyId?: number; // "모임 홈으로" 이동 시 필요
   showHomeButton?: boolean; // 상단 고정 버튼 표시 여부
 }
 
 export const GroupChatDetailTemplate: React.FC<
   GroupChatDetailTemplateProps
   // > = ({ chatId, chatName, onBack, partyId, showHomeButton = false }) => {
-> = ({ chatId, chatName, onBack }) => {
+> = ({ roomId, chatName, onBack }) => {
   //const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
@@ -61,23 +56,23 @@ export const GroupChatDetailTemplate: React.FC<
     isFetchingNextPage,
     fetchNextPage,
     refetchInitial,
-  } = useChatInfinite(chatId);
+  } = useChatInfinite(roomId);
 
   // ===== 읽음 처리: 진입/스크롤 하단 도달 시 =====
   const { markReadNow } = useChatRead({
-    roomId: chatId,
+    roomId: roomId,
     messages,
     mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
   });
 
   // 방 입장/퇴장: 단일 구독 유지
   useEffect(() => {
-    subscribeRoom(chatId);
+    subscribeRoom(roomId);
     return () => {
       // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
-      unsubscribeRoom(chatId);
+      unsubscribeRoom(roomId);
     };
-  }, [chatId]);
+  }, [roomId]);
 
   // ===== WebSocket 연결 상태 뱃지 =====
   // const { status: wsStatus, isOpen: wsOpen } = useRawWsConnect({
@@ -150,7 +145,7 @@ export const GroupChatDetailTemplate: React.FC<
 
   //===== WS 연결 및 전송 =====
   //🌟
-  const { send, lastMessage } = useRawWsConnect({
+  const { sendText, sendImage, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
   });
@@ -183,7 +178,7 @@ export const GroupChatDetailTemplate: React.FC<
     setLiveMsgs(prev => [...prev, optimistic]);
 
     // 2) 서버로 SEND
-    const ok = send(chatId, text); // 또는 sendChatWS(chatId, text);
+    const ok = sendText(roomId, text); // 또는 sendChatWS(chatId, text);
     // 실패 시 사용자 안내
     if (!ok) {
       console.warn("WS 미연결로 전송 실패");
@@ -206,18 +201,61 @@ export const GroupChatDetailTemplate: React.FC<
   };
 
   // 이미지 업로드(미연결: 로컬 프리뷰만)
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // const file = e.target.files?.[0];
+    // if (!file) return;
+
+    // const fileUrl = URL.createObjectURL(file);
+    // setPreviewImage(fileUrl);
+    // e.target.value = "";
     const file = e.target.files?.[0];
+    e.currentTarget.value = ""; // 같은 파일 재선택 가능
     if (!file) return;
 
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewImage(fileUrl);
-    e.target.value = "";
+    // 간단 용량 가드
+    const MAX_MB = 10;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      console.warn("파일이 너무 큽니다");
+      return;
+    }
+
+    // // 1) 낙관적 미리보기
+    // const previewUrl = URL.createObjectURL(file);
+    const tempId = -Date.now();
+    // 2) S3 업로드
+    try {
+      const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+
+      // 3) WS로 IMAGE 메시지 전송 (imgKey 사용)
+      const ok = sendImage(roomId, [imgKey]);
+      if (!ok) throw new Error("WS SEND 실패");
+
+      const optimistic: ChatMessageResponse = {
+        messageId: tempId,
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderProfileImage: "",
+        content: "",
+        messageType: "IMAGE",
+        imgUrls: [imgUrl],
+        timestamp: new Date().toISOString(),
+        isMyMessage: true,
+      };
+      setLiveMsgs(prev => [...prev, optimistic]);
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    } catch (err) {
+      console.error(err);
+      setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 롤백
+    } finally {
+      //setUploading(false);
+    }
   };
 
   useEffect(() => {
     if (!lastMessage || lastMessage.type !== "SEND") return;
-    if (lastMessage.chatRoomId !== chatId) return;
+    if (lastMessage.chatRoomId !== roomId) return;
 
     const incoming: ChatMessageResponse = {
       messageId: lastMessage.messageId ?? Date.now(),
@@ -255,7 +293,7 @@ export const GroupChatDetailTemplate: React.FC<
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
-  }, [lastMessage, chatId, currentUserId]);
+  }, [lastMessage, roomId, currentUserId]);
 
   // if (initError) {
   //   return (

@@ -85,14 +85,35 @@ export const AlertPage = () => {
     }
   };
 
+  // 안전 파서
+  function extractInvitationId(data: ResponseAlertDto["data"]): number | null {
+    if (!data) return null;
+
+    // data가 문자열(JSON)로 오는 케이스 대응
+    if (typeof data === "string") {
+      try {
+        const parsed = JSON.parse(data);
+        const id = parsed?.invitationId;
+        return typeof id === "number" ? id : Number(id ?? NaN);
+      } catch {
+        return null;
+      }
+    }
+
+    // 객체로 오는 케이스도 대비
+    const id = data?.invitationId;
+    return typeof id === "number" ? id : Number(id ?? NaN);
+  }
+
   const approveMutation = useMutation({
     mutationFn: async (notification: ResponseAlertDto) => {
-      const { notificationId, data } = notification;
+      const { notificationId, partyId } = notification;
+      const invitationId = extractInvitationId(notification.data);
 
       // 알림 상태 수정 (INVITE → INVITE_ACCEPT)
       await api.patch(
-        `/api/notifications/${notificationId}`,
-        { type: "INVITE_ACCEPT" },
+        `/api/notifications/${notificationId}?type=INVITE_ACCEPT`,
+        //{ type: "INVITE_ACCEPT" },
         // {
         //   headers: {
         //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -100,9 +121,9 @@ export const AlertPage = () => {
         // },
       );
 
-      if (data?.invitationId) {
+      if (partyId && invitationId) {
         await api.patch(
-          `/api/parties/invitations/${data.invitationId}`,
+          `/api/parties/invitations/${invitationId}`,
           { action: "APPROVE" },
           // {
           //   headers: {
@@ -110,10 +131,11 @@ export const AlertPage = () => {
           //   },
           // },
         );
-        console.log(
-          "모임으로 승인 요청 보냄, 초대 아이디: ",
-          data.invitationId,
-        );
+        console.log("모임으로 승인 요청 보냄, 초대 아이디: ", invitationId);
+      } else if (partyId && !invitationId) {
+        console.log("모임 있지만 invitationId 없음");
+      } else {
+        console.log("모임도 없고 invitationId도 없음");
       }
     },
     onSuccess: () => {
@@ -130,8 +152,8 @@ export const AlertPage = () => {
       const { notificationId, data } = notification;
 
       await api.patch(
-        `/api/notifications/${notificationId}`,
-        { type: "INVITE_REJECT" },
+        `/api/notifications/${notificationId}?type=INVITE_REJECT`,
+        //{ type: "INVITE_REJECT" },
         // {
         //   headers: {
         //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

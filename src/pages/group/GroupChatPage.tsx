@@ -1,6 +1,6 @@
 // 그룹채팅창 페이지
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 //import { ChatDetailTemplate } from "../../components/chat/ChatDetailTemplate";
 //import ProfileImg from "../../assets/images/Profile_Image.png";
 //import type { ChatMessageResponse } from "../../types/chat";
@@ -10,13 +10,22 @@ import { GroupChatDetailTemplate } from "../../components/chat/GroupChatDetailTe
 import GroupChatLockedView from "../../components/common/chat/GroupChatLock";
 import { useEffect, useState } from "react";
 import api from "../../api/api";
+import { getRoomIdByPartyId } from "../../api/chat/getRoomIdByPartyId";
 
 export const GroupChatPage = () => {
   const { groupId } = useParams();
   //const location = useLocation();
   const navigate = useNavigate();
+  //🌟
+  const location = useLocation() as { state?: { roomId?: number } }; // 아마 location.state으로 roomId 안 받아올 것임.
   // const [myParties, setMyParties] = useState<>(); // 나중에 태연이가 PR 올리면 그 파일 사용!!!!
   const [isMember, setIsMember] = useState(false);
+  //🌟
+  const [roomId, setRoomId] = useState<number | null>(
+    location.state?.roomId ?? null,
+  );
+  const [loadingRoom, setLoadingRoom] = useState(false);
+  const [roomError, setRoomError] = useState<string | null>(null);
 
   // 나중에 태연이가 PR 올리면 그 파일 사용!!-------------------------------------------------------------------------->
   type MyParties = {
@@ -38,32 +47,65 @@ export const GroupChatPage = () => {
   ): Promise<MyParties[]> => {
     const res = await api.get(`/api/my/parties`, {
       params: { created, page, size },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      // headers: {
+      //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      // },
     });
     console.log("내 모임 조회: ", res.data.data.content);
     return res.data.data.content;
   };
   //----------------------------------------------------------------------------------------------------------------->
 
+  //🌟
+  // useEffect(() => {
+  //   const loadMyParties = async () => {
+  //     try {
+  //       const res = await getMyParties(false, 0, 20);
+  //       console.log("내 모임 조회: ", res);
+  //       if (res.some(party => party.partyId === Number(groupId))) {
+  //         setIsMember(true);
+  //       }
+
+  //       console.log("내 모임인가? : ", isMember);
+  //     } catch (error) {
+  //       console.error("내 모임 조회 실패 : ", error);
+  //     }
+  //   };
+
+  //   loadMyParties();
+  // }, [groupId, isMember]);
   useEffect(() => {
-    const loadMyParties = async () => {
+    if (!groupId) return;
+
+    (async () => {
       try {
         const res = await getMyParties(false, 0, 20);
-        console.log("내 모임 조회: ", res);
-        if (res.some(party => party.partyId === Number(groupId))) {
-          setIsMember(true);
-        }
-
-        console.log("내 모임인가? : ", isMember);
-      } catch (error) {
-        console.error("내 모임 조회 실패 : ", error);
+        setIsMember(res.some(p => p.partyId === Number(groupId)));
+      } catch (e) {
+        console.error("내 모임 조회 실패:", e);
       }
-    };
+    })();
+  }, [groupId]);
 
-    loadMyParties();
-  }, [groupId, isMember]);
+  // 룸ID 확보: state.roomId 없으면 룩업 API 호출
+  useEffect(() => {
+    if (!groupId) return;
+    if (roomId) return; // 이미 state로 받았으면 스킵
+
+    (async () => {
+      try {
+        setLoadingRoom(true);
+        const id = await getRoomIdByPartyId(Number(groupId));
+        setRoomId(id);
+        setRoomError(null);
+      } catch (e) {
+        console.error(e);
+        setRoomError("채팅방 정보를 불러오지 못했습니다.");
+      } finally {
+        setLoadingRoom(false);
+      }
+    })();
+  }, [groupId, roomId]);
 
   if (!groupId) return null;
 
@@ -71,28 +113,52 @@ export const GroupChatPage = () => {
 
   // 내가 속한 모임인지 확인 (partyId 목록과 비교)
   //const isMember = myGroups.some(group => group.partyId === numericGroupId);
+  //🌟
+  if (!isMember) {
+    return <GroupChatLockedView onJoin={() => navigate(`/group/${groupId}`)} />;
+  }
 
-  // 내가 멤버인 경우
-  if (isMember) {
+  //🌟
+  if (!roomId) {
     return (
-      <GroupChatDetailTemplate
-        chatId={Number(groupId)}
-        chatName="" // 추후 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //chatType="group"
-        //chatData={groupChatDataMap}
-        onBack={() =>
-          navigate(`/group/${groupId}`, { state: { tab: "group" } })
-        }
-      />
+      <div className="p-6">
+        {roomError ??
+          (loadingRoom
+            ? "채팅방 정보를 불러오는 중…"
+            : "채팅방 정보가 없습니다")}
+      </div>
     );
   }
 
-  // 내가 멤버가 아닌 경우
+  //🌟
+  // 내가 멤버인 경우
+  // if (isMember) {
+  //   return (
+  //     <GroupChatDetailTemplate
+  //       chatId={Number(groupId)}
+  //       chatName="" // 추후 수정!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //       //chatType="group"
+  //       //chatData={groupChatDataMap}
+  //       onBack={() =>
+  //         navigate(`/group/${groupId}`, { state: { tab: "group" } })
+  //       }
+  //     />
+  //   );
+  // }
+
+  // // 내가 멤버가 아닌 경우
+  // return (
+  //   <GroupChatLockedView
+  //     onJoin={() => {
+  //       navigate(`/group/${groupId}`);
+  //     }}
+  //   />
+  // );
   return (
-    <GroupChatLockedView
-      onJoin={() => {
-        navigate(`/group/${groupId}`);
-      }}
+    <GroupChatDetailTemplate
+      roomId={roomId} // roomId 전달
+      chatName=""
+      onBack={() => navigate(`/group/${groupId}`, { state: { tab: "group" } })}
     />
   );
 };
