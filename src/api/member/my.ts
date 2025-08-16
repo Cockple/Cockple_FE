@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import api from "../api";
 // 메인 >> 건물명
 // 서브 >> 도로명
@@ -56,6 +57,13 @@ export async function getMyProfile() {
   return response.data.data;
 }
 
+//
+
+export const useMyProfile = () =>
+  useQuery({
+    queryKey: ["user"],
+    queryFn: getMyProfile,
+  });
 // 프로필 수정
 export const patchMyProfile = async (payload: ProfileUpdatePayload) => {
   const response = await api.patch("/api/my/profile", payload);
