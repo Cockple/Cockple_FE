@@ -219,6 +219,7 @@ const router = createBrowserRouter([
 function App() {
   const { isSplashShown, hasShownSplash, showSplash } = useSplashStore();
 
+  //🌟
   // 전역으로 한 번만 웹소켓 연결
   const memberId = Number(localStorage.getItem("memberId") || 1);
   useRawWsConnect({ memberId, origin: "https://cockple.store" });
