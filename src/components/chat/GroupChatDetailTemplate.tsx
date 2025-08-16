@@ -24,6 +24,10 @@ import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
+// 유저 정보
+import useUserStore from "../../store/useUserStore";
+import { resolveMemberId, resolveNickname } from "../../utils/auth";
+
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
     {children}
@@ -45,8 +49,9 @@ export const GroupChatDetailTemplate: React.FC<
   //const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
-  const currentUserId = Number(localStorage.getItem("memberId") || 1);
-  const currentUserName = localStorage.getItem("memberName") || "나";
+  const storeUser = useUserStore(s => s.user);
+  const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
+  const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
 
   const {
     messages, // 정렬된 평탄화(오름차순)

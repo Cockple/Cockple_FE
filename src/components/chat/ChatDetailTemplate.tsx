@@ -22,7 +22,8 @@ import { uploadImage } from "../../api/image/imageUpload";
 
 // 🌟 store
 import { useChatWsStore } from "../../store/useChatWsStore";
-import { resolveMemberId } from "../../utils/auth";
+import { resolveMemberId, resolveNickname } from "../../utils/auth";
+import useUserStore from "../../store/useUserStore";
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -52,8 +53,9 @@ export const ChatDetailTemplate = ({
   const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
-  const currentUserId = resolveMemberId() ?? 0;
-  const currentUserName = localStorage.getItem("memberName") || "나";
+  const storeUser = useUserStore(s => s.user);
+  const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
+  const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
 
   // ==== 무한 스크롤 데이터 ====
   const {

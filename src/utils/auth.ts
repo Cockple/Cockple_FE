@@ -1,44 +1,74 @@
-// 웹소켓 연결시 accessToken과 memberId를 안전하고 정확하게 가져오기 위한 파일
+// src/utils/auth.ts
 import useUserStore from "../store/useUserStore";
 
-export function decodeMemberIdFromToken(token?: string | null): number | null {
+// base64url → JSON
+function parseJwt(token?: string | null) {
   if (!token) return null;
   try {
-    const payload = JSON.parse(atob(token.split(".")[1] || ""));
-    const v = payload?.memberId ?? payload?.sub ?? payload?.id;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
+    const seg = token.split(".")[1] || "";
+    const b64 = seg.replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(
+      atob(b64)
+        .split("")
+        .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(json);
   } catch {
     return null;
   }
 }
 
+// accessToken(스토어→로컬)에서 memberId/nickname을 해석
+function resolveFromToken() {
+  const st = useUserStore.getState();
+  const token = st.user?.accessToken ?? localStorage.getItem("accessToken");
+  const jwt = parseJwt(token);
+  const memberId = Number(jwt?.memberId ?? jwt?.sub ?? jwt?.id);
+  const nickname =
+    (jwt?.nickname as string) ??
+    (jwt?.name as string) ??
+    (jwt?.memberName as string) ??
+    null;
+  return {
+    memberId: Number.isFinite(memberId) && memberId > 0 ? memberId : null,
+    nickname: nickname || null,
+  };
+}
+
 export function resolveMemberId(): number | null {
-  // 1) store
-  const storeUser = useUserStore.getState().user;
-  if (storeUser?.memberId) return storeUser.memberId;
+  const u = useUserStore.getState().user;
+  console.log(
+    "auth.ts에서 memberId 호출: ",
+    u?.memberId,
+    resolveFromToken().memberId,
+  );
+  if (u?.memberId) return u.memberId;
+  return resolveFromToken().memberId;
+}
 
-  // 2) accessToken의 claim
-  const token = storeUser?.accessToken ?? localStorage.getItem("accessToken");
-  const fromJwt = decodeMemberIdFromToken(token);
-  if (fromJwt) return fromJwt;
+export function resolveNickname(): string | null {
+  const u = useUserStore.getState().user;
+  if (u?.nickname) return u.nickname;
+  return resolveFromToken().nickname;
+}
 
-  // 3) localStorage에 저장해둔 user/state 혹은 memberId 키
-  try {
-    const lsUser = localStorage.getItem("user");
-    if (lsUser) {
-      const parsed = JSON.parse(lsUser);
-      const id =
-        parsed?.state?.user?.memberId ??
-        parsed?.user?.memberId ??
-        parsed?.memberId;
-      const n = Number(id);
-      if (Number.isFinite(n)) return n;
-    }
-  } catch (err) {
-    console.error(err);
-  }
-
-  const n = Number(localStorage.getItem("memberId") || NaN);
-  return Number.isFinite(n) ? n : null;
+// (선택) 앱 초기화 시 스토어/user 비었는데 accessToken만 있을 때 채워넣기
+export function bootstrapUserFromStorage() {
+  const st = useUserStore.getState();
+  if (st.user?.memberId) return;
+  const token = st.user?.accessToken ?? localStorage.getItem("accessToken");
+  if (!token) return;
+  const { memberId, nickname } = resolveFromToken();
+  useUserStore.setState({
+    user: {
+      memberId: memberId ?? 0,
+      nickname: nickname ?? "",
+      accessToken: token,
+      refreshToken: st.user?.refreshToken ?? null,
+      isNewMember: st.user?.isNewMember ?? false,
+    },
+  });
+  if (memberId) localStorage.setItem("memberId", String(memberId));
+  if (nickname) localStorage.setItem("memberName", nickname);
 }
