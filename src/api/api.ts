@@ -71,7 +71,7 @@ function clearTokensAndRedirect() {
   useUserStore.getState().resetUser?.();
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
-  window.location.href = "/login";
+  // window.location.href = "/login";
 }
 
 // 요청 인터셉터: refresh 호출은 제외하고 Authorization 주입
