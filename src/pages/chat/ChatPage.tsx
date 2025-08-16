@@ -250,7 +250,7 @@ export const ChatPage = () => {
               //personalChats={personalChatRooms}
               groupChats={mergedGroup}
               personalChats={mergedPersonal}
-              isValidSearch={true}
+              //isValidSearch={true}
               searchTerm={searchTerm}
               navigate={navigate}
             />

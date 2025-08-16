@@ -12,7 +12,7 @@ interface Props {
   tab: "group" | "personal";
   groupChats: GroupChatRoom[];
   personalChats: PersonalChatRoom[];
-  isValidSearch: boolean;
+  //isValidSearch: boolean;
   searchTerm: string;
   navigate: NavigateFunction;
 }
@@ -21,7 +21,7 @@ const ChatList = ({
   tab,
   groupChats,
   personalChats,
-  isValidSearch,
+  //isValidSearch,
   searchTerm,
   navigate,
 }: Props) => {
@@ -38,9 +38,10 @@ const ChatList = ({
 
   const chatData = tab === "group" ? groupChats : personalChats;
 
-  if (searchTerm !== "" && !isValidSearch) {
+  if (searchTerm !== "" && chatData.length == 0) {
     return (
-      <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
+      // <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
+      <EmptyState message="검색 결과가" />
     );
   }
 
