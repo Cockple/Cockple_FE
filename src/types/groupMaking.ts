@@ -30,5 +30,4 @@ export type SuggestParms = {
   levelSearch?: string;
   page?: number;
   size?: number;
-  sort?: string[];
 };

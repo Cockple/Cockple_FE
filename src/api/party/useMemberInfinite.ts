@@ -7,7 +7,6 @@ export const useMemberInfinite = ({
   levelSearch,
   page = 0,
   size = 10,
-  sort,
 }: SuggestParms) => {
   const axios = api;
 
@@ -21,7 +20,6 @@ export const useMemberInfinite = ({
         levelSearch,
         page,
         size,
-        ...(sort ? { sort: Array.isArray(sort) ? sort : [sort] } : {}),
       };
 
       const res = await axios.get(
