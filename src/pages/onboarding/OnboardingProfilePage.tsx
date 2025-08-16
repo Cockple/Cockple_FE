@@ -9,31 +9,37 @@ import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import ProfileImgIcon from "@/assets/images/profile_Image.png?url";
 import Basic_ProfileImg from "@/assets/images/base_profile_img.png?url";
+import { uploadImage } from "../../api/image/imageUpload";
 
 export const OnboardingProfilePage = () => {
-  const [setProfile, setIsProfile] = useState(false);
+  const [isProfile, setIsProfile] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
   //crop라이브러리
-  const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const fileInput = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      if (originalImage) URL.revokeObjectURL(originalImage);
+    };
+  }, [originalImage]);
+
   const handleClick = () => {
-    if (setProfile) {
+    if (isProfile) {
       navigate("/confirm");
     } else {
       fileInput.current?.click();
     }
   };
 
-  useEffect(() => {
-    // console.log(preview);
-  }, [preview]);
   const imageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e);
     const file = e.target.files?.[0];
@@ -41,11 +47,11 @@ export const OnboardingProfilePage = () => {
       const imageUrl = URL.createObjectURL(file);
       setOriginalImage(imageUrl);
       setIsCropping(true);
-      // fileInput.current = file;
+      e.currentTarget.value = "";
     }
   };
 
-  const getCroppedImg = (
+  const getCroppedDataURL = (
     imageSrc: string,
     cropPixels: Area,
   ): Promise<string> => {
@@ -73,13 +79,48 @@ export const OnboardingProfilePage = () => {
     });
   };
 
+  const dataURLToFile = async (
+    dataURL: string,
+    filename = "profile.jpg",
+  ): Promise<File> => {
+    const res = await fetch(dataURL);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: blob.type || "image/jpeg" });
+  };
+  const handleCropConfirm = async () => {
+    if (!originalImage || !croppedAreaPixels) return;
+    try {
+      setIsUploading(true);
+
+      const croppedDataURL = await getCroppedDataURL(
+        originalImage,
+        croppedAreaPixels,
+      );
+
+      const croppedFile = await dataURLToFile(croppedDataURL, "profile.jpg");
+
+      // 이미지 업로드
+      const { imgUrl } = await uploadImage("PROFILE", croppedFile);
+
+      // 미리보기 갱신
+      setPreview(imgUrl);
+      setIsProfile(true);
+      setIsCropping(false);
+    } catch (e) {
+      console.error(e);
+      alert("이미지 업로드에 실패했어요. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div
       className={` flex flex-col relative -mb-8 min-h-[100dvh] pt-14 ${isCropping ? "-mx-4" : ""}`}
       style={{ maxWidth: "444px", minHeight: "100dvh" }}
     >
       <PageHeader title="회원 정보 입력" />
-      {isCropping ? "" : <ProgressBar width={setProfile ? "96" : "76"} />}
+      {isCropping ? "" : <ProgressBar width={isProfile ? "96" : "76"} />}
       <section className=" flex flex-col gap-[6.25rem] text-left flex-1 ">
         <div>
           <IntroText
@@ -90,14 +131,14 @@ export const OnboardingProfilePage = () => {
           />
         </div>
         <label
-          htmlFor={setProfile ? "image-upload" : ""}
-          className={`w-fit  mx-auto ${setProfile ? "cursor-pointer" : ""}`}
+          htmlFor={isProfile ? "image-upload" : ""}
+          className={`w-fit  mx-auto ${isProfile ? "cursor-pointer" : ""}`}
         >
           <ProfileImg
             size="XL"
-            edit={setProfile}
+            edit={isProfile}
             src={
-              preview ? preview : setProfile ? ProfileImgIcon : Basic_ProfileImg
+              preview ? preview : isProfile ? ProfileImgIcon : Basic_ProfileImg
             }
           />
         </label>
@@ -152,19 +193,11 @@ export const OnboardingProfilePage = () => {
               취소
             </button>
             <button
-              onClick={async () => {
-                if (!originalImage || !croppedAreaPixels) return;
-                const cropped = await getCroppedImg(
-                  originalImage,
-                  croppedAreaPixels,
-                );
-                setPreview(cropped);
-                setIsProfile(true);
-                setIsCropping(false);
-              }}
+              disabled={isUploading}
+              onClick={handleCropConfirm}
               className="text-sm"
             >
-              선택
+              {isUploading ? "업로드 " : "선택"}
             </button>
           </div>
         </div>
