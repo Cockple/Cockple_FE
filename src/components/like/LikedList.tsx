@@ -7,6 +7,7 @@ import {
 } from "../../hooks/useLikedItems";
 import { useEffect, useState } from "react";
 import { LikedEmptyState } from "./LikedEmptyState";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 interface LikedListProps {
   activeTab: "group" | "exercise";
@@ -46,7 +47,7 @@ const LikedList = ({
     : isExerciseLikedLoading;
 
   if (isLikedLoading) {
-    return <div className="text-center py-10">하트 불러오는 중...</div>;
+    return <LoadingSpinner />;
   }
 
   const isEmpty = isGroupTab

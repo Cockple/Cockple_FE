@@ -27,6 +27,7 @@ import { uploadImage } from "../../api/image/imageUpload";
 // 유저 정보
 import useUserStore from "../../store/useUserStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
@@ -308,7 +309,7 @@ export const GroupChatDetailTemplate: React.FC<
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
       >
         {/* 상태 UI */}
-        {initLoading && <CenterBox>불러오는 중…</CenterBox>}
+        {initLoading && <LoadingSpinner />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">
