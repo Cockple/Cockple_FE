@@ -8,7 +8,7 @@ import ImagePreviewModal from "./ImagePreviewModal";
 //import ChatBtn from "../common/DynamicBtn/ChatBtn";
 //import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
-import { PageHeader } from "../common/system/header/PageHeader";
+//import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
 //import { formatTime } from "../../utils/formatDate";
 
@@ -32,15 +32,16 @@ const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
 
 interface GroupChatDetailTemplateProps {
   roomId: number; // 채팅방 ID
-  chatName: string; // 상단 타이틀
-  onBack: () => void; // 뒤로가기
-  showHomeButton?: boolean; // 상단 고정 버튼 표시 여부
+  //chatName: string; // 상단 타이틀
+  //onBack: () => void; // 뒤로가기
+  //showHomeButton?: boolean; // 상단 고정 버튼 표시 여부
 }
 
 export const GroupChatDetailTemplate: React.FC<
   GroupChatDetailTemplateProps
   // > = ({ chatId, chatName, onBack, partyId, showHomeButton = false }) => {
-> = ({ roomId, chatName, onBack }) => {
+  // > = ({ roomId, chatName, onBack }) => {
+> = ({ roomId }) => {
   //const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
@@ -51,7 +52,7 @@ export const GroupChatDetailTemplate: React.FC<
     messages, // 정렬된 평탄화(오름차순)
     initLoading,
     initError,
-    isEmpty,
+    //isEmpty,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -295,161 +296,18 @@ export const GroupChatDetailTemplate: React.FC<
     );
   }, [lastMessage, roomId, currentUserId]);
 
-  // if (initError) {
-  //   return (
-  //     <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
-  //       <PageHeader title={chatName} onBackClick={onBack} />
-  //       <CenterBox>
-  //         <div className="flex flex-col items-center gap-3">
-  //           <div>메시지 불러오기 실패</div>
-  //           <button
-  //             className="px-3 py-1 rounded-lg border border-gy-300"
-  //             onClick={() => refetchInitial()}
-  //           >
-  //             다시 시도
-  //           </button>
-  //         </div>
-  //       </CenterBox>
-  //     </div>
-  //   );
-  // }
-
-  // return (
-  //   <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
-  //     {/* 상단 헤더 */}
-  //     <PageHeader title={chatName} onBackClick={onBack} />
-
-  //     {/* WS 연결 상태 뱃지 */}
-  //     <div className="absolute top-14 right-4 text-xs">
-  //       {wsOpen ? (
-  //         <span className="rounded-md bg-gr-100 text-gr-800 px-2 py-1">
-  //           WS 연결됨
-  //         </span>
-  //       ) : (
-  //         <span className="rounded-md bg-gy-200 text-gy-700 px-2 py-1">
-  //           {wsStatus === "connecting" ? "WS 연결 중…" : wsStatus.toUpperCase()}
-  //         </span>
-  //       )}
-  //     </div>
-
-  //     {/* 스크롤 영역 */}
-  //     <div
-  //       ref={scrollAreaRef}
-  //       className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
-  //     >
-  //       {/* 상단 고정 “모임 홈으로” 버튼 (선택) */}
-  //       {showHomeButton && (
-  //         <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
-  //           <ChatBtn
-  //             imgSrc={ProfileImg}
-  //             onClick={() => {
-  //               if (partyId) navigate(`/group/${partyId}`);
-  //             }}
-  //           >
-  //             모임 홈으로
-  //           </ChatBtn>
-  //         </div>
-  //       )}
-
-  //       {/* 상태 UI */}
-  //       {initLoading && <CenterBox>불러오는 중…</CenterBox>}
-  //       {isEmpty && !initLoading && (
-  //         <CenterBox>아직 메시지가 없습니다</CenterBox>
-  //       )}
-
-  //       {/* 메시지 리스트 */}
-  //       {!initLoading && !isEmpty && (
-  //         <div className="flex flex-col gap-5 shrink-0 p-4">
-  //           {/* 위쪽 센티넬: 과거 페이지 로드 트리거 */}
-  //           <div ref={topSentinelRef} />
-
-  //           {messages.map((chat, idx) => {
-  //             const prev = idx > 0 ? messages[idx - 1] : undefined;
-  //             const dateOnly = (s: string) =>
-  //               new Date(s).toISOString().split("T")[0];
-  //             const showDate =
-  //               !prev || dateOnly(chat.timestamp) !== dateOnly(prev.timestamp);
-
-  //             return (
-  //               <React.Fragment key={chat.messageId}>
-  //                 {showDate && (
-  //                   <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
-  //                 )}
-  //                 <ChattingComponent
-  //                   message={chat}
-  //                   isMe={chat.senderId === currentUserId}
-  //                   onImageClick={setPreviewImage}
-  //                   time={formatTime(chat.timestamp)}
-  //                 />
-  //               </React.Fragment>
-  //             );
-  //           })}
-
-  //           {isFetchingNextPage && (
-  //             <div className="text-center text-gy-600 text-sm">
-  //               이전 메시지 불러오는 중…
-  //             </div>
-  //           )}
-
-  //           {/* 하단 앵커 */}
-  //           <div className="h-5" ref={bottomRef} />
-  //         </div>
-  //       )}
-
-  //       {/* 이미지 프리뷰 모달 */}
-  //       {previewImage && (
-  //         <ImagePreviewModal
-  //           imageUrl={previewImage}
-  //           onClose={() => setPreviewImage(null)}
-  //         />
-  //       )}
-  //     </div>
-
-  //     {/* 하단 입력창 */}
-  //     <div className="sticky bottom-0">
-  //       <BottomChatInput
-  //         input={input}
-  //         isComposing={isComposing}
-  //         onInputChange={setInput}
-  //         onCompositionStart={() => setIsComposing(true)}
-  //         onCompositionEnd={e => {
-  //           setIsComposing(false);
-  //           setInput(e.currentTarget.value);
-  //         }}
-  //         onSendMessage={handleSendMessage}
-  //         onImageUpload={handleImageUpload}
-  //         fileInputRef={fileInputRef}
-  //       />
-  //     </div>
-  //   </div>
-  // );
   if (initError) return <div className="p-6">메시지 불러오기 실패</div>;
 
   return (
-    <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
+    <div className="relative flex flex-col min-h-[87dvh] -mb-8 -mt-4 -mx-4">
       {/* 헤더 */}
-      <PageHeader title={chatName} onBackClick={onBack} />
+      {/* <PageHeader title={chatName} onBackClick={onBack} /> */}
 
       {/* 스크롤 영역 */}
       <div
         ref={scrollAreaRef}
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
       >
-        {/* 상단 고정 버튼 */}
-        {/* {showHomeButton && (
-          <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
-            <ChatBtn
-              imgSrc={ProfileImg}
-              onClick={() => {
-                navigate(`/group/${partyId}`);
-                console.log(`/group/${partyId}로 이동`);
-              }}
-            >
-              모임 홈으로
-            </ChatBtn>
-          </div>
-        )} */}
-
         {/* 상태 UI */}
         {initLoading && <CenterBox>불러오는 중…</CenterBox>}
         {initError && (
@@ -465,53 +323,57 @@ export const GroupChatDetailTemplate: React.FC<
             </div>
           </CenterBox>
         )}
-        {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
+        {/* {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>} */}
 
         {/* 메시지 리스트 */}
-        {!initLoading && !initError && !isEmpty && (
-          <div className="flex flex-col gap-5 shrink-0 p-4">
-            {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
-            <div ref={topSentinelRef} />
+        {!initLoading &&
+          !initError &&
+          (rendered.length === 0 ? (
+            <CenterBox>아직 메시지가 없습니다</CenterBox>
+          ) : (
+            <div className="flex flex-col gap-5 shrink-0 p-4">
+              {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
+              <div ref={topSentinelRef} />
 
-            {rendered.map((chat, idx) => {
-              const prev = idx > 0 ? rendered[idx - 1] : undefined;
-              //🌟
-              // const onlyDate = (s: string) =>
-              //   new Date(s).toISOString().split("T")[0];
-              //const onlyDate = (s: string) => s;
-              // const showDate =
-              //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
-              const showDate =
-                !prev ||
-                formatDateWithDay(chat.timestamp) !==
-                  formatDateWithDay(prev.timestamp);
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator
-                      date={formatDateWithDay(chat.timestamp)}
+              {rendered.map((chat, idx) => {
+                const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                //🌟
+                // const onlyDate = (s: string) =>
+                //   new Date(s).toISOString().split("T")[0];
+                //const onlyDate = (s: string) => s;
+                // const showDate =
+                //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
+                const showDate =
+                  !prev ||
+                  formatDateWithDay(chat.timestamp) !==
+                    formatDateWithDay(prev.timestamp);
+                return (
+                  <React.Fragment key={chat.messageId}>
+                    {showDate && (
+                      <ChatDateSeparator
+                        date={formatDateWithDay(chat.timestamp)}
+                      />
+                    )}
+                    <ChattingComponent
+                      message={chat}
+                      isMe={chat.senderId === currentUserId}
+                      onImageClick={setPreviewImage}
+                      time={formatEnLowerAmPm(chat.timestamp)}
                     />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatEnLowerAmPm(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })}
+                  </React.Fragment>
+                );
+              })}
 
-            {isFetchingNextPage && (
-              <div className="text-center text-gy-600 text-sm">
-                이전 메시지 불러오는 중…
-              </div>
-            )}
+              {isFetchingNextPage && (
+                <div className="text-center text-gy-600 text-sm">
+                  이전 메시지 불러오는 중…
+                </div>
+              )}
 
-            {/* 하단 앵커 */}
-            <div className="h-5" ref={bottomRef} />
-          </div>
-        )}
+              {/* 하단 앵커 */}
+              <div className="h-5" ref={bottomRef} />
+            </div>
+          ))}
 
         {previewImage && (
           <ImagePreviewModal
