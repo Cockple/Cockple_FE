@@ -1,6 +1,6 @@
 // 그룹채팅창 페이지
 
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 //import { ChatDetailTemplate } from "../../components/chat/ChatDetailTemplate";
 //import ProfileImg from "../../assets/images/Profile_Image.png";
 //import type { ChatMessageResponse } from "../../types/chat";
@@ -17,13 +17,11 @@ export const GroupChatPage = () => {
   //const location = useLocation();
   const navigate = useNavigate();
   //🌟
-  const location = useLocation() as { state?: { roomId?: number } }; // 아마 location.state으로 roomId 안 받아올 것임.
+  //const location = useLocation() as { state?: { roomId?: number } }; // 아마 location.state으로 roomId 안 받아올 것임.
   // const [myParties, setMyParties] = useState<>(); // 나중에 태연이가 PR 올리면 그 파일 사용!!!!
   const [isMember, setIsMember] = useState(false);
   //🌟
-  const [roomId, setRoomId] = useState<number | null>(
-    location.state?.roomId ?? null,
-  );
+  const [roomId, setRoomId] = useState<number | null>(null);
   const [loadingRoom, setLoadingRoom] = useState(false);
   const [roomError, setRoomError] = useState<string | null>(null);
 
@@ -90,7 +88,6 @@ export const GroupChatPage = () => {
   // 룸ID 확보: state.roomId 없으면 룩업 API 호출
   useEffect(() => {
     if (!groupId) return;
-    if (roomId) return; // 이미 state로 받았으면 스킵
 
     (async () => {
       try {
@@ -157,8 +154,6 @@ export const GroupChatPage = () => {
   return (
     <GroupChatDetailTemplate
       roomId={roomId} // roomId 전달
-      chatName=""
-      onBack={() => navigate(`/group/${groupId}`, { state: { tab: "group" } })}
     />
   );
 };
