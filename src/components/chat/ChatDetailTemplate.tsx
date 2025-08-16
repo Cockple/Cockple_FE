@@ -20,6 +20,12 @@ import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
+// 🌟 store
+import { useChatWsStore } from "../../store/useChatWsStore";
+import { resolveMemberId, resolveNickname } from "../../utils/auth";
+import useUserStore from "../../store/useUserStore";
+import { LoadingSpinner } from "../common/LoadingSpinner";
+
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
@@ -48,15 +54,16 @@ export const ChatDetailTemplate = ({
   const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
-  const currentUserId = Number(localStorage.getItem("memberId") || 1);
-  const currentUserName = localStorage.getItem("memberName") || "나";
+  const storeUser = useUserStore(s => s.user);
+  const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
+  const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
 
   // ==== 무한 스크롤 데이터 ====
   const {
     messages, // 오름차순
     initLoading,
     initError,
-    isEmpty,
+    //isEmpty,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -74,21 +81,36 @@ export const ChatDetailTemplate = ({
     // },
   });
 
+  // 🌟 활성 방/읽음카운트 스토어 연동
+  const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
+  const clearUnread = useChatWsStore(s => s.clearUnread);
+
+  //🌟
   // 방 입장/퇴장: 단일 구독 유지
+  // useEffect(() => {
+  //   subscribeRoom(chatId);
+  //   return () => {
+  //     // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
+  //     unsubscribeRoom(chatId);
+  //   };
+  // }, [chatId]);
   useEffect(() => {
     subscribeRoom(chatId);
+    setActiveRoom(chatId); // 상세 입장
+    clearUnread(chatId); // 입장 즉시 0으로 (서버 PATCH는 useChatRead에서)
+
     return () => {
-      // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
       unsubscribeRoom(chatId);
+      setActiveRoom(null); // 상세 퇴장
     };
-  }, [chatId]);
+  }, [chatId, setActiveRoom, clearUnread]);
 
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  //🌟낙관적/실시간 메시지 보관
+  //낙관적/실시간 메시지 보관
   const [liveMsgs, setLiveMsgs] = useState<ChatMessageResponse[]>([]);
 
   // ==== Refs ====
@@ -148,8 +170,6 @@ export const ChatDetailTemplate = ({
   }, [markReadNow]);
 
   //===== WS 연결 및 전송 =====
-  //🌟
-  //const { send, lastMessage } = useRawWsConnect({
   const { sendText, sendImage, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
@@ -204,11 +224,6 @@ export const ChatDetailTemplate = ({
     );
     console.log("메시지 전송:", text);
   };
-
-  //🌟
-  //const [uploading, setUploading] = useState(false);
-
-  // 이미지 업로드(미연결 - 로컬 프리뷰만)
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     //🌟
@@ -390,7 +405,7 @@ export const ChatDetailTemplate = ({
         )}
 
         {/* 상태 UI */}
-        {initLoading && <CenterBox>불러오는 중…</CenterBox>}
+        {initLoading && <LoadingSpinner />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">
@@ -404,53 +419,57 @@ export const ChatDetailTemplate = ({
             </div>
           </CenterBox>
         )}
-        {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
+        {/* {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>} */}
 
         {/* 메시지 리스트 */}
-        {!initLoading && !initError && !isEmpty && (
-          <div className="flex flex-col gap-5 shrink-0 p-4">
-            {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
-            <div ref={topSentinelRef} />
+        {!initLoading &&
+          !initError &&
+          (rendered.length === 0 ? (
+            <CenterBox>아직 메시지가 없습니다</CenterBox>
+          ) : (
+            <div className="flex flex-col gap-5 shrink-0 p-4">
+              {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
+              <div ref={topSentinelRef} />
 
-            {rendered.map((chat, idx) => {
-              const prev = idx > 0 ? rendered[idx - 1] : undefined;
-              //🌟
-              // const onlyDate = (s: string) =>
-              //   new Date(s).toISOString().split("T")[0];
-              //const onlyDate = (s: string) => s;
-              // const showDate =
-              //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
-              const showDate =
-                !prev ||
-                formatDateWithDay(chat.timestamp) !==
-                  formatDateWithDay(prev.timestamp);
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator
-                      date={formatDateWithDay(chat.timestamp)}
+              {rendered.map((chat, idx) => {
+                const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                //🌟
+                // const onlyDate = (s: string) =>
+                //   new Date(s).toISOString().split("T")[0];
+                //const onlyDate = (s: string) => s;
+                // const showDate =
+                //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
+                const showDate =
+                  !prev ||
+                  formatDateWithDay(chat.timestamp) !==
+                    formatDateWithDay(prev.timestamp);
+                return (
+                  <React.Fragment key={chat.messageId}>
+                    {showDate && (
+                      <ChatDateSeparator
+                        date={formatDateWithDay(chat.timestamp)}
+                      />
+                    )}
+                    <ChattingComponent
+                      message={chat}
+                      isMe={chat.senderId === currentUserId}
+                      onImageClick={setPreviewImage}
+                      time={formatEnLowerAmPm(chat.timestamp)}
                     />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatEnLowerAmPm(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })}
+                  </React.Fragment>
+                );
+              })}
 
-            {isFetchingNextPage && (
-              <div className="text-center text-gy-600 text-sm">
-                이전 메시지 불러오는 중…
-              </div>
-            )}
+              {isFetchingNextPage && (
+                <div className="text-center text-gy-600 text-sm">
+                  이전 메시지 불러오는 중…
+                </div>
+              )}
 
-            {/* 하단 앵커 */}
-            <div className="h-5" ref={bottomRef} />
-          </div>
-        )}
+              {/* 하단 앵커 */}
+              <div className="h-5" ref={bottomRef} />
+            </div>
+          ))}
 
         {previewImage && (
           <ImagePreviewModal

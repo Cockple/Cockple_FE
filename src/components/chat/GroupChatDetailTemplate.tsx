@@ -8,7 +8,7 @@ import ImagePreviewModal from "./ImagePreviewModal";
 //import ChatBtn from "../common/DynamicBtn/ChatBtn";
 //import ProfileImg from "../../assets/images/Profile_Image.png";
 import BottomChatInput from "../common/chat/BottomChatInput";
-import { PageHeader } from "../common/system/header/PageHeader";
+//import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
 //import { formatTime } from "../../utils/formatDate";
 
@@ -22,11 +22,12 @@ import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
+import { uploadImage } from "../../api/image/imageUpload";
 
-// ─────────────────────────────────────────────────────────────
-// Mock/Real 스위치: 개발 중엔 true로 목업 스택 점검 가능
-//const USE_MOCK = false;
-// ─────────────────────────────────────────────────────────────
+// 유저 정보
+import useUserStore from "../../store/useUserStore";
+import { resolveMemberId, resolveNickname } from "../../utils/auth";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
@@ -35,55 +36,50 @@ const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
 );
 
 interface GroupChatDetailTemplateProps {
-  chatId: number; // 방 ID
-  chatName: string; // 상단 타이틀
-  onBack: () => void; // 뒤로가기
-  partyId?: number; // "모임 홈으로" 이동 시 필요
-  showHomeButton?: boolean; // 상단 고정 버튼 표시 여부
+  roomId: number; // 채팅방 ID
+  //chatName: string; // 상단 타이틀
+  //onBack: () => void; // 뒤로가기
+  //showHomeButton?: boolean; // 상단 고정 버튼 표시 여부
 }
 
 export const GroupChatDetailTemplate: React.FC<
   GroupChatDetailTemplateProps
   // > = ({ chatId, chatName, onBack, partyId, showHomeButton = false }) => {
-> = ({ chatId, chatName, onBack }) => {
+  // > = ({ roomId, chatName, onBack }) => {
+> = ({ roomId }) => {
   //const navigate = useNavigate();
 
   // 실제 로그인 사용자 정보로 대체
-  const currentUserId = Number(localStorage.getItem("memberId") || 1);
-  const currentUserName = localStorage.getItem("memberName") || "나";
+  const storeUser = useUserStore(s => s.user);
+  const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
+  const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
 
   const {
     messages, // 정렬된 평탄화(오름차순)
     initLoading,
     initError,
-    isEmpty,
+    //isEmpty,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
     refetchInitial,
-  } = useChatInfinite(chatId);
+  } = useChatInfinite(roomId);
 
   // ===== 읽음 처리: 진입/스크롤 하단 도달 시 =====
   const { markReadNow } = useChatRead({
-    roomId: chatId,
+    roomId: roomId,
     messages,
     mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
   });
 
   // 방 입장/퇴장: 단일 구독 유지
   useEffect(() => {
-    subscribeRoom(chatId);
+    subscribeRoom(roomId);
     return () => {
       // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
-      unsubscribeRoom(chatId);
+      unsubscribeRoom(roomId);
     };
-  }, [chatId]);
-
-  // ===== WebSocket 연결 상태 뱃지 =====
-  // const { status: wsStatus, isOpen: wsOpen } = useRawWsConnect({
-  //   memberId: currentUserId,
-  //   origin: "https://cockple.store", // 필요 시 고정
-  // });
+  }, [roomId]);
 
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
@@ -150,7 +146,7 @@ export const GroupChatDetailTemplate: React.FC<
 
   //===== WS 연결 및 전송 =====
   //🌟
-  const { send, lastMessage } = useRawWsConnect({
+  const { sendText, sendImage, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
   });
@@ -183,7 +179,7 @@ export const GroupChatDetailTemplate: React.FC<
     setLiveMsgs(prev => [...prev, optimistic]);
 
     // 2) 서버로 SEND
-    const ok = send(chatId, text); // 또는 sendChatWS(chatId, text);
+    const ok = sendText(roomId, text); // 또는 sendChatWS(chatId, text);
     // 실패 시 사용자 안내
     if (!ok) {
       console.warn("WS 미연결로 전송 실패");
@@ -206,18 +202,61 @@ export const GroupChatDetailTemplate: React.FC<
   };
 
   // 이미지 업로드(미연결: 로컬 프리뷰만)
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // const file = e.target.files?.[0];
+    // if (!file) return;
+
+    // const fileUrl = URL.createObjectURL(file);
+    // setPreviewImage(fileUrl);
+    // e.target.value = "";
     const file = e.target.files?.[0];
+    e.currentTarget.value = ""; // 같은 파일 재선택 가능
     if (!file) return;
 
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewImage(fileUrl);
-    e.target.value = "";
+    // 간단 용량 가드
+    const MAX_MB = 10;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      console.warn("파일이 너무 큽니다");
+      return;
+    }
+
+    // // 1) 낙관적 미리보기
+    // const previewUrl = URL.createObjectURL(file);
+    const tempId = -Date.now();
+    // 2) S3 업로드
+    try {
+      const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+
+      // 3) WS로 IMAGE 메시지 전송 (imgKey 사용)
+      const ok = sendImage(roomId, [imgKey]);
+      if (!ok) throw new Error("WS SEND 실패");
+
+      const optimistic: ChatMessageResponse = {
+        messageId: tempId,
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderProfileImage: "",
+        content: "",
+        messageType: "IMAGE",
+        imgUrls: [imgUrl],
+        timestamp: new Date().toISOString(),
+        isMyMessage: true,
+      };
+      setLiveMsgs(prev => [...prev, optimistic]);
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    } catch (err) {
+      console.error(err);
+      setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 롤백
+    } finally {
+      //setUploading(false);
+    }
   };
 
   useEffect(() => {
     if (!lastMessage || lastMessage.type !== "SEND") return;
-    if (lastMessage.chatRoomId !== chatId) return;
+    if (lastMessage.chatRoomId !== roomId) return;
 
     const incoming: ChatMessageResponse = {
       messageId: lastMessage.messageId ?? Date.now(),
@@ -255,165 +294,22 @@ export const GroupChatDetailTemplate: React.FC<
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
-  }, [lastMessage, chatId, currentUserId]);
+  }, [lastMessage, roomId, currentUserId]);
 
-  // if (initError) {
-  //   return (
-  //     <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
-  //       <PageHeader title={chatName} onBackClick={onBack} />
-  //       <CenterBox>
-  //         <div className="flex flex-col items-center gap-3">
-  //           <div>메시지 불러오기 실패</div>
-  //           <button
-  //             className="px-3 py-1 rounded-lg border border-gy-300"
-  //             onClick={() => refetchInitial()}
-  //           >
-  //             다시 시도
-  //           </button>
-  //         </div>
-  //       </CenterBox>
-  //     </div>
-  //   );
-  // }
-
-  // return (
-  //   <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
-  //     {/* 상단 헤더 */}
-  //     <PageHeader title={chatName} onBackClick={onBack} />
-
-  //     {/* WS 연결 상태 뱃지 */}
-  //     <div className="absolute top-14 right-4 text-xs">
-  //       {wsOpen ? (
-  //         <span className="rounded-md bg-gr-100 text-gr-800 px-2 py-1">
-  //           WS 연결됨
-  //         </span>
-  //       ) : (
-  //         <span className="rounded-md bg-gy-200 text-gy-700 px-2 py-1">
-  //           {wsStatus === "connecting" ? "WS 연결 중…" : wsStatus.toUpperCase()}
-  //         </span>
-  //       )}
-  //     </div>
-
-  //     {/* 스크롤 영역 */}
-  //     <div
-  //       ref={scrollAreaRef}
-  //       className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
-  //     >
-  //       {/* 상단 고정 “모임 홈으로” 버튼 (선택) */}
-  //       {showHomeButton && (
-  //         <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
-  //           <ChatBtn
-  //             imgSrc={ProfileImg}
-  //             onClick={() => {
-  //               if (partyId) navigate(`/group/${partyId}`);
-  //             }}
-  //           >
-  //             모임 홈으로
-  //           </ChatBtn>
-  //         </div>
-  //       )}
-
-  //       {/* 상태 UI */}
-  //       {initLoading && <CenterBox>불러오는 중…</CenterBox>}
-  //       {isEmpty && !initLoading && (
-  //         <CenterBox>아직 메시지가 없습니다</CenterBox>
-  //       )}
-
-  //       {/* 메시지 리스트 */}
-  //       {!initLoading && !isEmpty && (
-  //         <div className="flex flex-col gap-5 shrink-0 p-4">
-  //           {/* 위쪽 센티넬: 과거 페이지 로드 트리거 */}
-  //           <div ref={topSentinelRef} />
-
-  //           {messages.map((chat, idx) => {
-  //             const prev = idx > 0 ? messages[idx - 1] : undefined;
-  //             const dateOnly = (s: string) =>
-  //               new Date(s).toISOString().split("T")[0];
-  //             const showDate =
-  //               !prev || dateOnly(chat.timestamp) !== dateOnly(prev.timestamp);
-
-  //             return (
-  //               <React.Fragment key={chat.messageId}>
-  //                 {showDate && (
-  //                   <ChatDateSeparator date={formatDateLabel(chat.timestamp)} />
-  //                 )}
-  //                 <ChattingComponent
-  //                   message={chat}
-  //                   isMe={chat.senderId === currentUserId}
-  //                   onImageClick={setPreviewImage}
-  //                   time={formatTime(chat.timestamp)}
-  //                 />
-  //               </React.Fragment>
-  //             );
-  //           })}
-
-  //           {isFetchingNextPage && (
-  //             <div className="text-center text-gy-600 text-sm">
-  //               이전 메시지 불러오는 중…
-  //             </div>
-  //           )}
-
-  //           {/* 하단 앵커 */}
-  //           <div className="h-5" ref={bottomRef} />
-  //         </div>
-  //       )}
-
-  //       {/* 이미지 프리뷰 모달 */}
-  //       {previewImage && (
-  //         <ImagePreviewModal
-  //           imageUrl={previewImage}
-  //           onClose={() => setPreviewImage(null)}
-  //         />
-  //       )}
-  //     </div>
-
-  //     {/* 하단 입력창 */}
-  //     <div className="sticky bottom-0">
-  //       <BottomChatInput
-  //         input={input}
-  //         isComposing={isComposing}
-  //         onInputChange={setInput}
-  //         onCompositionStart={() => setIsComposing(true)}
-  //         onCompositionEnd={e => {
-  //           setIsComposing(false);
-  //           setInput(e.currentTarget.value);
-  //         }}
-  //         onSendMessage={handleSendMessage}
-  //         onImageUpload={handleImageUpload}
-  //         fileInputRef={fileInputRef}
-  //       />
-  //     </div>
-  //   </div>
-  // );
   if (initError) return <div className="p-6">메시지 불러오기 실패</div>;
 
   return (
-    <div className="relative flex flex-col min-h-[100dvh] -mb-8 -mt-14 pt-14 -mx-4">
+    <div className="relative flex flex-col min-h-[87dvh] -mb-8 -mt-4 -mx-4">
       {/* 헤더 */}
-      <PageHeader title={chatName} onBackClick={onBack} />
+      {/* <PageHeader title={chatName} onBackClick={onBack} /> */}
 
       {/* 스크롤 영역 */}
       <div
         ref={scrollAreaRef}
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
       >
-        {/* 상단 고정 버튼 */}
-        {/* {showHomeButton && (
-          <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
-            <ChatBtn
-              imgSrc={ProfileImg}
-              onClick={() => {
-                navigate(`/group/${partyId}`);
-                console.log(`/group/${partyId}로 이동`);
-              }}
-            >
-              모임 홈으로
-            </ChatBtn>
-          </div>
-        )} */}
-
         {/* 상태 UI */}
-        {initLoading && <CenterBox>불러오는 중…</CenterBox>}
+        {initLoading && <LoadingSpinner />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">
@@ -427,53 +323,57 @@ export const GroupChatDetailTemplate: React.FC<
             </div>
           </CenterBox>
         )}
-        {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>}
+        {/* {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>} */}
 
         {/* 메시지 리스트 */}
-        {!initLoading && !initError && !isEmpty && (
-          <div className="flex flex-col gap-5 shrink-0 p-4">
-            {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
-            <div ref={topSentinelRef} />
+        {!initLoading &&
+          !initError &&
+          (rendered.length === 0 ? (
+            <CenterBox>아직 메시지가 없습니다</CenterBox>
+          ) : (
+            <div className="flex flex-col gap-5 shrink-0 p-4">
+              {/* 위쪽 센티넬: 과거 불러오기 트리거 */}
+              <div ref={topSentinelRef} />
 
-            {rendered.map((chat, idx) => {
-              const prev = idx > 0 ? rendered[idx - 1] : undefined;
-              //🌟
-              // const onlyDate = (s: string) =>
-              //   new Date(s).toISOString().split("T")[0];
-              //const onlyDate = (s: string) => s;
-              // const showDate =
-              //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
-              const showDate =
-                !prev ||
-                formatDateWithDay(chat.timestamp) !==
-                  formatDateWithDay(prev.timestamp);
-              return (
-                <React.Fragment key={chat.messageId}>
-                  {showDate && (
-                    <ChatDateSeparator
-                      date={formatDateWithDay(chat.timestamp)}
+              {rendered.map((chat, idx) => {
+                const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                //🌟
+                // const onlyDate = (s: string) =>
+                //   new Date(s).toISOString().split("T")[0];
+                //const onlyDate = (s: string) => s;
+                // const showDate =
+                //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
+                const showDate =
+                  !prev ||
+                  formatDateWithDay(chat.timestamp) !==
+                    formatDateWithDay(prev.timestamp);
+                return (
+                  <React.Fragment key={chat.messageId}>
+                    {showDate && (
+                      <ChatDateSeparator
+                        date={formatDateWithDay(chat.timestamp)}
+                      />
+                    )}
+                    <ChattingComponent
+                      message={chat}
+                      isMe={chat.senderId === currentUserId}
+                      onImageClick={setPreviewImage}
+                      time={formatEnLowerAmPm(chat.timestamp)}
                     />
-                  )}
-                  <ChattingComponent
-                    message={chat}
-                    isMe={chat.senderId === currentUserId}
-                    onImageClick={setPreviewImage}
-                    time={formatEnLowerAmPm(chat.timestamp)}
-                  />
-                </React.Fragment>
-              );
-            })}
+                  </React.Fragment>
+                );
+              })}
 
-            {isFetchingNextPage && (
-              <div className="text-center text-gy-600 text-sm">
-                이전 메시지 불러오는 중…
-              </div>
-            )}
+              {isFetchingNextPage && (
+                <div className="text-center text-gy-600 text-sm">
+                  이전 메시지 불러오는 중…
+                </div>
+              )}
 
-            {/* 하단 앵커 */}
-            <div className="h-5" ref={bottomRef} />
-          </div>
-        )}
+              {/* 하단 앵커 */}
+              <div className="h-5" ref={bottomRef} />
+            </div>
+          ))}
 
         {previewImage && (
           <ImagePreviewModal

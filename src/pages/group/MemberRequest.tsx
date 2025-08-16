@@ -5,7 +5,7 @@ import { Member } from "../../components/common/contentcard/Member";
 //import type { MemberProps } from "../../components/common/contentcard/Member";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
-import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
+import { EmptyState } from "../../components/alert/EmptyState";
 import { useParams } from "react-router-dom";
 import type {
   JoinRequestActionBody,
@@ -189,7 +189,7 @@ const MemberRequestPage = () => {
           <>
             {requests.length === 0 ? (
               <div className="flex flex-1 justify-center items-center">
-                <NoAlertMessage message="멤버 신청 내역" />
+                <EmptyState message="멤버 신청 내역" />
               </div>
             ) : (
               requests.map(req => (
@@ -219,7 +219,7 @@ const MemberRequestPage = () => {
           <>
             {approved.length === 0 ? (
               <div className="flex flex-1 justify-center items-center">
-                <NoAlertMessage message="승인 완료 내역" />
+                <EmptyState message="승인 완료 내역" />
               </div>
             ) : (
               approved.map(req => (

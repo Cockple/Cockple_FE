@@ -6,12 +6,13 @@ import { PersonalChat } from "../common/contentcard/PersonalChat";
 import type { NavigateFunction } from "react-router-dom";
 import type { GroupChatRoom, PersonalChatRoom } from "../../types/chat";
 import { formatEnLowerAmPm } from "../../utils/time";
+import { EmptyState } from "../alert/EmptyState";
 
 interface Props {
   tab: "group" | "personal";
   groupChats: GroupChatRoom[];
   personalChats: PersonalChatRoom[];
-  isValidSearch: boolean;
+  //isValidSearch: boolean;
   searchTerm: string;
   navigate: NavigateFunction;
 }
@@ -20,27 +21,34 @@ const ChatList = ({
   tab,
   groupChats,
   personalChats,
-  isValidSearch,
+  //isValidSearch,
   searchTerm,
   navigate,
 }: Props) => {
-  //🌟
   console.log(
     "rooms with null lastMessage",
     (tab === "group" ? groupChats : personalChats).filter(r => !r.lastMessage),
   );
 
+  // 🌟 탭별 빈 상태 메시지
+  const emptyMessageMap: Record<Props["tab"], string> = {
+    group: "아직 모임 채팅이",
+    personal: "아직 개인 채팅이",
+  };
+
   const chatData = tab === "group" ? groupChats : personalChats;
 
-  if (searchTerm !== "" && !isValidSearch) {
+  if (searchTerm !== "" && chatData.length == 0) {
     return (
-      <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
+      // <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
+      <EmptyState message="검색 결과가" />
     );
   }
 
   if (chatData.length === 0) {
     return (
-      <div className="text-center text-gy-500 py-4">채팅방이 없습니다.</div>
+      // <div className="text-center text-gy-500 py-4">채팅방이 없습니다.</div>
+      <EmptyState message={emptyMessageMap[tab]} />
     );
   }
 

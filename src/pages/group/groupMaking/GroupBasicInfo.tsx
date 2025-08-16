@@ -10,17 +10,15 @@ import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectBu
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
-import { useQuery } from "@tanstack/react-query";
-import { getMyProfile } from "../../../api/member/my";
-import { userLevelMapper } from "../../../utils/levelValueExchange";
+import { useMyProfile } from "../../../api/member/my";
 import { LEVEL_KEY } from "../../../constants/options";
+import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
   const { femaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
-  const { toKor } = userLevelMapper();
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
   const [localName, setLocalName] = useState(name ?? "");
@@ -39,53 +37,21 @@ export const GroupBasicInfo = () => {
     setIsModalOpen(true);
   };
 
-  //본인 level포함 안되면 ..
-
   const isFormValid =
     localName.length > 0 &&
     selected !== null &&
     ((selected === "female" && femaleLevel.length > 0) ||
       (selected === "mixed" && femaleLevel.length > 0 && maleLevel.length > 0));
 
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    //한글,영어만 입력되도록, 공백포함 17글자
-    input = input.slice(0, 17);
-    const filtered = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setLocalName(filtered);
-    setFilter("name", filtered);
-  };
-
-  const { data: me, isLoading } = useQuery({
-    queryKey: ["user"],
-    queryFn: getMyProfile,
+  const handleInputDetected = handleInput(20, v => {
+    setFilter("name", v);
+    setLocalName(v);
   });
+  const { data: me, isLoading } = useMyProfile();
   // console.log(me);
   const gender = me?.gender;
   const isMale = gender === "MALE";
-  const myKorLevel = me ? toKor(me.level) : undefined;
-  const ANY = "전체";
-  const containsMy = (arr: string[], my?: string) => {
-    if (!my) return false;
-    return arr.includes(ANY) || arr.includes(my);
-  };
 
-  const passesMyLevelRule = () => {
-    if (!me || !myKorLevel) return false;
-
-    if (selected === "female") {
-      return containsMy(femaleLevel, myKorLevel);
-    }
-    if (selected === "mixed") {
-      return isMale
-        ? containsMy(maleLevel, myKorLevel)
-        : containsMy(femaleLevel, myKorLevel);
-    }
-    return false;
-  };
   const handleNext = () => {
     if (isLoading || !me) {
       alert("내 프로필을 불러오는 중입니다. 잠시만 기다려주세요.");
@@ -93,10 +59,6 @@ export const GroupBasicInfo = () => {
     }
     if (!isFormValid) return;
 
-    if (!passesMyLevelRule()) {
-      alert("본인 급수를 포함해서 선택해주세요.");
-      return;
-    }
     navigate("/group/making/activity");
   };
   return (

@@ -2,6 +2,7 @@
 // SockJS 전용 (STOMP 미사용). 기존 함수명/시그니처 유지.
 
 import SockJS from "sockjs-client";
+import useUserStore from "../../store/useUserStore";
 
 let ws: WebSocket | null = null;
 
@@ -71,25 +72,6 @@ type Handlers = {
   onClose?: (ev: CloseEvent) => void;
 };
 
-// 🌟전역 리스너 레지스트리
-// const listeners = new Set<Handlers>();
-// export const addWsListener = (h: Handlers) => {
-//   listeners.add(h);
-//   // 현재가 OPEN이면 즉시 알림(초기 렌더에서 상태 동기화 용)
-//   if (ws?.readyState === WebSocket.OPEN) {
-//     queueMicrotask(() => h.onOpen?.());
-//   }
-//   return () => listeners.delete(h);
-// };
-
-//🌟
-// const emit = {
-//   open: () => listeners.forEach(l => l.onOpen?.()),
-//   msg: (m: IncomingMessage) => listeners.forEach(l => l.onMessage?.(m)),
-//   err: (e: Event | Error) => listeners.forEach(l => l.onError?.(e)),
-//   close: (e: CloseEvent) => listeners.forEach(l => l.onClose?.(e)),
-// };
-
 const WS_ORIGIN = (
   import.meta.env.VITE_WS_ORIGIN ?? window.location.origin
 ).replace(/\/$/, "");
@@ -103,12 +85,19 @@ const buildSockUrl = (origin?: string) => {
   return base; // SockJS는 http/https 사용
 };
 
+//토큰 유틸 & 가드
+//const getToken = () => localStorage.getItem("accessToken") || "";
+const getToken = () => {
+  const { user } = useUserStore.getState();
+  return user?.accessToken ?? localStorage.getItem("accessToken") ?? "";
+};
+const hasToken = () => !!getToken();
+
 // 서버로 보낼 메시지 타입
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "UNSUBSCRIBE"; chatRoomId: number }
   | { type: "SEND"; chatRoomId: number; messageType?: "TEXT"; content: string }
-  // 🌟
   | {
       type: "SEND";
       chatRoomId: number;
@@ -120,7 +109,6 @@ type OutgoingMessage =
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
   if (ws && ws.readyState === WebSocket.OPEN) {
-    //🌟
     console.log("[WS→] SEND", msg);
     ws.send(JSON.stringify(msg));
     return true;
@@ -132,9 +120,14 @@ const sendJSON = (msg: OutgoingMessage) => {
 // --------- 공개 API ----------
 export const connectRawWs = (
   { memberId, origin }: { memberId: number; origin?: string },
-  //🌟
   handlers: Handlers = {},
 ) => {
+  // accessToken 없으면 연결 시도 안 함
+  if (!hasToken()) {
+    console.info("[WS] skipped: no accessToken");
+    return null;
+  }
+
   if (
     ws &&
     (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)
@@ -144,13 +137,10 @@ export const connectRawWs = (
 
   const base = buildSockUrl(origin);
   const url = new URL(base);
-  const token = localStorage.getItem("accessToken") ?? "";
-
   url.searchParams.set("memberId", String(memberId));
-  url.searchParams.set("token", token);
+  url.searchParams.set("token", getToken()); // 서버가 헤더 대신 쿼리 파라미터로 읽는 형태라면 유지
 
   // SockJS 생성 (NOTE: SockJS는 http/https URL 사용)
-  // 타입 호환 위해 any 캐스팅. 런타임은 WebSocket 유사 API 제공.
   const sock = new SockJS(url.toString());
   ws = sock as WebSocket;
 
@@ -181,8 +171,13 @@ export const connectRawWs = (
   };
 
   sock.onclose = (ev: CloseEvent) => {
+    //🌟
+    console.warn("[WS close]", ev.code, ev.reason);
     handlers.onClose?.(ev);
     ws = null;
+
+    // 토큰 없으면 재시도 안 함
+    if (!hasToken()) return;
 
     // 백오프 재연결
     if (!reconnectTimer) {
@@ -190,7 +185,6 @@ export const connectRawWs = (
       reconnectTimer = window.setTimeout(() => {
         reconnectTimer = null;
         reconnectAttempt++;
-        //🌟
         connectRawWs({ memberId, origin }, handlers);
         //connectRawWs({ memberId, origin });
       }, delay);
