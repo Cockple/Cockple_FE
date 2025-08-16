@@ -1,27 +1,29 @@
 import { Group_M } from "../common/contentcard/Group_M";
 import { ContentCardL } from "../common/contentcard/ContentCardL";
 import type { ExerciseCard, GroupCard } from "../../types/liked";
-import {
-  useLikedExerciseIds,
-  useLikedGroupIds,
-} from "../../hooks/useLikedItems";
+// import {
+//   useLikedExerciseIds,
+//   useLikedGroupIds,
+// } from "../../hooks/useLikedItems";
 import { useEffect, useState } from "react";
 import { LikedEmptyState } from "./LikedEmptyState";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+//import { LoadingSpinner } from "../common/LoadingSpinner";
 
 interface LikedListProps {
   activeTab: "group" | "exercise";
   groupCards: GroupCard[];
   exerciseCards: ExerciseCard[];
-  onToggleFavorite?: (id: number) => void;
-  tempUnbookmarkedGroupIds?: number[];
-  tempUnbookmarkedExerciseIds?: number[];
+  //🌟추가
+  likedGroupIds: number[];
+  likedExerciseIds: number[];
 }
 
 const LikedList = ({
   activeTab,
   groupCards,
   exerciseCards,
+  likedGroupIds,
+  likedExerciseIds,
 }: LikedListProps) => {
   const isGroupTab = activeTab === "group";
 
@@ -32,23 +34,24 @@ const LikedList = ({
   const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
     useState<number[]>([]);
 
-  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
-    useLikedGroupIds();
-  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
-    useLikedExerciseIds();
+  //🌟
+  // const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
+  //   useLikedGroupIds();
+  // const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
+  //   useLikedExerciseIds();
 
   useEffect(() => {
     console.log(likedGroupIds);
     console.log(likedExerciseIds);
-  });
+  }, [likedGroupIds, likedExerciseIds]);
 
-  const isLikedLoading = isGroupTab
-    ? isGroupLikedLoading
-    : isExerciseLikedLoading;
+  // const isLikedLoading = isGroupTab
+  //   ? isGroupLikedLoading
+  //   : isExerciseLikedLoading;
 
-  if (isLikedLoading) {
-    return <LoadingSpinner />;
-  }
+  // if (isLikedLoading) {
+  //   return <LoadingSpinner />;
+  // }
 
   const isEmpty = isGroupTab
     ? groupCards.length === 0
