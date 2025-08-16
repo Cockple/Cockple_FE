@@ -14,6 +14,8 @@ import { useOnboardingState } from "../../store/useOnboardingStore";
 
 export const OnboardingProfilePage = () => {
   const setTemp = useOnboardingState(state => state.setTemp);
+  const imgUrl = useOnboardingState(state => state.imgUrl);
+  const imgKey = useOnboardingState(state => state.imgKey);
   const [isProfile, setIsProfile] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -27,6 +29,30 @@ export const OnboardingProfilePage = () => {
 
   const fileInput = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  const handleUseDefault = () => {
+    // 스토어에 빈 키 저장
+    setTemp({ imgKey: "" });
+
+    // 로컬 상태 정리 (선택)
+    setPreview(null);
+    setIsProfile(false);
+    if (originalImage) URL.revokeObjectURL(originalImage);
+    setOriginalImage(null);
+    setIsCropping(false);
+
+    // 다음 단계로 이동
+    navigate("/confirm");
+  };
+  useEffect(() => {
+    if (imgKey === "") {
+      setPreview(null);
+      setIsProfile(false);
+    } else if (imgKey && imgUrl) {
+      setPreview(imgUrl);
+      setIsProfile(true);
+    }
+  }, [imgKey, imgUrl]);
 
   useEffect(() => {
     return () => {
@@ -104,9 +130,9 @@ export const OnboardingProfilePage = () => {
 
       // 이미지 업로드
       const { imgUrl, imgKey } = await uploadImage("PROFILE", croppedFile);
-
+      console.log(imgUrl);
       // 미리보기 갱신
-      setTemp({ imgKey });
+      setTemp({ imgKey, imgUrl });
       setPreview(imgUrl);
       setIsProfile(true);
       setIsCropping(false);
@@ -159,7 +185,7 @@ export const OnboardingProfilePage = () => {
       </section>
       <div
         className="items-center px-3 py-1 flex justify-center mb-2"
-        onClick={() => navigate("/confirm")}
+        onClick={handleUseDefault}
       >
         <p className="text-gy-700 body-rg-500 border-b w-fit cursor-pointer">
           기본 프로필 사용하기
