@@ -11,7 +11,7 @@ import api from "../../api/api";
 
 // 아이콘
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
+import { EmptyState } from "../../components/alert/EmptyState";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
 import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -212,7 +212,7 @@ export const AlertPage = () => {
           <div className="text-center mt-10">에러 발생</div>
         ) : visibleNotifications.length === 0 ? (
           <div className="flex flex-1 justify-center items-center">
-            <NoAlertMessage />
+            <EmptyState />
           </div>
         ) : (
           visibleNotifications.map(alert =>

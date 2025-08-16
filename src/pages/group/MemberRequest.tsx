@@ -5,7 +5,7 @@ import { Member } from "../../components/common/contentcard/Member";
 //import type { MemberProps } from "../../components/common/contentcard/Member";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
-import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
+import { NoAlertMessage } from "../../components/alert/EmptyState";
 import { useParams } from "react-router-dom";
 import type {
   JoinRequestActionBody,
