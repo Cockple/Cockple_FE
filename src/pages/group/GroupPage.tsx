@@ -137,10 +137,6 @@ export const GroupPage = () => {
               <Empty />
             )}
           </div>
-
-          {isFetchingNextPage && (
-            <div className="pt-2 text-gray-400 text-sm">더 불러오는 중…</div>
-          )}
         </div>
 
         <div className="flex flex-col gap-3">

@@ -15,11 +15,13 @@ import { Location } from "../../components/common/contentcard/Location";
 import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { transformPlaceToPayload } from "../../utils/address";
 import useCreateExerciseStore from "../../store/createExerciseStore";
+import { createExerciseApi } from "../../api/exercise/createExerciseApi";
 import {
-  createExerciseApi,
-  type CreateExercisePayload,
-} from "../../api/exercise/createExerciseApi";
-import { formatKoreanTimeToHHMMSS } from "../../utils/formatKoreanTimeToHHMMSS";
+  formatKoreanTimeToHHMMSS,
+  formatToKoreanTimeWithAmPm,
+} from "../../utils/formatKoreanTimeToHHMMSS";
+import { useExerciseEditDetail } from "../../api/exercise/useExerciseEditDetail";
+import { updateExerciseApi } from "../../api/exercise/updateExerciseApi";
 export const CreateExercise = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,8 +48,29 @@ export const CreateExercise = () => {
 
   const [openModal, setOpenModal] = useState(false);
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
-  const { groupId } = useParams();
-  // const isEditMode = !!exerciseId;
+  const { groupId, exerciseId } = useParams();
+  const { data: editData } = useExerciseEditDetail(exerciseId!);
+
+  useEffect(() => {
+    if (editData) {
+      setSelectedDate(editData.date);
+      setLocationDetail({
+        buildingName: editData.buildingName,
+        addr1: editData.roadAddress,
+        addr2: "",
+        addr3: "",
+        streetAddr: editData.roadAddress,
+        latitude: editData.latitude,
+        longitude: editData.longitude,
+      });
+      setStartTime(formatToKoreanTimeWithAmPm(editData.startTime));
+      setEndTime(formatToKoreanTimeWithAmPm(editData.endTime));
+      setHeadCount(String(editData.maxCapacity));
+      setAllowGuestInvite(editData.allowMemberGuestsInvitation);
+      setAllowExternalGuest(editData.allowExternalGuests);
+      setNotice(editData.notice);
+    }
+  }, [editData]);
 
   useEffect(() => {
     const selectedPlace = location.state?.selectedPlace;
@@ -69,8 +92,6 @@ export const CreateExercise = () => {
   const handleConfirmTime = () => {
     const selectedTime = pickerRef.current?.getDueString() ?? "";
 
-    // ✅ 불필요한 .slice() 코드를 삭제하고,
-    //    DateAndTimePicker에서 받은 값을 그대로 상태에 저장합니다.
     if (timeType === "start") {
       setStartTime(selectedTime);
     } else if (timeType === "end") {
@@ -99,21 +120,10 @@ export const CreateExercise = () => {
   };
 
   const onCreateExercise = async () => {
-    console.log("날짜", selectedDate);
-    console.log("위치", locationDetail);
-    console.log("시간", startTime + "~" + endTime);
-    console.log("모집인원", headCount);
-    console.log("공지", notice);
-
-    if (!groupId) {
-      console.error("그룹정보가 올바르지 않습니다.");
-      return;
-    }
-
     if (selectedDate && locationDetail && headCount) {
       const formattedStartTime = formatKoreanTimeToHHMMSS(startTime);
       const formattedEndTime = formatKoreanTimeToHHMMSS(endTime);
-      const payload: CreateExercisePayload = {
+      const payload = {
         date: String(selectedDate),
         buildingName: locationDetail.buildingName || "",
         roadAddress:
@@ -136,10 +146,19 @@ export const CreateExercise = () => {
       console.log(payload);
 
       try {
-        const data = await createExerciseApi(groupId, payload);
-        console.log(data);
-        navigate(`/group/${groupId}`);
-        resetForm();
+        if (exerciseId) {
+          await updateExerciseApi(exerciseId, payload);
+          navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`);
+        } else {
+          if (!groupId) {
+            console.error("그룹정보가 올바르지 않습니다.");
+            return;
+          }
+          const data = await createExerciseApi(groupId, payload);
+          console.log(data);
+          navigate(`/group/${groupId}`);
+          resetForm();
+        }
       } catch (err) {
         console.error("운동 생성 실패: ", err);
       }
@@ -148,7 +167,14 @@ export const CreateExercise = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <PageHeader title="운동 만들기" />
+      <PageHeader
+        title={exerciseId ? "운동 수정하기" : "운동 만들기"}
+        onBackClick={
+          exerciseId
+            ? () => navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`)
+            : () => navigate(-1)
+        }
+      />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">
           <WeeklyCalendar
@@ -220,7 +246,7 @@ export const CreateExercise = () => {
 
       <div className="mt-32 flex justify-center">
         <GR400_L
-          label="운동 만들기"
+          label={exerciseId ? "운동 수정하기" : "운동 만들기"}
           initialStatus={isFormValid() ? "default" : "disabled"}
           onClick={onCreateExercise}
         />
