@@ -7,7 +7,7 @@ import { useNavigate, useLocation  } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
-import { postMyContestRecord } from "../../api/contest/contestmy" //api
+import { postMyContestRecord } from "../../api/contest/contestmy" 
 import { getContestRecordDetail, patchMyContestRecord } from "../../api/contest/contestmy";
 import type { PostContestRecordRequest } from "../../api/contest/contestmy"
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
@@ -42,7 +42,7 @@ export const MyPageMedalAddPage = () => {
   const navigate = useNavigate();
   const mode = location.state?.mode ?? null;
   const contestId = location.state?.contestId ?? null; //contestId 받아오가
-  console.log("contestId",contestId);
+  // console.log("contestId",contestId);
   const medalData = location.state?.medalData ?? null;
   const isEditMode = mode === "edit";
 
@@ -72,12 +72,13 @@ export const MyPageMedalAddPage = () => {
     "준자강",
     "자강",
   ];
-  const typeMap: Record<string, PostContestRecordRequest["type"]> = {
+  const typeMap: Record<typeof formOptions[number], PostContestRecordRequest["type"]> = {
     "단식": "SINGLE",
-    "남복": "DOUBLE",
-    "여복": "DOUBLE",
+    "남복": "MEN_DOUBLES",
+    "여복": "WOMEN_DOUBLES",
     "혼복": "MIXED",
   };
+
 
   const levelMap: Record<string, PostContestRecordRequest["level"]> = {
     "왕초심": "BEGINNER",
@@ -132,15 +133,12 @@ const fetchContestDetail = async (contestId: string) => {
   }
 };
 
-
-// contestId 있을 때 fetch 호출
 useEffect(() => {
   if (isEditMode && contestId) {
     fetchContestDetail(contestId);
   }
 }, [isEditMode, contestId]);
 
-// initialData가 세팅되면 폼 상태 세팅
 useEffect(() => {
   if (initialData) {
     setTournamentName(initialData.title || "");
@@ -225,19 +223,6 @@ const handlePhotoClick = () => {
   }
 };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       if (typeof reader.result === "string") {
-  //         setPhotos(prev => [...prev, reader.result as string]);
-  //       }
-  //     };
-  //     reader.readAsDataURL(file); // base64 인코딩해서 보여줌
-  //   }
-  // };
-
   const isDataChanged = () => {
     return (
       tournamentName.trim() !== "" ||
@@ -259,53 +244,60 @@ const handlePhotoClick = () => {
 
 
   // 저장 클릭 핸들러
-const handleSaveClick = async () => {
-  if (!isSaveEnabled) return;
+  const handleSaveClick = async () => {
+    if (!isSaveEnabled) return;
 
-  try {
-    const requestBody: PostContestRecordRequest = {
-      contestName: tournamentName,
-      date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
-      medalType:
-        selectedIndex === 0
-          ? "GOLD"
-          : selectedIndex === 1
-          ? "SILVER"
-          : selectedIndex === 2
-          ? "BRONZE"
-          : "NONE",
-      type: typeMap[selectedForm!] || "SINGLE",
-      level: levelMap[selectedLevel] || "EXPERT",
-      content: recordText || undefined,
-      contentIsOpen: true,
-      videoIsOpen: true,
-      contestVideos: videoLinks.filter((link) => link.trim() !== ""),
-      contestImgs: photos,
-    };
+    try {
+      const mappedType: PostContestRecordRequest["type"] =
+        selectedForm ? typeMap[selectedForm] : "SINGLE";
+      const mappedLevel = selectedLevel ? levelMap[selectedLevel] : "EXPERT";
 
-    console.log("요청 바디:", requestBody);
+      const requestBody: PostContestRecordRequest = {
+        contestName: tournamentName,
+        date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
+        medalType:
+          selectedIndex === 0
+            ? "GOLD"
+            : selectedIndex === 1
+            ? "SILVER"
+            : selectedIndex === 2
+            ? "BRONZE"
+            : "NONE",
+        type: mappedType,     
+        level: mappedLevel,   
+        content: recordText || undefined,
+        contentIsOpen: true,
+        videoIsOpen: true,
+        contestVideos: videoLinks.filter((link) => link.trim() !== ""),
+        contestImgs: photos,
+      };
 
-    let response;
-    if (isEditMode && contestId) {
-      // 편집 모드면 PATCH 호출 (수정)
-      response = await patchMyContestRecord(contestId, requestBody);
-    } else {
-      // 새로 등록할 때 POST 호출
-      response = await postMyContestRecord(requestBody);
+      console.log("요청 바디:", requestBody);
+
+      let response;
+      if (isEditMode && contestId) {
+        response = await patchMyContestRecord(contestId, requestBody);
+      } else {
+        response = await postMyContestRecord(requestBody);
+      }
+
+      if (response.success && response.data) {
+        const newContestId = response.data.contestId;
+        alert(
+          isEditMode
+            ? "대회 기록이 성공적으로 수정되었습니다."
+            : "대회 기록이 성공적으로 등록되었습니다."
+        );
+        navigate(`/mypage/mymedal/${newContestId}`);
+      } else {
+        alert("저장에 실패했습니다: " + response.message);
+      }
+    } catch (error) {
+      console.error("대회 기록 저장 오류", error);
+      alert("서버와 통신 중 오류가 발생했습니다.");
     }
+  };
 
-    if (response.success && response.data) {
-      const newContestId = response.data.contestId;
-      alert(isEditMode ? "대회 기록이 성공적으로 수정되었습니다." : "대회 기록이 성공적으로 등록되었습니다.");
-      navigate(`/mypage/mymedal/${newContestId}`);
-    } else {
-      alert("저장에 실패했습니다: " + response.message);
-    }
-  } catch (error) {
-    console.error("대회 기록 저장 오류", error);
-    alert("서버와 통신 중 오류가 발생했습니다.");
-  }
-};
 
   const onBackClick = () => {
     if (tournamentName === "") {
