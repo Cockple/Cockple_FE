@@ -11,6 +11,10 @@ interface ChattingComponentProps {
   time: string;
 }
 
+// 🌟이미지 URL 판별 (이모티콘 TEXT 보정용)
+const looksLikeImageUrl = (u?: string | null) =>
+  !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
+
 const ChattingComponent = ({
   // nickname,
   // profile,
@@ -33,9 +37,20 @@ const ChattingComponent = ({
     setChatNick(isMe ? "나" : message.senderName);
   }, [isMe, message.senderName]);
 
+  //🌟
   //메세지 포맷팅 함수 정의 (개행 문자를 <br/>로 변환)
-  const formatMessage = (text: string) => {
-    return text.split("\n").map((line, index) => (
+  // const formatMessage = (text: string) => {
+  //   return text.split("\n").map((line, index) => (
+  //     <React.Fragment key={index}>
+  //       {line}
+  //       <br />
+  //     </React.Fragment>
+  //   ));
+  // };
+  const formatMessage = (raw?: string | null) => {
+    const text = raw ?? ""; // null/undefined 방어
+    if (text === "") return null; // 내용 없으면 아무것도 렌더하지 않음
+    return text.split(/\r?\n/).map((line, index) => (
       <React.Fragment key={index}>
         {line}
         <br />
@@ -43,7 +58,6 @@ const ChattingComponent = ({
     ));
   };
 
-  //🌟
   // const renderImage = () => (
   //   <div className="flex flex-wrap gap-2 mt-1">
   //     {/* {imageUrls.map((src, idx) => (
@@ -65,8 +79,28 @@ const ChattingComponent = ({
   //     ) : null} */}
   //   </div>
   // );
+
+  //🌟
   // 렌더링용 이미지 배열 (IMAGE 타입이 아니어도 imgUrls가 있으면 보여줌)
-  const imgs = useMemo(() => message.imgUrls ?? [], [message.imgUrls]);
+  //const imgs = useMemo(() => message.imgUrls ?? [], [message.imgUrls]);
+  /**
+   *  이미지 렌더링 규칙 (서버가 TEXT로 내려오더라도 안전)
+   * 1) message.imgUrls 사용
+   * 2) message.imageUrls(서버 응답 키) fallback
+   * 3) content가 공개 이미지 URL이면 그걸 1장으로 간주
+   */
+  const imgs = useMemo(() => {
+    const rawFromType = message.imageUrls ?? message.imageUrls ?? [];
+    const arr: string[] = Array.isArray(rawFromType)
+      ? rawFromType.filter(Boolean)
+      : [];
+
+    if (arr.length === 0 && looksLikeImageUrl(message.content)) {
+      arr.push(message.content as string);
+    }
+    return arr;
+  }, [message]);
+
   const hasImages = imgs && imgs.length > 0;
 
   const ImageTiles: React.FC<{
@@ -138,7 +172,8 @@ const ChattingComponent = ({
 
           <div className="mr-3">
             {/* TEXT */}
-            {message.messageType === "TEXT" && (
+            {/* 🌟TEXT: content가 있고, 이미지가 없을 때만 말풍선 렌더 */}
+            {(message.content ?? "") !== "" && !hasImages && (
               <div
                 id="chatting"
                 className="flex max-w-[15rem] px-3 py-2 text-left items-start gap-[0.625rem] bg-white border-round"
@@ -156,11 +191,18 @@ const ChattingComponent = ({
             )}
 
             {/*IMAGE*/}
-            {message.messageType === "IMAGE" && hasImages && (
+            {/* 🌟IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
+            {hasImages && (
               <div className="mr-3 flex flex-col items-end max-w-[15rem]">
                 <ImageTiles urls={imgs} onClick={onImageClick} />
               </div>
             )}
+
+            {/* {message.messageType === "IMAGE" && hasImages && (
+              <div className="mr-3 flex flex-col items-end max-w-[15rem]">
+                <ImageTiles urls={imgs} onClick={onImageClick} />
+              </div>
+            )} */}
           </div>
 
           {/* 이미지 메시지 */}
@@ -193,8 +235,8 @@ const ChattingComponent = ({
               {chatNick}
             </p>
 
-            {/* 텍스트 메시지 */}
-            {message.messageType === "TEXT" && (
+            {/* 🌟TEXT: content가 있고, 이미지가 없을 때만 말풍선 렌더 */}
+            {(message.content ?? "") !== "" && !hasImages && (
               <div className="flex items-end gap-2 self-stretch">
                 <div
                   id="chatting"
@@ -230,11 +272,18 @@ const ChattingComponent = ({
                   </div> */}
 
             {/*IMAGE*/}
-            {message.messageType === "IMAGE" && hasImages && (
-              <div className="mr-3 flex flex-col items-end gap-1">
+            {/* 🌟IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
+            {hasImages && (
+              <div className="mr-3 flex flex-col items-end max-w-[15rem]">
                 <ImageTiles urls={imgs} onClick={onImageClick} />
               </div>
             )}
+
+            {/* {message.messageType === "IMAGE" && hasImages && (
+              <div className="mr-3 flex flex-col items-end gap-1">
+                <ImageTiles urls={imgs} onClick={onImageClick} />
+              </div>
+            )} */}
             {/* 이미지 메시지 */}
             {/* {imageUrls.length > 0 && (
               <div className="flex items-end flex-wrap gap-2 self-stretch">

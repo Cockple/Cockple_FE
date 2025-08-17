@@ -15,6 +15,8 @@ interface BottomChatInputProps {
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onToggleEmoji?: () => void; // ⭐이모티콘 버튼
+  onFocusInput?: () => void; // ⭐ 입력창 클릭/포커스 시
 }
 
 const BottomChatInput = ({
@@ -25,6 +27,8 @@ const BottomChatInput = ({
   onSendMessage,
   onImageUpload,
   fileInputRef,
+  onToggleEmoji,
+  onFocusInput,
 }: BottomChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMultiLine, setIsMultiLine] = useState(false);
@@ -117,9 +121,11 @@ const BottomChatInput = ({
           onKeyDown={handleKeyDown}
           onCompositionStart={onCompositionStart}
           onCompositionEnd={onCompositionEnd}
+          onFocus={onFocusInput}
           className={`outline-0 w-full body-md-500 overflow-hidden resize-none ${isMultiLine ? "h-auto h-min-14 h-max-32" : ""}`}
           rows={1}
         />
+        {/* 이모티콘 버튼 */}
         <Clear_M
           iconMap={{
             disabled: Imogi,
@@ -127,7 +133,7 @@ const BottomChatInput = ({
             pressing: Imogi,
             clicked: Imogi,
           }}
-          onClick={() => {}}
+          onClick={onToggleEmoji}
         />
       </div>
 

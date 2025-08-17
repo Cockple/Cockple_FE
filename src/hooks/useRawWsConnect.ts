@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import {
   connectRawWs,
-  sendChatWS,
+  sendFilesWS,
+  sendImagesWS,
+  sendMixedWS,
+  sendTextWS,
   type IncomingMessage,
+  type WsSendFile,
+  type WsSendImage,
 } from "../api/chat/rawWs";
 import { useChatWsStore } from "../store/useChatWsStore";
 import useUserStore from "../store/useUserStore";
@@ -80,9 +85,22 @@ export const useRawWsConnect = (opts: {
   return {
     isOpen,
     lastMessage,
+    //🌟
+    // sendText: (chatRoomId: number, content: string) =>
+    //   sendChatWS(chatRoomId, { kind: "text", content }),
+    // sendImage: (chatRoomId: number, imgKeys: string[]) =>
+    //   sendChatWS(chatRoomId, { kind: "image", imgKeys }),
     sendText: (chatRoomId: number, content: string) =>
-      sendChatWS(chatRoomId, { kind: "text", content }),
-    sendImage: (chatRoomId: number, imgKeys: string[]) =>
-      sendChatWS(chatRoomId, { kind: "image", imgKeys }),
+      sendTextWS(chatRoomId, content),
+    sendImages: (chatRoomId: number, items: WsSendImage[]) =>
+      sendImagesWS(chatRoomId, items),
+    sendFiles: (chatRoomId: number, items: WsSendFile[]) =>
+      sendFilesWS(chatRoomId, items),
+    sendMixed: (args: {
+      chatRoomId: number;
+      content?: string | null;
+      files?: WsSendFile[] | null;
+      images?: WsSendImage[] | null;
+    }) => sendMixedWS(args),
   };
 };

@@ -54,7 +54,7 @@ export interface ChatMessageResponse {
   senderProfileImage: string;
   content: string;
   messageType: "TEXT" | "IMAGE";
-  imgUrls: string[];
+  imageUrls: string[];
   //reactions: Reaction[];
   //replyTo: null | number;
   //fileInfo: FileInfo | null;
