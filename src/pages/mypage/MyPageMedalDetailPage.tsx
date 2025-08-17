@@ -218,7 +218,6 @@ export const MyPageMedalDetailPage = ({
           )}
         </div>
       </div>
-
       {/* 수정하기 버튼 */}
       <div className="mt-6 flex justify-between">
         <Grad_Mix_L
@@ -228,7 +227,7 @@ export const MyPageMedalDetailPage = ({
             navigate("/mypage/mymedal/add", {
               state: {
                 mode: "edit",
-                contestId: contestId,  // 값 넘김 
+                contestId: contentId, 
                 medalData: {
                   title: medalDetail.title,
                   date: medalDetail.date,
@@ -249,9 +248,15 @@ export const MyPageMedalDetailPage = ({
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Delete
             onConfirm={async () => {
+              console.log("삭제 시작", contentId);
               try {
-                if (!contestId) return;
-                await deleteContestRecord(Number(contestId));
+                if (!contentId) {
+                  console.error("contentId가 없습니다");
+                  return;
+                }
+                console.log("API 호출 시도:", Number(contentId));
+                const result = await deleteContestRecord(Number(contentId));
+                console.log("API 응답:", result);
                 setIsDeleteModalOpen(false);
                 navigate("/mypage/mymedal");
               } catch (error) {
