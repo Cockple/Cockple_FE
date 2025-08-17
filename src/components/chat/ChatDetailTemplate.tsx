@@ -30,7 +30,7 @@ import { LoadingSpinner } from "../common/LoadingSpinner";
 import EmojiPicker from "../common/chat/EmojiPicker";
 import { EMOJIS } from "../common/chat/emojis";
 
-// 🌟===== 유틸: 키 → 표시 URL =====
+// ===== 유틸: 키 → 표시 URL =====
 const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
   /\/?$/,
   "/",
@@ -41,6 +41,9 @@ const resolveFromKey = (key?: string | null) =>
 // 🌟URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
 const looksLikeImageUrl = (u?: string | null) =>
   !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
+
+// 🌟추가: 이모티콘 업로드 결과 캐시(중복 업로드 방지)
+const emojiUploadCache = new Map<string, { imgKey: string; imgUrl: string }>();
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -180,8 +183,6 @@ export const ChatDetailTemplate = ({
   }, [markReadNow]);
 
   //===== WS 연결 및 전송 =====
-  //🌟
-  // const { sendText, sendImage, lastMessage } = useRawWsConnect({
   const { sendText, sendImages, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
@@ -233,7 +234,7 @@ export const ChatDetailTemplate = ({
     console.log("메시지 전송:", text);
   };
 
-  //🌟 ==== 전송: 이미지(다중) ====
+  //==== 전송: 이미지(다중) ====
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     //
     const files = Array.from(e.target.files ?? []);
@@ -298,34 +299,99 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  // ⭐이모티콘 전송: URL을 TEXT로 보냄
-  const handleSendEmoji = (emojiUrl: string) => {
-    const tempId = -Date.now();
-    // 낙관적 이미지 메시지
-    const optimistic: ChatMessageResponse = {
-      messageId: tempId,
-      senderId: currentUserId,
-      senderName: currentUserName,
-      senderProfileImage: "",
-      content: "",
-      messageType: "IMAGE",
-      imageUrls: [emojiUrl],
-      timestamp: new Date().toISOString(),
-      isMyMessage: true,
-    };
-    setLiveMsgs(prev => [...prev, optimistic]);
+  // ⭐ 추가: 이모티콘을 '이미지 전송 플로우'로 보내는 유틸
+  const sendEmojiAsImage = async (
+    chatRoomId: number,
+    emojiAssetPath: string,
+  ) => {
+    try {
+      // 0) 캐시 조회(같은 이모티콘 재사용 시 업로드 생략)
+      if (!emojiUploadCache.has(emojiAssetPath)) {
+        // 1) 번들 자산 → 실제 URL
+        const assetUrl = /^https?:\/\//i.test(emojiAssetPath)
+          ? emojiAssetPath
+          : new URL(emojiAssetPath, import.meta.url).href;
 
-    const ok = sendText(chatId, emojiUrl); // TEXT로 URL 전송
-    if (!ok) {
-      setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 실패 롤백
-      return;
+        // 2) Blob → File
+        const blob = await fetch(assetUrl).then(r => r.blob());
+        const ext = (blob.type.split("/")[1] || "png").toLowerCase();
+        const file = new File([blob], `emoji.${ext}`, {
+          type: blob.type || "image/png",
+        });
+
+        // 3) 업로드(서버가 주는 imgKey/imgUrl 사용)
+        const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+        emojiUploadCache.set(emojiAssetPath, { imgKey, imgUrl });
+      }
+
+      const { imgKey, imgUrl } = emojiUploadCache.get(emojiAssetPath)!;
+
+      // 4) WS로 images[] 전송
+      const ok = sendImages(chatRoomId, [
+        {
+          imgKey,
+          imgOrder: 1,
+          originalFileName: "emoji.png",
+          fileSize: 0,
+          fileType: "image/png",
+        },
+      ]);
+      if (!ok) throw new Error("WS SEND 실패");
+
+      // 5) 낙관적 렌더
+      const optimistic: ChatMessageResponse = {
+        messageId: -Date.now(),
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderProfileImage: "",
+        content: "",
+        messageType: "IMAGE",
+        imageUrls: [imgUrl],
+        timestamp: new Date().toISOString(),
+        isMyMessage: true,
+      };
+      setLiveMsgs(prev => [...prev, optimistic]);
+
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    } catch (e) {
+      console.error("[emoji] 전송 실패:", e);
     }
-    requestAnimationFrame(() =>
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-    );
   };
 
-  // 🌟==== 수신 매핑 ====
+  // ⭐이모티콘 전송: URL을 TEXT로 보냄
+  // const handleSendEmoji = (emojiUrl: string) => {
+  //   const tempId = -Date.now();
+  //   // 낙관적 이미지 메시지
+  //   const optimistic: ChatMessageResponse = {
+  //     messageId: tempId,
+  //     senderId: currentUserId,
+  //     senderName: currentUserName,
+  //     senderProfileImage: "",
+  //     content: "",
+  //     messageType: "IMAGE",
+  //     imageUrls: [emojiUrl],
+  //     timestamp: new Date().toISOString(),
+  //     isMyMessage: true,
+  //   };
+  //   setLiveMsgs(prev => [...prev, optimistic]);
+
+  //   const ok = sendText(chatId, emojiUrl); // TEXT로 URL 전송
+  //   if (!ok) {
+  //     setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 실패 롤백
+  //     return;
+  //   }
+  //   requestAnimationFrame(() =>
+  //     bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+  //   );
+  // };
+  // 🌟 교체: 기존 'TEXT로 URL 전송' → 이미지 전송 호출
+  const handleSendEmoji = (emojiAssetPath: string) => {
+    void sendEmojiAsImage(chatId, emojiAssetPath);
+  };
+
+  // ==== 수신 매핑 ====
   function mapBroadcastToUi(
     msg: import("../../api/chat/rawWs").BroadcastMessage,
     meId: number,
@@ -361,74 +427,12 @@ export const ChatDetailTemplate = ({
     };
   }
 
-  //🌟 ===== WS 수신 반영 =====
+  // ===== WS 수신 반영 =====
   const lastMessageRef = useRef(lastMessage);
   useEffect(() => {
     lastMessageRef.current = lastMessage;
   }, [lastMessage]);
 
-  //🌟
-  // useEffect(() => {
-  //   if (!lastMessage || lastMessage.type !== "SEND") return;
-  //   if (lastMessage.chatRoomId !== chatId) return;
-
-  //   //🌟
-  //   const isImage =
-  //     lastMessage.messageType === "IMAGE" ||
-  //     (lastMessage.imgUrls?.length ?? 0) > 0 ||
-  //     // fallback: content가 URL이면 이미지로 간주
-  //     //🌟
-  //     (lastMessage.content &&
-  //       /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif)$/i.test(
-  //         lastMessage.content,
-  //       ));
-  //   // (lastMessage.content &&
-  //   //   /^(https?:\/\/|\/assets\/).+\.(png|jpe?g|gif|webp|jfif)$/i.test(
-  //   //     lastMessage.content,
-  //   //   ));
-
-  //   const incoming: ChatMessageResponse = {
-  //     messageId: lastMessage.messageId ?? Date.now(),
-  //     senderId: lastMessage.senderId ?? 0,
-  //     senderName: lastMessage.senderName ?? "",
-  //     senderProfileImage: lastMessage.senderProfileImage ?? "",
-  //     //🌟
-  //     // content: lastMessage.content ?? "",
-  //     // messageType: "TEXT",
-  //     // imgUrls: [],
-  //     content: isImage ? "" : (lastMessage.content ?? ""),
-  //     messageType: isImage ? "IMAGE" : "TEXT",
-  //     imgUrls: isImage
-  //       ? (lastMessage.imgUrls ??
-  //         (lastMessage.content ? [lastMessage.content] : []))
-  //       : [],
-  //     timestamp: lastMessage.timestamp ?? "",
-  //     isMyMessage: (lastMessage.senderId ?? 0) === currentUserId,
-  //   };
-
-  //   // 내 임시와 동일하면 교체(에코가 올 경우)
-  //   setLiveMsgs(prev => {
-  //     const idx = prev.findIndex(
-  //       m =>
-  //         m.messageId < 0 &&
-  //         m.isMyMessage &&
-  //         m.content === incoming.content &&
-  //         Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
-  //           5000,
-  //     );
-  //     if (idx >= 0) {
-  //       const copy = [...prev];
-  //       copy[idx] = incoming;
-  //       return copy;
-  //     }
-  //     // 상대 메시지면 추가
-  //     return [...prev, incoming];
-  //   });
-
-  //   requestAnimationFrame(() =>
-  //     bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //   );
-  // }, [lastMessage, chatId, currentUserId]);
   useEffect(() => {
     const msg = lastMessageRef.current;
     if (!msg || msg.type !== "SEND") return;
