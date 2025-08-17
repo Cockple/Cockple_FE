@@ -8,7 +8,7 @@ import { getProfile } from "../../api/member/profile";
 import { getOtherUserMedals } from "../../api/contest/member"; 
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
-
+import { createDirectChat } from "../../api/chat/direct";
 export const MyPageProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const numericMemberId = memberId ? Number(memberId) : null;
@@ -58,6 +58,24 @@ export const MyPageProfile = () => {
     fetchData();
   }, [numericMemberId]);
 
+  const handleChatClick = async () => {
+  if (!numericMemberId) return;
+  
+  try {
+    const res = await createDirectChat(numericMemberId); 
+    if (res.success) {
+      alert("채팅방이 생성되었습니다.");
+      navigate("/chat");
+    } else {
+      alert(res.message || "채팅방 생성 실패");
+    }
+  } catch (err: any) {
+    console.error(err);
+    alert(err.message || "서버 오류가 발생했습니다.");
+  }
+};
+
+
   if (loading) return <div className="text-center py-10">로딩 중...</div>;
   if (error) return <div className="text-center py-10 text-red-500">에러: {error}</div>;
 
@@ -99,7 +117,7 @@ export const MyPageProfile = () => {
 
       <Grad_GR400_L
         label="개인 채팅 보내기"
-        onClick={() => navigate("/chat/group/:chatId")}
+        onClick={handleChatClick}
       />
     </div>
   );

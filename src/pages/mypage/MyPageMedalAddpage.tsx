@@ -13,7 +13,11 @@ import type { PostContestRecordRequest } from "../../api/contest/contestmy"
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import Camera from "../../assets/icons/camera.svg?react";
 import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
-import Kitty from "../../assets/images/Image Carousel.png";
+import Medal_1 from "../../assets/icons/medal_1.svg?react";
+import Medal_2 from "../../assets/icons/medal_2.svg?react";
+import Medal_3 from "../../assets/icons/medal_3.svg?react";
+import { uploadImages } from "../../api/image/imageUpload";
+
 import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
@@ -94,7 +98,23 @@ export const MyPageMedalAddPage = () => {
     return null;
   };
   const [initialData, setInitialData] = useState<MedalDetail | null>(null);
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (!files) return;
 
+  const fileArray = Array.from(files).slice(0, 3 - photos.length); // 최대 3장 제한
+  if (fileArray.length === 0) return;
+
+  try {
+    // API 호출
+    const { images } = await uploadImages("CONTEST", fileArray); 
+    // 서버에서 받은 imgUrl 배열을 상태에 추가
+    setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
+  } catch (err) {
+    console.error("이미지 업로드 실패", err);
+    alert("이미지 업로드 중 오류가 발생했습니다.");
+  }
+};
 // API에서 contestId로 상세 데이터 불러오기
 const fetchContestDetail = async (contestId: string) => {
   try {
@@ -170,15 +190,14 @@ useEffect(() => {
   }, [isEditMode, medalData]);
 
 
-  const images = ["url1.jpg", "url2.jpg", "url3.jpg"];
-
+  const images = [Medal_1, Medal_2, Medal_3]; 
   const handleCloseOverlay = () => {
     if (pickerRef.current) {
-      const date = pickerRef.current.getDueString(); // 선택된 값
-      setSelectedDate(date); //  input에 넣기
-      setValue("birthday", date, { shouldValidate: true }); //set Value를 통해 useForm에 전달
+      const date = pickerRef.current.getDueString(); 
+      setSelectedDate(date);
+      setValue("birthday", date, { shouldValidate: true }); 
     }
-    setOpenModal(false); // 닫기
+    setOpenModal(false); 
   };
 
   const [openModal, setOpenModal] = useState(false);
@@ -199,25 +218,25 @@ useEffect(() => {
   }, [photos]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+const handlePhotoClick = () => {
+  if (photos.length < 3 && fileInputRef.current) {
+    fileInputRef.current.click();
+  }
+};
 
-  const handlePhotoClick = () => {
-    if (photos.length < 3 && fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setPhotos(prev => [...prev, reader.result as string]);
-        }
-      };
-      reader.readAsDataURL(file); // base64 인코딩해서 보여줌
-    }
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       if (typeof reader.result === "string") {
+  //         setPhotos(prev => [...prev, reader.result as string]);
+  //       }
+  //     };
+  //     reader.readAsDataURL(file); // base64 인코딩해서 보여줌
+  //   }
+  // };
 
   const isDataChanged = () => {
     return (
@@ -403,10 +422,10 @@ const handleSaveClick = async () => {
               수상
             </label>
             <div className="flex gap-2 w-full items-center justify-center">
-              {images.map((_, i) => (
+              {images.map((imgSrc, i) => (
                 <ImageBox
                   key={i}
-                  imageSrc={Kitty}
+                  imageSrc={imgSrc} // 배열에서 하나씩 꺼내서 전달
                   isSelected={selectedIndex === i}
                   onClick={() =>
                     setSelectedIndex(selectedIndex === i ? null : i)

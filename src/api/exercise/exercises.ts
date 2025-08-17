@@ -141,8 +141,19 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
   };
 };
 
-// 멤버 삭제
+// 특정 참여자 운동 취소
 export const cancelSelf = async (exerciseId: number, memberId: number) => {
   const response = await api.delete(`/api/exercises/${exerciseId}/participants/${memberId}`);
   return response.data;
+};
+
+// 참여하는 운동 삭제하기
+export const deleteExercise = async (exerciseId: number) => {
+  try {
+    const response = await api.delete(`/api/exercises/${exerciseId}`);
+    return response.data; 
+  } catch (error: any) {
+    console.error("운동 삭제 API 호출 실패:", error);
+    throw error.response?.data || error;
+  }
 };

@@ -75,15 +75,25 @@ export const MyPageMedalDetailPage = ({
           setMedalDetail(null);
           return;
         }
-
         setMedalDetail({
           title: data.contestName ?? "",
           date: data.date ?? "",
           participationType: `${data.type ?? ""} - ${data.level ?? ""}`,
           record: data.content ?? "",
-          photo: (data as any).contestImgs ?? (data as any).photos ?? [],
-          videoUrl: (data as any).contestVideos ?? [],
+          photo: ((data as any).contestImgUrls ?? []).map((url: string) =>
+            decodeURIComponent(url.replace(/^https?:\/\//, "https://"))
+          ),
+          videoUrl: (data as any).contestVideoUrls ?? [],
         });
+
+        // setMedalDetail({
+        //   title: data.contestName ?? "",
+        //   date: data.date ?? "",
+        //   participationType: `${data.type ?? ""} - ${data.level ?? ""}`,
+        //   record: data.content ?? "",
+        //   photo: (data as any).contestImgUrls ?? [], 
+        //   videoUrl: (data as any).contestVideos ?? [],
+        // });
       } catch (err) {
         console.error(err);
         setMedalDetail(null);
@@ -137,22 +147,6 @@ export const MyPageMedalDetailPage = ({
             />
           </SwiperSlide>
         ))}
-          {/* {images.map((img, idx) => (
-            <SwiperSlide
-              key={idx}
-              style={{ display: "flex", justifyContent: "center", padding: 0 }}
-            >
-              <img
-                src={img}
-                alt={`메달 이미지 ${idx + 1}`}
-                style={{
-                  width: "100%",
-                  height: "23.4375rem",
-                  objectFit: "cover",
-                }}
-              />
-            </SwiperSlide>
-          ))} */}
         </Swiper>
 
         {/* 오버레이 영역 */}

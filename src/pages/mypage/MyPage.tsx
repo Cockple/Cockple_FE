@@ -10,7 +10,7 @@ import { getMyProfile } from "../../api/member/my";
 
 interface MyPageProps {
   name?: string;
-  gender?: "female" | "male";
+  gender?: "FEMALE" | "MALE";
   level?: string;
   birth?: string;
   profileImage?: File;
@@ -28,7 +28,7 @@ interface MyPageProps {
 export const MyPage = ({ disabled = false }: MyPageProps) => {
   const [profile, setProfile] = useState<MyPageProps>({
     name: "",
-    gender: "female",
+    gender: "FEMALE",
     level: "",
     birth: "",
     profileImage: undefined,
@@ -48,7 +48,7 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
 
         setProfile({
           name: data.memberName,
-          gender: data.gender === "MALE" ? "male" : "female",
+          gender: data.gender === "MALE" ? "MALE" : "FEMALE",
           level: convertLevel(data.level),
           birth: data.birth,
           goldCount: data.myGoldMedalCnt,

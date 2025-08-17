@@ -56,3 +56,5 @@ export const leaveParty = async (partyId: number) => {
     }
   }
 };
+
+

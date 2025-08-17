@@ -4,9 +4,10 @@ import api from "../api";
 export interface ApiMedalItem {
   title: string;
   date: string;
-  medalImageSrc: string;
   isAwarded: boolean;
+  medalImgUrl: string | null; 
 }
+
 
 export interface ApiMedalResponse {
   code: string;
@@ -25,7 +26,7 @@ export interface MedalItem {
   id: number;
   title: string;
   date: string;
-  medalImageSrc: string;
+  medalImgUrl: string | null; 
   isAwarded: boolean;
 }
 
@@ -102,22 +103,21 @@ export const getMyMedals = async (): Promise<MyMedalData> => {
   }
 
   const data = raw.data;
-
   const transformed: MyMedalData = {
     goldCount: data.goldCount,
     silverCount: data.silverCount,
     bronzeCount: data.bronzeCount,
     myMedalTotal: data.myMedalTotal,
     medals: Array.isArray(data.medals)
-        ? data.medals.map((item, index) => ({
-            id: index,               // 임시 id 
-            title: item.title,
-            date: item.date,
-            medalImageSrc: item.medalImageSrc,
-            isAwarded: item.isAwarded,
-          }))
-        : [],  };
-
+      ? data.medals.map((item, index) => ({
+          id: index,
+          title: item.title,
+          date: item.date,
+          medalImgUrl: item.medalImgUrl, // 그대로 전달
+          isAwarded: item.isAwarded,
+        }))
+      : [],
+  };
   return transformed;
 };
 
