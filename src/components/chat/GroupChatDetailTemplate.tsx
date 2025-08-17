@@ -10,11 +10,9 @@ import ImagePreviewModal from "./ImagePreviewModal";
 import BottomChatInput from "../common/chat/BottomChatInput";
 //import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
-//import { formatTime } from "../../utils/formatDate";
 
 // 데이터 훅
 import { useChatInfinite } from "../../hooks/useChatInfinite";
-//import { useMockChatInfinite } from "../../hooks/useMockChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
 
 // WS 연결(원시 WebSocket 전용 훅)
@@ -29,6 +27,25 @@ import useUserStore from "../../store/useUserStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 
+// 이모티콘
+import EmojiPicker from "../common/chat/EmojiPicker";
+import { EMOJIS } from "../common/chat/emojis";
+
+// ===== 유틸: 키 → 표시 URL =====
+const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
+  /\/?$/,
+  "/",
+);
+const resolveFromKey = (key?: string | null) =>
+  key ? `${S3_BASE}${String(key).replace(/^\/+/, "")}` : "";
+
+// URL이 이미지처럼 보이는지(방어적으로) 판별
+const looksLikeImageUrl = (u?: string | null) =>
+  !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
+
+// 이모티콘 업로드 결과 캐시(중복 업로드 방지)
+const emojiUploadCache = new Map<string, { imgKey: string; imgUrl: string }>();
+
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex-1 flex items-center justify-center py-8 text-gy-700">
     {children}
@@ -37,28 +54,22 @@ const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
 
 interface GroupChatDetailTemplateProps {
   roomId: number; // 채팅방 ID
-  //chatName: string; // 상단 타이틀
-  //onBack: () => void; // 뒤로가기
-  //showHomeButton?: boolean; // 상단 고정 버튼 표시 여부
 }
 
 export const GroupChatDetailTemplate: React.FC<
   GroupChatDetailTemplateProps
-  // > = ({ chatId, chatName, onBack, partyId, showHomeButton = false }) => {
-  // > = ({ roomId, chatName, onBack }) => {
 > = ({ roomId }) => {
   //const navigate = useNavigate();
 
-  // 실제 로그인 사용자 정보로 대체
+  // 실제 로그인 사용자 정보
   const storeUser = useUserStore(s => s.user);
   const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
   const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
 
   const {
-    messages, // 정렬된 평탄화(오름차순)
+    messages, // 오름차순
     initLoading,
     initError,
-    //isEmpty,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -67,7 +78,7 @@ export const GroupChatDetailTemplate: React.FC<
 
   // ===== 읽음 처리: 진입/스크롤 하단 도달 시 =====
   const { markReadNow } = useChatRead({
-    roomId: roomId,
+    roomId,
     messages,
     mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
   });
@@ -76,7 +87,6 @@ export const GroupChatDetailTemplate: React.FC<
   useEffect(() => {
     subscribeRoom(roomId);
     return () => {
-      // 방 퇴장: 해제 (리스트 화면에서 다시 여러 방 구독함)
       unsubscribeRoom(roomId);
     };
   }, [roomId]);
@@ -85,8 +95,9 @@ export const GroupChatDetailTemplate: React.FC<
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showEmoji, setShowEmoji] = useState(false); // ⭐ 이모티콘
 
-  //🌟낙관적/실시간 메시지 보관
+  // 낙관적/실시간 메시지 보관
   const [liveMsgs, setLiveMsgs] = useState<ChatMessageResponse[]>([]);
 
   //  ==== Refs ====
@@ -145,19 +156,19 @@ export const GroupChatDetailTemplate: React.FC<
   }, [markReadNow]);
 
   //===== WS 연결 및 전송 =====
-  //🌟
-  const { sendText, sendImage, lastMessage } = useRawWsConnect({
+  // ChatDetailTemplate와 동일 인터페이스 사용(sendImages)
+  const { sendText, sendImages, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
   });
 
-  const rendered = useMemo(() => {
-    // messages가 오름차순이므로 live는 뒤에 붙인다.
-    // 정렬이 필요하면 여기에서 정렬.
-    return [...messages, ...liveMsgs];
-  }, [messages, liveMsgs]);
+  // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
+  const rendered = useMemo(
+    () => [...messages, ...liveMsgs],
+    [messages, liveMsgs],
+  );
 
-  // 메시지 전송 (WS publish 경로 확정 전까지는 입력 리셋 + 스크롤만)
+  // ==== 전송: 텍스트 ====
   const handleSendMessage = () => {
     const text = input.trim();
     if (!text) return;
@@ -170,115 +181,201 @@ export const GroupChatDetailTemplate: React.FC<
       senderProfileImage: "",
       content: text,
       messageType: "TEXT",
-      imgUrls: [],
+      imageUrls: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
     };
 
-    // 1) 즉시 화면 반영
     setLiveMsgs(prev => [...prev, optimistic]);
 
-    // 2) 서버로 SEND
-    const ok = sendText(roomId, text); // 또는 sendChatWS(chatId, text);
-    // 실패 시 사용자 안내
+    const ok = sendText(roomId, text);
     if (!ok) {
       console.warn("WS 미연결로 전송 실패");
-      // TODO: 토스트/스낵바 등 사용자 피드백
-      // 전송 실패 시 롤백(선택)
       setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId));
       return;
     }
 
-    // 3) 입력 초기화 + 스크롤
     setInput("");
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
-    console.log(
-      "handleSendMessage: ",
-      liveMsgs.map(m => m.timestamp),
-    );
-    console.log("메시지 전송:", text);
   };
 
-  // 이미지 업로드(미연결: 로컬 프리뷰만)
+  // ==== 전송: 이미지(다중) ====
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // const file = e.target.files?.[0];
-    // if (!file) return;
-
-    // const fileUrl = URL.createObjectURL(file);
-    // setPreviewImage(fileUrl);
-    // e.target.value = "";
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     e.currentTarget.value = ""; // 같은 파일 재선택 가능
-    if (!file) return;
+    if (!files.length) return;
 
-    // 간단 용량 가드
     const MAX_MB = 10;
-    if (file.size > MAX_MB * 1024 * 1024) {
-      console.warn("파일이 너무 큽니다");
-      return;
+    for (const f of files) {
+      if (f.size > MAX_MB * 1024 * 1024) {
+        console.warn("파일이 너무 큽니다:", f.name);
+        return;
+      }
     }
 
-    // // 1) 낙관적 미리보기
-    // const previewUrl = URL.createObjectURL(file);
-    const tempId = -Date.now();
-    // 2) S3 업로드
     try {
-      const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+      // 1) 업로드 (imgKey, imgUrl 수신)
+      const uploaded = await Promise.all(
+        files.map(async file => {
+          const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+          const displayUrl = imgUrl || resolveFromKey(imgKey);
+          return { imgKey, imgUrl: displayUrl, file };
+        }),
+      );
 
-      // 3) WS로 IMAGE 메시지 전송 (imgKey 사용)
-      const ok = sendImage(roomId, [imgKey]);
+      // 2) WS: images[] 전송 (order 1..n)
+      const payload = uploaded.map((u, idx) => ({
+        imgKey: u.imgKey,
+        imgOrder: idx + 1,
+        originalFileName: u.file.name,
+        fileSize: u.file.size,
+        fileType: u.file.type,
+      }));
+      const ok = sendImages(roomId, payload);
       if (!ok) throw new Error("WS SEND 실패");
 
-      const optimistic: ChatMessageResponse = {
-        messageId: tempId,
+      // 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
+      const now = new Date().toISOString();
+      const optimistic: ChatMessageResponse[] = uploaded.map(u => ({
+        messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
         senderName: currentUserName,
         senderProfileImage: "",
         content: "",
         messageType: "IMAGE",
-        imgUrls: [imgUrl],
-        timestamp: new Date().toISOString(),
+        imageUrls: [u.imgUrl],
+        timestamp: now,
         isMyMessage: true,
-      };
-      setLiveMsgs(prev => [...prev, optimistic]);
+      }));
+
+      setLiveMsgs(prev => [...prev, ...optimistic]);
       requestAnimationFrame(() =>
         bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
       );
     } catch (err) {
       console.error(err);
-      setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 롤백
-    } finally {
-      //setUploading(false);
+      // 업로드/전송 실패 시 낙관적 추가 이전이라 롤백 불필요
     }
   };
 
-  useEffect(() => {
-    if (!lastMessage || lastMessage.type !== "SEND") return;
-    if (lastMessage.chatRoomId !== roomId) return;
+  // ==== 전송: 이모티콘(이미지 플로우로 전송) ====
+  const sendEmojiAsImage = async (emojiAssetPath: string) => {
+    try {
+      if (!emojiUploadCache.has(emojiAssetPath)) {
+        const assetUrl = /^https?:\/\//i.test(emojiAssetPath)
+          ? emojiAssetPath
+          : new URL(emojiAssetPath, import.meta.url).href;
 
-    const incoming: ChatMessageResponse = {
-      messageId: lastMessage.messageId ?? Date.now(),
-      senderId: lastMessage.senderId ?? 0,
-      senderName: lastMessage.senderName ?? "",
-      senderProfileImage: lastMessage.senderProfileImage ?? "",
-      content: lastMessage.content ?? "",
-      messageType: "TEXT",
-      imgUrls: [],
-      //🌟
-      //timestamp: lastMessage.createdAt ?? new Date().toISOString(),
-      timestamp: lastMessage.timestamp ?? "",
-      isMyMessage: (lastMessage.senderId ?? 0) === currentUserId,
+        const blob = await fetch(assetUrl).then(r => r.blob());
+        const ext = (blob.type.split("/")[1] || "png").toLowerCase();
+        const file = new File([blob], `emoji.${ext}`, {
+          type: blob.type || "image/png",
+        });
+
+        const { imgKey, imgUrl } = await uploadImage("CHAT", file);
+        emojiUploadCache.set(emojiAssetPath, { imgKey, imgUrl });
+      }
+
+      const { imgKey, imgUrl } = emojiUploadCache.get(emojiAssetPath)!;
+
+      const ok = sendImages(roomId, [
+        {
+          imgKey,
+          imgOrder: 1,
+          originalFileName: "emoji.png",
+          fileSize: 0,
+          fileType: "image/png",
+        },
+      ]);
+      if (!ok) throw new Error("WS SEND 실패");
+
+      const optimistic: ChatMessageResponse = {
+        messageId: -Date.now(),
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderProfileImage: "",
+        content: "",
+        messageType: "IMAGE",
+        imageUrls: [imgUrl],
+        timestamp: new Date().toISOString(),
+        isMyMessage: true,
+      };
+      setLiveMsgs(prev => [...prev, optimistic]);
+
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    } catch (e) {
+      console.error("[emoji] 전송 실패:", e);
+    }
+  };
+
+  const handleSendEmoji = (emojiAssetPath: string) => {
+    void sendEmojiAsImage(emojiAssetPath);
+  };
+
+  // ==== 수신 매핑 ====
+  function mapBroadcastToUi(
+    msg: import("../../api/chat/rawWs").BroadcastMessage,
+    meId: number,
+  ): ChatMessageResponse {
+    // images[] → URL
+    const imgFromArray =
+      (msg.images ?? [])
+        .slice()
+        .sort((a, b) => a.imgOrder - b.imgOrder)
+        .map(im => resolveFromKey(im.imgKey)) ?? [];
+
+    // content가 이미지 URL이면(이모티콘 TEXT 케이스 예방)
+    const contentIsImg = looksLikeImageUrl(msg.content);
+    const finalImgUrls =
+      imgFromArray.length > 0
+        ? imgFromArray
+        : contentIsImg
+          ? [msg.content!]
+          : [];
+
+    const isImage = finalImgUrls.length > 0;
+
+    return {
+      messageId: msg.messageId,
+      senderId: msg.senderId,
+      senderName: msg.senderName,
+      senderProfileImage: msg.senderProfileImageUrl ?? "",
+      content: isImage ? "" : (msg.content ?? ""),
+      messageType: isImage ? "IMAGE" : "TEXT",
+      imageUrls: finalImgUrls,
+      timestamp: msg.timestamp,
+      isMyMessage: msg.senderId === meId,
     };
+  }
 
-    // 내 임시와 동일하면 교체(에코가 올 경우)
+  // ===== WS 수신 반영 =====
+  const lastMessageRef = useRef(lastMessage);
+  useEffect(() => {
+    lastMessageRef.current = lastMessage;
+  }, [lastMessage]);
+
+  useEffect(() => {
+    const msg = lastMessageRef.current;
+    if (!msg || msg.type !== "SEND") return;
+    if (msg.chatRoomId !== roomId) return;
+
+    const incoming = mapBroadcastToUi(msg, currentUserId);
+
     setLiveMsgs(prev => {
+      // 낙관적 메시지와 교체(시간/내용 근접 시)
       const idx = prev.findIndex(
         m =>
           m.messageId < 0 &&
           m.isMyMessage &&
-          m.content === incoming.content &&
+          m.messageType === incoming.messageType &&
+          (m.content === incoming.content ||
+            (m.messageType === "IMAGE" &&
+              (m.imageUrls?.length ?? 0) > 0 &&
+              (incoming.imageUrls?.length ?? 0) > 0)) &&
           Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
             5000,
       );
@@ -287,7 +384,6 @@ export const GroupChatDetailTemplate: React.FC<
         copy[idx] = incoming;
         return copy;
       }
-      // 상대 메시지면 추가
       return [...prev, incoming];
     });
 
@@ -300,9 +396,6 @@ export const GroupChatDetailTemplate: React.FC<
 
   return (
     <div className="relative flex flex-col min-h-[87dvh] -mb-8 -mt-4 -mx-4">
-      {/* 헤더 */}
-      {/* <PageHeader title={chatName} onBackClick={onBack} /> */}
-
       {/* 스크롤 영역 */}
       <div
         ref={scrollAreaRef}
@@ -323,7 +416,6 @@ export const GroupChatDetailTemplate: React.FC<
             </div>
           </CenterBox>
         )}
-        {/* {isEmpty && <CenterBox>아직 메시지가 없습니다</CenterBox>} */}
 
         {/* 메시지 리스트 */}
         {!initLoading &&
@@ -337,12 +429,6 @@ export const GroupChatDetailTemplate: React.FC<
 
               {rendered.map((chat, idx) => {
                 const prev = idx > 0 ? rendered[idx - 1] : undefined;
-                //🌟
-                // const onlyDate = (s: string) =>
-                //   new Date(s).toISOString().split("T")[0];
-                //const onlyDate = (s: string) => s;
-                // const showDate =
-                //   !prev || onlyDate(chat.timestamp) !== onlyDate(prev.timestamp);
                 const showDate =
                   !prev ||
                   formatDateWithDay(chat.timestamp) !==
@@ -382,6 +468,7 @@ export const GroupChatDetailTemplate: React.FC<
           />
         )}
       </div>
+
       {/* 입력창 */}
       <div className="sticky bottom-0">
         <BottomChatInput
@@ -396,7 +483,12 @@ export const GroupChatDetailTemplate: React.FC<
           onSendMessage={handleSendMessage}
           onImageUpload={handleImageUpload}
           fileInputRef={fileInputRef}
+          onToggleEmoji={() => setShowEmoji(v => !v)} // ⭐ 이모티콘 토글
+          onFocusInput={() => setShowEmoji(false)} // 입력창 포커스 → 닫기
         />
+        {showEmoji && (
+          <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+        )}
       </div>
     </div>
   );
