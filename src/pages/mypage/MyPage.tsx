@@ -56,8 +56,9 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
           bronzeCount: data.myBronzeMedalCnt,
           myGroupCount: data.myPartyCnt,
           myExerciseCount: data.myExerciseCnt,
-          myMedalTotal: data.myGoldMedalCnt + data.mySilverMedalCnt + data.myBronzeMedalCnt,
-          profileImage: undefined, 
+          myMedalTotal:
+            data.myGoldMedalCnt + data.mySilverMedalCnt + data.myBronzeMedalCnt,
+          profileImage: undefined,
           disabled,
         });
       } catch (error) {
@@ -92,7 +93,7 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
     <div className="flex flex-col overflow-hidden w-full">
       <div className="flex flex-col gap-[1.25rem] w-full">
         <div className="w-full">
-          <MainHeader hasNotification={true} />
+          <MainHeader />
         </div>
         <div className="w-full flex flex-col items-center overflow-y-auto overflow-x-hidden px-4">
           {profile.name && profile.gender && profile.level && (
@@ -173,4 +174,4 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
       </div>
     </div>
   );
-}
+};
