@@ -11,8 +11,8 @@ import clsx from "clsx";
 import {
   fetchExerciseDetail,
   fetchMonthlyBuildings,
-  MonthlyBuildingsResponse,
   useMonthlyBuildings,
+  type MonthlyBuildingsResponse,
 } from "../../api/exercise/getExerciseMapApi";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
@@ -136,6 +136,7 @@ export const ExerciseMapPage = () => {
         });
 
         console.log("맵 이동 후 새로 받아온 빌딩 데이터", newData);
+        setFetchData(newData);
       } catch (e) {
         console.error("지도 중심 기준 건물 정보 가져오기 실패", e);
       }
@@ -186,7 +187,7 @@ export const ExerciseMapPage = () => {
       });
       myLocationMarker.setMap(map);
 
-      const buildings = buildingData.buildings[selectedDate] || [];
+      const buildings = effectiveData?.buildings[selectedDate] || [];
 
       buildings.forEach(building => {
         const marker = new kakao.maps.Marker({
