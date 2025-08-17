@@ -5,12 +5,12 @@ import CheckBoxBtn from "../../components/common/DynamicBtn/CheckBoxBtn";
 import FilterBtn from "../../components/common/DynamicBtn/FilterBtn";
 import Sort from "../../components/common/Sort";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
-import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
 import {
   isFilterDirty,
   useGroupRecommendFilterState,
 } from "../../store/useGroupRecommendFilterStore";
 import { usePartySuggestionInfinite } from "../../api/party/getPartySuggeston";
+import { Group_M } from "../../components/common/contentcard/Group_M";
 
 type SortLabel = "최신순" | "운동 많은 순";
 const mapSortToApi = (label: SortLabel) =>
@@ -56,6 +56,8 @@ export const GroupRecommendPage = () => {
     size: 10,
     sort: mapSortToApi(sortOption),
   });
+
+  console.log(data);
   const items = useMemo(() => {
     const flat = data ? data.pages.flatMap(p => p.content) : [];
     const seen = new Set<number>();
@@ -148,13 +150,16 @@ export const GroupRecommendPage = () => {
                 className="flex flex-col pb-3 border-b-[1px] border-gy-200"
                 key={it.partyId}
               >
-                <Exercise_M
+                <Group_M
                   id={it.partyId}
-                  title={it.partyName}
-                  date={it.nextExerciseInfo}
-                  time=""
+                  groupName={it.partyName}
+                  femaleLevel={it.femaleLevel}
+                  maleLevel={it.maleLevel}
                   location={`${it.addr1} ${it.addr2}`}
-                  imageSrc={it.partyImgUrl || "a"}
+                  groupImage={it.partyImgUrl || "a"}
+                  nextActivitDate={it.nextExerciseInfo}
+                  upcomingCount={it.totalExerciseCount}
+                  isMine={false}
                   onClick={() => navigate(`/group/${it.partyId}`)}
                 />
               </div>
@@ -166,10 +171,6 @@ export const GroupRecommendPage = () => {
           )}
 
           {hasNextPage && <div ref={sentinelRef} className="h-6" />}
-
-          {isFetchingNextPage && (
-            <div className="text-gray-400">더 불러오는 중…</div>
-          )}
         </div>
       </div>
 

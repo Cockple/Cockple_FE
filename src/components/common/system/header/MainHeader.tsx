@@ -9,19 +9,19 @@ import {
   type MyLocationType,
 } from "../../../../api/member/getMyLocation";
 import { useEffect, useState } from "react";
+import api from "../../../../api/api";
 
 interface MainHeaderProps {
-  hasNotification?: boolean;
   background?: "white" | "clear";
   className?: string;
 }
 
 export const MainHeader = ({
-  hasNotification,
   background = "white",
   className,
 }: MainHeaderProps) => {
   const navigate = useNavigate();
+  const [hasNotification, setHasNotification] = useState(false);
   const alertIcon = hasNotification ? AlertNoti : Alert;
   const [location, setLocation] = useState("");
 
@@ -32,6 +32,20 @@ export const MainHeader = ({
     };
 
     fetchMyLocation();
+  }, []);
+
+  const getNotificationsCount = async () => {
+    try {
+      const { data } = await api.get("/api/notifications/count");
+
+      setHasNotification(data.data.existNewNotification);
+    } catch (err) {
+      console.log("알람 존재여부 api 오류: ", err);
+    }
+  };
+
+  useEffect(() => {
+    getNotificationsCount();
   }, []);
 
   return (
