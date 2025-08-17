@@ -10,6 +10,8 @@ import { motion } from "framer-motion";
 import clsx from "clsx";
 import {
   fetchExerciseDetail,
+  fetchMonthlyBuildings,
+  MonthlyBuildingsResponse,
   useMonthlyBuildings,
 } from "../../api/exercise/getExerciseMapApi";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
@@ -60,6 +62,15 @@ export const ExerciseMapPage = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [enableDrag, setEnableDrag] = useState(true);
   const [rightOffset, setRightOffset] = useState(0);
+  const [fetchData, setFetchData] = useState<MonthlyBuildingsResponse | null>(
+    null,
+  );
+
+  const [mapCenter, setMapCenter] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstance = useRef<any>(null);
 
@@ -77,10 +88,61 @@ export const ExerciseMapPage = () => {
 
   const { data: buildingData } = useMonthlyBuildings({
     date: currentMonth,
-    latitude: 37.4981,
-    longitude: 127.028,
     radiusKm: 3,
   });
+
+  const effectiveData = fetchData ?? buildingData;
+
+  console.log(buildingData);
+
+  useEffect(() => {
+    if (!mapInstance.current || !window.kakao?.maps) return;
+
+    const map = mapInstance.current;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const handleIdle = () => {
+      const center = map.getCenter();
+      const newCenter = {
+        lat: center.getLat(),
+        lng: center.getLng(),
+      };
+
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setMapCenter(newCenter); // ✅ 2초 후 중심 좌표 갱신
+      }, 2000);
+    };
+
+    window.kakao.maps.event.addListener(map, "idle", handleIdle);
+
+    return () => {
+      window.kakao.maps.event.removeListener(map, "idle", handleIdle);
+      clearTimeout(timeoutId);
+    };
+  }, [mapInstance.current]);
+
+  useEffect(() => {
+    if (!mapCenter) return;
+
+    const fetch = async () => {
+      try {
+        const newData = await fetchMonthlyBuildings({
+          date: currentMonth,
+          latitude: mapCenter.lat,
+          longitude: mapCenter.lng,
+          radiusKm: 3,
+        });
+
+        console.log("맵 이동 후 새로 받아온 빌딩 데이터", newData);
+      } catch (e) {
+        console.error("지도 중심 기준 건물 정보 가져오기 실패", e);
+      }
+    };
+
+    fetch();
+  }, [mapCenter, currentMonth]);
 
   useEffect(() => {
     const updateOffset = () => {
