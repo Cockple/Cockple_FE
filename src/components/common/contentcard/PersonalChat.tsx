@@ -50,7 +50,7 @@ export const PersonalChat = ({
         </div>
       )}
 
-      <div className="flex flex-col justify-between w-[11.9375rem] h-[4rem]">
+      <div className="flex flex-col w-[11.9375rem] h-[4rem]">
         <div className="flex items-center gap-[0.25rem] max-w-full overflow-hidden">
           <p className="body-md-500 truncate max-w-[12rem]" title={userName}>
             {userName}
