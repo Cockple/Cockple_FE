@@ -60,18 +60,16 @@ export const MyPageProfile = () => {
 
   const handleChatClick = async () => {
   if (!numericMemberId) return;
-  
+
   try {
-    const res = await createDirectChat(numericMemberId); 
-    if (res.success) {
-      alert("채팅방이 생성되었습니다.");
-      navigate("/chat");
+    const res = await createDirectChat(numericMemberId);
+    if (res.success && res.data?.chatRoomId) {
+      navigate(`/chat/personal/${res.data.chatRoomId}`);
     } else {
-      alert(res.message || "채팅방 생성 실패");
+      console.error("채팅방 생성 실패", res);
     }
   } catch (err: any) {
     console.error(err);
-    alert(err.message || "서버 오류가 발생했습니다.");
   }
 };
 
@@ -84,7 +82,7 @@ export const MyPageProfile = () => {
       <PageHeader title="프로필" />
       <Profile
         name={profileData?.memberName || ""}
-        gender={profileData?.gender === "MALE" ? "male" : "female"}
+        gender={profileData?.gender === "MALE" ? "MALE" : "FEMALE"}
         level={profileData?.level || ""}
         birth={profileData?.birth || ""}
         profileImage={profileData?.profileImgUrl || ""}
