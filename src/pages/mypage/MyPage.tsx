@@ -45,7 +45,7 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
     async function fetchProfile() {
       try {
         const data = await getMyProfile();
-
+        
         setProfile({
           name: data.memberName,
           gender: data.gender === "MALE" ? "MALE" : "FEMALE",
@@ -61,6 +61,7 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
           profileImage: undefined,
           disabled,
         });
+        
       } catch (error) {
         console.error("프로필 불러오기 실패", error);
       }
@@ -69,18 +70,20 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
     fetchProfile();
   }, [disabled]);
 
-  // 레벨 변환 (서버 레벨: EXPERT → 중급 등)
   function convertLevel(level: string): string {
-    switch (level) {
-      case "BEGINNER":
-        return "초급";
-      case "INTERMEDIATE":
-        return "중급";
-      case "EXPERT":
-        return "고급";
-      default:
-        return "정보 없음";
-    }
+
+    const levelMap: Record<string, string> = {
+      EXPERT: "자강",
+      SEMI_EXPERT: "준자강",
+      A: "A조",
+      B: "B조",
+      C: "C조",
+      D: "D조",
+      BEGINNER: "초심",
+      NOVICE: "왕초심",
+      NONE: "정보 없음",
+    };
+    return level ? levelMap[level.toUpperCase()] ?? "정보 없음" : "정보 없음";
   }
 
   const totalMedals = profile.myMedalTotal || 0;
@@ -132,7 +135,6 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
               disabled={disabled}
               onClick={() => {
                 console.log("navigate with state:", {
-                  // medals: dummyMedals,
                   goldCount: gold,
                   silverCount: silver,
                   bronzeCount: bronze,
@@ -141,7 +143,6 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
                 });
                 navigate("/myPage/mymedal", {
                   state: {
-                    // medals: dummyMedals,
                     goldCount: gold,
                     silverCount: silver,
                     bronzeCount: bronze,
