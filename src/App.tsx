@@ -128,7 +128,6 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
       {
         path: "/mypage/profile/medal/:memberId/contest/:contestId",
         element: <MyPageMedalDetailPage />,
@@ -163,6 +162,7 @@ const router = createBrowserRouter([
       },
 
       // 연두 모임
+      //GroupDetailMemberDefault 사용X
       { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
 
       {

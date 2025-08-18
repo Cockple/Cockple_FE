@@ -7,13 +7,17 @@ import { useNavigate, useLocation  } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
-import { postMyContestRecord } from "../../api/contest/contestmy" //api
+import { postMyContestRecord } from "../../api/contest/contestmy" 
 import { getContestRecordDetail, patchMyContestRecord } from "../../api/contest/contestmy";
 import type { PostContestRecordRequest } from "../../api/contest/contestmy"
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import Camera from "../../assets/icons/camera.svg?react";
 import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
-import Kitty from "../../assets/images/Image Carousel.png";
+import Medal_1 from "../../assets/icons/medal_1.svg?react";
+import Medal_2 from "../../assets/icons/medal_2.svg?react";
+import Medal_3 from "../../assets/icons/medal_3.svg?react";
+import { uploadImages } from "../../api/image/imageUpload";
+
 import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
@@ -38,7 +42,7 @@ export const MyPageMedalAddPage = () => {
   const navigate = useNavigate();
   const mode = location.state?.mode ?? null;
   const contestId = location.state?.contestId ?? null; //contestId 받아오가
-  console.log("contestId",contestId);
+  // console.log("contestId",contestId);
   const medalData = location.state?.medalData ?? null;
   const isEditMode = mode === "edit";
 
@@ -57,7 +61,6 @@ export const MyPageMedalAddPage = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const pickerRef = useRef<{ getDueString: () => string }>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalNameOpen, setIsModalNameOpen] = useState(false);
   const level = [
     "왕초심",
     "초심",
@@ -68,12 +71,13 @@ export const MyPageMedalAddPage = () => {
     "준자강",
     "자강",
   ];
-  const typeMap: Record<string, PostContestRecordRequest["type"]> = {
+  const typeMap: Record<typeof formOptions[number], PostContestRecordRequest["type"]> = {
     "단식": "SINGLE",
-    "남복": "DOUBLE",
-    "여복": "DOUBLE",
+    "남복": "MEN_DOUBLES",
+    "여복": "WOMEN_DOUBLES",
     "혼복": "MIXED",
   };
+
 
   const levelMap: Record<string, PostContestRecordRequest["level"]> = {
     "왕초심": "BEGINNER",
@@ -94,43 +98,76 @@ export const MyPageMedalAddPage = () => {
     return null;
   };
   const [initialData, setInitialData] = useState<MedalDetail | null>(null);
+//이미지 여러장 업로드 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
 
-// API에서 contestId로 상세 데이터 불러오기
-const fetchContestDetail = async (contestId: string) => {
-  try {
-    const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
-    setInitialData({
-      title: data.contestName,
-      date: data.date,
-      participationType: `${data.type} - ${data.level}`,
-      record: data.content,
-      // photo: data.contestImgUrls,      // contestImgUrls 로 변경
-      videoUrl: data.contestVideos,
-    });
-  } catch (error) {
-    console.error("기존 대회 기록 불러오기 실패", error);
-  }
-};
+    // 최대 3장 제한
+    const fileArray = Array.from(files).slice(0, 3 - photos.length); 
+    if (fileArray.length === 0) return;
 
+    try {
+      // 여러 장 업로드 API 호출
+      const { images } = await uploadImages("CONTEST", fileArray);
 
-// contestId 있을 때 fetch 호출
-useEffect(() => {
-  if (isEditMode && contestId) {
-    fetchContestDetail(contestId);
-  }
-}, [isEditMode, contestId]);
+      // 서버에서 받은 이미지 URL을 상태에 추가
+      setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
+    } catch (err) {
+      console.error("이미지 업로드 실패", err);
+      alert("이미지 업로드 중 오류가 발생했습니다.");
+    }
+  };
+  const sanitizeUrl = (url: string) => {
+  // S3 버킷 경로가 중복되거나 인코딩된 경우 정리
+    const parts = url.split('https%3A/');
+    return parts.length > 1 ? decodeURIComponent('https:' + parts[1]) : url;
+  };
 
-// initialData가 세팅되면 폼 상태 세팅
-useEffect(() => {
-  if (initialData) {
-    setTournamentName(initialData.title || "");
-    setSelectedForm(parseParticipationType(initialData.participationType || ""));
-    setRecordText(initialData.record || "");
-    setVideoLinks(initialData.videoUrl?.length ? initialData.videoUrl : [""]);
-    setPhotos(initialData.photo || []);
-    setSelectedDate(initialData.date || "");
-  }
-}, [initialData]);
+  // API에서 contestId로 상세 데이터 불러오기
+  const fetchContestDetail = async (contestId: string) => {
+    try {
+      const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
+      setInitialData({
+        title: data.contestName,
+        date: data.date,
+        participationType: `${data.type} - ${data.level}`,
+        record: data.content,
+        photo: data.contestImgUrls.map(sanitizeUrl),
+        videoUrl: data.contestVideoUrls,
+      });
+    } catch (error) {
+      console.error("기존 대회 기록 불러오기 실패", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditMode && contestId) {
+      fetchContestDetail(contestId);
+    }
+  }, [isEditMode, contestId]);
+  console.log(contestId);
+
+  useEffect(() => {
+    if (initialData) {
+      setTournamentName(initialData.title || "");
+      setSelectedForm(parseParticipationType(initialData.participationType || ""));
+      
+      // participationType 예: "MEN_DOUBLES - INTERMEDIATE"
+      const levelPart = initialData.participationType?.split(" - ")[1] ?? "";
+      const levelMapReverse: Record<string, string> = {
+        "BEGINNER": "왕초심",
+        "INTERMEDIATE": "C조",  // 또는 사용자가 원하면 INTERMEDIATE → C조 매핑
+        "ADVANCED": "A조",      // 예시
+      };
+      setSelectedLevel(levelMapReverse[levelPart] ?? "");
+      
+      setRecordText(initialData.record || "");
+      setVideoLinks(initialData.videoUrl?.length ? initialData.videoUrl : [""]);
+      setPhotos(initialData.photo || []);
+      setSelectedDate(initialData.date || "");
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (isEditMode && medalData) {
@@ -170,15 +207,14 @@ useEffect(() => {
   }, [isEditMode, medalData]);
 
 
-  const images = ["url1.jpg", "url2.jpg", "url3.jpg"];
-
+  const images = [Medal_1, Medal_2, Medal_3]; 
   const handleCloseOverlay = () => {
     if (pickerRef.current) {
-      const date = pickerRef.current.getDueString(); // 선택된 값
-      setSelectedDate(date); //  input에 넣기
-      setValue("birthday", date, { shouldValidate: true }); //set Value를 통해 useForm에 전달
+      const date = pickerRef.current.getDueString(); 
+      setSelectedDate(date);
+      setValue("birthday", date, { shouldValidate: true }); 
     }
-    setOpenModal(false); // 닫기
+    setOpenModal(false); 
   };
 
   const [openModal, setOpenModal] = useState(false);
@@ -199,25 +235,12 @@ useEffect(() => {
   }, [photos]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handlePhotoClick = () => {
-    if (photos.length < 3 && fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setPhotos(prev => [...prev, reader.result as string]);
-        }
-      };
-      reader.readAsDataURL(file); // base64 인코딩해서 보여줌
-    }
-  };
+  
+const handlePhotoClick = () => {
+  if (photos.length < 3 && fileInputRef.current) {
+    fileInputRef.current.click();
+  }
+};
 
   const isDataChanged = () => {
     return (
@@ -240,64 +263,68 @@ useEffect(() => {
 
 
   // 저장 클릭 핸들러
-const handleSaveClick = async () => {
-  if (!isSaveEnabled) return;
+  const handleSaveClick = async () => {
+    if (!isSaveEnabled) return;
 
-  try {
-    const requestBody: PostContestRecordRequest = {
-      contestName: tournamentName,
-      date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
-      medalType:
-        selectedIndex === 0
-          ? "GOLD"
-          : selectedIndex === 1
-          ? "SILVER"
-          : selectedIndex === 2
-          ? "BRONZE"
-          : "NONE",
-      type: typeMap[selectedForm!] || "SINGLE",
-      level: levelMap[selectedLevel] || "EXPERT",
-      content: recordText || undefined,
-      contentIsOpen: true,
-      videoIsOpen: true,
-      contestVideos: videoLinks.filter((link) => link.trim() !== ""),
-      contestImgs: photos,
-    };
+    try {
+      const mappedType: PostContestRecordRequest["type"] =
+        selectedForm ? typeMap[selectedForm] : "SINGLE";
+      const mappedLevel = selectedLevel ? levelMap[selectedLevel] : "EXPERT";
 
-    console.log("요청 바디:", requestBody);
+      const requestBody: PostContestRecordRequest = {
+        contestName: tournamentName,
+        date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
+        medalType:
+          selectedIndex === 0
+            ? "GOLD"
+            : selectedIndex === 1
+            ? "SILVER"
+            : selectedIndex === 2
+            ? "BRONZE"
+            : "NONE",
+        type: mappedType,
+        level: mappedLevel,
+        content: recordText || undefined,
+        contentIsOpen: true,
+        videoIsOpen: true,
+        contestVideos: videoLinks.filter((link) => link.trim() !== ""),
+        contestImgs: photos.map((p: any) => (typeof p === "string" ? p : p.url)),
+      };
 
-    let response;
-    if (isEditMode && contestId) {
-      // 편집 모드면 PATCH 호출 (수정)
-      response = await patchMyContestRecord(contestId, requestBody);
-    } else {
-      // 새로 등록할 때 POST 호출
-      response = await postMyContestRecord(requestBody);
+
+
+      console.log("요청 바디:", requestBody);
+
+      let response;
+      if (isEditMode && contestId) {
+        response = await patchMyContestRecord(contestId, requestBody);
+      } else {
+        response = await postMyContestRecord(requestBody);
+      }
+
+      if (response.success && response.data) {
+        const newContestId = response.data.contestId;
+        alert(
+          isEditMode
+            ? "대회 기록이 성공적으로 수정되었습니다."
+            : "대회 기록이 성공적으로 등록되었습니다."
+        );
+        navigate(`/mypage/mymedal/${newContestId}`);
+      } else {
+        alert("저장에 실패했습니다: " + response.message);
+      }
+    } catch (error) {
+      console.error("대회 기록 저장 오류", error);
+      alert("서버와 통신 중 오류가 발생했습니다.");
     }
+  };
 
-    if (response.success && response.data) {
-      const newContestId = response.data.contestId;
-      alert(isEditMode ? "대회 기록이 성공적으로 수정되었습니다." : "대회 기록이 성공적으로 등록되었습니다.");
-      navigate(`/mypage/mymedal/${newContestId}`);
-    } else {
-      alert("저장에 실패했습니다: " + response.message);
-    }
-  } catch (error) {
-    console.error("대회 기록 저장 오류", error);
-    alert("서버와 통신 중 오류가 발생했습니다.");
-  }
-};
 
   const onBackClick = () => {
-    if (tournamentName === "") {
-      setIsModalNameOpen(true);
-      return;
-    }
     if (isDataChanged()) {
       setIsModalOpen(true);
       return;
     }
-
     navigate("/myPage/mymedal");
   };
 
@@ -308,7 +335,6 @@ const handleSaveClick = async () => {
 
   const handleCancelLeave = () => {
     setIsModalOpen(false);
-    setIsModalNameOpen(false);
   };
   
   return (
@@ -323,11 +349,6 @@ const handleSaveClick = async () => {
             />
           </div>
         )}
-        {isModalNameOpen && (
-          <div className="fixed inset-0 flex justify-center items-center z-50">
-            <Modal_Caution_Name onCancel={handleCancelLeave} />
-          </div>
-        )}
       </div>
 
       <div className="flex-grow min-h-0 overflow-y-auto scrollbar-hide">
@@ -337,10 +358,10 @@ const handleSaveClick = async () => {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handleFileChange}
               className="hidden"
             />
-
             <div
               ref={containerRef}
               className="flex gap-2 overflow-x-auto no-scrollbar"
@@ -403,10 +424,10 @@ const handleSaveClick = async () => {
               수상
             </label>
             <div className="flex gap-2 w-full items-center justify-center">
-              {images.map((_, i) => (
+              {images.map((imgSrc, i) => (
                 <ImageBox
                   key={i}
-                  imageSrc={Kitty}
+                  imageSrc={imgSrc} // 배열에서 하나씩 꺼내서 전달
                   isSelected={selectedIndex === i}
                   onClick={() =>
                     setSelectedIndex(selectedIndex === i ? null : i)

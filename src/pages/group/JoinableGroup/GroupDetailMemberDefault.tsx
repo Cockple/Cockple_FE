@@ -46,28 +46,28 @@ export const GroupDetailMemberDefault = () => {
 
   // const [searchTerm, setSearchTerm] = useState("");
 
-  // API 호출
-useEffect(() => {
-  const fetchMembers = async () => {
-    try {
-      const res = await getPartyMembers(numericPartyId);
-   if (res.success) {
-  const { summary, members } = res.data; // content → members로 변경
+//   // API 호출
+// useEffect(() => {
+//   const fetchMembers = async () => {
+//     try {
+//       const res = await getPartyMembers(numericPartyId);
+//    if (res.success) {
+//   const { summary, members } = res.data; // content → members로 변경
 
-  const mappedMembers: MemberProps[] = members.map(mapApiMemberToMemberProps);
-  setMembers(mappedMembers);
+//   const mappedMembers: MemberProps[] = members.map(mapApiMemberToMemberProps);
+//   setMembers(mappedMembers);
 
-  setParticipantsCount(summary.totalCount);
-  setParticipantGenderCount({ male: summary.maleCount, female: summary.femaleCount });
-}
+//   setParticipantsCount(summary.totalCount);
+//   setParticipantGenderCount({ male: summary.maleCount, female: summary.femaleCount });
+// }
 
-    } catch (err) {
-      console.error("멤버 조회 실패", err);
-    }
-  };
+//     } catch (err) {
+//       console.error("멤버 조회 실패", err);
+//     }
+//   };
 
-  fetchMembers();
-}, [numericPartyId]);
+//   fetchMembers();
+// }, [numericPartyId]);
 
 
   const filteredMembers = members;

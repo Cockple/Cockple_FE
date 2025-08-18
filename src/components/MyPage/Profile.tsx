@@ -5,7 +5,7 @@ import BaseProfileImg from "@/assets/images/base_profile_img.png?url";
 
 interface ProfileProps {
   name: string;
-  gender: "female" | "male";
+  gender: "FEMALE" | "MALE";
   level: string;
   birth?: string;
   profileImage: File | string | null | undefined;
@@ -44,7 +44,7 @@ export const Profile = ({
       <div className="flex flex-col justify-center gap-[0.25rem]">
         <div className="flex items-center gap-1">
           <p className="header-h5 text-black">{name}</p>
-          {gender === "female" ? (
+          {gender === "FEMALE" ? (
             <Female className="w-[1rem] h-[1rem]" />
           ) : (
             <Male className="w-[1rem] h-[1rem]" />
