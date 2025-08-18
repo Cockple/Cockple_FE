@@ -61,7 +61,6 @@ export const MyPageMedalAddPage = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const pickerRef = useRef<{ getDueString: () => string }>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalNameOpen, setIsModalNameOpen] = useState(false);
   const level = [
     "왕초심",
     "초심",
@@ -322,15 +321,10 @@ const handlePhotoClick = () => {
 
 
   const onBackClick = () => {
-    if (tournamentName === "") {
-      setIsModalNameOpen(true);
-      return;
-    }
     if (isDataChanged()) {
       setIsModalOpen(true);
       return;
     }
-
     navigate("/myPage/mymedal");
   };
 
@@ -341,7 +335,6 @@ const handlePhotoClick = () => {
 
   const handleCancelLeave = () => {
     setIsModalOpen(false);
-    setIsModalNameOpen(false);
   };
   
   return (
@@ -354,11 +347,6 @@ const handlePhotoClick = () => {
               onConfirm={handleConfirmLeave}
               onCancel={handleCancelLeave}
             />
-          </div>
-        )}
-        {isModalNameOpen && (
-          <div className="fixed inset-0 flex justify-center items-center z-50">
-            <Modal_Caution_Name onCancel={handleCancelLeave} />
           </div>
         )}
       </div>
