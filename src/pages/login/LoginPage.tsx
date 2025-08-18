@@ -66,7 +66,7 @@ export const LoginPage = () => {
         </Swiper>
       </div>
 
-      <div className=" mb-4">
+      <div className=" mb-6">
         <button
           className="bg-[#FEE500] w-full rounded-lg py-3 px-4 relative cursor-pointer"
           onClick={handleKakako}

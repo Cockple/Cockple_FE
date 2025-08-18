@@ -64,7 +64,7 @@ export const OnboardingLevelPage = () => {
         />
       </section>
       <div
-        className="flex items-center justify-center mb-4"
+        className="flex items-center justify-center mb-6"
         onClick={handleNext}
       >
         <Btn_Static

@@ -183,7 +183,6 @@ export const InviteGuest = () => {
 
           {/* 대기열 */}
           <section>
-            {/* 참여 인원 :  사용자가 초대한 총 인원 수*/}
             {noneData ? (
               <div>게스트를 초대해주세요!</div>
             ) : (

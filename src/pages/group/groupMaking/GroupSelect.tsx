@@ -98,6 +98,7 @@ export const GroupSelect = () => {
       console.log(error);
     },
   });
+
   return (
     <>
       <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
@@ -124,7 +125,7 @@ export const GroupSelect = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 shrink-0 `}
+          className={`flex items-center justify-center mb-4 pb-[2px] shrink-0 `}
           onClick={() => handleMakingGroup.mutate()}
         >
           <Btn_Static
