@@ -28,7 +28,7 @@ export const MyPageMedalDetailPage = () => {
   const navigate = useNavigate();
   const params = useParams<{ memberId?: string; contestId?: string; contentId?: string }>();
   const memberId = params.memberId;
-  const contestId = params.contestId;
+  // const contestId = params.contestId;
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -77,10 +77,10 @@ export const MyPageMedalDetailPage = () => {
         }
 
         // 이미지 URL 디코딩 + 중복 https 제거
-        const processedImages: string[] = ((data as any).contestImgUrls ?? []).map((url: string) => {
-          const decoded = decodeURIComponent(url);
-          return decoded.replace(/^https?:\/{2,}/, "https://");
-        });
+        // const processedImages: string[] = ((data as any).contestImgUrls ?? []).map((url: string) => {
+        //   const decoded = decodeURIComponent(url);
+        //   return decoded.replace(/^https?:\/{2,}/, "https://");
+        // });
 
        // contestImgUrls 처리
         setMedalDetail({
