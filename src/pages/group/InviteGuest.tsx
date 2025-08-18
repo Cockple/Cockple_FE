@@ -9,7 +9,7 @@ import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import { useForm } from "react-hook-form";
 import { Member } from "../../components/common/contentcard/Member";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api";
 
 import { userLevelMapper } from "../../utils/levelValueExchange";
@@ -17,7 +17,8 @@ import type { ResponseInviteGuest } from "../../types/guest";
 import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
-import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
+import { useInviteGuest } from "../../api/Exercise/InviteGuest";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const InviteGuest = () => {
   //정보
@@ -48,8 +49,10 @@ export const InviteGuest = () => {
   const apiGender = selected === "male" ? "남성" : "여성";
 
   const ReauestLevelValue = levelValue === "disabled" ? "급수없음" : levelValue;
-  const { exerciseId } = useParams();
+  const exerciseParams = useParams();
+  const exerciseId = Number(exerciseParams.exerciseId);
   console.log(exerciseId);
+
   const handleInviteForm = useMutation({
     mutationFn: () => {
       const body = {
@@ -61,7 +64,7 @@ export const InviteGuest = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["exerciseId"],
+        queryKey: ["inviteGuest", exerciseId],
       });
       setLocalName("");
       isSelected(null);
@@ -72,22 +75,16 @@ export const InviteGuest = () => {
     },
   });
 
-  //모임 불러오기---------------------------------
-  const { data, isLoading } = useQuery({
-    queryKey: ["exerciseId"],
-    queryFn: () => getInviteGuestList(exerciseId),
-    select: res => res.data,
-  });
-
+  const { data, isLoading, isError } = useInviteGuest(exerciseId);
   //게스트 초대 취소하기--------------
   const handleDelete = useMutation({
     mutationFn: (guestId: number) => {
-      return axios.delete(`/api/exercises/${1}/guests/${guestId}`);
+      return axios.delete(`/api/exercises/${exerciseId}/guests/${guestId}`);
     },
     onSuccess: () => {
       console.log("삭제 성공");
       queryClient.invalidateQueries({
-        queryKey: ["exerciseId"],
+        queryKey: ["inviteGuest", exerciseId],
       });
     },
     onError: err => {
@@ -95,7 +92,16 @@ export const InviteGuest = () => {
     },
   });
 
-  if (isLoading) return <div>로딩중</div>;
+  if (isLoading)
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
+
+  if (isError) {
+    return <p className="body-rg-500">오류 발생</p>;
+  }
 
   const noneData = data?.list.length === 0;
   console.log(data);
@@ -183,7 +189,6 @@ export const InviteGuest = () => {
 
           {/* 대기열 */}
           <section>
-            {/* 참여 인원 :  사용자가 초대한 총 인원 수*/}
             {noneData ? (
               <div>게스트를 초대해주세요!</div>
             ) : (

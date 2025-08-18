@@ -7,7 +7,6 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
-import ProfileImgIcon from "@/assets/images/profile_Image.png?url";
 import Basic_ProfileImg from "@/assets/images/base_profile_img.png?url";
 import { uploadImage } from "../../api/image/imageUpload";
 import { useOnboardingState } from "../../store/useOnboardingStore";
@@ -167,9 +166,7 @@ export const OnboardingProfilePage = () => {
           <ProfileImg
             size="XL"
             edit={isProfile}
-            src={
-              preview ? preview : isProfile ? ProfileImgIcon : Basic_ProfileImg
-            }
+            src={preview ? preview : Basic_ProfileImg}
           />
         </label>
         <input
@@ -178,7 +175,6 @@ export const OnboardingProfilePage = () => {
           accept="image/*"
           id="image-upload"
           className="hidden"
-          // {...register("api보고 결정")}
           onChange={imageChange}
           aria-label="프로필 이미지 업로드"
         />
@@ -191,7 +187,7 @@ export const OnboardingProfilePage = () => {
           기본 프로필 사용하기
         </p>
       </div>
-      <div className="flex justify-center mb-4" onClick={handleClick}>
+      <div className="flex justify-center mb-6" onClick={handleClick}>
         <Btn_Static
           label={preview ? "다음" : "프로필 등록"}
           kind="GR400"

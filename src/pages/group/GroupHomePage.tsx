@@ -162,6 +162,7 @@ export const GroupHomePage = () => {
 
   const { setGroupName } = useGroupNameStore();
   const { data: partyDetail, status, error } = usePartyDetail(Number(groupId));
+  console.log(partyDetail);
   useEffect(() => {
     if (partyDetail?.partyName) setGroupName(partyDetail.partyName);
   }, [partyDetail?.partyName, setGroupName]);

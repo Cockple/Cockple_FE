@@ -68,7 +68,7 @@ export const MyPageEditPage = ({
   const [editMode, setEditMode] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  // const [uploading, setUploading] = useState(false);
 
   const initialDataRef = useRef({
     name: initialNameProp ?? "",
@@ -148,7 +148,7 @@ export const MyPageEditPage = ({
     if (!file) return;
 
     setProfileImage(URL.createObjectURL(file)); // 임시 미리보기
-    setUploading(true);
+    // setUploading(true);
 
     try {
       // uploadImage 공용 함수 사용
@@ -161,7 +161,7 @@ export const MyPageEditPage = ({
       console.error(err);
       alert("이미지 업로드 실패");
     } finally {
-      setUploading(false);
+      // setUploading(false);
     }
   };
 

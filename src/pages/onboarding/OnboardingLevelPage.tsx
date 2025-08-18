@@ -12,18 +12,11 @@ export const OnboardingLevelPage = () => {
   const navigate = useNavigate();
   const { level, setTemp } = useOnboardingState();
 
-  const {
-    // register,
-    setValue,
-    watch,
-    // formState: { errors },
-  } = useForm({
+  const { setValue, watch } = useForm({
     defaultValues: {
       LEVEL_KEY: level ?? "",
     },
   });
-
-  // console.log(level);
 
   const levelValue = watch("LEVEL_KEY") || "";
   const isFormValid =
@@ -64,7 +57,7 @@ export const OnboardingLevelPage = () => {
         />
       </section>
       <div
-        className="flex items-center justify-center mb-4"
+        className="flex items-center justify-center mb-6"
         onClick={handleNext}
       >
         <Btn_Static

@@ -14,7 +14,8 @@ export type FilterKey =
   | "ageRange"
   | "content"
   | "imgKey"
-  | "imgUrl";
+  | "imgUrl"
+  | "keywords";
 
 export interface ExerciseFilterState {
   region: string[];
@@ -32,6 +33,7 @@ export interface ExerciseFilterState {
   content?: string;
   imgKey?: string;
   imgUrl?: string;
+  keywords: string[];
   setFilter: (key: FilterKey, value: string[] | string | number[]) => void;
   resetFilter: () => void;
 }
@@ -52,6 +54,7 @@ export const useGroupMakingFilterStore = create<ExerciseFilterState>(set => ({
   content: "",
   imgKey: "",
   imgUrl: "",
+  keywords: [],
   setFilter: (key, value) => set(state => ({ ...state, [key]: value })),
   resetFilter: () =>
     set(() => ({
@@ -70,6 +73,7 @@ export const useGroupMakingFilterStore = create<ExerciseFilterState>(set => ({
       content: "",
       imgKey: "",
       imgUrl: "",
+      keywords: [],
     })),
 }));
 
