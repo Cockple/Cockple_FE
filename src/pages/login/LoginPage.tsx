@@ -2,6 +2,9 @@ import { SwiperSlide, Swiper } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import LoginSwiping from "../../components/login/LoginSwiping";
 import KakaoIcon from "@/assets/icons/kakao.svg?url";
+import OnboardingImg1 from "@/assets/images/onboarding1.png?url";
+import OnboardingImg2 from "@/assets/images/onboarding2.png?url";
+import OnboardingImg3 from "@/assets/images/onboarding3.png?url";
 
 export const LoginPage = () => {
   const TextMap = [
@@ -9,17 +12,20 @@ export const LoginPage = () => {
       title: "내 급수에 맞는 모임과 함께 운동해요",
       text1: "급수 정보와 지역을 기반으로,",
       text2: "나와 잘 맞는 운동 모임을 추천해드려요.",
+      img: OnboardingImg1,
     },
     {
       title: "내가 원하는 모임을 만들어보세요",
       text1: "급수 정보와 지역을 기반으로,",
       text2: "모임 구성원을 추천해드려요",
+      img: OnboardingImg2,
     },
     {
       title: "운동 기록부터 대회 입상까지,",
       title2: "한 눈에 정리해보세요 ",
       text1: "꾸준히 쌓이는 기록으로",
       text2: "성장을 눈으로 확인해보세요",
+      img: OnboardingImg3,
     },
   ];
 
@@ -53,6 +59,7 @@ export const LoginPage = () => {
                 title2={item.title2}
                 text1={item.text1}
                 text2={item.text2}
+                img={item.img}
               />
             </SwiperSlide>
           ))}
