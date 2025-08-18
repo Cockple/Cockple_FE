@@ -33,7 +33,7 @@ export const OnboardingConfirmStartPage = () => {
         />
         {/* 끊고 */}
         <div className="flex gap-8 flex-col items-center">
-          <div className="flex shadow-ds200 rounded-lg bg-white py-1 px-4 gap-1 items-center justify-center body-rg-500">
+          <div className="flex shadow-ds200-gr rounded-lg bg-white py-1 px-4 gap-1 items-center justify-center body-rg-500">
             <p>지금까지</p>
             <p className="text-gr-700">??</p>
             <p>개의 메달을 모았어요</p>
@@ -62,7 +62,7 @@ export const OnboardingConfirmStartPage = () => {
         </div>
       </section>
       <div
-        className="flex items-center justify-center header-h4 mb-4"
+        className="flex items-center justify-center header-h4 mb-6"
         onClick={() => navigate("/")}
       >
         <Btn_Static label="시작하기" kind="GR400" size="L" />

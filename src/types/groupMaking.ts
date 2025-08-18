@@ -31,3 +31,6 @@ export type SuggestParms = {
   page?: number;
   size?: number;
 };
+
+//그룹 만들기 키워드추가
+export type GroupMakingKeywordsResponseDTO = CommonResponse<object>;

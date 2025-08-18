@@ -125,7 +125,7 @@ export const GroupMember = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 mt-38 shrink-0 `}
+          className={`flex items-center justify-center mb-5 sm:mb-4.5 mt-38 shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

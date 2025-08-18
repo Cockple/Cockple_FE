@@ -224,7 +224,7 @@ export const LocationSearchPage = () => {
         </div>
         {selectedId !== null && (
           <div
-            className="fixed bottom-0 w-full max-w-[444px] flex justify-center -mb-5 -ml-4 bg-white"
+            className="fixed bottom-0 w-full max-w-[444px] flex justify-center -mb-3 -ml-4 bg-white"
             onClick={() => handleSelect(results[selectedId])}
           >
             <Grad_GR400_L label="이 위치로 위치 등록" />
