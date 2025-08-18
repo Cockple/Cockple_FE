@@ -18,7 +18,7 @@ import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
-import { useInviteGuest } from "../../api/exercise/InviteGuest";
+import { useInviteGuest } from "../../api/Exercise/InviteGuest";
 
 export const InviteGuest = () => {
   //정보
@@ -137,7 +137,7 @@ export const InviteGuest = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8 " style={{ minHeight: "90dvh" }}>
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
         <PageHeader title="게스트 초대하기" />
         <div className="flex flex-col gap-15 flex-1">
           <section className="text-left flex flex-col  gap-3 w-full pt-10">
@@ -215,7 +215,7 @@ export const InviteGuest = () => {
         </div>
         {/* 버튼 */}
         <div
-          className="flex items-center justify-center mt-20 mb-3"
+          className="flex items-center justify-center mt-15 mb-6"
           onClick={() => handleInviteForm.mutate()}
         >
           <Btn_Static

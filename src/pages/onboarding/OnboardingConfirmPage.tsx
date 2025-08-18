@@ -115,10 +115,7 @@ export const ConfirmPage = () => {
   };
 
   return (
-    <div
-      className="w-full flex flex-col -mb-8 -mt-14"
-      style={{ minHeight: "100dvh" }}
-    >
+    <div className="w-full flex flex-col -mb-8 min-h-dvh ">
       <section className="flex items-center flex-col gap-10 flex-1">
         <IntroText
           title={

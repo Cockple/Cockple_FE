@@ -88,7 +88,7 @@ export const GroupFilter = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
         <PageHeader title="회원 정보 입력" />
         <ProgressBar width={!isFormValid ? "52" : "72"} />
 
@@ -153,7 +153,7 @@ export const GroupFilter = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-5 sm:mb-4.5  shrink-0 `}
+          className={`flex items-center justify-center mb-6  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
