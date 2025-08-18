@@ -53,25 +53,11 @@ export interface ChatMessageResponse {
   senderName: string;
   senderProfileImage: string;
   content: string;
-  messageType: "TEXT" | "IMAGE";
+  messageType: "TEXT" | "SYSTEM";
   imageUrls: string[];
-  //reactions: Reaction[];
-  //replyTo: null | number;
-  //fileInfo: FileInfo | null;
-  //isDeleted: boolean;
-  //createdAt: string;
-  //updatedAt: string;
   timestamp: string;
   isMyMessage: boolean;
 }
-
-// interface Reaction {
-//   reactionId: number;
-//   emoji: string;
-//   count: number;
-//   userReacted: boolean;
-//   reactedUsers: string[];
-// }
 
 export interface FileInfo {
   fileId: number;

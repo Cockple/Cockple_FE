@@ -153,8 +153,8 @@ type OutgoingMessage =
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
   if (ws && ws.readyState === WebSocket.OPEN) {
-    console.log("[WS→] SEND", msg);
     ws.send(JSON.stringify(msg));
+    console.log("[WS→] SEND", msg);
     return true;
   }
   console.warn("[WS] not open. drop:", msg);

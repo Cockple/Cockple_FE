@@ -279,7 +279,7 @@ export const ChatDetailTemplate = ({
         senderName: currentUserName,
         senderProfileImage: "",
         content: "",
-        messageType: "IMAGE" as const, // <- literal type 고정
+        messageType: "TEXT", // <- literal type 고정
         imageUrls: [url],
         timestamp: now,
         isMyMessage: true,
@@ -345,7 +345,7 @@ export const ChatDetailTemplate = ({
         senderName: currentUserName,
         senderProfileImage: "",
         content: "",
-        messageType: "IMAGE",
+        messageType: "TEXT",
         imageUrls: [imgUrl],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
@@ -412,15 +412,15 @@ export const ChatDetailTemplate = ({
           ? [msg.content!]
           : [];
 
-    const isImage = finalImgUrls.length > 0;
+    //const isImage = finalImgUrls.length > 0;
 
     return {
       messageId: msg.messageId,
       senderId: msg.senderId,
       senderName: msg.senderName,
       senderProfileImage: msg.senderProfileImageUrl ?? "",
-      content: isImage ? "" : (msg.content ?? ""),
-      messageType: isImage ? "IMAGE" : "TEXT",
+      content: finalImgUrls.length ? "" : (msg.content ?? ""),
+      messageType: "TEXT",
       imageUrls: finalImgUrls,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
@@ -448,7 +448,7 @@ export const ChatDetailTemplate = ({
           m.isMyMessage &&
           m.messageType === incoming.messageType &&
           (m.content === incoming.content ||
-            (m.messageType === "IMAGE" &&
+            (m.messageType === "TEXT" &&
               (m.imageUrls?.length ?? 0) > 0 &&
               (incoming.imageUrls?.length ?? 0) > 0)) &&
           Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <

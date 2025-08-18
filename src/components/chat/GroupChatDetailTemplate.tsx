@@ -244,7 +244,7 @@ export const GroupChatDetailTemplate: React.FC<
         senderName: currentUserName,
         senderProfileImage: "",
         content: "",
-        messageType: "IMAGE",
+        messageType: "TEXT",
         imageUrls: [u.imgUrl],
         timestamp: now,
         isMyMessage: true,
@@ -297,7 +297,7 @@ export const GroupChatDetailTemplate: React.FC<
         senderName: currentUserName,
         senderProfileImage: "",
         content: "",
-        messageType: "IMAGE",
+        messageType: "TEXT",
         imageUrls: [imgUrl],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
@@ -337,15 +337,18 @@ export const GroupChatDetailTemplate: React.FC<
           ? [msg.content!]
           : [];
 
-    const isImage = finalImgUrls.length > 0;
+    //const isImage = finalImgUrls.length > 0;
 
     return {
       messageId: msg.messageId,
       senderId: msg.senderId,
       senderName: msg.senderName,
       senderProfileImage: msg.senderProfileImageUrl ?? "",
-      content: isImage ? "" : (msg.content ?? ""),
-      messageType: isImage ? "IMAGE" : "TEXT",
+      // content: isImage ? "" : (msg.content ?? ""),
+      // messageType: isImage ? "IMAGE" : "TEXT",
+      content: finalImgUrls.length ? "" : (msg.content ?? ""),
+      messageType: "TEXT", // ★ WS는 항상 사용자 메시지이므로 TEXT로 고정
+
       imageUrls: finalImgUrls,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
@@ -373,7 +376,7 @@ export const GroupChatDetailTemplate: React.FC<
           m.isMyMessage &&
           m.messageType === incoming.messageType &&
           (m.content === incoming.content ||
-            (m.messageType === "IMAGE" &&
+            (m.messageType === "TEXT" &&
               (m.imageUrls?.length ?? 0) > 0 &&
               (incoming.imageUrls?.length ?? 0) > 0)) &&
           Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <

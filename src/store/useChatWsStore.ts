@@ -63,8 +63,7 @@ export const useChatWsStore = create<State & Actions>(set => ({
       };
 
       const isImage =
-        msg.messageType === "IMAGE" ||
-        (msg.imgUrls?.length ?? 0) > 0 ||
+        (msg.images?.length ?? 0) > 0 ||
         (msg.content &&
           /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif)$/i.test(msg.content));
 
