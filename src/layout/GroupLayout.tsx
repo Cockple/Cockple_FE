@@ -6,6 +6,11 @@ import { useGroupNameStore } from "../store/useGroupNameStore";
 import { SortBottomSheet } from "../components/common/SortBottomSheet";
 import { deleteParty } from "../api/party/patchParties";
 import { Modal_Del } from "../components/group/Modal_Del";
+import api from "../api/api";
+import { usePartyDetail } from "../api/exercise/getpartyDetail";
+import { getJoinParty } from "../api/party/getJoinParty";
+import Grad_Mix_L from "../components/common/Btn_Static/Text/Grad_Mix_L";
+import { Modal_Join } from "../components/group/Modal_Join";
 
 const options = [
   { label: "홈", value: "" },
@@ -20,6 +25,8 @@ export const GroupLayout = () => {
   const location = useLocation();
   const [select, setSelect] = useState("");
   const { groupName } = useGroupNameStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
 
   //////////////////////////////////////////////////////////////////////////////
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -72,6 +79,42 @@ export const GroupLayout = () => {
     }
   };
 
+  // 모입가입하기 버튼 관련
+  const { data: partyDetail } = usePartyDetail(Number(groupId));
+  const [hasPending, setHasPending] = useState(
+    partyDetail?.hasPendingJoinRequest ?? false,
+  );
+
+  useEffect(() => {
+    if (partyDetail?.hasPendingJoinRequest !== undefined) {
+      setHasPending(partyDetail.hasPendingJoinRequest);
+    }
+  }, [partyDetail?.hasPendingJoinRequest]);
+
+  const onClickJoin = async () => {
+    if (groupId) {
+      await getJoinParty(Number(groupId));
+      setHasPending(true);
+      setIsApplied(true);
+    }
+  };
+
+  const onClickChat = async () => {
+    try {
+      const { data } = await api.post("/api/chats/direct", null, {
+        params: {
+          targetMemberId: partyDetail?.ownerId,
+        },
+      });
+
+      navigate(`/chat/personal/${data.data.chatRoomId}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const isJoined = partyDetail?.memberStatus === "MEMBER";
+
   return (
     <div className="flex flex-col">
       <PageHeader
@@ -105,6 +148,41 @@ export const GroupLayout = () => {
           if (label === "모임 정보 수정하기") handleEditGroup();
         }}
       />
+
+      {!isJoined && (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
+          <Grad_Mix_L
+            type="chat_question"
+            label="모임 가입하기"
+            onClick={() => setIsModalOpen(true)}
+            onImageClick={onClickChat}
+            initialStatus={hasPending ? "disabled" : "default"}
+          />
+        </div>
+      )}
+
+      {/* 가입 모달 */}
+      {isModalOpen && (
+        <Modal_Join
+          title={
+            isApplied ? "가입 신청이 완료되었어요!" : "모임에 가입하시겠어요?"
+          }
+          messages={
+            isApplied
+              ? [
+                  "모임장의 승인을 받아 가입이 완료되면,",
+                  "알림으로 알려드릴게요",
+                ]
+              : [
+                  "‘가입 신청하기’를 누르시면, 가입 신청이 완료되며",
+                  "모임장의 승인 이후 가입이 완료돼요.",
+                ]
+          }
+          confirmLabel={isApplied ? "확인" : "가입 신청하기"}
+          onConfirm={isApplied ? () => setIsModalOpen(false) : onClickJoin}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      )}
 
       {/* 삭제 확인 모달 */}
       {isDelModalOpen && (
