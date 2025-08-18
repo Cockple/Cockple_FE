@@ -103,7 +103,6 @@ export const MyPageMyExercisePage = () => {
             <div className="flex flex-col items-center justify-center">
               {exerciseList.map(item => {
                 const isLiked = likedExerciseIds.includes(item.exerciseId);
-
                 return (
                   <ContentCardL
                     key={item.exerciseId}
