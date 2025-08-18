@@ -5,7 +5,7 @@ import clsx from "clsx";
 interface SortBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  selected: string;
+  selected?: string;
   onSelect: (option: string) => void;
   options?: string[];
   className?: string;
