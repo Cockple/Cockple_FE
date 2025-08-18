@@ -136,8 +136,7 @@ export const GroupRecommendFilterPage = () => {
   const ALL_DAYS = ["월", "화", "수", "목", "금", "토", "일"];
   const isAllDaySelected = ALL_DAYS.every(dayItem => day.includes(dayItem));
 
-  const ALL_TIMES = ["오전", "오후"];
-  const isAllTimeSelected = ALL_TIMES.every(t => t === time);
+  const ALL_TIMES = ["상시", "오전", "오후"];
 
   return (
     <div className="pb-24 flex flex-col justify-between">
@@ -223,13 +222,11 @@ export const GroupRecommendFilterPage = () => {
           </Toggle>
           <Toggle title="활동 시간">
             <MultiSelectButtonGroup
-              options={["전체", ...ALL_TIMES]}
-              selected={isAllTimeSelected ? "전체" : time}
-              singleSelect
+              options={ALL_TIMES}
+              selected={time}
+              singleSelect={true}
               onChange={newVal => {
-                if (newVal === "전체") {
-                  setFilter("time", "전체");
-                } else {
+                if (typeof newVal === "string") {
                   setFilter("time", newVal);
                 }
               }}
