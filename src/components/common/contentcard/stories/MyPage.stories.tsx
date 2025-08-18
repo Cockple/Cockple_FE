@@ -62,7 +62,7 @@ type Story = StoryObj<typeof meta>;
 export const DefaultUser: Story = {
   args: {
     name: "김알렉산드라",
-    gender: "female",
+    gender: "FEMALE",
     level: "전국 D조",
     birth: "2000.03.12",
     profileImage: mockProfileImageFile,
@@ -98,7 +98,7 @@ export const MaleUser: Story = {
   args: {
     ...DefaultUser.args,
     name: "이철수",
-    gender: "male",
+    gender: "MALE",
     level: "지역 A조",
     profileImage: createMockFile(
       "https://via.placeholder.com/150/87CEEB/FFFFFF?text=MaleProfile",

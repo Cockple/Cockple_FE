@@ -7,7 +7,7 @@ import People from "../../../assets/icons/people.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import RD500_S_Icon from "../Btn_Static/Icon_Btn/RD500_S_Icon";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   bookmarkExercise,
@@ -70,6 +70,8 @@ export const ContentCardL = ({
   //const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(like);
   const [isLoading, setIsLoading] = useState(false);
+
+  const loca = useLocation();
 
   useEffect(() => {
     setFavorite(like);
@@ -160,7 +162,13 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
+          // onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
+
+          onClick={() =>
+            navigate(
+              `/group/Mygroup/MyExerciseDetail/${id}?returnPath=${loca.pathname}`,
+            )
+          }
         />
       </div>
 

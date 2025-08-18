@@ -99,9 +99,10 @@ const MemberRequestPage = () => {
     //3.
     try {
       setSubmitting(true);
+      console.log(selectedMember);
       const body: JoinRequestActionBody = { action: "APPROVE" };
       await api.patch(
-        `/api/parties/${partyId}/join-requests/${selectedMember.requestId}`,
+        `/api/parties/${partyId}/join-requests/${selectedMember.joinRequestId}`,
         body,
       );
       // 낙관 업데이트(서버 재조회로 바꿔도 됨)
@@ -110,7 +111,7 @@ const MemberRequestPage = () => {
         ...prev,
       ]);
       setRequests(prev =>
-        prev.filter(r => r.requestId !== selectedMember.requestId),
+        prev.filter(r => r.joinRequestId !== selectedMember.joinRequestId),
       );
     } catch (e) {
       console.error(e);
@@ -128,11 +129,11 @@ const MemberRequestPage = () => {
       setSubmitting(true);
       const body: JoinRequestActionBody = { action: "REJECT" };
       await api.patch(
-        `/api/parties/${partyId}/join-requests/${selectedMember.requestId}`,
+        `/api/parties/${partyId}/join-requests/${selectedMember.joinRequestId}`,
         body,
       );
       setRequests(prev =>
-        prev.filter(r => r.requestId !== selectedMember.requestId),
+        prev.filter(r => r.joinRequestId !== selectedMember.joinRequestId),
       );
     } catch (e) {
       console.error(e);
@@ -196,7 +197,7 @@ const MemberRequestPage = () => {
                 <div className="border-b border-gy-200 pb-1">
                   <Member
                     status="request"
-                    requestId={req.requestId}
+                    requestId={req.joinRequestId}
                     name={req.nickname}
                     gender={req.gender}
                     level={req.level}
@@ -224,9 +225,9 @@ const MemberRequestPage = () => {
             ) : (
               approved.map(req => (
                 <Member
-                  key={req.requestId}
+                  key={req.joinRequestId}
                   status="approved"
-                  requestId={req.requestId}
+                  requestId={req.joinRequestId}
                   name={req.nickname}
                   gender={req.gender}
                   level={req.level}
