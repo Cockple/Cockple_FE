@@ -65,7 +65,7 @@ export const GroupBasicInfo = () => {
 
     navigate("/group/making/activity");
   };
-  if (isError || !me.gender) {
+  if (isError) {
     return <p className="body-rg-500">오류 발생</p>;
   }
 
