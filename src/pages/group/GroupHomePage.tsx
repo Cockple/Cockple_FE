@@ -385,6 +385,20 @@ export const GroupHomePage = () => {
     );
   }
 
+  const onClickChat = async () => {
+    try {
+      const { data } = await api.post("/api/chats/direct", null, {
+        params: {
+          targetMemberId: partyDetail.ownerId,
+        },
+      });
+
+      navigate(`/chat/personal/${data.data.chatRoomId}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8 pb-15">
       {/* 상단 소개 */}
@@ -557,6 +571,7 @@ export const GroupHomePage = () => {
             type="chat_question"
             label="모임 가입하기"
             onClick={onClickJoin}
+            onImageClick={onClickChat}
             initialStatus={hasPending ? "disabled" : "default"}
           />
         </div>
