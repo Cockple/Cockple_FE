@@ -12,8 +12,10 @@ import type {
   ExerciseItem,
 } from "../../api/exercise/my";
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
+import { useNavigate } from "react-router-dom";
 
 export const MyPageMyExercisePage = () => {
+  const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"최신순" | "오래된 순">(
     "최신순",
@@ -78,7 +80,7 @@ export const MyPageMyExercisePage = () => {
   return (
     <div className="flex flex-col h-screen w-full max-w-[23.4375rem] bg-white mx-auto pt-14">
       <div className="sticky top-0 z-20 bg-white">
-        <PageHeader title="내 운동" />
+        <PageHeader title="내 운동" onBackClick={() => navigate("/myPage")} />
         <TabSelector
           options={tabOptions}
           selected={selectedTab}

@@ -10,6 +10,7 @@ import { getMyGroups } from "../../api/party/my";
 import type { PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import { useLocation, useNavigate } from "react-router-dom";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
@@ -98,7 +99,7 @@ export const MyPageMyGroupPage = () => {
                   <Group_M
                     id={group.partyId}
                     groupName={group.partyName}
-                    groupImage={group.partyImgUrl}
+                    groupImage={group.partyImgUrl ?? appIcon}
                     location={`${group.addr1} / ${group.addr2}`}
                     femaleLevel={group.femaleLevel}
                     maleLevel={group.maleLevel}
