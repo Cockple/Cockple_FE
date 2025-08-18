@@ -1,6 +1,6 @@
 import { DailyExercise_S } from "../common/contentcard/DailyExercise_S";
 import TextIconBtnM from "../common/DynamicBtn/TextIconBtnM";
-
+import appIcon from "@/assets/images/app_icon.png?url";
 import { useNavigate } from "react-router-dom";
 import type { Exercise } from "../../types/calendar";
 
@@ -32,7 +32,7 @@ export const WorkoutDayEntry = ({
           title={item.partyName}
           location={item.buildingName}
           time={item.startTime + " - " + item.endTime}
-          imageSrc={item.profileImageUrl}
+          imageSrc={item.profileImageUrl ?? appIcon}
           onClick={() => onExerciseClick?.(Number(item.partyId))}
         />
       ))}
