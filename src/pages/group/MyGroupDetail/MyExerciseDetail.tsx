@@ -5,7 +5,7 @@ import Caution from "../../../assets/icons/caution.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import { Member } from "../../../components/common/contentcard/Member";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { Modal_ExDel } from "../../../components/group/Modal_ExDel copy";
 import { useState, useEffect } from "react";
@@ -39,6 +39,9 @@ export const MyExerciseDetail = () => {
 
   const currentUser = members.find(m => m.isMe);
   const isCurrentUserLeader = currentUser?.isLeader ?? false;
+
+  const [searchParams] = useSearchParams();
+  const returnPath = searchParams.get("returnPath") ?? -1;
 
   // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
@@ -119,6 +122,13 @@ export const MyExerciseDetail = () => {
       <PageHeader
         title="내 운동 상세"
         onMoreClick={() => setIsSortOpen(true)}
+        onBackClick={() => {
+          if (returnPath === -1) {
+            navigate(-1);
+          } else {
+            navigate(returnPath);
+          }
+        }}
       />
 
       <div className="flex flex-col gap-8">
