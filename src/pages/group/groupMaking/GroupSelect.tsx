@@ -31,6 +31,7 @@ export const GroupSelect = () => {
     imgKey,
     content,
     setFilter,
+    resetFilter,
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
@@ -87,6 +88,7 @@ export const GroupSelect = () => {
     onSuccess: res => {
       console.log("성공");
       console.log(res.data);
+      resetFilter();
       navigate(`/confirm/${res.data.partyId}`, {
         state: {
           onboarding: false,

@@ -19,7 +19,8 @@ export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
-  const { femaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
+  const { femaleLevel, setFilter, maleLevel, resetFilter } =
+    useGroupMakingFilterStore();
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
   const [localName, setLocalName] = useState(name ?? "");
@@ -27,6 +28,7 @@ export const GroupBasicInfo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleConfirmLeave = () => {
     setIsModalOpen(false);
+    resetFilter();
     navigate("/");
   };
 
@@ -79,6 +81,7 @@ export const GroupBasicInfo = () => {
             <Modal_Caution
               onConfirm={handleConfirmLeave}
               onCancel={handleCancelLeave}
+              location="이전페이지로"
             />
           </div>
         )}
