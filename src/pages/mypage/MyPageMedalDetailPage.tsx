@@ -10,17 +10,10 @@ import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
 import Kitty from "../../assets/images/Image Carousel.png";
 import { getContestRecordDetail, deleteContestRecord } from "../../api/contest/contestmy";
 import { getMemberContestDetail } from "../../api/contest/member";
-import type { ContestDetailResponse } from   "../../api/contest/member";
-import type { ContestRecordDetailResponse } from  "../../api/contest/contestmy";
-
-interface MyPageMedalDetailPageProps {
-  photo?: File | string | (File | string)[];
-  title?: string; // 대회명
-  date?: string; // 날짜
-  participationType?: string; // 참여 형태 //이거 서버랑 다르게 나오니 확인 후 수정
-  record?: string; // 대회 기록
-  videoUrl?: string[]; // 영상 링크 여러개
-}
+import type { ContestDetailResponse } from "../../api/contest/member";
+import type { ContestRecordDetailResponse } from "../../api/contest/contestmy";
+import { getMyProfile } from "../../api/member/my";
+import BaseProfileImg from "@/assets/images/base_profile_img.png?url";
 
 interface MedalDetail {
   photo?: string[];           // 이미지 URL 배열
@@ -31,16 +24,16 @@ interface MedalDetail {
   videoUrl?: string[];        // 영상 링크 배열
 }
 
-export const MyPageMedalDetailPage = ({
-}: MyPageMedalDetailPageProps) => {
+export const MyPageMedalDetailPage = () => {
   const navigate = useNavigate();
   const params = useParams<{ memberId?: string; contestId?: string; contentId?: string }>();
   const memberId = params.memberId;
-  const contestId = params.contestId;
+  // const contestId = params.contestId;
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const contentId = params.contestId || params.contentId;
+
   const participationMap: Record<string, string> = {
     "WOMEN_DOUBLES": "여복",
     "MEN_DOUBLES": "남복",
@@ -48,16 +41,23 @@ export const MyPageMedalDetailPage = ({
     "SINGLES": "단식",
   };
   const levelMap: Record<string, string> = {
-    "왕초심": "BEGINNER",
-    "초심": "BEGINNER",
-    "D조": "BEGINNER",
-    "C조": "INTERMEDIATE",
-    "B조": "INTERMEDIATE",
-    "A조": "ADVANCED",
-    "준자강": "ADVANCED",
-    "자강": "ADVANCED",
+    "BEGINNER": "왕초심",
+    "INTERMEDIATE": "중급",
+    "ADVANCED": "상급",
   };
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profile = await getMyProfile();
+        setProfilePhoto(profile.profileImageUrl ?? null);
+      } catch (err) {
+        console.error("프로필 조회 실패", err);
+      }
+    };
+    fetchProfile();
+  }, []);
   useEffect(() => {
     if (!contentId) return;
 
@@ -76,14 +76,31 @@ export const MyPageMedalDetailPage = ({
           return;
         }
 
+        // 이미지 URL 디코딩 + 중복 https 제거
+        // const processedImages: string[] = ((data as any).contestImgUrls ?? []).map((url: string) => {
+        //   const decoded = decodeURIComponent(url);
+        //   return decoded.replace(/^https?:\/{2,}/, "https://");
+        // });
+
+       // contestImgUrls 처리
         setMedalDetail({
           title: data.contestName ?? "",
           date: data.date ?? "",
           participationType: `${data.type ?? ""} - ${data.level ?? ""}`,
           record: data.content ?? "",
-          photo: (data as any).contestImgs ?? (data as any).photos ?? [],
-          videoUrl: (data as any).contestVideos ?? [],
+          photo: ((data as any).contestImgUrls ?? []).map((url: string) => {
+            // URL 디코딩
+            let decoded = decodeURIComponent(url);
+            // 중복 S3 경로 제거
+            decoded = decoded.replace(
+              /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
+              "https://"
+            );
+            return decoded;
+          }),
+          videoUrl: (data as any).contestVideoUrls ?? [],
         });
+
       } catch (err) {
         console.error(err);
         setMedalDetail(null);
@@ -93,16 +110,13 @@ export const MyPageMedalDetailPage = ({
     fetchData();
   }, [contentId, memberId]);
 
-  const images = medalDetail?.photo
-    ? medalDetail.photo.map(p => (typeof p === "string" ? p : URL.createObjectURL(p)))
-    : [Kitty];
-
-  const urls = medalDetail?.videoUrl ?? [];
-  const record = medalDetail?.record ?? "";
-  const date = medalDetail?.date ?? "";
-  const participationType = medalDetail?.participationType ?? "";
-  const displayImages = images.length > 0 ? images : [Kitty]; 
   if (!medalDetail) return <div>로딩 중...</div>;
+
+  const displayImages = medalDetail.photo?.length ? medalDetail.photo : [Kitty];
+  const urls = medalDetail.videoUrl ?? [];
+  const record = medalDetail.record ?? "";
+  const date = medalDetail.date ?? "";
+  const participationType = medalDetail.participationType ?? "";
 
   return (
     <div className="w-full max-w-[444px] mx-auto min-h-screen bg-white relative overflow-x-hidden">
@@ -110,7 +124,7 @@ export const MyPageMedalDetailPage = ({
         <PageHeader title="내 메달" />
       </div>
 
-      {/* 스크롤 영역 */}
+      {/* 이미지 스와이퍼 */}
       <div className="relative mt-2 w-full" style={{ padding: 0 }}>
         <Swiper
           modules={[Pagination]}
@@ -121,23 +135,7 @@ export const MyPageMedalDetailPage = ({
           observer={true}       
           observeParents={true}
         >
-           {displayImages.map((img, idx) => (
-          <SwiperSlide
-            key={idx}
-            style={{ display: "flex", justifyContent: "center", padding: 0 }}
-          >
-            <img
-              src={img}
-              alt={`메달 이미지 ${idx + 1}`}
-              style={{
-                width: "100%",
-                height: "23.4375rem",
-                objectFit: "cover",
-              }}
-            />
-          </SwiperSlide>
-        ))}
-          {/* {images.map((img, idx) => (
+          {displayImages.map((img, idx) => (
             <SwiperSlide
               key={idx}
               style={{ display: "flex", justifyContent: "center", padding: 0 }}
@@ -145,22 +143,18 @@ export const MyPageMedalDetailPage = ({
               <img
                 src={img}
                 alt={`메달 이미지 ${idx + 1}`}
-                style={{
-                  width: "100%",
-                  height: "23.4375rem",
-                  objectFit: "cover",
-                }}
+                style={{ width: "100%", height: "23.4375rem", objectFit: "cover" }}
               />
             </SwiperSlide>
-          ))} */}
+          ))}
         </Swiper>
 
         {/* 오버레이 영역 */}
         <div className="absolute -bottom-8 left-4 right-4 flex items-start justify-between gap-4 z-10">
           <div className="overflow-hidden">
             <img
-              src={images[0] ?? Kitty}
-              alt="프로필"
+              src={profilePhoto ?? BaseProfileImg} 
+              alt="회원 프로필"
               className="w-20 h-20 object-cover"
             />
           </div>
@@ -171,13 +165,12 @@ export const MyPageMedalDetailPage = ({
       {/* 대회명 */}
       <p className="text-left header-h4 mt-12 leading-snug">{medalDetail.title}</p>
 
-      {/* 참가 정보 */}
+      {/* 참여 형태 및 급수 */}
       <div className="flex justify-between items-center mt-5">
         <p className="header-h5">참여 형태 및 급수</p>
-        {/* <p className="body-md-500">{participationType}</p> */}
         <p className="body-md-500">
           {(() => {
-            if (!participationType) return "-"; // 값 없으면 대체 표시
+            if (!participationType) return "-";
             const [typeCode, levelCode] = participationType.split(" - ");
             const typeKor = participationMap[typeCode] ?? typeCode;
             const levelKor = levelMap[levelCode] ?? levelCode;
@@ -191,13 +184,7 @@ export const MyPageMedalDetailPage = ({
         <p className="header-h5 text-start mb-1">대회 기록</p>
         <textarea
           className="auto-resizing-css w-full border rounded-xl p-2 pr-14 body-md-500 border-[#E4E7EA] focus:outline-none resize-none overflow-hidden max-h-[188px]"
-          value={
-            record
-              ? record
-                  .replace(/[^ㄱ-ㅎ가-힣a-zA-Z0-9.,!?()\s]/g, "")
-                  .slice(0, 100)
-              : ""
-          }
+          value={record ? record.slice(0, 100) : ""}
           readOnly
         />
       </div>
@@ -225,7 +212,7 @@ export const MyPageMedalDetailPage = ({
         </div>
       </div>
 
-      {/* 수정하기 버튼 */}
+      {/* 수정 버튼 */}
       <div className="mt-6 flex justify-between">
         <Grad_Mix_L
           type="delete"
@@ -234,15 +221,8 @@ export const MyPageMedalDetailPage = ({
             navigate("/mypage/mymedal/add", {
               state: {
                 mode: "edit",
-                contestId: contestId,  // 값 넘김 
-                medalData: {
-                  title: medalDetail.title,
-                  date: medalDetail.date,
-                  participationType: medalDetail.participationType,
-                  record: medalDetail.record,
-                  photo: medalDetail.photo,
-                  videoUrl: medalDetail.videoUrl,
-                },
+                contestId: contentId, 
+                medalData: medalDetail,
               },
             })
           }
@@ -255,9 +235,9 @@ export const MyPageMedalDetailPage = ({
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Delete
             onConfirm={async () => {
+              if (!contentId) return;
               try {
-                if (!contestId) return;
-                await deleteContestRecord(Number(contestId));
+                await deleteContestRecord(Number(contentId));
                 setIsDeleteModalOpen(false);
                 navigate("/mypage/mymedal");
               } catch (error) {

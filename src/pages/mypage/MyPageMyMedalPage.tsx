@@ -7,13 +7,15 @@ import { MyPage_Medal2 } from "../../components/common/contentcard/MyPage_Medal2
 import { MyMedal_None } from "../../components/MyPage/MyMedal_None";
 import { getMyMedals, getMyContestList } from "../../api/contest/contestmy";
 import type { MedalItem } from "../../api/contest/contestmy";
+import BaseProfileImg from "../../assets/images/base_profile_img.png?url";
 
 interface MedalUIItem {
   contentId: number;
   title: string;
   date: string;
-  medalImageSrc: string | null;
+  medalImageSrc: string | null; 
 }
+
 
 const MyPageMyMedalPage = () => {
   const navigate = useNavigate();
@@ -46,6 +48,7 @@ const MyPageMyMedalPage = () => {
   useEffect(() => {
     fetchMedals();
   }, []);
+
   // 대회 리스트 조회
   useEffect(() => {
     const fetchContests = async () => {
@@ -55,8 +58,9 @@ const MyPageMyMedalPage = () => {
           contentId: item.contestId, // contestId를 id로 사용
           title: item.contestName,
           date: new Date(item.date).toLocaleDateString("ko-KR"),
-          medalImageSrc: item.medalImgUrl,
+          medalImageSrc: item.medalImgUrl ?? BaseProfileImg,
         }));
+        
         setContestList(transformed);
       } catch (err) {
         console.error("대회 기록 조회 실패", err);
@@ -84,17 +88,22 @@ const MyPageMyMedalPage = () => {
       </div>
     );
   }
-
   const shownList: MedalUIItem[] =
     selectedTab === "전체"
-      ? contestList
+      ? contestList.map((item) => ({
+          contentId: item.contentId,
+          title: item.title,
+          date: item.date,
+          medalImageSrc: item.medalImageSrc ?? BaseProfileImg, 
+        }))
       : medalData.medals
           .filter((item) => !item.isAwarded)
           .map((item) => ({
-            contentId: item.id, 
+            contentId: item.id,
             title: item.title,
             date: new Date(item.date).toLocaleDateString("ko-KR"),
-            medalImageSrc: item.medalImageSrc,
+            medalImageSrc: item.medalImgUrl ?? BaseProfileImg, // medalImgUrl → medalImageSrc
+          
           }));
 
 
@@ -112,22 +121,6 @@ const MyPageMyMedalPage = () => {
             silverCount={medalData.silverCount}
             bronzeCount={medalData.bronzeCount}
           />
-
-          {/* 메달 리스트 or 없을 때 문구 */}
-          {/* {medalData.medals.length > 0 ? (
-            medalData.medals.map((item) => (
-              <MyMedal
-                key={item.id}
-                contentId={item.id}      // id를 contentId로 전달
-                title={item.title}
-                date={new Date(item.date).toLocaleDateString("ko-KR")}
-                medalImageSrc={item.medalImageSrc || ""}
-              />
-            ))
-          ) : (
-            <p className="text-center my-4">아직 메달 내역이 없습니다.</p>
-          )} */}
-
 
           <div className="w-full mb-4">
             <div className="flex gap-4 px-4 relative h-10">
@@ -152,22 +145,25 @@ const MyPageMyMedalPage = () => {
 
           {/* 선택된 탭에 따른 리스트 */}
           {shownList.length > 0 ? (
-            shownList.map((item) => (
-              <React.Fragment key={item.contentId}>
-                <MyMedal
-                  contentId={item.contentId}
-                  title={item.title}
-                  date={item.date}
-                  medalImageSrc={item.medalImageSrc || ""}
-                />
-                <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-              </React.Fragment>
-            ))
+            shownList.map((item) => {
+              return (
+                <React.Fragment key={item.contentId}>
+                  <MyMedal
+                    contentId={item.contentId}
+                    title={item.title}
+                    date={item.date}
+                    medalImageSrc={item.medalImageSrc ?? BaseProfileImg}
+                  />
+                  <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                </React.Fragment>
+              );
+            })
           ) : (
             <div className="flex flex-col h-full items-center justify-center">
               <MyMedal_None />
             </div>
           )}
+
 
           {/* 대회 기록 추가하기 버튼 */}
           {shownList.length > 0 && (
