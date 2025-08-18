@@ -12,6 +12,7 @@ import type {
   ExerciseItem,
 } from "../../api/exercise/my";
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner"; 
 
 export const MyPageMyExercisePage = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -65,7 +66,10 @@ export const MyPageMyExercisePage = () => {
 
     fetchExercises();
   }, [selectedTab, sortOption]);
-
+  
+  if (isExerciseLikedLoading) {
+    return <LoadingSpinner />; 
+  }
   const tabOptions = [
     { label: "전체", value: "전체" },
     { label: "참여 예정", value: "참여 예정" },
@@ -90,7 +94,9 @@ export const MyPageMyExercisePage = () => {
 
       <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide">
         {isLoading ? (
-          <div className="text-center mt-10">로딩 중...</div>
+           <div className="flex flex-col items-center justify-center h-[60vh]">
+             <LoadingSpinner /> 
+          </div>
         ) : exerciseList.length > 0 ? (
           <>
             <div className="flex justify-end mb-3 px-4">

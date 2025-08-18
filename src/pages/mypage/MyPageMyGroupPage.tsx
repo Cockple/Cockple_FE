@@ -10,6 +10,7 @@ import { getMyGroups } from "../../api/party/my";
 import type { PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import { useLocation, useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
@@ -18,14 +19,14 @@ export const MyPageMyGroupPage = () => {
   const [sortOption, setSortOption] = useState("최신순");
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const returnParam = new URLSearchParams(location.search).get("return");
 
-  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
-    useLikedGroupIds();
-
+  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
   useEffect(() => {
     const fetchGroups = async () => {
+      setIsLoading(true);
       try {
         const result = await getMyGroups({
           created: isChecked,
@@ -39,6 +40,8 @@ export const MyPageMyGroupPage = () => {
         setGroups(resultWithLike);
       } catch (err) {
         console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
+      } finally {
+        setIsLoading(false);  // ✅ 성공/실패 상관없이 무조건 실행
       }
     };
 
@@ -46,6 +49,7 @@ export const MyPageMyGroupPage = () => {
       fetchGroups();
     }
   }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading]);
+
 
   const hasGroups = groups.length > 0;
 
@@ -62,65 +66,69 @@ export const MyPageMyGroupPage = () => {
       <div className="sticky top-0 z-20">
         <PageHeader title="내 모임" onBackClick={onBackClick} />
       </div>
-
       <div className="flex-1 flex flex-col mt-4">
-        {hasGroups && (
-          <div className="mb-8">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <button onClick={() => setIsChecked(!isChecked)}>
-                  {isChecked ? (
-                    <CheckCircledFilled className="w-4 h-4" />
-                  ) : (
-                    <CheckCircled className="w-4 h-4" />
-                  )}
-                </button>
-                <label className="body-rg-500">내가 만든 모임</label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sort
-                  label={sortOption}
-                  isOpen={isSortOpen}
-                  onClick={() => setIsSortOpen(!isSortOpen)}
-                />
+        {isLoading ? (
+          <div className="flex flex-1 items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : hasGroups ? (
+          <>
+            <div className="mb-8">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setIsChecked(!isChecked)}>
+                    {isChecked ? (
+                      <CheckCircledFilled className="w-4 h-4" />
+                    ) : (
+                      <CheckCircled className="w-4 h-4" />
+                    )}
+                  </button>
+                  <label className="body-rg-500">내가 만든 모임</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Sort
+                    label={sortOption}
+                    isOpen={isSortOpen}
+                    onClick={() => setIsSortOpen(!isSortOpen)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+
+            <div className="flex-1 flex flex-col gap-4">
+              {groups.map(group => {
+                const isLiked = likedGroupIds.includes(group.partyId);
+
+                return (
+                  <div key={group.partyId}>
+                    <Group_M
+                      id={group.partyId}
+                      groupName={group.partyName}
+                      groupImage={group.partyImgUrl}
+                      location={`${group.addr1} / ${group.addr2}`}
+                      femaleLevel={group.femaleLevel}
+                      maleLevel={group.maleLevel}
+                      nextActivitDate={group.nextExerciseInfo}
+                      upcomingCount={group.totalExerciseCount}
+                      like={isLiked}
+                      isMine={group.isMine ?? false}
+                      onClick={() =>
+                        navigate(
+                          `/group/${group.partyId}?return=${encodeURIComponent(
+                            location.pathname + location.search,
+                          )}`,
+                        )
+                      }
+                    />
+                    <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <MyGroupNone />
         )}
-
-        <div className="flex-1 flex flex-col gap-4">
-          {hasGroups ? (
-            groups.map(group => {
-              const isLiked = likedGroupIds.includes(group.partyId); // 찜 상태 계산
-
-              return (
-                <div key={group.partyId}>
-                  <Group_M
-                    id={group.partyId}
-                    groupName={group.partyName}
-                    groupImage={group.partyImgUrl}
-                    location={`${group.addr1} / ${group.addr2}`}
-                    femaleLevel={group.femaleLevel}
-                    maleLevel={group.maleLevel}
-                    nextActivitDate={group.nextExerciseInfo}
-                    upcomingCount={group.totalExerciseCount}
-                    like={isLiked}
-                    isMine={group.isMine ?? false}
-                    onClick={() =>
-                      navigate(
-                        `/group/${group.partyId}?return=${encodeURIComponent(location.pathname + location.search)}`,
-                      )
-                    }
-                    // onToggleFavorite={handleToggleFavorite}
-                  />
-                  <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-                </div>
-              );
-            })
-          ) : (
-            <MyGroupNone />
-          )}
-        </div>
       </div>
 
       <SortBottomSheet

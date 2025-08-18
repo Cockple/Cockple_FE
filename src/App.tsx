@@ -35,7 +35,6 @@ import {
   MyPageMyExercisePage,
   MyPageMyGroupPage,
   MyPageMyMedalPage,
-  MyPageAddressSearchPage,
   MyPageProfile,
   MyPageProfileGroup,
   MyPageProfileMedal,
@@ -121,10 +120,7 @@ const router = createBrowserRouter([
       { path: "/edit/location", element: <EditLocationPage /> },
       { path: "/mypage/edit", element: <MyPageEditPage /> },
       { path: "/mypage/edit/location", element: <MyPageEditLocationPage /> },
-      {
-        path: "/mypage/edit/location/address",
-        element: <MyPageAddressSearchPage />,
-      },
+
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },

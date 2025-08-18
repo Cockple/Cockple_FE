@@ -367,16 +367,17 @@ const handlePhotoClick = () => {
               ref={containerRef}
               className="flex gap-2 overflow-x-auto no-scrollbar"
             >
-              <button
-                onClick={handlePhotoClick}
-                className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
-                type="button"
-              >
-                <div className="flex flex-col text-center justify-center">
-                  <Camera />
-                  <label>{`${photos.length} / 3`}</label>
-                </div>
-              </button>
+             <button
+              onClick={handlePhotoClick}
+              className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
+              type="button"
+            >
+              <div className="flex flex-col items-center justify-center text-center">
+                <Camera />
+                <label className="mt-1">{`${photos.length} / 3`}</label>
+              </div>
+            </button>
+
 
               {photos.map((src, i) => (
                 <div

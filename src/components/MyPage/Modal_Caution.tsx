@@ -13,9 +13,9 @@ interface ModalCautionProps {
 export const Modal_Caution = ({
   onConfirm,
   onCancel,
-  title = "모임 만들기가 이루어지지 않았어요.",
-  location = "마이페이지로",
-  alertText = "계속 수정하기",
+  title = "",
+  location = "",
+  alertText = "",
 }: ModalCautionProps) => {
   return (
     <div className="bg-white w-[21.4375rem] h-[15.75rem] flex flex-col p-3 shadow-ds300 rounded-2xl">
