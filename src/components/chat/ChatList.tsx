@@ -32,8 +32,8 @@ const ChatList = ({
 
   // 🌟 탭별 빈 상태 메시지
   const emptyMessageMap: Record<Props["tab"], string> = {
-    group: "아직 모임 채팅이",
-    personal: "아직 개인 채팅이",
+    group: "아직 모임 채팅",
+    personal: "아직 개인 채팅",
   };
 
   const chatData = tab === "group" ? groupChats : personalChats;
