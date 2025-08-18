@@ -34,7 +34,7 @@ export const RecommendedWorkoutSection = () => {
               date={item.date}
               time={item.startTime + " - " + item.endTime}
               location={item.buildingName}
-              imageSrc={item.imageUrl ?? ""}
+              imageSrc={item.profileImageUrl ?? ""}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))

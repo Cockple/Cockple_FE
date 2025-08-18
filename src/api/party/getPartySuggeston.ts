@@ -16,9 +16,29 @@ export interface PartySuggestion {
 
 export interface PartySuggestionsPage {
   content: PartySuggestion[];
-  pageNumber: number;
-  pageSize: number;
+  empty: boolean;
+  first: boolean;
+  last: boolean;
+  number: number;
   numberOfElements: number;
+  size: number;
+  pageable: {
+    offset: number;
+    pageNumber: number;
+    pageSize: number;
+    paged: boolean;
+    unpaged: boolean;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+  };
+  sort: {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
 }
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -147,8 +167,7 @@ export const usePartySuggestionInfinite = (opts?: {
       return fetchPartySuggestionPage(params);
     },
     getNextPageParam: lastPage => {
-      if (lastPage.content.length < lastPage.pageSize) return undefined;
-      return lastPage.pageNumber + 1;
+      return lastPage.last ? undefined : lastPage.number + 1;
     },
     staleTime: 60_000,
   });

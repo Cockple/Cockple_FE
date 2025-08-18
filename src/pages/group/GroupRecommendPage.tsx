@@ -53,7 +53,7 @@ export const GroupRecommendPage = () => {
     status,
     error,
   } = usePartySuggestionInfinite({
-    size: 10,
+    size: 7,
     sort: mapSortToApi(sortOption),
   });
 
@@ -96,7 +96,6 @@ export const GroupRecommendPage = () => {
       {
         root: null,
         threshold: 0.1,
-        rootMargin: "0px 0px 200px 0px",
       },
     );
 

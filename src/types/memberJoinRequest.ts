@@ -2,7 +2,7 @@ import type { CommonResponse } from "./common";
 
 // 개별 가입 요청 정보
 export interface MemberJoinRequest {
-  requestId: number; //처리할 가입 신청의 ID
+  joinRequestId: number; //처리할 가입 신청의 ID
   userId: number;
   nickname: string;
   profileImageUrl: string | null;

@@ -2,7 +2,8 @@ import api from "../api";
 
 export const getJoinParty = async (partyId: number) => {
   try {
-    await api.get(`/api/parties/${partyId}/join-requests`);
+    const { data } = await api.post(`/api/parties/${partyId}/join-requests`);
+    console.log(data.data);
   } catch (err) {
     console.log(err);
   }
