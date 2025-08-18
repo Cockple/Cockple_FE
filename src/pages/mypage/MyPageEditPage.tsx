@@ -96,6 +96,14 @@ export const MyPageEditPage = ({
     EXPERT: "자강",
     NONE: "급수 없음",
   };
+  const serverToLabelKeywordMap: Record<string, string> = {
+    BRAND: "브랜드 스폰",
+    FREE: "가입비 무료",
+    FRIENDSHIP: "친목",
+    MANAGER_MATCH: "운영진이 게임을 짜드려요",
+    NONE: "NONE",
+  };
+
   const labelToServerMap: Record<string, string> = Object.fromEntries(
     Object.entries(serverToLabelMap).map(([k, v]) => [v, k])
   );
@@ -186,6 +194,14 @@ export const MyPageEditPage = ({
         setSelectedDate(data.birth ?? "");
         setSelectedLevel(serverToLabelMap[data.level || "NONE"] ?? "급수 없음");
         if (data.profileImgUrl) setProfileImage(data.profileImgUrl);
+             if (data.keywords && Array.isArray(data.keywords)) {
+        const initialKeywords = data.keywords
+          .map((k: string) => serverToLabelKeywordMap[k])
+          .filter(Boolean) as string[];
+        setSelectedKeywords(initialKeywords); // 화면용 레이블로 변환
+      } else {
+        setSelectedKeywords([]); // 없으면 빈 배열
+      }
       })
       .catch(console.error);
   }, []);
@@ -436,7 +452,7 @@ export const MyPageEditPage = ({
                   return (
                     <TextBox
                       key={k}
-                      isSelected={isSelected}
+                      isSelected={selectedKeywords.includes(k)} 
                       className={`py-2 rounded-xl whitespace-nowrap w-auto max-w-full ${k === "친목" ? "px-[1.4rem]" : "px-[2.7rem]"}`}
                       onClick={() => setSelectedKeywords(prev => isSelected ? prev.filter(x => x !== k) : [...prev, k])}
                     >

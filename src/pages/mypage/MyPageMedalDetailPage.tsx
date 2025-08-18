@@ -58,6 +58,7 @@ export const MyPageMedalDetailPage = () => {
     };
     fetchProfile();
   }, []);
+
   useEffect(() => {
     if (!contentId) return;
 
@@ -76,18 +77,12 @@ export const MyPageMedalDetailPage = () => {
           return;
         }
 
-        // 이미지 URL 디코딩 + 중복 https 제거
-        // const processedImages: string[] = ((data as any).contestImgUrls ?? []).map((url: string) => {
-        //   const decoded = decodeURIComponent(url);
-        //   return decoded.replace(/^https?:\/{2,}/, "https://");
-        // });
-
        // contestImgUrls 처리
         setMedalDetail({
           title: data.contestName ?? "",
           date: data.date ?? "",
           participationType: `${data.type ?? ""} - ${data.level ?? ""}`,
-          record: data.content ?? "",
+          // record: data.content ?? "",
           photo: ((data as any).contestImgUrls ?? []).map((url: string) => {
             // URL 디코딩
             let decoded = decodeURIComponent(url);
@@ -98,7 +93,11 @@ export const MyPageMedalDetailPage = () => {
             );
             return decoded;
           }),
-          videoUrl: (data as any).contestVideoUrls ?? [],
+          videoUrl: Array.isArray((data as any).contestVideoUrls)
+            ? (data as any).contestVideoUrls
+            : [],
+          record: typeof data.content === "string" ? data.content : "",
+          
         });
 
       } catch (err) {

@@ -133,7 +133,9 @@ export const MyPageMedalAddPage = () => {
         participationType: `${data.type} - ${data.level}`,
         record: data.content,
         photo: data.contestImgUrls.map(sanitizeUrl),
-        videoUrl: data.contestVideoUrls,
+        videoUrl: data.contestVideoUrls?.length ? data.contestVideoUrls : [""],
+
+        // videoUrl: data.contestVideoUrls,
       });
     } catch (error) {
       console.error("기존 대회 기록 불러오기 실패", error);
@@ -286,13 +288,13 @@ const handlePhotoClick = () => {
         content: recordText || undefined,
         contentIsOpen: true,
         videoIsOpen: true,
-        contestVideos: videoLinks.filter((link) => link.trim() !== ""),
+        contestVideos: videoLinks.some(link => link.trim() !== "") ? videoLinks.filter(link => link.trim() !== "") : undefined,
+
+        // contestVideos: videoLinks.filter((link) => link.trim() !== ""),
         contestImgs: photos.map((p: any) => (typeof p === "string" ? p : p.url)),
       };
 
-
-
-      console.log("요청 바디:", requestBody);
+     console.log("요청 바디:", requestBody);
 
       let response;
       if (isEditMode && contestId) {
@@ -553,12 +555,18 @@ const handlePhotoClick = () => {
                 title="대회 기록"
                 maxLength={100}
                 Label="비공개"
+                value={recordText}
+                onChange={(checked, value) => setRecordText(value)}
               />
             </div>
           </div>
 
           {/* 영상 링크 */}
-          <MyMedalCheckBox title="영상 링크" />
+          <MyMedalCheckBox
+            title="영상 링크"
+            value={videoLinks.length ? videoLinks : [""]}
+            onChange={setVideoLinks}
+          />
 
           {/* 저장 버튼  오류 발생 */}
           <Grad_GR400_L
