@@ -84,8 +84,8 @@ export interface ContestRecordDetailResponse {
   content: string; // 대회 기록 텍스트
   contentIsOpen: boolean;
   videoIsOpen: boolean;
-  contestVideos: string[];  // 영상 링크 배열
-  contestImgs: string[];    // 이미지 경로 배열 (서버 상대경로)
+  contestVideoUrls: string[];  // 영상 링크 배열
+  contestImgUrls: string[];    // 이미지 경로 배열 (서버 상대경로)
   contestImgsToDelete: string[];
   contestVideoIdsToDelete: number[];
 }
@@ -170,12 +170,12 @@ export const deleteContestRecord = async (contestId: number): Promise<void> => {
 
 // 내 대회 기록 수정
 export async function patchMyContestRecord(contestId: number, body: PostContestRecordRequest) {
-  const response = await fetch(`/api/contests/my/${contestId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  return response.json();
+  try {
+    const response = await api.patch(`/api/contests/my/${contestId}`, body);
+    // 서버가 빈 응답을 보내면 data가 undefined일 수 있음
+    return response.data ?? { success: true, data: null };
+  } catch (error: any) {
+    console.error("대회 기록 PATCH 오류", error);
+    throw error;
+  }
 }

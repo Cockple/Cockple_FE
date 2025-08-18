@@ -119,39 +119,56 @@ export const MyPageMedalAddPage = () => {
       alert("이미지 업로드 중 오류가 발생했습니다.");
     }
   };
-// API에서 contestId로 상세 데이터 불러오기
-const fetchContestDetail = async (contestId: string) => {
-  try {
-    const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
-    setInitialData({
-      title: data.contestName,
-      date: data.date,
-      participationType: `${data.type} - ${data.level}`,
-      record: data.content,
-      // photo: data.contestImgUrls,      // contestImgUrls 로 변경
-      videoUrl: data.contestVideos,
-    });
-  } catch (error) {
-    console.error("기존 대회 기록 불러오기 실패", error);
-  }
-};
+  const sanitizeUrl = (url: string) => {
+  // S3 버킷 경로가 중복되거나 인코딩된 경우 정리
+    const parts = url.split('https%3A/');
+    return parts.length > 1 ? decodeURIComponent('https:' + parts[1]) : url;
+  };
 
-useEffect(() => {
-  if (isEditMode && contestId) {
-    fetchContestDetail(contestId);
-  }
-}, [isEditMode, contestId]);
+  // API에서 contestId로 상세 데이터 불러오기
+  const fetchContestDetail = async (contestId: string) => {
+    try {
+      const data: ContestRecordDetailResponse = await getContestRecordDetail(Number(contestId));
+      setInitialData({
+        title: data.contestName,
+        date: data.date,
+        participationType: `${data.type} - ${data.level}`,
+        record: data.content,
+        photo: data.contestImgUrls.map(sanitizeUrl),
+        videoUrl: data.contestVideoUrls,
+      });
+    } catch (error) {
+      console.error("기존 대회 기록 불러오기 실패", error);
+    }
+  };
 
-useEffect(() => {
-  if (initialData) {
-    setTournamentName(initialData.title || "");
-    setSelectedForm(parseParticipationType(initialData.participationType || ""));
-    setRecordText(initialData.record || "");
-    setVideoLinks(initialData.videoUrl?.length ? initialData.videoUrl : [""]);
-    setPhotos(initialData.photo || []);
-    setSelectedDate(initialData.date || "");
-  }
-}, [initialData]);
+  useEffect(() => {
+    if (isEditMode && contestId) {
+      fetchContestDetail(contestId);
+    }
+  }, [isEditMode, contestId]);
+  console.log(contestId);
+
+  useEffect(() => {
+    if (initialData) {
+      setTournamentName(initialData.title || "");
+      setSelectedForm(parseParticipationType(initialData.participationType || ""));
+      
+      // participationType 예: "MEN_DOUBLES - INTERMEDIATE"
+      const levelPart = initialData.participationType?.split(" - ")[1] ?? "";
+      const levelMapReverse: Record<string, string> = {
+        "BEGINNER": "왕초심",
+        "INTERMEDIATE": "C조",  // 또는 사용자가 원하면 INTERMEDIATE → C조 매핑
+        "ADVANCED": "A조",      // 예시
+      };
+      setSelectedLevel(levelMapReverse[levelPart] ?? "");
+      
+      setRecordText(initialData.record || "");
+      setVideoLinks(initialData.videoUrl?.length ? initialData.videoUrl : [""]);
+      setPhotos(initialData.photo || []);
+      setSelectedDate(initialData.date || "");
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (isEditMode && medalData) {
@@ -266,14 +283,16 @@ const handlePhotoClick = () => {
             : selectedIndex === 2
             ? "BRONZE"
             : "NONE",
-        type: mappedType,     
-        level: mappedLevel,   
+        type: mappedType,
+        level: mappedLevel,
         content: recordText || undefined,
         contentIsOpen: true,
         videoIsOpen: true,
         contestVideos: videoLinks.filter((link) => link.trim() !== ""),
-        contestImgs: photos,
+        contestImgs: photos.map((p: any) => (typeof p === "string" ? p : p.url)),
       };
+
+
 
       console.log("요청 바디:", requestBody);
 
