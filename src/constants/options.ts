@@ -38,3 +38,10 @@ export const SEOUL_DISTRICTS = [
   "송파구",
   "강동구",
 ];
+
+export const TAGMAP = [
+  "브랜드 스폰",
+  "가입비 무료",
+  "친목",
+  "운영진이 게임을 짜드려요",
+];
