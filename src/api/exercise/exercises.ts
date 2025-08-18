@@ -109,6 +109,7 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
     },
     participantMembers: raw.participants.list.map((p: any) => ({
       id: p.participantId,
+      memberId: p.participantId, 
       status: "Participating",
       name: p.name,
       gender: p.gender,

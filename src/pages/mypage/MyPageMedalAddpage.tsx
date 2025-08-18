@@ -99,23 +99,26 @@ export const MyPageMedalAddPage = () => {
     return null;
   };
   const [initialData, setInitialData] = useState<MedalDetail | null>(null);
-const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const files = e.target.files;
-  if (!files) return;
+//이미지 여러장 업로드 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
 
-  const fileArray = Array.from(files).slice(0, 3 - photos.length); // 최대 3장 제한
-  if (fileArray.length === 0) return;
+    // 최대 3장 제한
+    const fileArray = Array.from(files).slice(0, 3 - photos.length); 
+    if (fileArray.length === 0) return;
 
-  try {
-    // API 호출
-    const { images } = await uploadImages("CONTEST", fileArray); 
-    // 서버에서 받은 imgUrl 배열을 상태에 추가
-    setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
-  } catch (err) {
-    console.error("이미지 업로드 실패", err);
-    alert("이미지 업로드 중 오류가 발생했습니다.");
-  }
-};
+    try {
+      // 여러 장 업로드 API 호출
+      const { images } = await uploadImages("CONTEST", fileArray);
+
+      // 서버에서 받은 이미지 URL을 상태에 추가
+      setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
+    } catch (err) {
+      console.error("이미지 업로드 실패", err);
+      alert("이미지 업로드 중 오류가 발생했습니다.");
+    }
+  };
 // API에서 contestId로 상세 데이터 불러오기
 const fetchContestDetail = async (contestId: string) => {
   try {
@@ -348,10 +351,10 @@ const handlePhotoClick = () => {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handleFileChange}
               className="hidden"
             />
-
             <div
               ref={containerRef}
               className="flex gap-2 overflow-x-auto no-scrollbar"

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import api from "../../api/api";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
@@ -145,54 +144,27 @@ export const MyPageEditPage = ({
 
   //이미지 업로드
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  setProfileImage(URL.createObjectURL(file)); // 임시 미리보기
-  setUploading(true);
+    setProfileImage(URL.createObjectURL(file)); // 임시 미리보기
+    setUploading(true);
 
-  try {
-    // uploadImage 공용 함수 사용
-    const { imgUrl, imgKey } = await uploadImage("PROFILE", file);
+    try {
+      // uploadImage 공용 함수 사용
+      const { imgUrl, imgKey } = await uploadImage("PROFILE", file);
 
-    // 실제 업로드 후 미리보기 갱신
-    setProfileImage(imgUrl);
-    setProfileImageKey(imgKey);
-  } catch (err) {
-    console.error(err);
-    alert("이미지 업로드 실패");
-  } finally {
-    setUploading(false);
-  }
-};
+      // 실제 업로드 후 미리보기 갱신
+      setProfileImage(imgUrl);
+      setProfileImageKey(imgKey);
+    } catch (err) {
+      console.error(err);
+      alert("이미지 업로드 실패");
+    } finally {
+      setUploading(false);
+    }
+  };
 
-  // const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   setProfileImage(URL.createObjectURL(file));
-  //   setUploading(true);
-
-  //   try {
-  // const formData = new FormData();
-  // formData.append("image", file);
-
-  // const res = await api.post("/api/s3/upload/img", formData, {
-  //   params: { domainType: "PROFILE" }, // 필수
-  //   headers: { "Content-Type": "multipart/form-data" },
-  // });
-
-  // const data = res.data.data;
-  // setProfileImage(data.fileUrl);
-  // setProfileImageKey(data.fileKey);
-
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("이미지 업로드 실패");
-  //   } finally {
-  //     setUploading(false);
-  //   }
-  // };
 
   const handleCloseOverlay = () => {
     if (pickerRef.current) {

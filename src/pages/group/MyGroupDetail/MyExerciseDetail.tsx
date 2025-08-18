@@ -14,9 +14,11 @@ import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
 import { getExerciseDetail, cancelSelf, deleteExercise  } from "../../../api/exercise/exercises";
 import { cancelByLeader } from "../../../api/exercise/participants";
 import type  { ExerciseDetailResponse } from "../../../api/exercise/exercises";
-
+import useUserStore from "../../../store/useUserStore";
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const exerciseIdNumber = Number(exerciseId);
  
@@ -34,8 +36,6 @@ export const MyExerciseDetail = () => {
   const currentUser = members.find(m => m.isMe);
   const isCurrentUserLeader = currentUser?.isLeader ?? false;
 
-  const memberId = Number(localStorage.getItem("memberId") || 1);
-
   // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
     if (exerciseIdNumber) {
@@ -49,7 +49,8 @@ export const MyExerciseDetail = () => {
           name: p.name,
           gender: p.gender as "MALE" | "FEMALE",
           level: p.level,
-          isMe: p.id === memberId,
+          isMe: p.id === user?.memberId,   
+          memberId: p.id,   
           isLeader: p.position === "모임장",
           position: p.position,
           imgUrl: p.imgUrl ?? null,
@@ -65,14 +66,14 @@ export const MyExerciseDetail = () => {
           gender: w.gender as "MALE" | "FEMALE",
           level: w.level,
           status: "waiting" as const,
-          isMe: w.isMe,
+          isMe: w.id === user?.memberId,
           position: w.position,
         }));
         setWaitingMembers(waitingList);
         setWaitingCount(waitingList.length);
       });
     }
-  }, [exerciseIdNumber, memberId]);
+  }, [exerciseIdNumber, user?.memberId]);
 
 // 더미 들어오면 삭제 모달 확인
   const handleDeleteMember = async (
@@ -171,7 +172,7 @@ export const MyExerciseDetail = () => {
                 number={idx + 1}
                 position={member.position}
                 memberId={member.memberId}
-                onClick={() => navigate(`/mypage/profile/${memberId}`)}
+                onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                 onDelete={() => {
                   if (member.participantId !== undefined) {
                     handleDeleteMember(member.participantId);
@@ -221,7 +222,7 @@ export const MyExerciseDetail = () => {
                     number={idx + 1}
                     position={member.position}
                     memberId={member.memberId}
-                    onClick={() => navigate(`/mypage/profile/${memberId}`)}    
+                    onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                     onDelete={() => {
                       const updated = waitingMembers.filter(
                         (_, i) => i !== idx,
