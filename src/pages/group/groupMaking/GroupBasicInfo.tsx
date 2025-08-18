@@ -13,6 +13,7 @@ import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { useMyProfile } from "../../../api/member/my";
 import { LEVEL_KEY } from "../../../constants/options";
 import { handleInput } from "../../../utils/handleDetected";
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
 export const GroupBasicInfo = () => {
   const navigate = useNavigate();
@@ -47,20 +48,27 @@ export const GroupBasicInfo = () => {
     setFilter("name", v);
     setLocalName(v);
   });
-  const { data: me, isLoading } = useMyProfile();
+  const { data: me, isLoading, isError } = useMyProfile();
   // console.log(me);
   const gender = me?.gender;
   const isMale = gender === "MALE";
 
   const handleNext = () => {
     if (isLoading || !me) {
-      alert("내 프로필을 불러오는 중입니다. 잠시만 기다려주세요.");
-      return;
+      return (
+        <div>
+          <LoadingSpinner />
+        </div>
+      );
     }
     if (!isFormValid) return;
 
     navigate("/group/making/activity");
   };
+  if (isError || !me.gender) {
+    return <p className="body-rg-500">오류 발생</p>;
+  }
+
   return (
     <>
       <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>

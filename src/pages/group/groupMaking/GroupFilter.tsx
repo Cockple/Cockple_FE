@@ -9,6 +9,7 @@ import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { useMyProfile } from "../../../api/member/my";
 import { handleInput } from "../../../utils/handleDetected";
 import { addWon, fmtKRW, stripWon } from "../../../utils/moneychange";
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
 export const GroupFilter = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export const GroupFilter = () => {
   const setFilter = useGroupMakingFilterStore(state => state.setFilter);
   const apiAgeRange = useGroupMakingFilterStore(state => state.ageRange);
 
-  const { data: me } = useMyProfile();
+  const { data: me, isLoading, isError } = useMyProfile();
 
   const myYear = me?.birth.split("-")[0]; //내 년도
 
@@ -74,6 +75,16 @@ export const GroupFilter = () => {
     (joinMoney.length > 0 || joinMoney === "disabled") &&
     (money.length > 0 || money === "disabled") &&
     ageTouched;
+
+  if (isLoading) {
+    <div>
+      <LoadingSpinner />
+    </div>;
+  }
+
+  if (isError || !me?.birth) {
+    return <p className="body-rg-500">오류 발생</p>;
+  }
 
   return (
     <>

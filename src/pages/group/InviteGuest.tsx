@@ -18,6 +18,7 @@ import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
 import { getInviteGuestList } from "../../api/Exercise/InviteGuest";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const InviteGuest = () => {
   //정보
@@ -73,7 +74,7 @@ export const InviteGuest = () => {
   });
 
   //모임 불러오기---------------------------------
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["exerciseId"],
     queryFn: () => getInviteGuestList(exerciseId),
     select: res => res.data,
@@ -95,7 +96,16 @@ export const InviteGuest = () => {
     },
   });
 
-  if (isLoading) return <div>로딩중</div>;
+  if (isLoading)
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
+
+  if (isError) {
+    return <p className="body-rg-500">오류 발생</p>;
+  }
 
   const noneData = data?.list.length === 0;
   console.log(data);
