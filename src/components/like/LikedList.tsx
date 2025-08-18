@@ -1,26 +1,29 @@
 import { Group_M } from "../common/contentcard/Group_M";
 import { ContentCardL } from "../common/contentcard/ContentCardL";
 import type { ExerciseCard, GroupCard } from "../../types/liked";
-import { NoAlertMessage } from "../alert/NoAlertMessage";
-import {
-  useLikedExerciseIds,
-  useLikedGroupIds,
-} from "../../hooks/useLikedItems";
+// import {
+//   useLikedExerciseIds,
+//   useLikedGroupIds,
+// } from "../../hooks/useLikedItems";
 import { useEffect, useState } from "react";
+import { LikedEmptyState } from "./LikedEmptyState";
+//import { LoadingSpinner } from "../common/LoadingSpinner";
 
 interface LikedListProps {
   activeTab: "group" | "exercise";
   groupCards: GroupCard[];
   exerciseCards: ExerciseCard[];
-  onToggleFavorite?: (id: number) => void;
-  tempUnbookmarkedGroupIds?: number[];
-  tempUnbookmarkedExerciseIds?: number[];
+  //🌟추가
+  likedGroupIds: number[];
+  likedExerciseIds: number[];
 }
 
 const LikedList = ({
   activeTab,
   groupCards,
   exerciseCards,
+  likedGroupIds,
+  likedExerciseIds,
 }: LikedListProps) => {
   const isGroupTab = activeTab === "group";
 
@@ -31,23 +34,24 @@ const LikedList = ({
   const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
     useState<number[]>([]);
 
-  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
-    useLikedGroupIds();
-  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
-    useLikedExerciseIds();
+  //🌟
+  // const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
+  //   useLikedGroupIds();
+  // const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
+  //   useLikedExerciseIds();
 
   useEffect(() => {
     console.log(likedGroupIds);
     console.log(likedExerciseIds);
-  });
+  }, [likedGroupIds, likedExerciseIds]);
 
-  const isLikedLoading = isGroupTab
-    ? isGroupLikedLoading
-    : isExerciseLikedLoading;
+  // const isLikedLoading = isGroupTab
+  //   ? isGroupLikedLoading
+  //   : isExerciseLikedLoading;
 
-  if (isLikedLoading) {
-    return <div className="text-center py-10">하트 불러오는 중...</div>;
-  }
+  // if (isLikedLoading) {
+  //   return <LoadingSpinner />;
+  // }
 
   const isEmpty = isGroupTab
     ? groupCards.length === 0
@@ -57,9 +61,7 @@ const LikedList = ({
   if (isEmpty) {
     return (
       <div className="flex justify-center items-center min-h-[60vh] w-full">
-        <NoAlertMessage
-          message={isGroupTab ? "아직 찜한 모임" : "아직 찜한 운동"}
-        />
+        <LikedEmptyState kind={isGroupTab ? "group" : "exercise"} />
       </div>
     );
   }

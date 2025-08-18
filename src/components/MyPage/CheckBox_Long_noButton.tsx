@@ -10,6 +10,7 @@ interface CheckBoxLongnoButton {
   showIcon?: boolean;
   onChange?: (checked: boolean, value: string) => void;
   showLengthIndicator?: boolean; 
+  value?: string;
 }
 
 export const CheckBox_Long_noButton = ({
@@ -19,8 +20,9 @@ export const CheckBox_Long_noButton = ({
   showIcon = false,
   showLengthIndicator = false, 
   onChange,
+  value = "",
 }: CheckBoxLongnoButton) => {
-  const [Texts, setTexts] = useState<string[]>([""]);
+  const [Texts, setTexts] = useState<string[]>([value]);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isRecordFocused, setIsRecordFocused] = useState<boolean[]>([false]);
 

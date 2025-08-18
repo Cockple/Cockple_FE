@@ -8,7 +8,7 @@ import { NavbarLayout } from "./layout/NavbarLayout";
 import {
   GroupPage,
   ExerciseDetail,
-  GroupDetailMemberDefault,
+  // GroupDetailMemberDefault,
   MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
@@ -71,6 +71,7 @@ import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
+import { resolveMemberId } from "./utils/auth";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -127,7 +128,6 @@ const router = createBrowserRouter([
       { path: "/mypage/mygroup", element: <MyPageMyGroupPage /> },
       { path: "/mypage/myexercise", element: <MyPageMyExercisePage /> },
       { path: "/mypage/mymedal", element: <MyPageMyMedalPage /> },
-      // { path:"/mypage/profile/medal/:memberId/contest/:contestId", element: <MyPageMedalDetailPage /> },
       {
         path: "/mypage/profile/medal/:memberId/contest/:contestId",
         element: <MyPageMedalDetailPage />,
@@ -162,7 +162,8 @@ const router = createBrowserRouter([
       },
 
       // 연두 모임
-      { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
+      //GroupDetailMemberDefault 사용X
+      // { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
 
       {
         path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
@@ -186,11 +187,11 @@ const router = createBrowserRouter([
         element: <GroupRecommendFilterPage />,
       },
       {
-        path: "group/exercise/:groupId/create",
+        path: "/group/exercise/:groupId/create",
         element: <CreateExercise />,
       },
       {
-        path: "group/exercise/:groupId/edit/:exerciseId",
+        path: "/group/exercise/edit/:exerciseId",
         element: <CreateExercise />,
       },
       {
@@ -221,9 +222,12 @@ function App() {
 
   //🌟
   // 전역으로 한 번만 웹소켓 연결
-  const memberId = Number(localStorage.getItem("memberId") || 1);
+  // const memberId = Number(localStorage.getItem("memberId") || 1);
+  // useRawWsConnect({ memberId, origin: "https://cockple.store" });
+  // 전역 WS 연결 (토큰/멤버아이디가 있을 때만)
+  // 항상 호출. memberId가 없으면 0(무효값)을 넘김
+  const memberId = resolveMemberId() ?? 0;
   useRawWsConnect({ memberId, origin: "https://cockple.store" });
-
   useEffect(() => {
     // 스플래시 화면이 한 번도 표시되지 않은 경우에만 실행
     if (!hasShownSplash) {

@@ -10,6 +10,7 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import InputField from "../../components/common/Search_Filed/InputField";
 import { useOnboardingState } from "../../store/useOnboardingStore";
 import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
+import { handleInput } from "../../utils/handleDetected";
 
 export const OnboardingInfoPage = () => {
   const navigate = useNavigate();
@@ -37,17 +38,9 @@ export const OnboardingInfoPage = () => {
   const isFormValid =
     localName.length > 0 && selected !== null && selectedDate.length > 0;
 
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    //한글,영어만 입력되도록, 공백포함 17글자
-    input = input.slice(0, 17);
-    const filtered = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setLocalName(filtered);
-  };
-
+  const handleInputDetected = handleInput(17, v => {
+    setLocalName(v);
+  });
   const handleNext = () => {
     setTemp({
       memberName: localName,
@@ -130,7 +123,7 @@ export const OnboardingInfoPage = () => {
 
         {/* 버튼 */}
         <div
-          className="flex items-center justify-center mb-4 shrink-0 "
+          className="flex items-center justify-center mb-6 shrink-0 "
           onClick={handleNext}
         >
           <Btn_Static

@@ -162,6 +162,7 @@ export const GroupHomePage = () => {
 
   const { setGroupName } = useGroupNameStore();
   const { data: partyDetail, status, error } = usePartyDetail(Number(groupId));
+  console.log(partyDetail);
   useEffect(() => {
     if (partyDetail?.partyName) setGroupName(partyDetail.partyName);
   }, [partyDetail?.partyName, setGroupName]);
@@ -170,6 +171,15 @@ export const GroupHomePage = () => {
     partyDetail?.memberRole === "party_MANAGER" ||
     partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
+  const [hasPending, setHasPending] = useState(
+    partyDetail?.hasPendingJoinRequest ?? false,
+  );
+
+  useEffect(() => {
+    if (partyDetail) {
+      setHasPending(partyDetail.hasPendingJoinRequest);
+    }
+  }, [partyDetail]);
 
   useEffect(() => {
     const requestMemberCount = async () => {
@@ -356,8 +366,11 @@ export const GroupHomePage = () => {
   }, [cal, partyDetail]);
 
   // 가입 버튼
-  const onClickJoin = () => {
-    if (groupId) getJoinParty(Number(groupId));
+  const onClickJoin = async () => {
+    if (groupId) {
+      await getJoinParty(Number(groupId));
+      setHasPending(true);
+    }
   };
 
   // 로딩/에러
@@ -371,6 +384,20 @@ export const GroupHomePage = () => {
       </div>
     );
   }
+
+  const onClickChat = async () => {
+    try {
+      const { data } = await api.post("/api/chats/direct", null, {
+        params: {
+          targetMemberId: partyDetail.ownerId,
+        },
+      });
+
+      navigate(`/chat/personal/${data.data.chatRoomId}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-8 pb-15">
@@ -544,6 +571,8 @@ export const GroupHomePage = () => {
             type="chat_question"
             label="모임 가입하기"
             onClick={onClickJoin}
+            onImageClick={onClickChat}
+            initialStatus={hasPending ? "disabled" : "default"}
           />
         </div>
       )}

@@ -54,7 +54,7 @@ export const GroupChat = ({
         </div>
       )}
 
-      <div className="flex flex-col justify-between flex-grow h-[4rem] overflow-hidden">
+      <div className="flex flex-col flex-grow h-[4rem] overflow-hidden">
         {/* 채팅방 이름 및 인원 */}
         <div className="flex items-center gap-[0.25rem] min-w-0">
           <p className="body-md-500 truncate max-w-[calc(100%-2.5rem)]">

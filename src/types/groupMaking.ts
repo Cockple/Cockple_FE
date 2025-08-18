@@ -15,7 +15,7 @@ export type GroupMakingRequestDto = {
   minBirthYear: number;
   maxBirthYear: number;
   content?: string;
-  imgUrl?: string;
+  imgKey?: string;
 };
 
 export type GroupMaking = {
@@ -30,5 +30,7 @@ export type SuggestParms = {
   levelSearch?: string;
   page?: number;
   size?: number;
-  sort?: string[];
 };
+
+//그룹 만들기 키워드추가
+export type GroupMakingKeywordsResponseDTO = CommonResponse<object>;

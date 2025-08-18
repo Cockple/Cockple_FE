@@ -413,7 +413,7 @@ body::-webkit-scrollbar {
   margin: 0 8px !important;
 }
 .swiper-pagination-bullet-active {
-  @apply bg-gr-500 mx-2;
+  @apply !bg-gr-500 mx-2;
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

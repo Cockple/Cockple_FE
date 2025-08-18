@@ -9,6 +9,8 @@ export interface PartyDetailResponse {
   memberRole: string;
   addr1: string;
   addr2: string;
+  hasPendingJoinRequest: boolean;
+  ownerId: number;
   activityDays: string[];
   activityTime: string;
   femaleLevel: string[];

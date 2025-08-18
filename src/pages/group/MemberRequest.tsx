@@ -5,7 +5,7 @@ import { Member } from "../../components/common/contentcard/Member";
 //import type { MemberProps } from "../../components/common/contentcard/Member";
 import ApproveModal from "../../components/common/contentcard/alertTest/modal/ApproveModal";
 import RejectModal from "../../components/common/contentcard/alertTest/modal/RejectModal";
-import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
+import { EmptyState } from "../../components/alert/EmptyState";
 import { useParams } from "react-router-dom";
 import type {
   JoinRequestActionBody,
@@ -99,9 +99,10 @@ const MemberRequestPage = () => {
     //3.
     try {
       setSubmitting(true);
+      console.log(selectedMember);
       const body: JoinRequestActionBody = { action: "APPROVE" };
       await api.patch(
-        `/api/parties/${partyId}/join-requests/${selectedMember.requestId}`,
+        `/api/parties/${partyId}/join-requests/${selectedMember.joinRequestId}`,
         body,
       );
       // 낙관 업데이트(서버 재조회로 바꿔도 됨)
@@ -110,7 +111,7 @@ const MemberRequestPage = () => {
         ...prev,
       ]);
       setRequests(prev =>
-        prev.filter(r => r.requestId !== selectedMember.requestId),
+        prev.filter(r => r.joinRequestId !== selectedMember.joinRequestId),
       );
     } catch (e) {
       console.error(e);
@@ -128,11 +129,11 @@ const MemberRequestPage = () => {
       setSubmitting(true);
       const body: JoinRequestActionBody = { action: "REJECT" };
       await api.patch(
-        `/api/parties/${partyId}/join-requests/${selectedMember.requestId}`,
+        `/api/parties/${partyId}/join-requests/${selectedMember.joinRequestId}`,
         body,
       );
       setRequests(prev =>
-        prev.filter(r => r.requestId !== selectedMember.requestId),
+        prev.filter(r => r.joinRequestId !== selectedMember.joinRequestId),
       );
     } catch (e) {
       console.error(e);
@@ -189,14 +190,14 @@ const MemberRequestPage = () => {
           <>
             {requests.length === 0 ? (
               <div className="flex flex-1 justify-center items-center">
-                <NoAlertMessage message="멤버 신청 내역" />
+                <EmptyState message="멤버 신청 내역" />
               </div>
             ) : (
               requests.map(req => (
                 <div className="border-b border-gy-200 pb-1">
                   <Member
                     status="request"
-                    requestId={req.requestId}
+                    requestId={req.joinRequestId}
                     name={req.nickname}
                     gender={req.gender}
                     level={req.level}
@@ -219,14 +220,14 @@ const MemberRequestPage = () => {
           <>
             {approved.length === 0 ? (
               <div className="flex flex-1 justify-center items-center">
-                <NoAlertMessage message="승인 완료 내역" />
+                <EmptyState message="승인 완료 내역" />
               </div>
             ) : (
               approved.map(req => (
                 <Member
-                  key={req.requestId}
+                  key={req.joinRequestId}
                   status="approved"
-                  requestId={req.requestId}
+                  requestId={req.joinRequestId}
                   name={req.nickname}
                   gender={req.gender}
                   level={req.level}

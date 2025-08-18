@@ -27,7 +27,6 @@ interface Btn_StaticProps {
   gap?: string;
   shadow?: string;
   justify?: string;
-
   className?: string;
 }
 

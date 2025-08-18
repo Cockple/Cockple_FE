@@ -7,9 +7,7 @@ import { useRecommendedExerciseApi } from "../../api/exercise/getRecommendedExer
 export const RecommendedWorkoutSection = () => {
   const navigate = useNavigate();
 
-  const { data, isError } = useRecommendedExerciseApi();
-
-  if (isError || !data) return <div>오류 발생</div>;
+  const { data } = useRecommendedExerciseApi();
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -27,7 +25,7 @@ export const RecommendedWorkoutSection = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {data.exercises.length > 0 ? (
+        {data && data.exercises.length > 0 ? (
           data.exercises.map((item, index) => (
             <Exercise_M
               id={index}
@@ -36,7 +34,7 @@ export const RecommendedWorkoutSection = () => {
               date={item.date}
               time={item.startTime + " - " + item.endTime}
               location={item.buildingName}
-              imageSrc={item.imageUrl ?? ""}
+              imageSrc={item.profileImageUrl ?? ""}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))

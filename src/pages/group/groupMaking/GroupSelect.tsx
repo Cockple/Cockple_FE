@@ -4,7 +4,6 @@ import { ProgressBar } from "../../../components/common/ProgressBar";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import SingleImageUploadBtn from "../../../components/group/groupMaking/SingleImgUploadBtn";
 import InputField from "../../../components/common/Search_Filed/InputField";
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import api from "../../../api/api";
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
@@ -14,9 +13,9 @@ import type {
 } from "../../../types/groupMaking";
 import { groupMaking } from "../../../utils/groupMaking";
 import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
+import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupSelect = () => {
-  const [text, setText] = useState<string>();
   const {
     region,
     femaleLevel,
@@ -29,19 +28,15 @@ export const GroupSelect = () => {
     ageRange,
     joinMoney,
     time,
+    imgKey,
+    content,
+    setFilter,
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
-  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
-    input = input.slice(0, 45);
-    const filterd = input.replace(
-      /[^가-힣a-zA-Z\s\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]/g,
-      "",
-    );
-    setText(filterd);
-  };
-
+  const handleInputDetected = handleInput(45, v => {
+    setFilter("content", v);
+  });
   const parsePrice = (value: string) => {
     if (value === "disabled") return 0;
     return Number(value.split(",").join("").slice(0, -1));
@@ -77,8 +72,8 @@ export const GroupSelect = () => {
       price: apiMoney,
       minBirthYear: ageRange[0],
       maxBirthYear: ageRange[1],
-      content: text || "",
-      // imgKey:""
+      content: content || "",
+      imgKey: imgKey,
     };
     const { data } = await axios.post<GroupMakingResponseDTO>(
       "/api/parties",
@@ -103,6 +98,7 @@ export const GroupSelect = () => {
       console.log(error);
     },
   });
+
   return (
     <>
       <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
@@ -119,9 +115,9 @@ export const GroupSelect = () => {
               isRequired={false}
               labelName="멤버에게 하고 싶은 말 / 소개"
               InputMaxLength={45}
-              InputLength={text?.length}
+              InputLength={content?.length}
               onChange={handleInputDetected}
-              value={text}
+              value={content}
               isTextArea={true}
             />
           </div>
@@ -129,7 +125,7 @@ export const GroupSelect = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-4 shrink-0 `}
+          className={`flex items-center justify-center mb-5 sm:mb-4.5 shrink-0 `}
           onClick={() => handleMakingGroup.mutate()}
         >
           <Btn_Static

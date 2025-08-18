@@ -11,10 +11,11 @@ import api from "../../api/api";
 
 // 아이콘
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { NoAlertMessage } from "../../components/alert/NoAlertMessage";
+import { EmptyState } from "../../components/alert/EmptyState";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
 import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
   const response = await api.get<AlertListResponse>(
@@ -184,7 +185,7 @@ export const AlertPage = () => {
 
   const shouldMoveToDetail = (type: string): boolean => {
     // 운동 삭제 & 모임 삭제 제외
-    return !(type === "simple");
+    return !(type === "SIMPLE");
   };
 
   const getDescriptionText = (type: string) => {
@@ -207,12 +208,12 @@ export const AlertPage = () => {
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
         {isLoading ? (
-          <div className="text-center mt-10">로딩 중...</div>
+          <LoadingSpinner />
         ) : isError ? (
           <div className="text-center mt-10">에러 발생</div>
         ) : visibleNotifications.length === 0 ? (
           <div className="flex flex-1 justify-center items-center">
-            <NoAlertMessage />
+            <EmptyState />
           </div>
         ) : (
           visibleNotifications.map(alert =>
