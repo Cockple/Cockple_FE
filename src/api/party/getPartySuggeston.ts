@@ -9,6 +9,7 @@ export interface PartySuggestion {
   addr2: string;
   femaleLevel: string[];
   maleLevel: string[];
+  isBookmarked: boolean;
   nextExerciseInfo: string;
   totalExerciseCount: number;
   partyImgUrl: string | null;
