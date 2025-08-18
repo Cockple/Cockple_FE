@@ -92,8 +92,6 @@ export const MyPageMyGroupPage = () => {
         <div className="flex-1 flex flex-col gap-4">
           {hasGroups ? (
             groups.map(group => {
-              const isLiked = likedGroupIds.includes(group.partyId); // 찜 상태 계산
-
               return (
                 <div key={group.partyId}>
                   <Group_M
@@ -105,7 +103,7 @@ export const MyPageMyGroupPage = () => {
                     maleLevel={group.maleLevel}
                     nextActivitDate={group.nextExerciseInfo}
                     upcomingCount={group.totalExerciseCount}
-                    like={isLiked}
+                    like={group.isBookmarked}
                     isMine={group.isMine ?? false}
                     onClick={() =>
                       navigate(

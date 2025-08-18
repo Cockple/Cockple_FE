@@ -160,6 +160,7 @@ export const GroupRecommendPage = () => {
                   nextActivitDate={it.nextExerciseInfo}
                   upcomingCount={it.totalExerciseCount}
                   isMine={false}
+                  like={it.isBookmarked}
                   onClick={() => navigate(`/group/${it.partyId}`)}
                 />
               </div>

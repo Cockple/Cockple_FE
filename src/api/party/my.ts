@@ -11,6 +11,7 @@ export interface PartyData {
   totalExerciseCount: number;
   partyImgUrl: string;
   isMine: boolean;
+  isBookmarked: boolean;
 }
 
 interface GetMyGroupsParams {
@@ -35,7 +36,7 @@ export const getMyGroups = async ({
       "pageable.size": size,
     },
   });
-    console.log("내 모임 조회 응답 결과:", response.data);
+  console.log("내 모임 조회 응답 결과:", response.data);
 
   return response.data?.data?.content ?? [];
 };
@@ -47,14 +48,26 @@ export const leaveParty = async (partyId: number) => {
     return res; // ✅ axios 전체 응답 반환
   } catch (err: any) {
     if (err.response?.status === 403) {
-      return { data: { success: false, code: 403, message: "모임장은 탈퇴할 수 없습니다." } };
+      return {
+        data: {
+          success: false,
+          code: 403,
+          message: "모임장은 탈퇴할 수 없습니다.",
+        },
+      };
     } else if (err.response?.status === 404) {
-      return { data: { success: false, code: 404, message: "존재하지 않는 모임 또는 사용자입니다." } };
+      return {
+        data: {
+          success: false,
+          code: 404,
+          message: "존재하지 않는 모임 또는 사용자입니다.",
+        },
+      };
     } else {
       console.error(err);
-      return { data: { success: false, code: 500, message: "모임 탈퇴 중 오류" } };
+      return {
+        data: { success: false, code: 500, message: "모임 탈퇴 중 오류" },
+      };
     }
   }
 };
-
-
