@@ -16,6 +16,11 @@ import {
   fetchExerciseBookmarks,
   fetchGroupBookmarks,
 } from "../../api/bookmark/bookmark";
+import {
+  useLikedExerciseIds,
+  useLikedGroupIds,
+} from "../../hooks/useLikedItems";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 // 정렬 옵션 타입
 type GroupSortOption = "최신순" | "오래된 순" | "운동 많은 순";
@@ -98,7 +103,21 @@ export const LikedPage = () => {
     setIsSortOpen(false);
   };
 
-  const isLoading = activeTab === "group" ? isGroupLoading : isExerciseLoading;
+  //🌟
+  //const isLoading = activeTab === "group" ? isGroupLoading : isExerciseLoading;
+  // 좋아요 ID (부모에서 가져오기)
+  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
+    useLikedGroupIds();
+  const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
+    useLikedExerciseIds();
+
+  // 탭별 로딩 합치기
+  const listLoading =
+    activeTab === "group" ? isGroupLoading : isExerciseLoading;
+  const likedLoading =
+    activeTab === "group" ? isGroupLikedLoading : isExerciseLikedLoading;
+
+  const isLoading = listLoading || likedLoading;
   const isError = activeTab === "group" ? isGroupError : isExerciseError;
 
   return (
@@ -126,16 +145,8 @@ export const LikedPage = () => {
 
         {/* 카드 목록 */}
         <div className="flex justify-center">
-          {/* <LikedList
-            activeTab={activeTab}
-            //groupCards={groupCards}
-            //exerciseCards={exerciseCards}
-            groupCards={groupData?.data ?? []}
-            exerciseCards={exerciseData?.data ?? []}
-            onToggleFavorite={handleToggleFavorite}
-          /> */}
           {isLoading ? (
-            <p className="text-center py-10">로딩 중...</p>
+            <LoadingSpinner />
           ) : isError ? (
             <p className="text-center py-10 text-red-500">불러오기 실패</p>
           ) : (
@@ -143,9 +154,9 @@ export const LikedPage = () => {
               activeTab={activeTab}
               groupCards={groupData?.data ?? []}
               exerciseCards={exerciseData?.data ?? []}
-              //onToggleFavorite={handleToggleFavorite}
-              //tempUnbookmarkedGroupIds={tempUnbookmarkedGroupIds}
-              //tempUnbookmarkedExerciseIds={tempUnbookmarkedExerciseIds}
+              //🌟 추가
+              likedGroupIds={likedGroupIds}
+              likedExerciseIds={likedExerciseIds}
             />
           )}
         </div>

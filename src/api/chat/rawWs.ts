@@ -11,7 +11,23 @@ export type WsStatus = "idle" | "connecting" | "open" | "closed" | "error";
 // 서버 발신 타입들
 //type ServerMessageType = 'CONNECT' | 'ERROR' | 'SUBSCRIBE' | 'SEND' | 'SYSTEM';
 
-// 서버 → 클라이언트
+// 서버 → 클라이언트(브로드캐스트)===================================
+//🌟
+export type BcFile = {
+  fileKey: string;
+  originalFileName: string;
+  fileSize: number;
+  fileType: string;
+};
+//🌟
+export type BcImage = {
+  imgKey: string;
+  imgOrder: number;
+  originalFileName: string;
+  fileSize: number;
+  fileType: string;
+};
+
 export type ConnectResponse = {
   type: "CONNECT";
   memberId: number;
@@ -31,24 +47,25 @@ export type SubscriptionResponse = {
   timestamp: string;
 };
 export type UnsubscribeResponse = {
-  type: "UNSUBSCRIBE" | "SUBSCRIBE"; // 문서/예시 상 불일치 대비
+  type: "UNSUBSCRIBE"; // 문서/예시 상 불일치 대비
   chatRoomId: number;
   message: string;
   timestamp: string;
 };
+
+// 새 브로드캐스트 포맷
 export type BroadcastMessage = {
-  type: "SEND" | "SYSTEM";
+  type: "SEND";
   chatRoomId: number;
-  messageId?: number;
-  content?: string;
-  senderId?: number | null;
-  senderName?: string | null;
-  senderProfileImage?: string | null;
-  timestamp?: string;
-  //🌟
-  messageType?: "TEXT" | "IMAGE";
-  //🌟
-  imgUrls?: string[];
+  messageId: number;
+  content: string | null;
+  files: BcFile[] | null;
+  images: BcImage[] | null;
+  senderId: number;
+  senderName: string;
+  senderProfileImageUrl: string | null;
+  timestamp: string;
+  unreadCount?: number;
 };
 
 export type IncomingMessage =
@@ -93,24 +110,51 @@ const getToken = () => {
 };
 const hasToken = () => !!getToken();
 
-// 서버로 보낼 메시지 타입
+// 🌟서버로 보낼 메시지 타입
+// type OutgoingMessage =
+//   | { type: "SUBSCRIBE"; chatRoomId: number }
+//   | { type: "UNSUBSCRIBE"; chatRoomId: number }
+//   | { type: "SEND"; chatRoomId: number; messageType?: "TEXT"; content: string }
+//   | {
+//       type: "SEND";
+//       chatRoomId: number;
+//       messageType?: "IMAGE";
+//       imgKeys: string[];
+//       content?: string;
+//     };
+export type WsSendFile = {
+  fileKey: string;
+  originalFileName: string;
+  fileSize: number;
+  fileType: string;
+};
+
+export type WsSendImage = {
+  imgKey: string;
+  imgOrder: number;
+  originalFileName: string;
+  fileSize: number;
+  fileType: string;
+};
+
+type WsSendEnvelope = {
+  type: "SEND";
+  chatRoomId: number;
+  content: string | null;
+  files: WsSendFile[] | null;
+  images: WsSendImage[] | null;
+};
+
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "UNSUBSCRIBE"; chatRoomId: number }
-  | { type: "SEND"; chatRoomId: number; messageType?: "TEXT"; content: string }
-  | {
-      type: "SEND";
-      chatRoomId: number;
-      messageType?: "IMAGE";
-      imgKeys: string[];
-      content?: string;
-    };
+  | WsSendEnvelope;
 
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
   if (ws && ws.readyState === WebSocket.OPEN) {
-    console.log("[WS→] SEND", msg);
     ws.send(JSON.stringify(msg));
+    console.log("[WS→] SEND", msg);
     return true;
   }
   console.warn("[WS] not open. drop:", msg);
@@ -171,7 +215,6 @@ export const connectRawWs = (
   };
 
   sock.onclose = (ev: CloseEvent) => {
-    //🌟
     console.warn("[WS close]", ev.code, ev.reason);
     handlers.onClose?.(ev);
     ws = null;
@@ -240,30 +283,26 @@ export const unsubscribeAll = () => {
 };
 
 // 채팅 SEND
-//🌟
-// export const sendChatWS = (chatRoomId: number, content: string) => {
-//   // 백엔드 명세: 반드시 JSON 문자열로 보냄
-//   return sendJSON({ type: "SEND", chatRoomId, content });
-// };
-export const sendChatWS = (
-  chatRoomId: number,
-  payload:
-    | { kind: "text"; content: string }
-    | { kind: "image"; imgKeys: string[] },
-) => {
-  if (payload.kind === "text") {
-    return sendJSON({
-      type: "SEND",
-      chatRoomId,
-      messageType: "TEXT",
-      content: payload.content,
-    });
-  } else {
-    return sendJSON({
-      type: "SEND",
-      chatRoomId,
-      messageType: "IMAGE",
-      imgKeys: payload.imgKeys,
-    });
-  }
-};
+// ---------- 송신 헬퍼 (혼합 허용) ----------
+export const sendTextWS = (chatRoomId: number, content: string) =>
+  sendJSON({ type: "SEND", chatRoomId, content, files: null, images: null });
+
+export const sendImagesWS = (chatRoomId: number, images: WsSendImage[]) =>
+  sendJSON({ type: "SEND", chatRoomId, content: null, files: null, images });
+
+export const sendFilesWS = (chatRoomId: number, files: WsSendFile[]) =>
+  sendJSON({ type: "SEND", chatRoomId, content: null, files, images: null });
+
+export const sendMixedWS = (args: {
+  chatRoomId: number;
+  content?: string | null;
+  files?: WsSendFile[] | null;
+  images?: WsSendImage[] | null;
+}) =>
+  sendJSON({
+    type: "SEND",
+    chatRoomId: args.chatRoomId,
+    content: args.content ?? null,
+    files: args.files ?? null,
+    images: args.images ?? null,
+  });

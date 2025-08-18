@@ -95,7 +95,10 @@ const ChatList = ({
             const lastText =
               lm?.content ??
               (lm?.messageType === "IMAGE" ? "사진" : "메시지가 없습니다");
-            const lastTime = lm?.timestamp ?? "";
+            // const lastTime = lm?.timestamp ?? "";
+            const lastTime = lm?.timestamp
+              ? formatEnLowerAmPm(lm.timestamp)
+              : "";
 
             return (
               <div

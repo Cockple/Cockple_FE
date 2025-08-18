@@ -185,7 +185,7 @@ export const AlertPage = () => {
 
   const shouldMoveToDetail = (type: string): boolean => {
     // 운동 삭제 & 모임 삭제 제외
-    return !(type === "simple");
+    return !(type === "SIMPLE");
   };
 
   const getDescriptionText = (type: string) => {
