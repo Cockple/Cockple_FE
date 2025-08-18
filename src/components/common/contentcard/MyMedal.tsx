@@ -1,7 +1,6 @@
 import { useState } from "react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import { useNavigate } from "react-router-dom";
-import BaseProfileImg from "../../../assets/images/base_profile_img.png?url";
 import Medal_1 from "../../../assets/icons/medal_1.svg?react";
 import Medal_2 from "../../../assets/icons/medal_2.svg?react";
 import Medal_3 from "../../../assets/icons/medal_3.svg?react";

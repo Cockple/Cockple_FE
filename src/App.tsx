@@ -8,7 +8,7 @@ import { NavbarLayout } from "./layout/NavbarLayout";
 import {
   GroupPage,
   ExerciseDetail,
-  GroupDetailMemberDefault,
+  // GroupDetailMemberDefault,
   MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
@@ -163,7 +163,7 @@ const router = createBrowserRouter([
 
       // 연두 모임
       //GroupDetailMemberDefault 사용X
-      { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
+      // { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
 
       {
         path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
