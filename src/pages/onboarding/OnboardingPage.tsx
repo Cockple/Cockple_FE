@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
-import ProfileImg from "@/assets/images/profile_Image.png?url";
+import ProfileImg from "@/assets/images/base_profile_img.png?url";
 import useUserStore from "../../store/useUserStore";
 
 export const OnboardingPage = () => {
