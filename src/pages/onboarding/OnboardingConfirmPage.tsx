@@ -84,9 +84,12 @@ export const ConfirmPage = () => {
   const submitGroupMaking = async (
     partyId: number,
   ): Promise<GroupMakingKeywordsResponseDTO> => {
+    const body = {
+      keywords: selectedTag,
+    };
     const { data } = await axios.post<GroupMakingKeywordsResponseDTO>(
       `/api/parties/${partyId}/keywords`,
-      selectedTag,
+      body,
     );
     return data;
   };
