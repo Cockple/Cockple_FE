@@ -130,7 +130,7 @@ export const ConfirmPage = () => {
         />
 
         <div>
-          <img src={Onboarding4} alt="가입완료 이미지" className="size-45" />
+          <img src={Onboarding4} alt="가입완료 이미지" className="size-40" />
         </div>
         <div className="flex flex-wrap gap-[0.625rem] items-center justify-center">
           {TAGMAP.map(item => {
