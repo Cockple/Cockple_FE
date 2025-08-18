@@ -19,6 +19,7 @@ export const MultiSelectButtonGroup = ({
   const isAllSelected = isArray && selected.includes(allLabel); //false
   const isSelected = (option: string) =>
     isArray ? selected.includes(option) : selected === option;
+
   const toggleOption = (option: string) => {
     if (singleSelect) {
       onChange(option);

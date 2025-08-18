@@ -171,6 +171,15 @@ export const GroupHomePage = () => {
     partyDetail?.memberRole === "party_MANAGER" ||
     partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
+  const [hasPending, setHasPending] = useState(
+    partyDetail?.hasPendingJoinRequest ?? false,
+  );
+
+  useEffect(() => {
+    if (partyDetail) {
+      setHasPending(partyDetail.hasPendingJoinRequest);
+    }
+  }, [partyDetail]);
 
   useEffect(() => {
     const requestMemberCount = async () => {
@@ -357,8 +366,11 @@ export const GroupHomePage = () => {
   }, [cal, partyDetail]);
 
   // 가입 버튼
-  const onClickJoin = () => {
-    if (groupId) getJoinParty(Number(groupId));
+  const onClickJoin = async () => {
+    if (groupId) {
+      await getJoinParty(Number(groupId));
+      setHasPending(true);
+    }
   };
 
   // 로딩/에러
@@ -545,6 +557,7 @@ export const GroupHomePage = () => {
             type="chat_question"
             label="모임 가입하기"
             onClick={onClickJoin}
+            initialStatus={hasPending ? "disabled" : "default"}
           />
         </div>
       )}
