@@ -17,8 +17,8 @@ import type { ResponseInviteGuest } from "../../types/guest";
 import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
-import { useInviteGuest } from "../../api/Exercise/InviteGuest";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { useInviteGuest } from "../../api/exercise/InviteGuest";
 
 export const InviteGuest = () => {
   //정보
