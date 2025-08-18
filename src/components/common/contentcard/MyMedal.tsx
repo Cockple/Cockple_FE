@@ -1,6 +1,10 @@
 import { useState } from "react";
 import RightAngle from "../../../assets/icons/arrow_right.svg?react";
 import { useNavigate } from "react-router-dom";
+import Medal_1 from "../../../assets/icons/medal_1.svg?react";
+import Medal_2 from "../../../assets/icons/medal_2.svg?react";
+import Medal_3 from "../../../assets/icons/medal_3.svg?react";
+import CockMedal from "../../../assets/icons/cockmedal.svg?react";
 
 interface MyMedalProps {
   memberId?: number;
@@ -51,6 +55,15 @@ export const MyMedal = ({
   } else if (isPressing) {
     bgColor = "bg-[#F4F5F6]";
   }
+  const getMedalComponent = (medalImageSrc?: string) => {
+    if (!medalImageSrc || medalImageSrc.trim() === "") return <CockMedal />;
+    if (medalImageSrc.includes("b0ac9ac7-169a-40de-aeb3-a8572bc91506")) return <Medal_1 />;
+    if (medalImageSrc.includes("c0a3b94c-bf46-4aa0-934f-0c427475bc0b")) return <Medal_2 />;
+    if (medalImageSrc.includes("3f9778a5-479a-44cf-bfb0-bea187a839c5")) return <Medal_3 />;
+    if (medalImageSrc.includes("84e4dd20-7989-4871-954b-7363213b941e")) return <CockMedal />;
+    return <img src={medalImageSrc} alt="메달 이미지" className="w-full h-full object-contain" />;
+  };
+
 
   return (
     <div
@@ -61,12 +74,8 @@ export const MyMedal = ({
       onTouchEnd={handlePressEnd}
       className={`${baseClasses} ${bgColor} ${cursorStyle}`}
     >
-      <div className="relative">
-        <img
-          src={medalImageSrc}
-          alt="메달 이미지"
-          className="w-[3.75rem] h-[3.75rem] rounded-[0.375rem] object-cover"
-        />
+      <div className="relative w-[3.75rem] h-[3.75rem] rounded-[0.375rem] object-cover" >
+          {getMedalComponent(medalImageSrc)}
       </div>
 
       <div className="w-[13.9375rem] h-[3.25rem] flex flex-col items-start">

@@ -7,16 +7,18 @@ import Male from "../../../assets/icons/male.svg?react";
 import { Member } from "../../../components/common/contentcard/Member";
 import { useNavigate, useParams  } from "react-router-dom";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
-
+import { Modal_ExDel } from "../../../components/group/Modal_ExDel copy";
 import { useState, useEffect } from "react";
 import { getModalConfig } from "../../../components/group/modalConfig";
 import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
-import { getExerciseDetail, cancelSelf } from "../../../api/exercise/exercises";
+import { getExerciseDetail, cancelSelf, deleteExercise  } from "../../../api/exercise/exercises";
 import { cancelByLeader } from "../../../api/exercise/participants";
 import type  { ExerciseDetailResponse } from "../../../api/exercise/exercises";
-
+import useUserStore from "../../../store/useUserStore";
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
+
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const exerciseIdNumber = Number(exerciseId);
  
@@ -29,13 +31,12 @@ export const MyExerciseDetail = () => {
 
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("운동 수정하기");
+  const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
   const currentUser = members.find(m => m.isMe);
   const isCurrentUserLeader = currentUser?.isLeader ?? false;
 
-  const memberId = Number(localStorage.getItem("memberId") || 1);
-  
-  // 운동 상세 조회
+  // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
     if (exerciseIdNumber) {
       getExerciseDetail(exerciseIdNumber).then(res => {
@@ -48,7 +49,8 @@ export const MyExerciseDetail = () => {
           name: p.name,
           gender: p.gender as "MALE" | "FEMALE",
           level: p.level,
-          isMe: p.id === memberId,
+          isMe: p.id === user?.memberId,   
+          memberId: p.id,   
           isLeader: p.position === "모임장",
           position: p.position,
           imgUrl: p.imgUrl ?? null,
@@ -64,14 +66,14 @@ export const MyExerciseDetail = () => {
           gender: w.gender as "MALE" | "FEMALE",
           level: w.level,
           status: "waiting" as const,
-          isMe: w.isMe,
+          isMe: w.id === user?.memberId,
           position: w.position,
         }));
         setWaitingMembers(waitingList);
         setWaitingCount(waitingList.length);
       });
     }
-  }, [exerciseIdNumber, memberId]);
+  }, [exerciseIdNumber, user?.memberId]);
 
 // 더미 들어오면 삭제 모달 확인
   const handleDeleteMember = async (
@@ -170,7 +172,7 @@ export const MyExerciseDetail = () => {
                 number={idx + 1}
                 position={member.position}
                 memberId={member.memberId}
-                onClick={() => navigate(`/mypage/profile/${memberId}`)}
+                onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                 onDelete={() => {
                   if (member.participantId !== undefined) {
                     handleDeleteMember(member.participantId);
@@ -220,7 +222,7 @@ export const MyExerciseDetail = () => {
                     number={idx + 1}
                     position={member.position}
                     memberId={member.memberId}
-                    onClick={() => navigate(`/mypage/profile/${memberId}`)}    
+                    onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                     onDelete={() => {
                       const updated = waitingMembers.filter(
                         (_, i) => i !== idx,
@@ -242,13 +244,50 @@ export const MyExerciseDetail = () => {
         )}
       </div>
 
-      <SortBottomSheet
-        isOpen={isSortOpen}
-        onClose={() => setIsSortOpen(false)}
-        selected={sortOption}
-        onSelect={option => setSortOption(option)}
-        options={["운동 수정하기", "운동 삭제하기"]}
-      />
+     <SortBottomSheet
+          isOpen={isSortOpen}
+          onClose={() => setIsSortOpen(false)}
+          selected={sortOption}
+          options={["운동 수정하기", "운동 삭제하기"]}
+          onSelect={option => {
+            if (option === "운동 수정하기") {
+              navigate(`/group/exercise/edit/${exerciseId}`);
+            }
+            if (option === "운동 삭제하기") {
+              setIsSortOpen(false);
+              setIsDelModalOpen(true); 
+            }
+          }}
+        />
+        {isDelModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <Modal_ExDel 
+              onConfirm={async () => {
+                try {
+                  const res = await deleteExercise(Number(exerciseId));
+                  if (res.success) {
+                    alert("운동이 삭제되었습니다.");
+                    navigate(`/myPage/myexercise`); 
+                  } else {
+                    alert(res.message || "운동 삭제 실패");
+                  }
+                } catch (err: any) {
+                  if (err.code === "403") {
+                    alert("권한이 없습니다. (모임장만 삭제 가능)");
+                  } else if (err.code === "404") {
+                    alert("운동을 찾을 수 없습니다.");
+                  } else {
+                    alert(err.message || "서버 오류가 발생했습니다.");
+                  }
+                } finally {
+                  setIsDelModalOpen(false);
+                }
+              }}
+              onCancel={() => setIsDelModalOpen(false)}
+            />
+          </div>
+        )}
+
     </>
   );
 };

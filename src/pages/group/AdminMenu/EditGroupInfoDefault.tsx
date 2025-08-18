@@ -10,8 +10,8 @@ import TagBtn from "../../../components/common/DynamicBtn/TagBtn";
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import { useNavigate, useParams  } from "react-router-dom";
-import { updateParty } from "../../../api/party/patchParties";
-import type { UpdatePartyRequest } from "../../../api/party/patchParties";
+import { updateParty, getPartyDetail } from "../../../api/party/patchParties";
+import type { UpdatePartyRequest, PartyDetail } from "../../../api/party/patchParties";
 
 const dayOptions = ["전체", "월", "화", "수", "목", "금", "토", "일"];
 const timeOptions = ["상시", "오전", "오후"];
@@ -19,6 +19,7 @@ const timeOptions = ["상시", "오전", "오후"];
 export const EditGroupInfoDefault = () => {
   const { partyId } = useParams<{ partyId: string }>(); 
   const numericPartyId = Number(partyId);
+  console.log(numericPartyId);
 
   const navigate = useNavigate();
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -30,6 +31,8 @@ export const EditGroupInfoDefault = () => {
   const [designatedText, setDesignatedText] = useState("");
   const [joinFeeText, setJoinFeeText] = useState("");
   const [monthlyFeeText, setMonthlyFeeText] = useState("");
+  const [contentText, setContentText] = useState("");
+  const [keywords, setKeywords] = useState<string[]>([]);
 
   const isFormValid =
     selectedDays.length > 0 &&
@@ -40,36 +43,86 @@ export const EditGroupInfoDefault = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-const handleUpdateParty = async () => {
-  if (!numericPartyId) return;
+  // 초기 데이터 불러오기
+  useEffect(() => {
+    if (!numericPartyId) return;
 
-  try {
-    const payload: UpdatePartyRequest = {
-      activityDay: selectedDays,         // 요일 배열
-      activityTime: selectedTime,        // 시간
-      designatedCock: designatedText || undefined,
-      joinPrice: joinFeeText ? Number(joinFeeText) : undefined,
-      price: monthlyFeeText ? Number(monthlyFeeText) : undefined,
-      content: "", // InputField에서 값 받아서 넣어야 함
-      keyword: ["브랜드 스폰", "가입비 무료"], // 실제 선택 키워드 반영
-      imgKey: photos[0] || undefined, // 대표 이미지 key
+    const fetchParty = async () => {
+      try {
+        const data: PartyDetail = await getPartyDetail(numericPartyId);
+
+        setSelectedDays(data.activityDays);
+        setSelectedTime(data.activityTime);
+        setDesignatedText(data.designatedCock);
+        setJoinFeeText(data.joinPrice?.toString() || "");
+        setMonthlyFeeText(data.price?.toString() || "");
+        setContentText(data.content || "");
+        setKeywords(data.keywords || []);
+        if (data.partyImgUrl) setPhotos([data.partyImgUrl]);
+      } catch (err) {
+        console.error("모임 정보 불러오기 실패", err);
+      }
     };
 
-    const res = await updateParty(numericPartyId, payload);
+    fetchParty();
+  }, [numericPartyId]);
 
-    if (res.success) {
-      alert("모임 정보가 성공적으로 수정되었습니다.");
-      navigate(-1); // 수정 후 뒤로 이동
-    } else {
-      console.error(res.errorReason);
-      alert("모임 정보 수정 실패");
+  // =====================
+  // 변경 체크
+  // =====================
+  useEffect(() => {
+    if (
+      selectedDays.length > 0 ||
+      selectedTime !== "" ||
+      photos.length > 0 ||
+      designatedText !== "" ||
+      joinFeeText !== "" ||
+      monthlyFeeText !== "" ||
+      contentText !== "" ||
+      keywords.length > 0
+    ) {
+      setIsChanged(true);
     }
-  } catch (err) {
-    console.error("API 호출 에러", err);
-    alert("API 호출 중 에러가 발생했습니다.");
-  }
-};
+  }, [
+    selectedDays,
+    selectedTime,
+    photos,
+    designatedText,
+    joinFeeText,
+    monthlyFeeText,
+    contentText,
+    keywords,
+  ]);
+
+  const handleUpdateParty = async () => {
+    if (!numericPartyId) return;
+
+    try {
+      const payload: UpdatePartyRequest = {
+        activityDay: selectedDays,         // 요일 배열
+        activityTime: selectedTime,        // 시간
+        designatedCock: designatedText || undefined,
+        joinPrice: joinFeeText ? Number(joinFeeText) : undefined,
+        price: monthlyFeeText ? Number(monthlyFeeText) : undefined,
+        content: "", // InputField에서 값 받아서 넣어야 함
+        keyword: ["브랜드 스폰", "가입비 무료"], // 실제 선택 키워드 반영
+        imgKey: photos[0] || undefined, // 대표 이미지 key
+      };
+
+      const res = await updateParty(numericPartyId, payload);
+
+      if (res.success) {
+        alert("모임 정보가 성공적으로 수정되었습니다.");
+        navigate(-1); // 수정 후 뒤로 이동
+      } else {
+        console.error(res.errorReason);
+        alert("모임 정보 수정 실패");
+      }
+    } catch (err) {
+      console.error("API 호출 에러", err);
+      alert("API 호출 중 에러가 발생했습니다.");
+    }
+  };
 
   useEffect(() => {
     if (selectedDays.length > 0 || selectedTime !== "" || photos.length > 0) {
@@ -221,7 +274,18 @@ const handleUpdateParty = async () => {
               console.log(checked);
               setMonthlyFeeText(value);
             }}
+              value={monthlyFeeText} // 기존 값 표시
+
           />
+          {/* <CheckBox_Long_noButton
+  title="회비"
+  maxLength={100}
+  Label="없음"
+  showIcon={true}
+  onChange={(checked, value) => setMonthlyFeeText(value)}
+  value={monthlyFeeText} // 기존 값 표시
+/> */}
+
         </div>
       </div>
 
@@ -272,6 +336,7 @@ const handleUpdateParty = async () => {
 
         {/* 소개 글 및 키워드 */}
         <div className="mt-8">
+        
           <InputField title="멤버에게 하고 싶은 말 / 소개" maxLength={45} />
         </div>
         <label className="flex items-center text-left header-h5 mb-1">

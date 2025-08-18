@@ -177,7 +177,10 @@ export const Member = ({
               className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">{number}</p>
+              <p className="body-md-500">
+                {status === "Participating" && `No.${number}`}
+                {status === "waiting" && `대기.${number}`}
+              </p>
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
               <MemberInfo
                 name={name}

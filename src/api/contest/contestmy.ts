@@ -4,9 +4,10 @@ import api from "../api";
 export interface ApiMedalItem {
   title: string;
   date: string;
-  medalImageSrc: string;
   isAwarded: boolean;
+  medalImgUrl: string | null; 
 }
+
 
 export interface ApiMedalResponse {
   code: string;
@@ -25,7 +26,7 @@ export interface MedalItem {
   id: number;
   title: string;
   date: string;
-  medalImageSrc: string;
+  medalImgUrl: string | null; 
   isAwarded: boolean;
 }
 
@@ -50,7 +51,7 @@ export interface PostContestRecordRequest {
   contestName: string;
   date?: string;             
   medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
-  type: "SINGLE" | "DOUBLE" | "MIXED" | "TEAM"; 
+  type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIXED"; 
   level: "EXPERT" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "NONE";
   content?: string;
   contentIsOpen?: boolean;   
@@ -83,8 +84,8 @@ export interface ContestRecordDetailResponse {
   content: string; // 대회 기록 텍스트
   contentIsOpen: boolean;
   videoIsOpen: boolean;
-  contestVideos: string[];  // 영상 링크 배열
-  contestImgs: string[];    // 이미지 경로 배열 (서버 상대경로)
+  contestVideoUrls: string[];  // 영상 링크 배열
+  contestImgUrls: string[];    // 이미지 경로 배열 (서버 상대경로)
   contestImgsToDelete: string[];
   contestVideoIdsToDelete: number[];
 }
@@ -102,22 +103,21 @@ export const getMyMedals = async (): Promise<MyMedalData> => {
   }
 
   const data = raw.data;
-
   const transformed: MyMedalData = {
     goldCount: data.goldCount,
     silverCount: data.silverCount,
     bronzeCount: data.bronzeCount,
     myMedalTotal: data.myMedalTotal,
     medals: Array.isArray(data.medals)
-        ? data.medals.map((item, index) => ({
-            id: index,               // 임시 id 
-            title: item.title,
-            date: item.date,
-            medalImageSrc: item.medalImageSrc,
-            isAwarded: item.isAwarded,
-          }))
-        : [],  };
-
+      ? data.medals.map((item, index) => ({
+          id: index,
+          title: item.title,
+          date: item.date,
+          medalImgUrl: item.medalImgUrl, // 그대로 전달
+          isAwarded: item.isAwarded,
+        }))
+      : [],
+  };
   return transformed;
 };
 
@@ -170,12 +170,12 @@ export const deleteContestRecord = async (contestId: number): Promise<void> => {
 
 // 내 대회 기록 수정
 export async function patchMyContestRecord(contestId: number, body: PostContestRecordRequest) {
-  const response = await fetch(`/api/contests/my/${contestId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  return response.json();
+  try {
+    const response = await api.patch(`/api/contests/my/${contestId}`, body);
+    // 서버가 빈 응답을 보내면 data가 undefined일 수 있음
+    return response.data ?? { success: true, data: null };
+  } catch (error: any) {
+    console.error("대회 기록 PATCH 오류", error);
+    throw error;
+  }
 }
