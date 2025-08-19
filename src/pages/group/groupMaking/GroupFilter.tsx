@@ -94,7 +94,7 @@ export const GroupFilter = () => {
 
         <section className="text-left flex flex-col  gap-3 w-full mb-6 flex-1">
           <p className="header-h4 pt-8 pb-5">
-            모임 지정콕,조건 정보를 입력해주세요
+            모임 지정콕,조건 정보를 입력해주세요.
           </p>
           {/* 첫번째 */}
           <div>
