@@ -2,7 +2,7 @@ import { PageHeader } from "../../../components/common/system/header/PageHeader"
 import { useNavigate, useParams } from "react-router-dom";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import SearchInput from "../../../components/chat/SearchInput";
 import MemberCard from "../../../components/group/groupMaking/MemberCard";
@@ -88,22 +88,22 @@ export const GroupMember = () => {
   if (!isLoading) {
     console.log(page);
   }
-  const openModal = useCallback((userId: number) => {
+  const openModal = (userId: number) => {
     setSelectedUserId(userId);
     setIsOpenModal(true);
-  }, []);
+  };
 
-  const handleCloseLeave = useCallback(() => {
+  const handleCloseLeave = () => {
     setIsOpenModal(false);
-  }, []);
+  };
 
-  const handleInviteConfirm = useCallback(() => {
+  const handleInviteConfirm = () => {
     if (selectedUserId != null) handleInviteLeave.mutate(selectedUserId);
-  }, [selectedUserId, handleInviteLeave]);
+  };
 
-  const handleNext = useCallback(() => {
+  const handleNext = () => {
     navigate(`/group/${partyId}`);
-  }, [navigate, partyId]);
+  };
 
   return (
     <>
