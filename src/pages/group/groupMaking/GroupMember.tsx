@@ -1,7 +1,6 @@
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
-
 import { useMemo, useState } from "react";
 import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import SearchInput from "../../../components/chat/SearchInput";
@@ -31,7 +30,7 @@ export const GroupMember = () => {
   const partyId = Number(paramsId.partyId);
 
   //디바운스
-  const debouncedSearch = useDebounce(search, 300);
+  const debouncedSearch = useDebounce(search, 200);
 
   const { data: page, isLoading } = useMemberInfinite({
     levelSearch: debouncedSearch,
@@ -68,12 +67,12 @@ export const GroupMember = () => {
 
   const memberList = useMemo(
     () =>
-      members.map(m => ({
-        id: m.userId,
-        name: m.nickname,
-        gender: m.gender,
-        level: m.level,
-        avatar: m.profileImageUrl,
+      members.map(member => ({
+        id: member.userId,
+        name: member.nickname,
+        gender: member.gender,
+        level: member.level,
+        avatar: member.profileImageUrl,
         status: "invite" as const,
       })),
     [members],
@@ -82,7 +81,9 @@ export const GroupMember = () => {
   const filteredMembers = useMemo(() => {
     const filterText = debouncedSearch.trim().toLowerCase();
     if (!filterText) return memberList;
-    return memberList.filter(member => member.level?.toLowerCase().includes(q));
+    return memberList.filter(member =>
+      member.level?.toLowerCase().includes(filterText),
+    );
   }, [memberList, debouncedSearch]);
 
   if (!isLoading) {
