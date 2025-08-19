@@ -11,13 +11,11 @@ import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import PlusIcon from "@/assets/icons/add_white.svg?url";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import {
   usePartyDetail,
   type PartyDetailResponse,
 } from "../../api/exercise/getpartyDetail";
 import { useGroupNameStore } from "../../store/useGroupNameStore";
-import { getJoinParty } from "../../api/party/getJoinParty";
 import api from "../../api/api";
 import type { MemberJoinRequestResponse } from "../../types/memberJoinRequest";
 import clsx from "clsx";
@@ -31,9 +29,10 @@ import {
 } from "../../api/exercise/getPartyCalendar";
 import type { Swiper as SwiperClass } from "swiper";
 import "swiper/css";
-
+import appIcon from "@/assets/images/app_icon.png?url";
 import { generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Week } from "../../types/calendar";
+import { usePartyMembershipStore } from "../../store/usePartyMembershipStore";
 
 // 오늘 YYYY-MM-DD
 const todayStr = () => {
@@ -171,13 +170,14 @@ export const GroupHomePage = () => {
     partyDetail?.memberRole === "party_MANAGER" ||
     partyDetail?.memberRole === "party_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
-  const [hasPending, setHasPending] = useState(
-    partyDetail?.hasPendingJoinRequest ?? false,
-  );
 
   useEffect(() => {
     if (partyDetail) {
-      setHasPending(partyDetail.hasPendingJoinRequest);
+      usePartyMembershipStore.getState().setMembershipInfo({
+        memberStatus: partyDetail.memberStatus,
+        memberRole: partyDetail.memberRole,
+        hasPendingJoinRequest: partyDetail.hasPendingJoinRequest,
+      });
     }
   }, [partyDetail]);
 
@@ -365,14 +365,6 @@ export const GroupHomePage = () => {
     return calWeeksToUiWeeks(cal.weeks, partyDetail);
   }, [cal, partyDetail]);
 
-  // 가입 버튼
-  const onClickJoin = async () => {
-    if (groupId) {
-      await getJoinParty(Number(groupId));
-      setHasPending(true);
-    }
-  };
-
   // 로딩/에러
   if (status === "pending") {
     return <div className="p-4 text-gray-500">불러오는 중…</div>;
@@ -385,20 +377,6 @@ export const GroupHomePage = () => {
     );
   }
 
-  const onClickChat = async () => {
-    try {
-      const { data } = await api.post("/api/chats/direct", null, {
-        params: {
-          targetMemberId: partyDetail.ownerId,
-        },
-      });
-
-      navigate(`/chat/personal/${data.data.chatRoomId}`);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-8 pb-15">
       {/* 상단 소개 */}
@@ -407,10 +385,9 @@ export const GroupHomePage = () => {
           <div
             className={clsx(
               "w-30 h-30 border-hard shrink-0 overflow-hidden flex items-center",
-              !partyDetail?.partyImgUrl ? "bg-gray-500" : "",
             )}
           >
-            {partyDetail?.partyImgUrl && <img src={partyDetail.partyImgUrl} />}
+            <img src={partyDetail.partyImgUrl ?? appIcon} />
           </div>
           <div className="flex flex-col flex-1">
             <div className="body-rg-500 text-left mb-2">
@@ -563,18 +540,6 @@ export const GroupHomePage = () => {
             </div>
           </div>
         </>
-      )}
-
-      {!isJoined && (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
-          <Grad_Mix_L
-            type="chat_question"
-            label="모임 가입하기"
-            onClick={onClickJoin}
-            onImageClick={onClickChat}
-            initialStatus={hasPending ? "disabled" : "default"}
-          />
-        </div>
       )}
     </div>
   );

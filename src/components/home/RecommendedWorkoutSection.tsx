@@ -3,6 +3,7 @@ import Clear_XS from "../common/Btn_Static/Icon_Btn/Clear_XS";
 import { Exercise_M } from "../common/contentcard/Exercise_M";
 import { useNavigate } from "react-router-dom";
 import { useRecommendedExerciseApi } from "../../api/exercise/getRecommendedExerciseApi";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 export const RecommendedWorkoutSection = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export const RecommendedWorkoutSection = () => {
               date={item.date}
               time={item.startTime + " - " + item.endTime}
               location={item.buildingName}
-              imageSrc={item.profileImageUrl ?? ""}
+              imageSrc={item.profileImageUrl ?? appIcon}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))
