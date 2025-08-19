@@ -14,9 +14,12 @@ import Search from "../../../assets/icons/search.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
+import { useGroupNameStore } from "../../../store/useGroupNameStore";
 
 export const MemberDefault = () => {
   const { groupId } = useParams<{ groupId: string }>();
+  const { groupName } = useGroupNameStore();
+  
   const partyId = Number(groupId);
 
   const [members, setMembers] = useState<MemberProps[]>([]);
@@ -112,7 +115,7 @@ export const MemberDefault = () => {
 
   return (
     <>
-      <PageHeader title="운동 상세" />
+      <PageHeader title={groupName}/>
 
       {/* 검색 및 참여 인원 */}
       <div className="flex flex-col mb-8">

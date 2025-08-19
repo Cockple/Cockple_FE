@@ -74,7 +74,7 @@ export const MyPageMedalAddPage = () => {
     "단식": "SINGLE",
     "남복": "MEN_DOUBLES",
     "여복": "WOMEN_DOUBLES",
-    "혼복": "MIXED",
+    "혼복": "MIX_DOUBLES",
   };
 
 
