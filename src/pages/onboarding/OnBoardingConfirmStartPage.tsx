@@ -20,10 +20,7 @@ export const OnboardingConfirmStartPage = () => {
     },
   ];
   return (
-    <div
-      className="w-full  flex flex-col -mb-8 pt-14"
-      style={{ minHeight: "100dvh" }}
-    >
+    <div className="w-full  flex flex-col -mb-8 pt-14 min-h-dvh">
       <section className="flex items-center flex-col  gap-15 flex-1 ">
         <IntroText
           title="입상 기록이 나를 더 잘 보여줄거에요!"

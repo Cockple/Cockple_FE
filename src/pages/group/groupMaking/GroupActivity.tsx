@@ -53,7 +53,7 @@ export const GroupActivity = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
+      <div className="flex flex-col min-h-dvh -mb-8 pt-14">
         <PageHeader title="모임 만들기" />
         <ProgressBar width={!isFormValid ? "28" : "48"} />
 
@@ -118,7 +118,7 @@ export const GroupActivity = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-5 sm:mb-4.5  shrink-0 `}
+          className={`flex items-center justify-center mb-6  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

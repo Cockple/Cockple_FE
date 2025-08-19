@@ -265,10 +265,11 @@ export const RecommendPage = () => {
                 <Exercise_M
                   id={item.exerciseId}
                   title={item.partyName}
-                  date={item.date}
+                  date={selectedDate}
                   time={`${item.startTime} ~ ${item.endTime}`}
                   location={item.buildingName}
                   imageSrc={item.profileImageUrl ?? appIcon}
+                  isFavorite={item.isBookmarked}
                   onClick={() => navigate(`/group/${item.partyId}`)}
                 />
               </div>

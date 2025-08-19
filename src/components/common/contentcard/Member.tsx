@@ -98,7 +98,7 @@ const MemberInfo = ({
           <>
             <span className="text-[#D6DAE0]">|</span>
             <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
-              {guestName}
+              {guestName} 게스트
             </p>
           </>
         )}
@@ -174,7 +174,7 @@ export const Member = ({
         return (
           <div className="relative">
             <div
-              className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
+              className="w-full h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
               <p className="body-md-500">

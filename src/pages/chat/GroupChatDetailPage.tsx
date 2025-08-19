@@ -12,6 +12,7 @@ export const GroupChatDetailPage = () => {
   const navigate = useNavigate();
   const chatName = location.state?.chatName || `모임채팅방 ${chatId}`;
   const partyId = location.state?.partyId;
+  const partyProfileImg = location.state?.partyProfileImg;
 
   if (!chatId) return null;
 
@@ -24,6 +25,7 @@ export const GroupChatDetailPage = () => {
       onBack={() => navigate(`/chat`, { state: { tab: "group" } })}
       showHomeButton
       partyId={partyId}
+      partyProfileImg={partyProfileImg}
     />
   );
 };
