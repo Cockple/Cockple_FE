@@ -75,19 +75,18 @@ function clearTokensAndRedirect() {
 }
 
 // 요청 인터셉터: refresh 호출은 제외하고 Authorization 주입
-api.interceptors.request.use(
-  config => {
-    if (!isRefreshUrl(config.url)) {
-      const token = getAccessToken();
-      if (token) {
-        config.headers = config.headers ?? {};
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
+api.interceptors.request.use(config => {
+  if (isRefreshUrl(config.url)) {
+    if (config.headers?.Authorization) delete config.headers.Authorization;
     return config;
-  },
-  error => Promise.reject(error),
-);
+  }
+  const token = getAccessToken();
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 // 응답 인터셉터
 api.interceptors.response.use(
@@ -116,7 +115,6 @@ api.interceptors.response.use(
             // 쿠키 기반, Authorization 제거
             const { data } = await api.post("/api/auth/refresh", undefined, {
               withCredentials: true,
-              headers: { Authorization: "" },
             });
 
             const newAccessToken: string = data?.accessToken;
