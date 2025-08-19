@@ -1,27 +1,24 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import TagBtn from "../../components/common/DynamicBtn/TagBtn";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import Onboarding4 from "@/assets/images/onboarding3.png?url";
-import { useMutation } from "@tanstack/react-query";
 import { useOnboardingState } from "../../store/useOnboardingStore";
-import api from "../../api/api";
 import { useState } from "react";
-import type { OnBoardingResponseDto } from "../../types/auth";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import { TAGMAP } from "../../constants/options";
 import { useGroupMakingFilterStore } from "../../store/useGroupMakingFilter";
-import type { GroupMakingKeywordsResponseDTO } from "../../types/groupMaking";
+import {
+  usePostKeywords,
+  usePostOnboarding,
+} from "../../api/member/onboarding";
 
 export const ConfirmPage = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const onboarding = location.state?.onboarding ?? true;
 
   const params = useParams();
   const apiPartyId = Number(params.partyId);
-  // console.log(typeof apiPartyId);
-  const axios = api;
 
   const { level, memberName, gender, birth, keyword, imgKey, setTemp } =
     useOnboardingState();
@@ -51,66 +48,24 @@ export const ConfirmPage = () => {
       ? selectedTag.map(tag => keywordMap[tag]).filter(Boolean)
       : ["NONE"];
 
-  //onboarding
-  const submitOnboarding = async (): Promise<OnBoardingResponseDto> => {
-    const body = {
-      memberName,
-      gender: gender?.toUpperCase(),
-      birth: birth.split(".").join("-"),
-      level: toEng(level),
-      keywords: mappedKeywords,
-      imgKey: imgKey,
-    };
-    const { data } = await axios.post<OnBoardingResponseDto>(
-      "/api/my/details",
-      body,
-    );
-    return data;
-  };
-
-  //그룹만들기
-  const onboardingMutation = useMutation<OnBoardingResponseDto>({
-    mutationFn: submitOnboarding,
-    onSuccess: data => {
-      console.log("성공");
-      console.log(data);
-      navigate("/onboarding/confirm/start");
-    },
-    onError: err => {
-      console.error(err);
-    },
-  });
-
-  const submitGroupMaking = async (
-    partyId: number,
-  ): Promise<GroupMakingKeywordsResponseDTO> => {
-    const body = {
-      keywords: selectedTag,
-    };
-    const { data } = await axios.post<GroupMakingKeywordsResponseDTO>(
-      `/api/parties/${partyId}/keywords`,
-      body,
-    );
-    return data;
-  };
-
-  const groupKeywordsMutation = useMutation({
-    mutationFn: (partyId: number) => submitGroupMaking(partyId),
-    onSuccess: data => {
-      console.log("성공");
-      console.log(data);
-      navigate(`/group/making/member/${apiPartyId}`);
-    },
-    onError: err => {
-      console.error(err);
-    },
-  });
+  const handleOnboardingForm = usePostOnboarding();
+  const handleKeywordsForm = usePostKeywords();
 
   const handleNext = () => {
     if (onboarding) {
-      onboardingMutation.mutate();
+      handleOnboardingForm.mutate({
+        memberName,
+        gender: (gender ?? "").toUpperCase(),
+        birth: birth.split(".").join("-"),
+        level: toEng(level),
+        keywords: mappedKeywords,
+        imgKey: imgKey,
+      });
     } else {
-      groupKeywordsMutation.mutate(apiPartyId);
+      handleKeywordsForm.mutate({
+        partyId: apiPartyId,
+        keywords: selectedTag,
+      });
     }
   };
 
