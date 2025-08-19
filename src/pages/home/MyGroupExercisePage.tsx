@@ -10,12 +10,14 @@ import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
 import type { Swiper as SwiperClass } from "swiper";
 import { generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Week } from "../../types/calendar";
+import appIcon from "@/assets/images/app_icon.png?url";
 import {
   fetchMyGroupCalendar,
   type CalExercise,
   type CalWeek,
   type MyGroupCalendarResponse,
 } from "../../api/exercise/getMyGroupCalendar";
+import { useNavigate } from "react-router-dom";
 
 const getTodayString = () => {
   const d = new Date();
@@ -68,6 +70,7 @@ function ensureCalWeeks(res: MyGroupCalendarResponse): MyGroupCalendarResponse {
 }
 
 export const MyGroupExercisePage = () => {
+  const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"최신순" | "인기순">("최신순");
 
@@ -236,6 +239,10 @@ export const MyGroupExercisePage = () => {
 
   if (loading) return <div>캘린더를 불러오는 중입니다...</div>;
 
+  const onClickExercise = (partyId: number) => {
+    navigate(`/group/${partyId}?date=${selectedDate}`);
+  };
+
   return (
     <div className="flex flex-col -mx-4 px-4 bg-white">
       <PageHeader title="내 모임 운동" />
@@ -276,8 +283,8 @@ export const MyGroupExercisePage = () => {
                   date={selectedDate}
                   time={`${ex.startTime} ~ ${ex.endTime}`}
                   location={ex.buildingName}
-                  imageSrc={ex.profileImageUrl ?? ""}
-                  onClick={() => {}}
+                  imageSrc={ex.profileImageUrl ?? appIcon}
+                  onClick={() => onClickExercise(ex.partyId)}
                 />
               </div>
             ))

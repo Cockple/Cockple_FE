@@ -52,10 +52,7 @@ export const OnboardingInfoPage = () => {
 
   return (
     <>
-      <div
-        className="flex flex-col -mb-8 pt-14"
-        style={{ minHeight: "100dvh" }}
-      >
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
         <PageHeader title="회원 정보 입력" />
         <ProgressBar width={!isFormValid ? "4" : "24"} />
 

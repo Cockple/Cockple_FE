@@ -5,6 +5,7 @@ import AddIcon from "@/assets/icons/add.svg";
 import Btn_Static from "../common/Btn_Static/Btn_Static";
 import { useNavigate } from "react-router-dom";
 import { useMyExerciseApi } from "../../api/exercise/getMyExerciseApi";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 export const MyGroupWorkoutSection = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export const MyGroupWorkoutSection = () => {
               date={item.date}
               time={item.startTime + " - " + item.endTime}
               location={item.buildingName}
-              imageSrc={item.profileImageUrl ?? ""}
+              imageSrc={item.profileImageUrl ?? appIcon}
               onClick={() => navigate(`/group/${item.partyId}`)}
             />
           ))}

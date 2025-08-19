@@ -4,6 +4,11 @@ import Calendar from "../../../assets/icons/calendar.svg?react";
 import Clock from "../../../assets/icons/clock.svg?react";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import clsx from "clsx";
+import {
+  bookmarkExercise,
+  unbookmarkExercise,
+} from "../../../api/bookmark/bookmark";
+import { useMutation } from "@tanstack/react-query";
 
 interface ExerciseMProps {
   id: number;
@@ -35,11 +40,25 @@ export const Exercise_M = ({
 
   const [favorite, setFavorite] = useState(isFavorite);
 
+  const bookmarkMutation = useMutation({
+    mutationFn: bookmarkExercise,
+  });
+
+  const unbookmarkMutation = useMutation({
+    mutationFn: unbookmarkExercise,
+  });
+
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     const newFavorite = !favorite;
     setFavorite(newFavorite);
     onToggleFavorite?.(id);
+
+    if (newFavorite) {
+      bookmarkMutation.mutate(id);
+    } else {
+      unbookmarkMutation.mutate(id);
+    }
   };
 
   return (

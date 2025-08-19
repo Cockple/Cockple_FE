@@ -66,7 +66,8 @@ export const Group_M = ({
     // },
   });
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!favorite && (LikeCount ?? 0) > 15) {
       setShowFavoriteLimitModal(true);
       return;

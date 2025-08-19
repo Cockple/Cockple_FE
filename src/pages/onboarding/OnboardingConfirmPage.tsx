@@ -115,10 +115,7 @@ export const ConfirmPage = () => {
   };
 
   return (
-    <div
-      className="w-full flex flex-col -mb-8 -mt-14"
-      style={{ minHeight: "100dvh" }}
-    >
+    <div className="w-full flex flex-col -mb-8 min-h-dvh ">
       <section className="flex items-center flex-col gap-10 flex-1">
         <IntroText
           title={
@@ -130,7 +127,7 @@ export const ConfirmPage = () => {
         />
 
         <div>
-          <img src={Onboarding4} alt="가입완료 이미지" className="size-45" />
+          <img src={Onboarding4} alt="가입완료 이미지" className="size-40" />
         </div>
         <div className="flex flex-wrap gap-[0.625rem] items-center justify-center">
           {TAGMAP.map(item => {

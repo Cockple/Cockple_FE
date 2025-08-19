@@ -20,6 +20,7 @@ import type {
 import { fetchRecommendedCalendar } from "../../api/exercise/getRecommendedExerciseApi";
 import { transformFiltersForApi } from "../../utils/filterUtils";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {
@@ -264,10 +265,11 @@ export const RecommendPage = () => {
                 <Exercise_M
                   id={item.exerciseId}
                   title={item.partyName}
-                  date={item.date}
+                  date={selectedDate}
                   time={`${item.startTime} ~ ${item.endTime}`}
                   location={item.buildingName}
-                  imageSrc={item.profileImageUrl ?? ""}
+                  imageSrc={item.profileImageUrl ?? appIcon}
+                  isFavorite={item.isBookmarked}
                   onClick={() => navigate(`/group/${item.partyId}`)}
                 />
               </div>

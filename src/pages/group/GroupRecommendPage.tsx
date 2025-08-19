@@ -11,6 +11,7 @@ import {
 } from "../../store/useGroupRecommendFilterStore";
 import { usePartySuggestionInfinite } from "../../api/party/getPartySuggeston";
 import { Group_M } from "../../components/common/contentcard/Group_M";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 type SortLabel = "최신순" | "운동 많은 순";
 const mapSortToApi = (label: SortLabel) =>
@@ -155,10 +156,11 @@ export const GroupRecommendPage = () => {
                   femaleLevel={it.femaleLevel}
                   maleLevel={it.maleLevel}
                   location={`${it.addr1} ${it.addr2}`}
-                  groupImage={it.partyImgUrl || "a"}
+                  groupImage={it.partyImgUrl || appIcon}
                   nextActivitDate={it.nextExerciseInfo}
                   upcomingCount={it.totalExerciseCount}
                   isMine={false}
+                  like={it.isBookmarked}
                   onClick={() => navigate(`/group/${it.partyId}`)}
                 />
               </div>

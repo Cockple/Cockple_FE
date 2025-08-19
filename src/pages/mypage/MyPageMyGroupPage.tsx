@@ -10,6 +10,7 @@ import { getMyGroups } from "../../api/party/my";
 import type { PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import { useLocation, useNavigate } from "react-router-dom";
+import appIcon from "@/assets/images/app_icon.png?url";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const MyPageMyGroupPage = () => {
@@ -24,6 +25,7 @@ export const MyPageMyGroupPage = () => {
   const returnParam = new URLSearchParams(location.search).get("return");
 
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
+
   useEffect(() => {
     const fetchGroups = async () => {
       setIsLoading(true);
@@ -41,7 +43,7 @@ export const MyPageMyGroupPage = () => {
       } catch (err) {
         console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
       } finally {
-        setIsLoading(false);  // ✅ 성공/실패 상관없이 무조건 실행
+        setIsLoading(false);
       }
     };
 
@@ -49,7 +51,6 @@ export const MyPageMyGroupPage = () => {
       fetchGroups();
     }
   }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading]);
-
 
   const hasGroups = groups.length > 0;
 
@@ -66,9 +67,10 @@ export const MyPageMyGroupPage = () => {
       <div className="sticky top-0 z-20">
         <PageHeader title="내 모임" onBackClick={onBackClick} />
       </div>
+
       <div className="flex-1 flex flex-col mt-4">
         {isLoading ? (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-1 items-center justify-center py-20">
             <LoadingSpinner />
           </div>
         ) : hasGroups ? (
@@ -96,34 +98,30 @@ export const MyPageMyGroupPage = () => {
             </div>
 
             <div className="flex-1 flex flex-col gap-4">
-              {groups.map(group => {
-                const isLiked = likedGroupIds.includes(group.partyId);
-
-                return (
-                  <div key={group.partyId}>
-                    <Group_M
-                      id={group.partyId}
-                      groupName={group.partyName}
-                      groupImage={group.partyImgUrl}
-                      location={`${group.addr1} / ${group.addr2}`}
-                      femaleLevel={group.femaleLevel}
-                      maleLevel={group.maleLevel}
-                      nextActivitDate={group.nextExerciseInfo}
-                      upcomingCount={group.totalExerciseCount}
-                      like={isLiked}
-                      isMine={group.isMine ?? false}
-                      onClick={() =>
-                        navigate(
-                          `/group/${group.partyId}?return=${encodeURIComponent(
-                            location.pathname + location.search,
-                          )}`,
-                        )
-                      }
-                    />
-                    <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-                  </div>
-                );
-              })}
+              {groups.map(group => (
+                <div key={group.partyId}>
+                  <Group_M
+                    id={group.partyId}
+                    groupName={group.partyName}
+                    groupImage={group.partyImgUrl ?? appIcon}
+                    location={`${group.addr1} / ${group.addr2}`}
+                    femaleLevel={group.femaleLevel}
+                    maleLevel={group.maleLevel}
+                    nextActivitDate={group.nextExerciseInfo}
+                    upcomingCount={group.totalExerciseCount}
+                    like={group.isBookmarked}
+                    isMine={group.isMine ?? false}
+                    onClick={() =>
+                      navigate(
+                        `/group/${group.partyId}?return=${encodeURIComponent(
+                          location.pathname + location.search,
+                        )}`,
+                      )
+                    }
+                  />
+                  <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                </div>
+              ))}
             </div>
           </>
         ) : (

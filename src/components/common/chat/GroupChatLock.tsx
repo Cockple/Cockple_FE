@@ -1,12 +1,7 @@
-import Grad_Mix_L from "../Btn_Static/Text/Grad_Mix_L";
 import LockIcon from "../../../assets/icons/lock_filled.svg";
 import ChatBg from "../../../assets/images/groupChatPage.png"; // 캡처 이미지
 
-interface GroupChatLockedViewProps {
-  onJoin: () => void;
-}
-
-const GroupChatLockedView = ({ onJoin }: GroupChatLockedViewProps) => {
+const GroupChatLockedView = () => {
   return (
     <div
       className="relative flex flex-col min-h-[86dvh] -mb-8 -mt-4"
@@ -34,16 +29,6 @@ const GroupChatLockedView = ({ onJoin }: GroupChatLockedViewProps) => {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* 하단 버튼 고정 */}
-      <div className="flex mt-3">
-        <Grad_Mix_L
-          type="chat_question"
-          label="모임 가입하기"
-          onClick={onJoin}
-          onImageClick={() => {}}
-        />
       </div>
     </div>
   );

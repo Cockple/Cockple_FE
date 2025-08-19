@@ -22,6 +22,8 @@ import {
 } from "../../utils/formatKoreanTimeToHHMMSS";
 import { useExerciseEditDetail } from "../../api/exercise/useExerciseEditDetail";
 import { updateExerciseApi } from "../../api/exercise/updateExerciseApi";
+import type { AxiosError } from "axios";
+import axios from "axios";
 export const CreateExercise = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,6 +52,7 @@ export const CreateExercise = () => {
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
   const { groupId, exerciseId } = useParams();
   const { data: editData } = useExerciseEditDetail(exerciseId!);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     if (editData) {
@@ -160,6 +163,15 @@ export const CreateExercise = () => {
           resetForm();
         }
       } catch (err) {
+        if (axios.isAxiosError(err)) {
+          const axiosError = err as AxiosError<{ message: string }>;
+
+          const errorMessage =
+            axiosError.response?.data?.message || "운동 생성에 실패했습니다.";
+
+          setErrorMsg(errorMessage);
+        }
+
         console.error("운동 생성 실패: ", err);
       }
     }
@@ -244,7 +256,12 @@ export const CreateExercise = () => {
         <TextField maxLength={45} value={notice} onChange={setNotice} />
       </div>
 
-      <div className="mt-32 flex justify-center">
+      <div className="mt-32 flex flex-col items-center justify-center">
+        {errorMsg && (
+          <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
+            {errorMsg}
+          </p>
+        )}
         <GR400_L
           label={exerciseId ? "운동 수정하기" : "운동 만들기"}
           initialStatus={isFormValid() ? "default" : "disabled"}
