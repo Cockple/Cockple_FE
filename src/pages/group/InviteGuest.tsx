@@ -8,14 +8,12 @@ import InputField from "../../components/common/Search_Filed/InputField";
 import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import { useForm } from "react-hook-form";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../api/api";
 
 import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
-import { useInviteGuest } from "../../api/Exercise/InviteGuest";
+import { useInviteForm, useInviteGuest } from "../../api/Exercise/InviteGuest";
 import InviteGuestList from "../../components/group/InviteGuestList";
 
 export const InviteGuest = () => {
@@ -24,8 +22,6 @@ export const InviteGuest = () => {
   const [selected, isSelected] = useState<"male" | "female" | null>(null);
 
   const levelOptions = LEVEL_KEY.slice(1);
-  const queryClient = useQueryClient();
-  const axios = api;
 
   const handleInputDetected = handleInput(17, v => {
     setLocalName(v);
@@ -43,34 +39,15 @@ export const InviteGuest = () => {
     selected !== null &&
     (levelValue === "disabled" || levelOptions.includes(levelValue));
 
-  //---------------------------------------모임 초대하기
   const apiGender = selected === "male" ? "남성" : "여성";
-
   const ReauestLevelValue = levelValue === "disabled" ? "급수없음" : levelValue;
   const exerciseParams = useParams();
   const exerciseId = Number(exerciseParams.exerciseId);
-  console.log(exerciseId);
   //게스트 초대하기
-  const handleInviteForm = useMutation({
-    mutationFn: () => {
-      const body = {
-        guestName: localName,
-        gender: apiGender,
-        level: ReauestLevelValue,
-      };
-      return axios.post(`/api/exercises/${exerciseId}/guests`, body);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["inviteGuest", exerciseId],
-      });
-      setLocalName("");
-      isSelected(null);
-      setValue("levelOptions", "");
-    },
-    onError: err => {
-      console.log(err);
-    },
+  const handleInviteForm = useInviteForm(exerciseId, () => {
+    setLocalName("");
+    isSelected(null);
+    setValue("levelOptions", "");
   });
   //게스트 정보 불러오기
   const { data, isLoading, isError } = useInviteGuest(exerciseId);
@@ -87,7 +64,6 @@ export const InviteGuest = () => {
   }
 
   const noneData = data?.list.length === 0;
-  // console.log(data);
 
   return (
     <>
@@ -170,7 +146,13 @@ export const InviteGuest = () => {
         {/* 버튼 */}
         <div
           className="flex items-center justify-center mt-15 mb-6"
-          onClick={() => handleInviteForm.mutate()}
+          onClick={() =>
+            handleInviteForm.mutate({
+              guestName: localName,
+              gender: apiGender,
+              level: ReauestLevelValue,
+            })
+          }
         >
           <Btn_Static
             label="초대하기"
