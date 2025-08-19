@@ -9,8 +9,8 @@ import { userLevelMapper } from "../../utils/levelValueExchange";
 import { TAGMAP } from "../../constants/options";
 import { useGroupMakingFilterStore } from "../../store/useGroupMakingFilter";
 import {
-  usePostGroupMaking,
   usePostKeywords,
+  usePostOnboarding,
 } from "../../api/member/onboarding";
 
 export const ConfirmPage = () => {
@@ -48,7 +48,7 @@ export const ConfirmPage = () => {
       ? selectedTag.map(tag => keywordMap[tag]).filter(Boolean)
       : ["NONE"];
 
-  const handleOnboardingForm = usePostGroupMaking();
+  const handleOnboardingForm = usePostOnboarding();
   const handleKeywordsForm = usePostKeywords();
 
   const handleNext = () => {

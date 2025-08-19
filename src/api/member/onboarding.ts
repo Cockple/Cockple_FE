@@ -18,7 +18,7 @@ export const postOnboarding = async (
   return data;
 };
 
-export const usePostGroupMaking = () => {
+export const usePostOnboarding = () => {
   const navigate = useNavigate();
   return useMutation({
     mutationFn: (body: OnBoardingRequest) => postOnboarding(body),
