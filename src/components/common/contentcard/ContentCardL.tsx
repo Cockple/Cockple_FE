@@ -16,7 +16,7 @@ import {
 import {
   joinExercise,
   cancelExercise,
-} from "../../../api/exercise/exerciseApi";
+} from "../../../api/Exercise/exerciseApi";
 import CautionExerciseModals from "../../like/CautionExerciseModal";
 
 interface ContentCardLProps {
