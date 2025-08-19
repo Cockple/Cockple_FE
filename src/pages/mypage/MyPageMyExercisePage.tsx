@@ -6,21 +6,24 @@ import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
-import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
+import type { FilterType, OrderType } from "../../api/exercise/my";
+// import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
+
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
+import { useMyExerciseStore } from "../../store/myExerciseStore";
 
 export const MyPageMyExercisePage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"최신순" | "오래된 순">("최신순");
   const [selectedTab, setSelectedTab] = useState<"전체" | "참여 예정" | "참여 완료">("전체");
-  const [exerciseList, setExerciseList] = useState<ExerciseItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
+  const { exerciseList, setExerciseList } = useMyExerciseStore();
   const observerRef = useRef<HTMLDivElement | null>(null);
   const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } = useLikedExerciseIds();
 
@@ -43,36 +46,37 @@ export const MyPageMyExercisePage = () => {
   };
 
   // 운동 데이터 불러오기
-  const fetchExercises = useCallback(
-    async (reset = false) => {
-      if (isLoading) return;
-      setIsLoading(true);
-      try {
-        const data = await getMyExercises({
-          filterType: mapTabToFilterType(selectedTab),
-          orderType: mapSortToOrderType(sortOption),
-          page: reset ? 0 : page,
-          size: 10,
-        });
+const fetchExercises = useCallback(
+  async (reset = false) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const data = await getMyExercises({
+        filterType: mapTabToFilterType(selectedTab),
+        orderType: mapSortToOrderType(sortOption),
+        page: reset ? 0 : page,
+        size: 10,
+      });
 
-        if (reset) {
-          setExerciseList(data);
-        } else {
-          setExerciseList(prev => [...prev, ...data]);
-        }
+      setExerciseList(prev => (reset ? data : [...prev, ...data]));
+      setHasMore(data.length === 10);
+    } catch (err) {
+      console.error("운동 데이터 불러오기 실패", err);
+      if (reset) setExerciseList([]);
+    } finally {
+      setIsLoading(false);
+    }
+  },
+  [page, selectedTab, sortOption, isLoading, setExerciseList]
+);
 
-        setHasMore(data.length === 10); 
-      } catch (err) {
-        console.error("운동 데이터 불러오기 실패", err);
-        if (reset) setExerciseList([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [page, selectedTab, sortOption],
-  );
 
-  // 탭/정렬 변경 시 리셋
+  // 페이지 로드 시 서버 데이터 가져오기
+  useEffect(() => {
+    fetchExercises(true);
+  }, []);
+
+  // 탭/정렬 변경 시 reset
   useEffect(() => {
     setPage(0);
     fetchExercises(true);
@@ -97,10 +101,10 @@ export const MyPageMyExercisePage = () => {
     };
   }, [observerRef.current, hasMore, isLoading]);
 
-  // 페이지 바뀔 때마다 fetch
   useEffect(() => {
     if (page > 0) fetchExercises();
   }, [page]);
+
 
   if (isExerciseLikedLoading) {
     return <LoadingSpinner />;
@@ -157,7 +161,6 @@ export const MyPageMyExercisePage = () => {
                   />
                 );
               })}
-              {/* 무한 스크롤 트리거 */}
               <div ref={observerRef} className="h-10" />
               {isLoading && (
                 <div className="py-4">

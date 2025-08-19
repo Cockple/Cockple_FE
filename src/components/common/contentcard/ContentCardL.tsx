@@ -162,8 +162,6 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          // onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
-
           onClick={() =>
             navigate(
               `/group/Mygroup/MyExerciseDetail/${id}?returnPath=${loca.pathname}`,
@@ -187,16 +185,30 @@ export const ContentCardL = ({
           <span>{time}</span>
         </div>
 
-        <div className="w-[19.9375rem] flex gap-[0.8125rem]">
+       <div className="w-[19.9375rem] flex gap-[0.8125rem]">
+        {femaleLevel.length > 0 && (
           <div className="flex items-center gap-1 w-[9rem] truncate">
             <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
-            <span className="truncate">{femaleLevel}</span>
+            <span className="truncate">
+              {femaleLevel.length > 1
+                ? `${femaleLevel[0]} ~ ${femaleLevel[femaleLevel.length - 1]}`
+                : femaleLevel[0]}
+            </span>
           </div>
+        )}
+
+        {maleLevel.length > 0 && (
           <div className="flex items-center gap-1 w-[9rem] truncate">
             <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
-            <span className="truncate">{maleLevel}</span>
+            <span className="truncate">
+              {maleLevel.length > 1
+                ? `${maleLevel[0]} ~ ${maleLevel[maleLevel.length - 1]}`
+                : maleLevel[0]}
+            </span>
           </div>
-        </div>
+        )}
+      </div>
+
 
         <div className="flex items-center gap-1">
           <People className="w-[0.875rem] h-[0.875rem]" />
