@@ -5,12 +5,12 @@ import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 
 interface CheckBoxLongnoButton {
   title?: string;
-  Label? : string;
+  Label?: string;
   maxLength?: number;
   showIcon?: boolean;
-  onChange?: (checked: boolean, value: string) => void;
-  showLengthIndicator?: boolean; 
   value?: string;
+  checked?: boolean;                  // 부모에서 전달
+  onChange?: (checked: boolean, value: string) => void;
 }
 
 export const CheckBox_Long_noButton = ({
@@ -18,14 +18,11 @@ export const CheckBox_Long_noButton = ({
   Label,
   maxLength,
   showIcon = false,
-  showLengthIndicator = false, 
-  onChange,
   value = "",
+  checked = false,                     // 부모 상태
+  onChange,
 }: CheckBoxLongnoButton) => {
   const [Texts, setTexts] = useState<string[]>([value]);
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [isRecordFocused, setIsRecordFocused] = useState<boolean[]>([false]);
-
   const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   const adjustHeight = (idx: number) => {
@@ -37,104 +34,58 @@ export const CheckBox_Long_noButton = ({
   };
 
   useEffect(() => {
-    Texts.forEach((_, idx) => {
-      adjustHeight(idx);
-    });
+    Texts.forEach((_, idx) => adjustHeight(idx));
   }, [Texts]);
 
+  useEffect(() => {
+    setTexts([value || ""]);
+  }, [value]);
+
+  const togglePrivate = () => {
+    onChange?.(!checked, Texts[0] || "");
+  };
+
   const onChangeText = (idx: number, value: string) => {
-    if (isPrivate) return;
+    if (checked) return; // 체크 상태면 수정 불가
     if (maxLength && value.length > maxLength) return;
 
     const newTexts = [...Texts];
     newTexts[idx] = value;
     setTexts(newTexts);
 
-    if (isRecordFocused.length < Texts.length) {
-      setIsRecordFocused(prev => [...prev, false]);
-    }
-      onChange?.(false, newTexts[0] || "");
-
-  };
-
-  const onFocus = (idx: number) => {
-    const newFocus = [...isRecordFocused];
-    newFocus[idx] = true;
-    setIsRecordFocused(newFocus);
-  };
-
-  const onBlur = (idx: number) => {
-    const newFocus = [...isRecordFocused];
-    newFocus[idx] = false;
-    setIsRecordFocused(newFocus);
+    onChange?.(checked, newTexts[0] || "");
   };
 
   return (
     <div className="w-full flex flex-col gap-2">
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <label
-              className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}
-            >
-              {title}
-            </label>
-            {showIcon && <CicleSRED/>} 
-
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              // onClick={() => setIsPrivate(prev => !prev)}
-            onClick={() => {
-              const newChecked = !isPrivate;
-              setIsPrivate(newChecked);
-              onChange?.(newChecked, Texts[0] || "");
-            }}
-              type="button"
-              className="focus:outline-none"
-            >
-              {isPrivate ? (
-                <CheckCircledFilled className="w-4 h-4" />
-              ) : (
-                <CheckCircled className="w-4 h-4" />
-              )}
-            </button>
-            <label className={`body-rg-500 px-1`}>{Label}</label>
-          </div>
+      <div className="flex justify-between items-start">
+        <div className="flex items-center">
+          <label className={`header-h5 ${checked ? "text-[#9195A1]" : "text-black"}`}>
+            {title}
+          </label>
+          {showIcon && <CicleSRED />}
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={togglePrivate} className="focus:outline-none">
+            {checked ? <CheckCircledFilled className="w-4 h-4" /> : <CheckCircled className="w-4 h-4" />}
+          </button>
+          <label className="body-rg-500 px-1">{Label}</label>
         </div>
       </div>
 
       {Texts.map((text, idx) => (
-        <div key={idx} className="relative">
-          <textarea
-            ref={el => {
-              textAreaRefs.current[idx] = el;
-            }}
-            value={text}
-            onChange={e => onChangeText(idx, e.target.value)}
-            onFocus={() => onFocus(idx)}
-            onBlur={() => onBlur(idx)}
-            disabled={isPrivate}
-            maxLength={maxLength}
-            rows={1}
-            style={{ resize: "none", overflow: "hidden" }}
-            className={`w-full rounded-xl body-md-500 p-3 leading-snug border
-              ${
-                isPrivate
-                  ? "border-[#E4E7EA] cursor-not-allowed"
-                  : isRecordFocused[idx]
-                    ? "border-[#87C95E]"
-                    : "border-[#E4E7EA] text-black"
-              }
-              focus:outline-none
-            `}
-          />
-            {showLengthIndicator && (
-              <div className="body-rg-500 absolute bottom-5 right-3 text-[#D6DAE0]">
-                ({text.length}/{maxLength})
-              </div>
-            )}
-        </div>
+       <textarea
+          ref={el => {
+            textAreaRefs.current[idx] = el;  // 이제 타입 오류 없어야 함
+          }}
+          value={text}
+          onChange={e => onChangeText(idx, e.target.value)}
+          disabled={checked}
+          maxLength={maxLength}
+          rows={1}
+          style={{ resize: "none", overflow: "hidden" }}
+          className="w-full rounded-xl border border-gy-200 py-[0.625rem] px-3 focus:outline-none overflow-hidden whitespace-nowrap text-ellipsis focus:border-active"
+        />
       ))}
     </div>
   );

@@ -57,6 +57,7 @@ export const MyPageMedalAddPage = () => {
     typeof formOptions[number] | null
   >(null);
   const [recordText, setRecordText] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const pickerRef = useRef<{ getDueString: () => string }>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -557,7 +558,11 @@ const handlePhotoClick = () => {
                 maxLength={100}
                 Label="비공개"
                 value={recordText}
-                onChange={(checked, value) => setRecordText(value)}
+                checked={isPrivate}
+                onChange={(checked, value) => {
+                  setIsPrivate(checked);
+                  setRecordText(value);
+                }}
               />
             </div>
           </div>

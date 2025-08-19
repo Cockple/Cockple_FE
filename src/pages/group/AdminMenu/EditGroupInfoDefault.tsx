@@ -203,7 +203,9 @@ export const EditGroupInfoDefault = () => {
           <Modal_Caution
             onConfirm={handleConfirmLeave}
             onCancel={handleCancelLeave}
+            title={"수정 사항이 저장되지 않았어요."}
             alertText={"계속 작성하기"}
+            location={"모임 상세 페이지로"}
           />
         </div>
       )}
