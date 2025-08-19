@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
-import ProfileImg from "../../assets/images/Profile_Image.png";
+import ProfileImg from "@/assets/images/Profile_Image.png?url";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
@@ -293,32 +293,53 @@ export const ChatDetailTemplate = ({
 
       //🌟 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
       const now = new Date().toISOString();
-      const makeOptimisticImage = (url: string): ChatMessageResponse => ({
+      // const makeOptimisticImage = (url: string): ChatMessageResponse => ({
+      //   messageId: -Date.now() - Math.floor(Math.random() * 1000),
+      //   senderId: currentUserId,
+      //   senderName: currentUserName,
+      //   senderProfileImageUrl: myAvatarUrl,
+      //   content: "",
+      //   messageType: "TEXT", // <- literal type 고정
+      //   images: [
+      //     {
+      //       imageId: -1, // 임시
+      //       imageUrl: url,
+      //       imgOrder: 1,
+      //       isEmoji: false,
+      //       originalFileName: "uploadImage",
+      //       fileSize: 0,
+      //       fileType: "image/*",
+      //     },
+      //   ],
+      //   //imageUrls: [url],
+      //   timestamp: now,
+      //   isMyMessage: true,
+      // });
+
+      // const optimistic: ChatMessageResponse[] = uploaded.map(u =>
+      //   makeOptimisticImage(u.imgUrl),
+      // );
+      const optimistic: ChatMessageResponse[] = uploaded.map(u => ({
         messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
         senderName: currentUserName,
         senderProfileImageUrl: myAvatarUrl,
         content: "",
-        messageType: "TEXT", // <- literal type 고정
+        messageType: "TEXT",
         images: [
           {
             imageId: -1, // 임시
-            imageUrl: url,
+            imageUrl: u.imgUrl,
             imgOrder: 1,
             isEmoji: false,
-            originalFileName: "uploadImage",
-            fileSize: 0,
-            fileType: "image/*",
+            originalFileName: u.file.name || "uploadImage",
+            fileSize: u.file.size,
+            fileType: u.file.type || "image/*",
           },
         ],
-        //imageUrls: [url],
         timestamp: now,
         isMyMessage: true,
-      });
-
-      const optimistic: ChatMessageResponse[] = uploaded.map(u =>
-        makeOptimisticImage(u.imgUrl),
-      );
+      }));
 
       setLiveMsgs((prev: ChatMessageResponse[]) => [...prev, ...optimistic]);
       requestAnimationFrame(() =>
