@@ -17,7 +17,7 @@ import InviteGuestList from "../../components/group/InviteGuestList";
 import {
   useInviteGuest,
   usePostInviteForm,
-} from "../../api/Exercise/InviteGuest";
+} from "../../api/exercise/InviteGuest";
 
 export const InviteGuest = () => {
   //정보
