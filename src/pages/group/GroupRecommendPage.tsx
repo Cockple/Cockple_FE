@@ -167,7 +167,7 @@ export const GroupRecommendPage = () => {
             ))
           ) : (
             <div className="text-center py-8 text-gray-500">
-              콕플 추천운동이 없습니다
+              콕플 추천 모임이 없습니다
             </div>
           )}
 
