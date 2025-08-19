@@ -80,7 +80,7 @@ export interface Exercise {
   dayOfTheWeek: string;
   startTime: string;
   endTime: string;
-  imageUrl: string;
+  profileImageUrl: string;
   isBookmarked: boolean;
 }
 

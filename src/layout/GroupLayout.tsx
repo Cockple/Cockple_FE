@@ -11,6 +11,7 @@ import { usePartyDetail } from "../api/exercise/getpartyDetail";
 import { getJoinParty } from "../api/party/getJoinParty";
 import Grad_Mix_L from "../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Join } from "../components/group/Modal_Join";
+import axios, { AxiosError } from "axios";
 
 const options = [
   { label: "홈", value: "" },
@@ -27,6 +28,7 @@ export const GroupLayout = () => {
   const { groupName } = useGroupNameStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
+  const [joinErrorMessage, setJoinErrorMessage] = useState("");
 
   //////////////////////////////////////////////////////////////////////////////
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -92,10 +94,24 @@ export const GroupLayout = () => {
   }, [partyDetail?.hasPendingJoinRequest]);
 
   const onClickJoin = async () => {
-    if (groupId) {
-      await getJoinParty(Number(groupId));
-      setHasPending(true);
-      setIsApplied(true);
+    try {
+      if (groupId) {
+        await getJoinParty(Number(groupId));
+        setHasPending(true);
+        setIsApplied(true);
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const axiosError = err as AxiosError<{ message: string }>;
+
+        const errorMessage =
+          axiosError.response?.data?.message || "모입 가입에 실패했습니다.";
+
+        setJoinErrorMessage(errorMessage);
+        setIsModalOpen(false);
+      }
+
+      console.error("운동 생성 실패: ", err);
     }
   };
 
@@ -150,7 +166,12 @@ export const GroupLayout = () => {
       />
 
       {!isJoined && (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
+        <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
+          {joinErrorMessage && (
+            <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
+              {joinErrorMessage}
+            </p>
+          )}
           <Grad_Mix_L
             type="chat_question"
             label="모임 가입하기"

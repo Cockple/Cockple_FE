@@ -16,6 +16,7 @@ import {
 } from "../../api/exercise/getExerciseMapApi";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 interface Exercise {
   exerciseId: number;
@@ -25,7 +26,7 @@ interface Exercise {
   dayOfTheWeek: string;
   startTime: string;
   endTime: string;
-  imageUrl: string;
+  profileImageUrl: string;
   isBookmarked: boolean;
 }
 
@@ -93,8 +94,6 @@ export const ExerciseMapPage = () => {
 
   const effectiveData = fetchData ?? buildingData;
 
-  console.log(buildingData);
-
   useEffect(() => {
     if (!mapInstance.current || !window.kakao?.maps) return;
 
@@ -135,7 +134,6 @@ export const ExerciseMapPage = () => {
           radiusKm: 3,
         });
 
-        console.log("맵 이동 후 새로 받아온 빌딩 데이터", newData);
         setFetchData(newData);
       } catch (e) {
         console.error("지도 중심 기준 건물 정보 가져오기 실패", e);
@@ -211,6 +209,7 @@ export const ExerciseMapPage = () => {
               streetAddr: building.streetAddr,
             });
 
+            console.log(detail);
             setSelectedLocation(detail);
             setIsExpanded(false); // 바텀시트 초기 높이로
           } catch (e) {
@@ -335,10 +334,10 @@ export const ExerciseMapPage = () => {
                 <Exercise_M
                   id={exercise.exerciseId}
                   title={exercise.partyName}
-                  date={exercise.date}
+                  date={selectedDate}
                   time={`${exercise.startTime} ~ ${exercise.endTime}`}
                   location={selectedLocation.buildingName}
-                  imageSrc={exercise.imageUrl}
+                  imageSrc={exercise.profileImageUrl ?? appIcon}
                   className="w-full"
                 />
               </div>

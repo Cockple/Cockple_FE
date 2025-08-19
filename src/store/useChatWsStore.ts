@@ -62,12 +62,22 @@ export const useChatWsStore = create<State & Actions>(set => ({
         unreadCount: 0,
       };
 
-      const isImage =
-        (msg.images?.length ?? 0) > 0 ||
-        (msg.content &&
-          /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif)$/i.test(msg.content));
+      //🌟
+      // const isImage =
+      //   (msg.images?.length ?? 0) > 0 ||
+      //   (msg.content &&
+      //     /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif)$/i.test(msg.content));
+      const hasImages = (msg.images?.length ?? 0) > 0;
+      const hasOnlyEmoji =
+        hasImages && (msg.images ?? []).every(im => im.isEmoji === true);
 
-      const preview = isImage ? "[사진]" : (msg.content ?? "");
+      //🌟
+      //const preview = isImage ? "[사진]" : (msg.content ?? "");
+      const preview = hasImages
+        ? hasOnlyEmoji
+          ? "[이모티콘]"
+          : "[사진]"
+        : (msg.content ?? "");
 
       // 상세에 들어가 있지 않은 경우에만 unread++
       const unreadBump =
