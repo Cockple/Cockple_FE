@@ -58,7 +58,7 @@ export const usePostKeywords = () => {
     onSuccess: (data, v) => {
       console.log("성공");
       console.log(data);
-      navigate(`/group/making/member/${v}`);
+      navigate(`/group/making/member/${v.partyId}`);
     },
     onError: err => {
       console.error(err);
