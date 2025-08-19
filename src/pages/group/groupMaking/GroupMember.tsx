@@ -2,7 +2,7 @@ import { PageHeader } from "../../../components/common/system/header/PageHeader"
 import { useNavigate, useParams } from "react-router-dom";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import SearchInput from "../../../components/chat/SearchInput";
 import MemberCard from "../../../components/group/groupMaking/MemberCard";
@@ -10,6 +10,7 @@ import { useMemberInfinite } from "../../../api/party/useMemberInfinite";
 import { useMutation } from "@tanstack/react-query";
 import api from "../../../api/api";
 import axiosLib from "axios";
+import { useDebounce } from "../../../hooks/useDebounce";
 
 interface ApiMember {
   userId: number;
@@ -23,42 +24,26 @@ interface ApiMember {
 export const GroupMember = () => {
   const navigate = useNavigate();
 
-  const handleNext = () => {
-    navigate(`/group/${partyId}`); //임시 하드코딩
-  };
-
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
   const paramsId = useParams();
   const partyId = Number(paramsId.partyId);
-  console.log(partyId);
-  const openModal = (userId: number) => {
-    setSelectedUserId(userId);
-    setIsOpenModal(true);
-  };
 
-  const axios = api;
-
-  const handleCloseLeave = () => {
-    setIsOpenModal(false);
-  };
-  const [search, setSearch] = useState("");
+  //디바운스
+  const debouncedSearch = useDebounce(search, 300);
 
   const { data: page, isLoading } = useMemberInfinite({
-    levelSearch: search,
+    levelSearch: debouncedSearch,
     page: 0,
     size: 10,
   });
 
   const submitInvite = async (userId: number) => {
-    const res = await axios.post(`/api/parties/${partyId}/invitations`, {
+    const res = await api.post(`/api/parties/${partyId}/invitations`, {
       userId,
     });
     return res.data;
-  };
-
-  const handleInviteConfirm = () => {
-    if (selectedUserId != null) handleInviteLeave.mutate(selectedUserId);
   };
 
   const handleInviteLeave = useMutation({
@@ -73,7 +58,7 @@ export const GroupMember = () => {
           setIsOpenModal(false);
           alert("이미 초대를 보냈습니다.");
         } else {
-          console.error("실패임~", err.response?.data);
+          console.error(err.response?.data);
         }
       }
     },
@@ -81,23 +66,44 @@ export const GroupMember = () => {
 
   const members: ApiMember[] = page?.content || [];
 
-  const mamberList = members.map(member => ({
-    id: member.userId,
-    name: member.nickname,
-    gender: member.gender,
-    level: member.level,
-    avatar: member.profileImageUrl,
-    status: "invite" as const,
-  }));
-  console.log(members);
-
-  const filteredMembers = mamberList.filter(member =>
-    member.level.includes(search.trim()),
+  const memberList = useMemo(
+    () =>
+      members.map(m => ({
+        id: m.userId,
+        name: m.nickname,
+        gender: m.gender,
+        level: m.level,
+        avatar: m.profileImageUrl,
+        status: "invite" as const,
+      })),
+    [members],
   );
+
+  const filteredMembers = useMemo(() => {
+    const q = debouncedSearch.trim().toLowerCase();
+    if (!q) return memberList;
+    return memberList.filter(m => m.level?.toLowerCase().includes(q));
+  }, [memberList, debouncedSearch]);
 
   if (!isLoading) {
     console.log(page);
   }
+  const openModal = useCallback((userId: number) => {
+    setSelectedUserId(userId);
+    setIsOpenModal(true);
+  }, []);
+
+  const handleCloseLeave = useCallback(() => {
+    setIsOpenModal(false);
+  }, []);
+
+  const handleInviteConfirm = useCallback(() => {
+    if (selectedUserId != null) handleInviteLeave.mutate(selectedUserId);
+  }, [selectedUserId, handleInviteLeave]);
+
+  const handleNext = useCallback(() => {
+    navigate(`/group/${partyId}`);
+  }, [navigate, partyId]);
 
   return (
     <>
