@@ -2,7 +2,7 @@
 
 # 🏸 콕플: 배드민턴을 위한 가장 스마트한 모임 플랫폼!
 
-![COCKPLE_Slide_1.png](image/COCKPLE_Slide_1.png)
+![콕플 소개 슬라이드](https://raw.githubusercontent.com/Cockple/Cockple_BE/develop/image/COCKPLE_Slide_1.png)
 
 콕플은 지역, 급수, 일정 등 조건에 맞는 배드민턴 모임을 쉽고 간편하게 찾고 참여 및 모임 운영할 수 있는 전용 플랫폼입니다.
 
@@ -36,7 +36,7 @@
 ## 🏗️ 디렉터리 구조 규칙
 ```
 src/
-├─ api/ # 🔹 공통 axios + 스웨거(도메인) 기준 API 모듈
+├─ api/ #  공통 axios + 스웨거(도메인) 기준 API 모듈
 │ ├─ api.ts # Axios 인스턴스(기본 설정)
 │ ├─ bookmark/ # 북마크/찜 관련 API (Swagger tag: bookmark)
 ├─ assets/ # 이미지, 폰트 등 정적 자산
@@ -199,6 +199,9 @@ ex:   **feat/#이슈번호**
 - main: 배포 가능한 안정적인 코드.
 - develop: 최신 개발 상태를 유지하는 브랜치.
 - feature: 새로운 기능 개발을 위한 브랜치.
+
+<br>
+<br>
 
 ## ☘️ Git 커밋 컨벤션
 
