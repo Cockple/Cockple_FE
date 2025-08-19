@@ -17,7 +17,14 @@ export default function InviteGuestList({
 
   return data?.list.map((item: ResponseInviteGuest, idx: number) => {
     const apilevel = toKor(item.level);
-    const responseLevelValue = apilevel === "disabled" ? "급수 없음" : apilevel;
+
+    console.log(apilevel);
+    const responseLevelValue =
+      apilevel === "disabled"
+        ? "급수 없음"
+        : ["A조", "B조", "C조", "D조"].includes(apilevel)
+          ? `전국 ${apilevel}`
+          : apilevel;
     const watiingNum =
       idx <= 9
         ? (idx + 1).toString().padStart(2, "0")
