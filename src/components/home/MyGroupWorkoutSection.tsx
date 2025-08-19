@@ -6,6 +6,29 @@ import Btn_Static from "../common/Btn_Static/Btn_Static";
 import { useNavigate } from "react-router-dom";
 import { useMyExerciseApi } from "../../api/exercise/getMyExerciseApi";
 import appIcon from "@/assets/images/app_icon.png?url";
+import dayjs from "dayjs";
+
+const dayOfWeekMap: Record<string, string> = {
+  SUNDAY: "일",
+  MONDAY: "월",
+  TUESDAY: "화",
+  WEDNESDAY: "수",
+  THURSDAY: "목",
+  FRIDAY: "금",
+  SATURDAY: "토",
+};
+
+function getFormattedDate(dateString: string, dayOfWeek: string) {
+  const date = dayjs(dateString);
+  const day = dayOfWeekMap[dayOfWeek.toUpperCase()] || "";
+  return `${date.format("MM.DD")} (${day})`;
+}
+
+function getFormattedTime(timeString: string) {
+  const fakeDate = "2000-01-01";
+  const fullDateTime = `${fakeDate}T${timeString}`; // "2000-01-01T01:06:00"
+  return dayjs(fullDateTime).format("hh:mm a").toLowerCase();
+}
 
 export const MyGroupWorkoutSection = () => {
   const navigate = useNavigate();
@@ -30,17 +53,20 @@ export const MyGroupWorkoutSection = () => {
       </div>
       {data && data.exercises.length > 0 ? (
         <div className="flex overflow-x-scroll gap-1 scrollbar-hide">
-          {data.exercises.map(item => (
-            <Exercise_S
-              key={item.exerciseId}
-              title={item.partyName}
-              date={item.date}
-              time={item.startTime + " - " + item.endTime}
-              location={item.buildingName}
-              imageSrc={item.profileImageUrl ?? appIcon}
-              onClick={() => navigate(`/group/${item.partyId}`)}
-            />
-          ))}
+          {data.exercises.map(item => {
+            console.log(item);
+            return (
+              <Exercise_S
+                key={item.exerciseId}
+                title={item.partyName}
+                date={getFormattedDate(item.date, item.dayOfWeek ?? "")}
+                time={getFormattedTime(item.startTime)}
+                location={item.buildingName}
+                imageSrc={item.profileImageUrl ?? appIcon}
+                onClick={() => navigate(`/group/${item.partyId}`)}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="w-full flex flex-col items-center py-4 gap-5">
