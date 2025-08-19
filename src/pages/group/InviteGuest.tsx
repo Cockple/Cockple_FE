@@ -7,18 +7,16 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import InputField from "../../components/common/Search_Filed/InputField";
 import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
 import { useForm } from "react-hook-form";
-import { Member } from "../../components/common/contentcard/Member";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api";
 
-import { userLevelMapper } from "../../utils/levelValueExchange";
-import type { ResponseInviteGuest } from "../../types/guest";
 import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import { useInviteGuest } from "../../api/Exercise/InviteGuest";
+import InviteGuestList from "../../components/group/InviteGuestList";
 
 export const InviteGuest = () => {
   //정보
@@ -76,21 +74,6 @@ export const InviteGuest = () => {
   });
   //게스트 정보 불러오기
   const { data, isLoading, isError } = useInviteGuest(exerciseId);
-  //게스트 초대 취소하기--------------
-  const handleDelete = useMutation({
-    mutationFn: (guestId: number) => {
-      return axios.delete(`/api/exercises/${exerciseId}/guests/${guestId}`);
-    },
-    onSuccess: () => {
-      console.log("삭제 성공");
-      queryClient.invalidateQueries({
-        queryKey: ["inviteGuest", exerciseId],
-      });
-    },
-    onError: err => {
-      console.log(err);
-    },
-  });
 
   if (isLoading)
     return (
@@ -105,37 +88,6 @@ export const InviteGuest = () => {
 
   const noneData = data?.list.length === 0;
   // console.log(data);
-
-  const { toKor } = userLevelMapper();
-
-  const InviteGuestList = data?.list.map(
-    (item: ResponseInviteGuest, idx: number) => {
-      const apilevel = toKor(item.level);
-      const responseLevelValue =
-        apilevel === "disabled" ? "급수 없음" : apilevel;
-      const watiingNum =
-        idx <= 9
-          ? (idx + 1).toString().padStart(2, "0")
-          : String(item.participantNumber).toString().padStart(2, "0");
-
-      const numberStatus = idx <= 9 ? "Participating" : "waiting";
-      return (
-        <Member
-          key={item.guestId}
-          status={numberStatus}
-          {...item}
-          guestName={item.inviterName}
-          gender={item.gender.toUpperCase() as "MALE" | "FEMALE"}
-          number={watiingNum}
-          level={responseLevelValue}
-          showDeleteButton={true}
-          useDeleteModal={false}
-          isGuest={true}
-          onDelete={() => handleDelete.mutate(item.guestId)}
-        />
-      );
-    },
-  );
 
   return (
     <>
@@ -211,7 +163,7 @@ export const InviteGuest = () => {
             )}
 
             <div className="flex items-center justify-center flex-col">
-              {InviteGuestList}
+              <InviteGuestList data={data} exerciseId={exerciseId} />
             </div>
           </section>
         </div>
