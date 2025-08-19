@@ -18,7 +18,7 @@ export interface Exercise {
   partyId: number;
   partyName: string;
   date: string;
-  dayOfTheWeek?: string; // 목록 API에만 존재할 수 있음
+  dayOfWeek?: string; // 목록 API에만 존재할 수 있음
   startTime: string;
   endTime: string;
   buildingName: string;
