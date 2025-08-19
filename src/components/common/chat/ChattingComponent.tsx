@@ -1,19 +1,21 @@
 //채팅창 말풍선 컴포넌트
 
 import React, { useState, useEffect, useMemo } from "react";
-import type { ChatMessageResponse } from "../../../types/chat";
+import type { ChatMessageResponse, ImageInfo } from "../../../types/chat";
 
+import BaseProfileImage from "@/assets/images/base_profile_img.png";
 interface ChattingComponentProps {
   message: ChatMessageResponse;
   isMe: boolean;
   unreadCount?: number;
-  onImageClick?: (src: string) => void;
+  //🌟onImageClick?: (src: string) => void;
+  onImageClick?: (p: { url: string; isEmoji: boolean }) => void;
   time: string;
 }
 
 // 이미지 URL 판별 (이모티콘 TEXT 보정용)
-const looksLikeImageUrl = (u?: string | null) =>
-  !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
+// const looksLikeImageUrl = (u?: string | null) =>
+//   !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
 
 const ChattingComponent = ({
   message,
@@ -50,38 +52,64 @@ const ChattingComponent = ({
    * 2) message.imageUrls(서버 응답 키) fallback
    * 3) content가 공개 이미지 URL이면 그걸 1장으로 간주
    */
-  const imgs = useMemo(() => {
-    const rawFromType = message.imageUrls ?? message.imageUrls ?? [];
-    const arr: string[] = Array.isArray(rawFromType)
-      ? rawFromType.filter(Boolean)
-      : [];
+  //🌟 const imgs = useMemo(() => {
+  //   const rawFromType = message.imageUrls ?? message.imageUrls ?? [];
+  //   const arr: string[] = Array.isArray(rawFromType)
+  //     ? rawFromType.filter(Boolean)
+  //     : [];
 
-    if (arr.length === 0 && looksLikeImageUrl(message.content)) {
-      arr.push(message.content as string);
-    }
-    return arr;
-  }, [message]);
+  //   if (arr.length === 0 && looksLikeImageUrl(message.content)) {
+  //     arr.push(message.content as string);
+  //   }
+  //   return arr;
+  // }, [message]);
 
-  const hasImages = imgs && imgs.length > 0;
+  // const hasImages = imgs && imgs.length > 0;
+  const imgs = useMemo<ImageInfo[]>(() => message.images ?? [], [message]);
+  const hasImages = imgs.length > 0;
 
+  //🌟 const ImageTiles: React.FC<{
+  //   urls: string[];
+  //   onClick?: (src: string) => void;
+  // }> = ({ urls, onClick }) => {
+  //   const count = urls.length;
+
+  //   // 1장일 때는 그리드가 아니라 단일 이미지로 꽉 채움 (빈칸 X)
+  //   if (count === 1) {
+  //     const src = urls[0];
+  //     return (
+  //       <button
+  //         type="button"
+  //         className="block max-w-[15rem] focus:outline-none"
+  //         onClick={() => onClick?.(src)}
+  //         aria-label="image-1"
+  //       >
+  //         <img
+  //           src={src}
+  //           alt="img-1"
+  //           className="w-full h-auto rounded-lg object-cover"
+  //           loading="lazy"
+  //         />
+  //       </button>
+  //     );
+  //   }
   const ImageTiles: React.FC<{
-    urls: string[];
-    onClick?: (src: string) => void;
-  }> = ({ urls, onClick }) => {
-    const count = urls.length;
+    images: ImageInfo[];
+    onClick?: (p: { url: string; isEmoji: boolean }) => void;
+  }> = ({ images, onClick }) => {
+    const count = images.length;
 
-    // 1장일 때는 그리드가 아니라 단일 이미지로 꽉 채움 (빈칸 X)
     if (count === 1) {
-      const src = urls[0];
+      const img = images[0];
       return (
         <button
           type="button"
           className="block max-w-[15rem] focus:outline-none"
-          onClick={() => onClick?.(src)}
+          onClick={() => onClick?.({ url: img.imageUrl, isEmoji: img.isEmoji })}
           aria-label="image-1"
         >
           <img
-            src={src}
+            src={img.imageUrl}
             alt="img-1"
             className="w-full h-auto rounded-lg object-cover"
             loading="lazy"
@@ -93,18 +121,41 @@ const ChattingComponent = ({
     // 2/4장: 2열 그리드, 3/5장 이상: 3열 그리드
     const cols = count === 2 || count === 4 ? 2 : 3;
 
+    // 🌟  return (
+    //     <div className={`grid grid-cols-${cols} gap-2 max-w-[15rem]`}>
+    //       {urls.map((src, idx) => (
+    //         <button
+    //           key={idx}
+    //           type="button"
+    //           className="block focus:outline-none"
+    //           onClick={() => onClick?.(src)}
+    //           aria-label={`image-${idx + 1}`}
+    //         >
+    //           <img
+    //             src={src}
+    //             alt={`img-${idx + 1}`}
+    //             className="w-full aspect-square object-cover rounded-lg"
+    //             loading="lazy"
+    //           />
+    //         </button>
+    //       ))}
+    //     </div>
+    //   );
+    // };
     return (
       <div className={`grid grid-cols-${cols} gap-2 max-w-[15rem]`}>
-        {urls.map((src, idx) => (
+        {images.map((img, idx) => (
           <button
             key={idx}
             type="button"
             className="block focus:outline-none"
-            onClick={() => onClick?.(src)}
+            onClick={() =>
+              onClick?.({ url: img.imageUrl, isEmoji: img.isEmoji })
+            }
             aria-label={`image-${idx + 1}`}
           >
             <img
-              src={src}
+              src={img.imageUrl}
               alt={`img-${idx + 1}`}
               className="w-full aspect-square object-cover rounded-lg"
               loading="lazy"
@@ -125,6 +176,12 @@ const ChattingComponent = ({
     );
   }
 
+  //🌟
+  const profileSrc =
+    message.senderProfileImageUrl && message.senderProfileImageUrl.trim()
+      ? message.senderProfileImageUrl
+      : BaseProfileImage;
+
   return (
     <div>
       {/* 채팅 입력한 사람이 나(본인)인 경우 : 채팅 입력한 사람이 타인인 경우 */}
@@ -143,7 +200,7 @@ const ChattingComponent = ({
 
           <div className="mr-3">
             {/* TEXT */}
-            {/* 🌟TEXT: content가 있고, 이미지가 없을 때만 말풍선 렌더 */}
+            {/* TEXT: content가 있고, 이미지가 없을 때만 말풍선 렌더 */}
             {(message.content ?? "") !== "" && !hasImages && (
               <div
                 id="chatting"
@@ -162,10 +219,10 @@ const ChattingComponent = ({
             )}
 
             {/*IMAGE*/}
-            {/* 🌟IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
+            {/* IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
             {hasImages && (
               <div className="mr-3 flex flex-col items-end max-w-[15rem]">
-                <ImageTiles urls={imgs} onClick={onImageClick} />
+                <ImageTiles images={imgs} onClick={onImageClick} />
               </div>
             )}
           </div>
@@ -175,7 +232,8 @@ const ChattingComponent = ({
         <div id="you" className="flex items-start gap-3 self-stretch">
           <div className="py-2 items-center justify-center gap-[0.625rem]">
             <img
-              src={message.senderProfileImage}
+              //🌟src={message.senderProfileImageUrl}
+              src={profileSrc}
               alt="profile"
               className="w-10 h-10 aspect-square rounded-[2.75rem]"
             />
@@ -185,7 +243,7 @@ const ChattingComponent = ({
               {chatNick}
             </p>
 
-            {/* 🌟TEXT: content가 있고, 이미지가 없을 때만 말풍선 렌더 */}
+            {/* TEXT: content가 있고, 이미지가 없을 때만 말풍선 렌더 */}
             {(message.content ?? "") !== "" && !hasImages && (
               <div className="flex items-end gap-2 self-stretch">
                 <div
@@ -212,10 +270,10 @@ const ChattingComponent = ({
             )}
 
             {/*IMAGE*/}
-            {/* 🌟IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
+            {/* IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
             {hasImages && (
               <div className="mr-3 flex flex-col items-end max-w-[15rem]">
-                <ImageTiles urls={imgs} onClick={onImageClick} />
+                <ImageTiles images={imgs} onClick={onImageClick} />
               </div>
             )}
           </div>

@@ -47,14 +47,27 @@ export interface ChatRoomInfo {
   lastReadMessageId: number;
 }
 
+// 🌟새 이미지 타입 (REST/WS 공통)
+export interface ImageInfo {
+  imageId: number;
+  imageUrl: string;
+  imgOrder: number;
+  isEmoji: boolean;
+  originalFileName: string;
+  fileSize: number;
+  fileType: string;
+}
+
 export interface ChatMessageResponse {
   messageId: number;
   senderId: number;
   senderName: string;
-  senderProfileImage: string;
+  // 🌟senderProfileImage: string;
+  senderProfileImageUrl: string;
   content: string;
   messageType: "TEXT" | "SYSTEM";
-  imageUrls: string[];
+  images: ImageInfo[]; //🌟
+  //imageUrls?: string[]; // UI 호환(기존 컴포넌트 쓰면 사용)
   timestamp: string;
   isMyMessage: boolean;
 }
