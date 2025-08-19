@@ -1,8 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ResponseInviteGuest } from "../../types/guest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import { Member } from "../common/contentcard/Member";
-import api from "../../api/api";
+import { useDeleteInviteForm } from "../../api/Exercise/InviteGuest";
 const { toKor } = userLevelMapper();
 
 type InviteGuestProps = {
@@ -14,22 +13,7 @@ export default function InviteGuestList({
   data,
   exerciseId,
 }: InviteGuestProps) {
-  //게스트 초대 취소하기--------------
-  const queryClient = useQueryClient();
-  const handleDelete = useMutation({
-    mutationFn: (guestId: number) => {
-      return api.delete(`/api/exercises/${exerciseId}/guests/${guestId}`);
-    },
-    onSuccess: () => {
-      console.log("삭제 성공");
-      queryClient.invalidateQueries({
-        queryKey: ["inviteGuest", exerciseId],
-      });
-    },
-    onError: err => {
-      console.log(err);
-    },
-  });
+  const handleDelete = useDeleteInviteForm(exerciseId);
 
   return data?.list.map((item: ResponseInviteGuest, idx: number) => {
     const apilevel = toKor(item.level);

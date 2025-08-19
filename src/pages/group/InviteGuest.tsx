@@ -13,8 +13,11 @@ import { LEVEL_KEY } from "../../constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "../../utils/handleDetected";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
-import { useInviteForm, useInviteGuest } from "../../api/Exercise/InviteGuest";
 import InviteGuestList from "../../components/group/InviteGuestList";
+import {
+  useInviteGuest,
+  usePostInviteForm,
+} from "../../api/Exercise/InviteGuest";
 
 export const InviteGuest = () => {
   //정보
@@ -44,7 +47,7 @@ export const InviteGuest = () => {
   const exerciseParams = useParams();
   const exerciseId = Number(exerciseParams.exerciseId);
   //게스트 초대하기
-  const handleInviteForm = useInviteForm(exerciseId, () => {
+  const handleInviteForm = usePostInviteForm(exerciseId, () => {
     setLocalName("");
     isSelected(null);
     setValue("levelOptions", "");
@@ -62,7 +65,6 @@ export const InviteGuest = () => {
   if (isError) {
     return <p className="body-rg-500">오류 발생</p>;
   }
-
   const noneData = data?.list.length === 0;
 
   return (

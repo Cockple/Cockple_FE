@@ -26,7 +26,10 @@ export const postInviteGuest = async (
   return await api.post(`/api/exercises/${exerciseId}/guests`, body);
 };
 
-export const useInviteForm = (exerciseId: number, onSuccess: () => void) => {
+export const usePostInviteForm = (
+  exerciseId: number,
+  onSuccess: () => void,
+) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: inviteGuestRequestDTO) =>
@@ -36,6 +39,27 @@ export const useInviteForm = (exerciseId: number, onSuccess: () => void) => {
         queryKey: ["inviteGuest", exerciseId],
       });
       onSuccess();
+    },
+    onError: err => {
+      console.log(err);
+    },
+  });
+};
+
+//게스트 췩소하기
+export const deleteGuest = async (exerciseId: number, guestId: number) => {
+  return await api.delete(`/api/exercises/${exerciseId}/guests/${guestId}`);
+};
+
+export const useDeleteInviteForm = (exerciseId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (guestId: number) => deleteGuest(exerciseId, guestId),
+    onSuccess: () => {
+      console.log("삭제 성공");
+      queryClient.invalidateQueries({
+        queryKey: ["inviteGuest", exerciseId],
+      });
     },
     onError: err => {
       console.log(err);
