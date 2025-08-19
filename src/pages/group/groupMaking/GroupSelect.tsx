@@ -13,7 +13,6 @@ import type {
 } from "../../../types/groupMaking";
 import { groupMaking } from "../../../utils/groupMaking";
 import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
-import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupSelect = () => {
   const {
@@ -35,9 +34,11 @@ export const GroupSelect = () => {
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
-  const handleInputDetected = handleInput(45, v => {
-    setFilter("content", v);
-  });
+  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target.value;
+    const filter = target.slice(0, 45);
+    setFilter("content", filter);
+  };
   const parsePrice = (value: string) => {
     if (value === "disabled") return 0;
     return Number(value.split(",").join("").slice(0, -1));
