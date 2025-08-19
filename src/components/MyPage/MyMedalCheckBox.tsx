@@ -17,7 +17,7 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
   onChange
 }) => {
   const [recordTexts, setRecordTexts] = useState<string[]>(value.length ? value : [""]);
-  const { control, setValue } = useForm();
+  const { control } = useForm();
 
   // const [recordTexts, setRecordTexts] = useState<string[]>([""]);
   const [isPrivate, setIsPrivate] = useState(false);
