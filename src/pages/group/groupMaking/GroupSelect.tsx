@@ -4,54 +4,20 @@ import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
 import SingleImageUploadBtn from "../../../components/group/groupMaking/SingleImgUploadBtn";
 import InputField from "../../../components/common/Search_Filed/InputField";
 import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
-
-import { groupMaking } from "../../../utils/groupMaking";
-import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
 import { usePostGroupMaking } from "../../../api/party/groupMaking";
+import { useGroupMakingPayload } from "../../../hooks/useGroupMakingPayLoad";
 
 export const GroupSelect = () => {
-  const {
-    region,
-    femaleLevel,
-    maleLevel,
-    name,
-    weekly,
-    type,
-    kock,
-    money,
-    ageRange,
-    joinMoney,
-    time,
-    imgKey,
-    content,
-    setFilter,
-  } = useGroupMakingFilterStore();
+  const { content, setFilter } = useGroupMakingFilterStore();
+  const payload = useGroupMakingPayload();
+  const mutation = usePostGroupMaking();
 
   const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target.value;
-    const filter = target.slice(0, 45);
-    setFilter("content", filter);
+    setFilter("content", e.target.value.slice(0, 45));
   };
-  const parsePrice = (value: string) => {
-    if (value === "disabled") return 0;
-    return Number(value.split(",").join("").slice(0, -1));
+  const handleMakingGroupForm = () => {
+    mutation.mutate(payload);
   };
-
-  const parseKock = (value: string) => {
-    if (value === "disabled") return "";
-    return value;
-  };
-
-  const apiJoinMoney = parsePrice(joinMoney);
-  const apiMoney = parsePrice(money);
-  const apiKock = parseKock(kock);
-  const apiType = type === "female" ? "여복" : "혼복";
-
-  const apiFemaleLevel = groupMaking(femaleLevel, LEVEL_KEY);
-  const apiMaleLevel = groupMaking(maleLevel, LEVEL_KEY);
-  const apiWeekly = groupMaking(weekly, WEEKLY_KEY);
-
-  const handleMakingGroupForm = usePostGroupMaking();
 
   return (
     <>
@@ -80,25 +46,7 @@ export const GroupSelect = () => {
         {/* 버튼 */}
         <div
           className={`flex items-center justify-center mb-6 shrink-0 `}
-          onClick={() =>
-            handleMakingGroupForm.mutate({
-              partyName: name,
-              partyType: apiType,
-              femaleLevel: apiFemaleLevel,
-              maleLevel: apiMaleLevel,
-              addr1: region[0],
-              addr2: region[1],
-              activityTime: time,
-              activityDay: apiWeekly,
-              designatedCock: apiKock,
-              joinPrice: apiJoinMoney,
-              price: apiMoney,
-              minBirthYear: ageRange[0],
-              maxBirthYear: ageRange[1],
-              content: content || "",
-              imgKey: imgKey,
-            })
-          }
+          onClick={handleMakingGroupForm}
         >
           <Btn_Static
             label="다음"
