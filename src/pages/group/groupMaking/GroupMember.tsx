@@ -71,7 +71,7 @@ export const GroupMember = () => {
       if (axiosLib.isAxiosError(err)) {
         if (err.response?.data?.code === "PARTY409") {
           setIsOpenModal(false);
-          alert("이미 초대를 보내고,대기상태임");
+          alert("이미 초대를 보냈습니다.");
         } else {
           console.error("실패임~", err.response?.data);
         }
