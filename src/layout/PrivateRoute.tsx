@@ -1,6 +1,4 @@
-import { useNavigate } from "react-router-dom";
 import { ScrollToTop } from "../components/common/ScrollToTop";
-import { useEffect } from "react";
 
 interface PrivateRouteProps {
   children?: React.ReactNode;
