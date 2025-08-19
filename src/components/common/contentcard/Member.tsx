@@ -7,7 +7,6 @@ import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Message from "../../../assets/icons/message.svg?react";
 import { Modal_Invite } from "../../group/Modal_Invite";
-
 import { Modal_Subtract } from "../../group/Modal_Subtract";
 import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
