@@ -2,6 +2,9 @@ import { useState } from "react";
 import Peopel from "../../../assets/icons/people.svg?react";
 import { Num_Noti } from "./Num_Noti";
 
+// 이미지
+import appIcon from "@/assets/images/app_icon.png?url";
+
 export interface GroupChatProps {
   imageSrc: string;
   chatName: string;
@@ -32,12 +35,12 @@ export const GroupChat = ({
       onTouchStart={() => setPressing(true)}
       onTouchEnd={() => setPressing(false)}
     >
-      {/* <img
-        src={imageSrc}
+      <img
+        src={imageSrc ? imageSrc : appIcon}
         alt={chatName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem] flex-shrink-0"
-      /> */}
-      {imageSrc ? (
+      />
+      {/* {imageSrc ? (
         <img
           src={imageSrc}
           alt={chatName}
@@ -52,7 +55,7 @@ export const GroupChat = ({
             {chatName?.[0] ?? "?"}
           </span>
         </div>
-      )}
+      )} */}
 
       <div className="flex flex-col flex-grow h-[4rem] overflow-hidden">
         {/* 채팅방 이름 및 인원 */}

@@ -251,17 +251,13 @@ export const ChatPage = () => {
 
           {/* 채팅 리스트 또는 결과 없음 */}
           <div className="flex min-h-[60dvh] overflow-hidden">
-            {isLoading ? ( // 🌟로딩 중일 때
+            {isLoading ? ( // 로딩 중일 때
               <LoadingSpinner />
             ) : (
               <ChatList
                 tab={activeTab}
-                //🌟
-                //groupChats={groupChatRooms}
-                //personalChats={personalChatRooms}
                 groupChats={mergedGroup}
                 personalChats={mergedPersonal}
-                //isValidSearch={true}
                 searchTerm={searchTerm}
                 navigate={navigate}
               />

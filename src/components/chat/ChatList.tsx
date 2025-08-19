@@ -74,6 +74,7 @@ const ChatList = ({
                       tab: "group",
                       chatName: chat.partyName,
                       partyId: chat.partyId,
+                      partyProfileImg: chat.partyImgUrl,
                     },
                   });
                 }}
