@@ -13,7 +13,6 @@ import type {
 } from "../../../types/groupMaking";
 import { groupMaking } from "../../../utils/groupMaking";
 import { LEVEL_KEY, WEEKLY_KEY } from "../../../constants/options";
-import { handleInput } from "../../../utils/handleDetected";
 
 export const GroupSelect = () => {
   const {
@@ -31,12 +30,15 @@ export const GroupSelect = () => {
     imgKey,
     content,
     setFilter,
+    resetFilter,
   } = useGroupMakingFilterStore();
   const navigate = useNavigate();
 
-  const handleInputDetected = handleInput(45, v => {
-    setFilter("content", v);
-  });
+  const handleInputDetected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target.value;
+    const filter = target.slice(0, 45);
+    setFilter("content", filter);
+  };
   const parsePrice = (value: string) => {
     if (value === "disabled") return 0;
     return Number(value.split(",").join("").slice(0, -1));
@@ -87,6 +89,7 @@ export const GroupSelect = () => {
     onSuccess: res => {
       console.log("성공");
       console.log(res.data);
+      resetFilter();
       navigate(`/confirm/${res.data.partyId}`, {
         state: {
           onboarding: false,
@@ -101,7 +104,7 @@ export const GroupSelect = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
         <PageHeader title="모임 만들기" />
         <ProgressBar width={"96"} />
 
@@ -125,7 +128,7 @@ export const GroupSelect = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-5 sm:mb-4.5 shrink-0 `}
+          className={`flex items-center justify-center mb-6 shrink-0 `}
           onClick={() => handleMakingGroup.mutate()}
         >
           <Btn_Static

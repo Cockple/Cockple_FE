@@ -145,7 +145,7 @@ export const OnboardingProfilePage = () => {
 
   return (
     <div
-      className={` flex flex-col relative -mb-8 min-h-[100dvh] pt-14 ${isCropping ? "-mx-4" : ""}`}
+      className={` flex flex-col relative -mb-8  pt-14 ${isCropping ? "-mx-4" : ""}`}
       style={{ maxWidth: "444px", minHeight: "100dvh" }}
     >
       <PageHeader title="회원 정보 입력" />

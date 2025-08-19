@@ -99,10 +99,9 @@ export const GroupMember = () => {
     console.log(page);
   }
 
-  //--------------데이터 보고싶으면 partyId를 23로 하드코딩 하세요!!!----------
   return (
     <>
-      <div className="flex flex-col -mb-8" style={{ minHeight: "91dvh" }}>
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
         <PageHeader title="신규 멤버 추천" />
         <section className="text-left flex flex-col  gap-5 w-full mb-6 flex-1">
           {/* 첫번째 */}
@@ -125,7 +124,7 @@ export const GroupMember = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-5 sm:mb-4.5 mt-38 shrink-0 `}
+          className={`flex items-center justify-center mb-6 mt-38 shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static
