@@ -52,7 +52,7 @@ export const InviteGuest = () => {
   const exerciseParams = useParams();
   const exerciseId = Number(exerciseParams.exerciseId);
   console.log(exerciseId);
-
+  //게스트 초대하기
   const handleInviteForm = useMutation({
     mutationFn: () => {
       const body = {
@@ -74,7 +74,7 @@ export const InviteGuest = () => {
       console.log(err);
     },
   });
-
+  //게스트 정보 불러오기
   const { data, isLoading, isError } = useInviteGuest(exerciseId);
   //게스트 초대 취소하기--------------
   const handleDelete = useMutation({
@@ -104,7 +104,7 @@ export const InviteGuest = () => {
   }
 
   const noneData = data?.list.length === 0;
-  console.log(data);
+  // console.log(data);
 
   const { toKor } = userLevelMapper();
 
@@ -115,12 +115,14 @@ export const InviteGuest = () => {
         apilevel === "disabled" ? "급수 없음" : apilevel;
       const watiingNum =
         idx <= 9
-          ? `No.${(idx + 1).toString().padStart(2, "0")}`
-          : `대기 ${item.participantNumber}`; // guestName 없으면 빈 문자열
+          ? (idx + 1).toString().padStart(2, "0")
+          : String(item.participantNumber).toString().padStart(2, "0");
+
+      const numberStatus = idx <= 9 ? "Participating" : "waiting";
       return (
         <Member
           key={item.guestId}
-          status="waiting"
+          status={numberStatus}
           {...item}
           guestName={item.inviterName}
           gender={item.gender.toUpperCase() as "MALE" | "FEMALE"}
