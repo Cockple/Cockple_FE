@@ -19,7 +19,8 @@ export const GroupBasicInfo = () => {
   const navigate = useNavigate();
 
   //store
-  const { femaleLevel, setFilter, maleLevel } = useGroupMakingFilterStore();
+  const { femaleLevel, setFilter, maleLevel, resetFilter } =
+    useGroupMakingFilterStore();
   const name = useGroupMakingFilterStore(state => state.name);
   const selected = useGroupMakingFilterStore(state => state.type);
   const [localName, setLocalName] = useState(name ?? "");
@@ -27,6 +28,7 @@ export const GroupBasicInfo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleConfirmLeave = () => {
     setIsModalOpen(false);
+    resetFilter();
     navigate("/");
   };
 
@@ -71,7 +73,7 @@ export const GroupBasicInfo = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8 " style={{ minHeight: "91dvh" }}>
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
         <PageHeader title="모임 만들기" onBackClick={onBackClick} />
         <ProgressBar width={!isFormValid ? "4" : "24"} />
         {isModalOpen && (
@@ -79,6 +81,7 @@ export const GroupBasicInfo = () => {
             <Modal_Caution
               onConfirm={handleConfirmLeave}
               onCancel={handleCancelLeave}
+              location="이전페이지로"
             />
           </div>
         )}
@@ -166,7 +169,7 @@ export const GroupBasicInfo = () => {
 
         {/* 버튼 */}
         <div
-          className={`flex items-center justify-center mb-5 sm:mb-4.5 mt-20  shrink-0 `}
+          className={`flex items-center justify-center mb-6 mt-20  shrink-0 `}
           onClick={handleNext}
         >
           <Btn_Static

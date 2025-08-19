@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import { LoginPage } from "./pages/login/LoginPage";
 import { ChatPage } from "./pages/chat/ChatPage";
@@ -72,6 +72,7 @@ import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
 import { resolveMemberId } from "./utils/auth";
+import { NoNavbarLayout } from "./layout/NoPtLayout";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -110,13 +111,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: (
-      <PrivateRoute>
-        <div className="pt-14">
-          <Outlet />
-        </div>
-      </PrivateRoute>
-    ), // 로그인 필요하지만 navbar 없는 layout
+    element: <NoNavbarLayout />, // 로그인 필요하지만 navbar 없는 layout
     children: [
       { path: "/edit/location", element: <EditLocationPage /> },
       { path: "/mypage/edit", element: <MyPageEditPage /> },

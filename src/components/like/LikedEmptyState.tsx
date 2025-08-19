@@ -35,7 +35,7 @@ export const LikedEmptyState = ({ kind }: Props) => {
       </div> */}
 
       <div className="header-h5">
-        {copy.title} <br /> {copy.sub}를 찜하고 배드민턴을 즐겨볼까요?
+        {copy.title} <br /> {copy.sub}
       </div>
 
       {/* 🌟이미지 추가 */}

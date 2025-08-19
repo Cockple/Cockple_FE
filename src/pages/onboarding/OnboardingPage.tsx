@@ -9,10 +9,7 @@ export const OnboardingPage = () => {
   const user = useUserStore(state => state.user);
   return (
     <>
-      <div
-        className=" w-full flex flex-col justify-center -mb-8 "
-        style={{ minHeight: "100dvh" }}
-      >
+      <div className=" w-full flex flex-col justify-center -mb-8 min-h-dvh">
         <section className="flex items-center flex-col gap-25 flex-1">
           <IntroText
             title="환영합니다!"
