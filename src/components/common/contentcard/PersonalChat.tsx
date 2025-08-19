@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Num_Noti } from "./Num_Noti";
 
+// 이미지
+import appIcon from "@/assets/images/app_icon.png?url";
+
 export interface PersonalChatProps {
   imageSrc: string;
   userName: string;
@@ -28,12 +31,12 @@ export const PersonalChat = ({
       onTouchStart={() => setPressing(true)}
       onTouchEnd={() => setPressing(false)}
     >
-      {/* <img
-        src={imageSrc || undefined}
+      <img
+        src={imageSrc ? imageSrc : appIcon}
         alt={userName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem]"
-      /> */}
-      {imageSrc ? (
+      />
+      {/* {imageSrc ? (
         <img
           src={imageSrc}
           alt={userName}
@@ -48,7 +51,7 @@ export const PersonalChat = ({
             {userName?.[0] ?? "?"}
           </span>
         </div>
-      )}
+      )} */}
 
       <div className="flex flex-col w-[11.9375rem] h-[4rem]">
         <div className="flex items-center gap-[0.25rem] max-w-full overflow-hidden">

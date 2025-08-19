@@ -29,6 +29,10 @@ import { LoadingSpinner } from "../common/LoadingSpinner";
 // 이모티콘
 import EmojiPicker from "../common/chat/EmojiPicker";
 import { EMOJIS } from "../common/chat/emojis";
+import { useMyProfile } from "../../api/member/my";
+
+// 이미지
+import appIcon from "@/assets/images/app_icon.png?url";
 
 // ===== 유틸: 키 → 표시 URL =====
 const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
@@ -36,7 +40,10 @@ const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
   "/",
 );
 const resolveFromKey = (key?: string | null) =>
-  key ? `${S3_BASE}${String(key).replace(/^\/+/, "")}` : "";
+  key ? `${S3_BASE}${String(key).replace(/^\/+/, "")}` : null;
+const asUrlOrNull = (u?: string | null) => (u && u.trim() ? u : null);
+const filterValidUrls = (arr: Array<string | null | undefined>) =>
+  arr.filter((u): u is string => !!u && !!u.trim());
 
 // 🌟URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
 const looksLikeImageUrl = (u?: string | null) =>
@@ -60,6 +67,7 @@ interface ChatDetailTemplateProps {
   onBack: () => void;
   showHomeButton?: boolean;
   partyId?: number;
+  partyProfileImg?: string;
 }
 
 export const ChatDetailTemplate = ({
@@ -69,6 +77,7 @@ export const ChatDetailTemplate = ({
   onBack,
   showHomeButton = false,
   partyId,
+  partyProfileImg,
 }: ChatDetailTemplateProps) => {
   const navigate = useNavigate();
 
@@ -76,6 +85,16 @@ export const ChatDetailTemplate = ({
   const storeUser = useUserStore(s => s.user);
   const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
   const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
+
+  const { data: myProfile } = useMyProfile();
+
+  // 내 아바타 URL (imgUrl 우선, 없으면 imgKey로 생성, 그래도 없으면 기본 이미지)
+  const myAvatarUrl = useMemo(() => {
+    const direct = asUrlOrNull(myProfile?.imgUrl);
+    if (direct) return direct;
+    const fromKey = resolveFromKey(myProfile?.imgKey);
+    return fromKey ?? ProfileImg; // 항상 유효한 값 보장
+  }, [myProfile]);
 
   // ==== 초기 히스토리 (오름차순) ====
   const {
@@ -205,7 +224,7 @@ export const ChatDetailTemplate = ({
       messageId: tempId,
       senderId: currentUserId,
       senderName: currentUserName,
-      senderProfileImage: "",
+      senderProfileImage: myAvatarUrl,
       content: text,
       messageType: "TEXT",
       imageUrls: [],
@@ -255,7 +274,8 @@ export const ChatDetailTemplate = ({
       const uploaded = await Promise.all(
         files.map(async file => {
           const { imgKey, imgUrl } = await uploadImage("CHAT", file);
-          const displayUrl = imgUrl || resolveFromKey(imgKey);
+          const displayUrl = asUrlOrNull(imgUrl) || resolveFromKey(imgKey);
+          if (!displayUrl) throw new Error("업로드 URL 생성 실패");
           return { imgKey, imgUrl: displayUrl, file };
         }),
       );
@@ -277,7 +297,7 @@ export const ChatDetailTemplate = ({
         messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
         senderName: currentUserName,
-        senderProfileImage: "",
+        senderProfileImage: myAvatarUrl,
         content: "",
         messageType: "TEXT", // <- literal type 고정
         imageUrls: [url],
@@ -343,7 +363,7 @@ export const ChatDetailTemplate = ({
         messageId: -Date.now(),
         senderId: currentUserId,
         senderName: currentUserName,
-        senderProfileImage: "",
+        senderProfileImage: myAvatarUrl,
         content: "",
         messageType: "TEXT",
         imageUrls: [imgUrl],
@@ -405,12 +425,16 @@ export const ChatDetailTemplate = ({
 
     // content가 이미지 URL이면(이모티콘 TEXT) 보조 처리
     const contentIsImg = looksLikeImageUrl(msg.content);
-    const finalImgUrls =
-      imgFromArray.length > 0
-        ? imgFromArray
-        : contentIsImg
-          ? [msg.content!]
-          : [];
+    const contentUrl = contentIsImg ? asUrlOrNull(msg.content) : null;
+    // const finalImgUrls =
+    //   imgFromArray.length > 0
+    //     ? imgFromArray
+    //     : contentIsImg
+    //       ? [msg.content!]
+    //       : [];
+    const finalImgUrls = filterValidUrls(
+      imgFromArray.length > 0 ? imgFromArray : contentUrl ? [contentUrl] : [],
+    );
 
     //const isImage = finalImgUrls.length > 0;
 
@@ -418,7 +442,7 @@ export const ChatDetailTemplate = ({
       messageId: msg.messageId,
       senderId: msg.senderId,
       senderName: msg.senderName,
-      senderProfileImage: msg.senderProfileImageUrl ?? "",
+      senderProfileImage: asUrlOrNull(msg.senderProfileImageUrl) ?? ProfileImg,
       content: finalImgUrls.length ? "" : (msg.content ?? ""),
       messageType: "TEXT",
       imageUrls: finalImgUrls,
@@ -484,7 +508,7 @@ export const ChatDetailTemplate = ({
         {showHomeButton && (
           <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
             <ChatBtn
-              imgSrc={ProfileImg}
+              imgSrc={partyProfileImg ? partyProfileImg : appIcon}
               onClick={() => {
                 navigate(`/group/${partyId}`);
                 console.log(`/group/${partyId}로 이동`);

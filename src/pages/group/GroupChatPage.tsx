@@ -1,6 +1,6 @@
 // 그룹채팅창 페이지
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 //import { ChatDetailTemplate } from "../../components/chat/ChatDetailTemplate";
 //import ProfileImg from "../../assets/images/Profile_Image.png";
 //import type { ChatMessageResponse } from "../../types/chat";
@@ -16,7 +16,7 @@ import { useGetMyPartySimple } from "../../api/party/getMyPartySimple";
 export const GroupChatPage = () => {
   const { groupId } = useParams();
   //const location = useLocation();
-  const navigate = useNavigate();
+
   const [isMember, setIsMember] = useState(false);
   const [roomId, setRoomId] = useState<number | null>(null);
   const [loadingRoom, setLoadingRoom] = useState(false);
@@ -60,7 +60,7 @@ export const GroupChatPage = () => {
   }
 
   if (!isMember) {
-    return <GroupChatLockedView onJoin={() => navigate(`/group/${groupId}`)} />;
+    return <GroupChatLockedView />;
   }
 
   //🌟

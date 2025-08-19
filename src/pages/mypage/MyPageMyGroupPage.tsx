@@ -10,6 +10,7 @@ import { getMyGroups } from "../../api/party/my";
 import type { PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import { useLocation, useNavigate } from "react-router-dom";
+import appIcon from "@/assets/images/app_icon.png?url";
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
@@ -91,20 +92,18 @@ export const MyPageMyGroupPage = () => {
         <div className="flex-1 flex flex-col gap-4">
           {hasGroups ? (
             groups.map(group => {
-              const isLiked = likedGroupIds.includes(group.partyId); // 찜 상태 계산
-
               return (
                 <div key={group.partyId}>
                   <Group_M
                     id={group.partyId}
                     groupName={group.partyName}
-                    groupImage={group.partyImgUrl}
+                    groupImage={group.partyImgUrl ?? appIcon}
                     location={`${group.addr1} / ${group.addr2}`}
                     femaleLevel={group.femaleLevel}
                     maleLevel={group.maleLevel}
                     nextActivitDate={group.nextExerciseInfo}
                     upcomingCount={group.totalExerciseCount}
-                    like={isLiked}
+                    like={group.isBookmarked}
                     isMine={group.isMine ?? false}
                     onClick={() =>
                       navigate(
