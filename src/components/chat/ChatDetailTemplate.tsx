@@ -20,7 +20,7 @@ import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
-// 🌟 store
+// store
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import useUserStore from "../../store/useUserStore";
@@ -45,12 +45,15 @@ const asUrlOrNull = (u?: string | null) => (u && u.trim() ? u : null);
 const filterValidUrls = (arr: Array<string | null | undefined>) =>
   arr.filter((u): u is string => !!u && !!u.trim());
 
-// 🌟URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
+// URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
 const looksLikeImageUrl = (u?: string | null) =>
   !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
 
-// 🌟추가: 이모티콘 업로드 결과 캐시(중복 업로드 방지)
+// 이모티콘 업로드 결과 캐시(중복 업로드 방지)
 const emojiUploadCache = new Map<string, { imgKey: string; imgUrl: string }>();
+
+// 로컬 UI 전용 필드 추가(타입 확장)
+type ChatMessageUI = ChatMessageResponse & { isEmoji?: boolean };
 
 // 간단 빈 상태/에러/로딩 UI
 const CenterBox: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -139,11 +142,11 @@ export const ChatDetailTemplate = ({
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  // ⭐이모티콘
   const [showEmoji, setShowEmoji] = useState(false);
 
-  //낙관적/실시간 메시지 보관
-  const [liveMsgs, setLiveMsgs] = useState<ChatMessageResponse[]>([]);
+  //🌟낙관적/실시간 메시지 보관
+  //const [liveMsgs, setLiveMsgs] = useState<ChatMessageResponse[]>([]);
+  const [liveMsgs, setLiveMsgs] = useState<ChatMessageUI[]>([]);
 
   // ==== Refs ====
   const fileInputRef = useRef<HTMLInputElement>(null!);
@@ -207,11 +210,15 @@ export const ChatDetailTemplate = ({
     origin: "https://cockple.store",
   });
 
-  // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
-  const rendered = useMemo(() => {
-    // messages가 오름차순이므로 live는 뒤에 붙인다.
-    // 정렬이 필요하면 여기에서 정렬.
-    return [...messages, ...liveMsgs];
+  // 🌟리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
+  // const rendered = useMemo(() => {
+  //   // messages가 오름차순이므로 live는 뒤에 붙인다.
+  //   // 정렬이 필요하면 여기에서 정렬.
+  //   return [...messages, ...liveMsgs];
+  // }, [messages, liveMsgs]);
+  const rendered = useMemo<ChatMessageUI[]>(() => {
+    // 초기 messages는 서버 원본 타입이므로 UI 타입으로 얕은 캐스팅
+    return [...(messages as ChatMessageUI[]), ...liveMsgs];
   }, [messages, liveMsgs]);
 
   // ==== 전송: 텍스트 ====
@@ -291,9 +298,9 @@ export const ChatDetailTemplate = ({
       const ok = sendImages(chatId, payload);
       if (!ok) throw new Error("WS SEND 실패");
 
-      // 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
+      //🌟 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
       const now = new Date().toISOString();
-      const makeOptimisticImage = (url: string): ChatMessageResponse => ({
+      const makeOptimisticImage = (url: string): ChatMessageUI => ({
         messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
         senderName: currentUserName,
@@ -303,6 +310,7 @@ export const ChatDetailTemplate = ({
         imageUrls: [url],
         timestamp: now,
         isMyMessage: true,
+        isEmoji: false, // 🌟← 업로드 사진은 프리뷰 허용
       });
 
       const optimistic: ChatMessageResponse[] = uploaded.map(u =>
@@ -319,7 +327,7 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  // ⭐ 추가: 이모티콘을 '이미지 전송 플로우'로 보내는 유틸
+  // 이모티콘을 '이미지 전송 플로우'로 보내는 유틸
   const sendEmojiAsImage = async (
     chatRoomId: number,
     emojiAssetPath: string,
@@ -358,8 +366,8 @@ export const ChatDetailTemplate = ({
       ]);
       if (!ok) throw new Error("WS SEND 실패");
 
-      // 5) 낙관적 렌더
-      const optimistic: ChatMessageResponse = {
+      // 🌟5) 낙관적 렌더
+      const optimistic: ChatMessageUI = {
         messageId: -Date.now(),
         senderId: currentUserId,
         senderName: currentUserName,
@@ -369,6 +377,7 @@ export const ChatDetailTemplate = ({
         imageUrls: [imgUrl],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
+        isEmoji: true, // ← 🌟핵심!
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
@@ -380,42 +389,16 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  // ⭐이모티콘 전송: URL을 TEXT로 보냄
-  // const handleSendEmoji = (emojiUrl: string) => {
-  //   const tempId = -Date.now();
-  //   // 낙관적 이미지 메시지
-  //   const optimistic: ChatMessageResponse = {
-  //     messageId: tempId,
-  //     senderId: currentUserId,
-  //     senderName: currentUserName,
-  //     senderProfileImage: "",
-  //     content: "",
-  //     messageType: "IMAGE",
-  //     imageUrls: [emojiUrl],
-  //     timestamp: new Date().toISOString(),
-  //     isMyMessage: true,
-  //   };
-  //   setLiveMsgs(prev => [...prev, optimistic]);
-
-  //   const ok = sendText(chatId, emojiUrl); // TEXT로 URL 전송
-  //   if (!ok) {
-  //     setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 실패 롤백
-  //     return;
-  //   }
-  //   requestAnimationFrame(() =>
-  //     bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //   );
-  // };
-  // 🌟 교체: 기존 'TEXT로 URL 전송' → 이미지 전송 호출
+  //  기존 'TEXT로 URL 전송' → 이미지 전송 호출
   const handleSendEmoji = (emojiAssetPath: string) => {
     void sendEmojiAsImage(chatId, emojiAssetPath);
   };
 
-  // ==== 수신 매핑 ====
+  // 🌟==== 수신 매핑 ====
   function mapBroadcastToUi(
     msg: import("../../api/chat/rawWs").BroadcastMessage,
     meId: number,
-  ): ChatMessageResponse {
+  ): ChatMessageUI {
     // images[] → URL
     const imgFromArray =
       (msg.images ?? [])
@@ -436,7 +419,10 @@ export const ChatDetailTemplate = ({
       imgFromArray.length > 0 ? imgFromArray : contentUrl ? [contentUrl] : [],
     );
 
-    //const isImage = finalImgUrls.length > 0;
+    // 🌟originalFileName 기준 이모티콘 판별(서버가 보내주는 메타)
+    const isEmoji = (msg.images ?? []).some(im =>
+      /emoji\.(png|jpe?g|webp|gif)$/i.test(im.originalFileName || ""),
+    );
 
     return {
       messageId: msg.messageId,
@@ -448,6 +434,7 @@ export const ChatDetailTemplate = ({
       imageUrls: finalImgUrls,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
+      isEmoji, // 🌟← 핵심!
     };
   }
 
@@ -562,7 +549,12 @@ export const ChatDetailTemplate = ({
                     <ChattingComponent
                       message={chat}
                       isMe={chat.senderId === currentUserId}
-                      onImageClick={setPreviewImage}
+                      // 🌟onImageClick={setPreviewImage}
+                      onImageClick={url => {
+                        if (!(chat as ChatMessageUI).isEmoji) {
+                          setPreviewImage(url);
+                        }
+                      }}
                       time={formatEnLowerAmPm(chat.timestamp)}
                     />
                   </React.Fragment>
@@ -601,10 +593,10 @@ export const ChatDetailTemplate = ({
           onSendMessage={handleSendMessage}
           onImageUpload={handleImageUpload}
           fileInputRef={fileInputRef}
-          onToggleEmoji={() => setShowEmoji(v => !v)} // ⭐
-          onFocusInput={() => setShowEmoji(false)} // ⭐ 입력창 클릭/포커스 → 닫기
+          onToggleEmoji={() => setShowEmoji(v => !v)} //
+          onFocusInput={() => setShowEmoji(false)} // 입력창 클릭/포커스 → 닫기
         />
-        {/* ⭐입력창 아래에 표시 (카톡처럼) */}
+        {/* 입력창 아래에 표시 (카톡처럼) */}
         {showEmoji && (
           <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
         )}
