@@ -80,9 +80,9 @@ export const GroupMember = () => {
   );
 
   const filteredMembers = useMemo(() => {
-    const q = debouncedSearch.trim().toLowerCase();
-    if (!q) return memberList;
-    return memberList.filter(m => m.level?.toLowerCase().includes(q));
+    const filterText = debouncedSearch.trim().toLowerCase();
+    if (!filterText) return memberList;
+    return memberList.filter(member => member.level?.toLowerCase().includes(q));
   }, [memberList, debouncedSearch]);
 
   if (!isLoading) {
