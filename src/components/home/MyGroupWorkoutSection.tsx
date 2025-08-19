@@ -54,7 +54,6 @@ export const MyGroupWorkoutSection = () => {
       {data && data.exercises.length > 0 ? (
         <div className="flex overflow-x-scroll gap-1 scrollbar-hide">
           {data.exercises.map(item => {
-            console.log(item);
             return (
               <Exercise_S
                 key={item.exerciseId}
