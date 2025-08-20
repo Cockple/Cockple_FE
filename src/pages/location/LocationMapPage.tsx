@@ -31,6 +31,7 @@ export const LocationMapPage = () => {
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
   const mode = location.state?.mode ?? "fill-only";
+  const isOnboarding = location.state?.isOnboarding ?? "";
 
   const user = false;
 
@@ -42,7 +43,7 @@ export const LocationMapPage = () => {
       navigate(returnPath);
     } else {
       navigate(returnPath, {
-        state: { payload },
+        state: { selectedPlace: place },
       });
       console.log(returnPath);
     }
@@ -81,7 +82,11 @@ export const LocationMapPage = () => {
       <PageHeader
         title="주소 검색"
         className="px-4"
-        onBackClick={() => navigate(`/location/search?query=${query}`)}
+        onBackClick={() =>
+          navigate(`/location/search?query=${query}`, {
+            state: { isOnboarding, returnPath, mode },
+          })
+        }
       />
 
       {user && <ProgressBar width="72" className="mx-4" />}
