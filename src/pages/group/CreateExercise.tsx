@@ -181,15 +181,20 @@ export const CreateExercise = () => {
     }
   };
 
+  const onBackClick = () => {
+    if (exerciseId) {
+      navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`);
+    } else {
+      navigate(`/group/${groupId}`);
+    }
+    resetForm();
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <PageHeader
         title={exerciseId ? "운동 수정하기" : "운동 만들기"}
-        onBackClick={
-          exerciseId
-            ? () => navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`)
-            : () => navigate(`/group/${groupId}`)
-        }
+        onBackClick={onBackClick}
       />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">
