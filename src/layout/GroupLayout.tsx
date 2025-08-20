@@ -130,13 +130,16 @@ export const GroupLayout = () => {
   };
 
   const isJoined = partyDetail?.memberStatus === "MEMBER";
+  const isOwner =
+    partyDetail?.memberRole === "party_MANAGER" ||
+    partyDetail?.memberRole === "party_SUBMANAGER";
 
   return (
     <div className="flex flex-col">
       <PageHeader
         title={groupName}
         onBackClick={handleBackClick}
-        onMoreClick={() => setIsMoreOpen(true)}
+        onMoreClick={isOwner ? () => setIsMoreOpen(true) : undefined}
       />
 
       <TabSelector
@@ -166,7 +169,7 @@ export const GroupLayout = () => {
       />
 
       {!isJoined && (
-        <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
+        <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4 z-50">
           {joinErrorMessage && (
             <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
               {joinErrorMessage}

@@ -270,7 +270,9 @@ export const MyExerciseDetail = () => {
         options={["운동 수정하기", "운동 삭제하기"]}
         onSelect={option => {
           if (option === "운동 수정하기") {
-            navigate(`/group/exercise/edit/${exerciseId}`);
+            navigate(
+              `/group/exercise/edit/${exerciseId}?returnPath=${returnPath}`,
+            );
           }
           if (option === "운동 삭제하기") {
             setIsSortOpen(false);

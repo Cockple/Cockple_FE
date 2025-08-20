@@ -16,7 +16,7 @@ import {
 import {
   joinExercise,
   cancelExercise,
-} from "../../../api/Exercise/exerciseApi";
+} from "../../../api/exercise/exerciseApi";
 import CautionExerciseModals from "../../like/CautionExerciseModal";
 
 interface ContentCardLProps {
@@ -230,7 +230,7 @@ export const ContentCardL = ({
                 ${showGuestButton ? "flex-1" : "flex-1 text-center"}
                 ${isStarted ? "text-red-500" : "text-[#0B9A4E]"}`}
           >
-            {isStarted ? "운동 취소하기" : "운동 시작하기"}
+            {isStarted ? "운동 취소하기" : "운동 신청하기"}
           </button>
 
           {showGuestButton && (

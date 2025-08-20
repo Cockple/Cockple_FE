@@ -10,13 +10,18 @@ import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import { LocationField } from "../../components/common/LocationField";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { Location } from "../../components/common/contentcard/Location";
 import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { transformPlaceToPayload } from "../../utils/address";
 import useCreateExerciseStore from "../../store/createExerciseStore";
 import { createExerciseApi } from "../../api/exercise/createExerciseApi";
-import { useMyExerciseStore } from "../../store/myExerciseStore";  //연두 : 추가했어요
+import { useMyExerciseStore } from "../../store/myExerciseStore"; //연두 : 추가했어요
 import {
   formatKoreanTimeToHHMMSS,
   formatToKoreanTimeWithAmPm,
@@ -25,6 +30,7 @@ import { useExerciseEditDetail } from "../../api/exercise/useExerciseEditDetail"
 import { updateExerciseApi } from "../../api/exercise/updateExerciseApi";
 import type { AxiosError } from "axios";
 import axios from "axios";
+
 export const CreateExercise = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,16 +54,19 @@ export const CreateExercise = () => {
     setLocationDetail,
     resetForm,
   } = useCreateExerciseStore();
-const { addExercise } = useMyExerciseStore();
+  const { addExercise } = useMyExerciseStore();
 
   const [openModal, setOpenModal] = useState(false);
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
   const { groupId, exerciseId } = useParams();
   const { data: editData } = useExerciseEditDetail(exerciseId!);
   const [errorMsg, setErrorMsg] = useState("");
+  const [searchParams] = useSearchParams();
+  const returnPath = searchParams.get("returnPath") ?? "";
 
   useEffect(() => {
     if (editData) {
+      console.log("수정 데이터", editData);
       setSelectedDate(editData.date);
       setLocationDetail({
         buildingName: editData.buildingName,
@@ -128,6 +137,7 @@ const { addExercise } = useMyExerciseStore();
     if (selectedDate && locationDetail && headCount) {
       const formattedStartTime = formatKoreanTimeToHHMMSS(startTime);
       const formattedEndTime = formatKoreanTimeToHHMMSS(endTime);
+
       const payload = {
         date: String(selectedDate),
         buildingName: locationDetail.buildingName || "",
@@ -180,15 +190,22 @@ const { addExercise } = useMyExerciseStore();
     }
   };
 
+  const onBackClick = () => {
+    if (exerciseId) {
+      navigate(
+        `/group/Mygroup/MyExerciseDetail/${exerciseId}?returnPath=${returnPath}`,
+      );
+    } else {
+      navigate(`/group/${groupId}`);
+    }
+    resetForm();
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <PageHeader
         title={exerciseId ? "운동 수정하기" : "운동 만들기"}
-        onBackClick={
-          exerciseId
-            ? () => navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`)
-            : () => navigate(-1)
-        }
+        onBackClick={onBackClick}
       />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">
@@ -246,12 +263,12 @@ const { addExercise } = useMyExerciseStore();
         <div className="flex flex-col gap-5">
           <TitleBtn
             label="모임 멤버 게스트 초대 허용"
-            checked={allowGuestInvite}
+            checked={!!allowGuestInvite}
             onChange={setAllowGuestInvite}
           />
           <TitleBtn
             label="외부 게스트 참여 허용"
-            checked={allowExternalGuest}
+            checked={!!allowExternalGuest}
             onChange={setAllowExternalGuest}
           />
         </div>
