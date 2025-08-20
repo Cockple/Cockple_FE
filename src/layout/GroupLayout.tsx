@@ -166,7 +166,7 @@ export const GroupLayout = () => {
       />
 
       {!isJoined && (
-        <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4">
+        <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4 z-50">
           {joinErrorMessage && (
             <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
               {joinErrorMessage}
