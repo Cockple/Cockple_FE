@@ -143,17 +143,17 @@ export const LocationSearchPage = () => {
 
   const handleSelect = async (place: Place) => {
     const payload = transformPlaceToPayload(place);
-    const isOnboardingNow = !!useUserStore.getState().user?.isNewMember;
-    const targetPath = isOnboardingNow
-      ? "/onboarding/profile"
-      : (location.state?.returnPath ?? "/");
+    // const isOnboardingNow = !!useUserStore.getState().user?.isNewMember;
+    // const targetPath = isOnboardingNow
+    //   ? "/onboarding/profile"
+    //   : (location.state?.returnPath ?? "/");
 
     if (mode === "call-api") {
       // api 요청
       await postMyProfileLocation(payload);
-      navigate(targetPath);
+      navigate(returnPath);
     } else {
-      navigate(targetPath, {
+      navigate(returnPath, {
         state: { selectedPlace: place },
       });
       console.log(returnPath);
