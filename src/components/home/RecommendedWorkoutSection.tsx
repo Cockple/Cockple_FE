@@ -27,9 +27,9 @@ export const RecommendedWorkoutSection = () => {
 
       <div className="flex flex-col gap-2">
         {data && data.exercises.length > 0 ? (
-          data.exercises.map((item, index) => (
+          data.exercises.map(item => (
             <Exercise_M
-              id={index}
+              id={item.exerciseId}
               key={item.exerciseId}
               title={item.partyName}
               date={item.date}

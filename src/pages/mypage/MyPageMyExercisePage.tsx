@@ -6,9 +6,7 @@ import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
-import type { FilterType, OrderType } from "../../api/exercise/my";
-// import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
-
+import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
@@ -45,38 +43,44 @@ export const MyPageMyExercisePage = () => {
     return sort === "오래된 순" ? "OLDEST" : "LATEST";
   };
 
-  // 운동 데이터 불러오기
-const fetchExercises = useCallback(
-  async (reset = false) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const data = await getMyExercises({
-        filterType: mapTabToFilterType(selectedTab),
-        orderType: mapSortToOrderType(sortOption),
-        page: reset ? 0 : page,
-        size: 10,
-      });
+  const fetchExercises = useCallback(
+    async (reset = false) => {
+      if (isLoading) return;
+      setIsLoading(true);
+      try {
+        const data = await getMyExercises({
+          filterType: mapTabToFilterType(selectedTab),
+          orderType: mapSortToOrderType(sortOption),
+          page: reset ? 0 : page,
+          size: 10,
+        });
 
-      setExerciseList(prev => (reset ? data : [...prev, ...data]));
-      setHasMore(data.length === 10);
-    } catch (err) {
-      console.error("운동 데이터 불러오기 실패", err);
-      if (reset) setExerciseList([]);
-    } finally {
-      setIsLoading(false);
-    }
-  },
-  [page, selectedTab, sortOption, isLoading, setExerciseList]
-);
+      setExerciseList(prev => {
+          const merged: ExerciseItem[] = reset ? data : [...prev, ...data];
+          const uniqueMap = new Map<number, ExerciseItem>();
 
+          merged.forEach((item) => {
+            uniqueMap.set(item.exerciseId, item);
+          });
 
-  // 페이지 로드 시 서버 데이터 가져오기
+          return Array.from(uniqueMap.values());
+        });
+        
+        setHasMore(data.length === 10);
+      } catch (err) {
+        console.error("운동 데이터 불러오기 실패", err);
+        if (reset) setExerciseList([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [page, selectedTab, sortOption, isLoading, setExerciseList]
+  );
+
   useEffect(() => {
     fetchExercises(true);
   }, []);
 
-  // 탭/정렬 변경 시 reset
   useEffect(() => {
     setPage(0);
     fetchExercises(true);
@@ -153,8 +157,8 @@ const fetchExercises = useCallback(
                     date={item.date}
                     location={item.buildingName}
                     time={`${item.startTime} ~ ${item.endTime}`}
-                    femaleLevel={[item.levelRequirement.female]}
-                    maleLevel={[item.levelRequirement.male]}
+                    femaleLevel={item.levelRequirement.female} 
+                    maleLevel={item.levelRequirement.male}  
                     currentCount={item.participation.current}
                     totalCount={item.participation.max}
                     like={isLiked}

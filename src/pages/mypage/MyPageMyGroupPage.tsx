@@ -58,9 +58,15 @@ export const MyPageMyGroupPage = () => {
           like: likedGroupIds.includes(group.partyId),
         }));
 
-        setGroups(prev =>
-          page === 0 ? resultWithLike : [...prev, ...resultWithLike],
-        );
+        setGroups(prev => {
+          const merged = page === 0 ? resultWithLike : [...prev, ...resultWithLike];
+          const uniqueMap = new Map<number, PartyData>();
+          merged.forEach(group => {
+            uniqueMap.set(group.partyId, group);
+          });
+          return Array.from(uniqueMap.values());
+        });
+
 
         setHasMore(resultWithLike.length > 0); 
       } catch (err) {
@@ -75,7 +81,6 @@ export const MyPageMyGroupPage = () => {
     }
   }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading, page]);
 
-  // 필터/정렬 바뀌면 페이지 리셋
   useEffect(() => {
     setPage(0);
     setGroups([]);
