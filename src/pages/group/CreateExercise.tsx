@@ -16,7 +16,7 @@ import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { transformPlaceToPayload } from "../../utils/address";
 import useCreateExerciseStore from "../../store/createExerciseStore";
 import { createExerciseApi } from "../../api/exercise/createExerciseApi";
-import { useMyExerciseStore } from "../../store/myExerciseStore";  //연두 : 추가했어요
+import { useMyExerciseStore } from "../../store/myExerciseStore"; //연두 : 추가했어요
 import {
   formatKoreanTimeToHHMMSS,
   formatToKoreanTimeWithAmPm,
@@ -25,6 +25,7 @@ import { useExerciseEditDetail } from "../../api/exercise/useExerciseEditDetail"
 import { updateExerciseApi } from "../../api/exercise/updateExerciseApi";
 import type { AxiosError } from "axios";
 import axios from "axios";
+
 export const CreateExercise = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,7 +49,7 @@ export const CreateExercise = () => {
     setLocationDetail,
     resetForm,
   } = useCreateExerciseStore();
-const { addExercise } = useMyExerciseStore();
+  const { addExercise } = useMyExerciseStore();
 
   const [openModal, setOpenModal] = useState(false);
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
@@ -180,15 +181,20 @@ const { addExercise } = useMyExerciseStore();
     }
   };
 
+  const onBackClick = () => {
+    if (exerciseId) {
+      navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`);
+    } else {
+      navigate(`/group/${groupId}`);
+    }
+    resetForm();
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <PageHeader
         title={exerciseId ? "운동 수정하기" : "운동 만들기"}
-        onBackClick={
-          exerciseId
-            ? () => navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`)
-            : () => navigate(-1)
-        }
+        onBackClick={onBackClick}
       />
       <div className="flex flex-col gap-8">
         <div className="w-full h-17">

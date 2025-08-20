@@ -17,6 +17,7 @@ import {
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
 import appIcon from "@/assets/images/app_icon.png?url";
+import { useNavigate } from "react-router-dom";
 
 interface Exercise {
   exerciseId: number;
@@ -53,6 +54,7 @@ const getToday = (): string => {
 };
 
 export const ExerciseMapPage = () => {
+  const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [calendar, setCalendar] = useState(false);
@@ -339,6 +341,11 @@ export const ExerciseMapPage = () => {
                   location={selectedLocation.buildingName}
                   imageSrc={exercise.profileImageUrl ?? appIcon}
                   className="w-full"
+                  onClick={() =>
+                    navigate(
+                      `/group/${exercise.partyId}?date={${selectedDate}}`,
+                    )
+                  }
                 />
               </div>
             ))}
