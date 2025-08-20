@@ -18,7 +18,7 @@ import ChatDateSeparator from "./ChatDataSeperator";
 
 import { useNavigate } from "react-router-dom";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
-import { useChatRead } from "../../hooks/useChatRead";
+//import { useChatRead } from "../../hooks/useChatRead";
 
 import { subscribeRoom } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
@@ -48,12 +48,6 @@ const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
 const resolveFromKey = (key?: string | null) =>
   key ? `${S3_BASE}${String(key).replace(/^\/+/, "")}` : null;
 const asUrlOrNull = (u?: string | null) => (u && u.trim() ? u : null);
-// const filterValidUrls = (arr: Array<string | null | undefined>) =>
-//   arr.filter((u): u is string => !!u && !!u.trim());
-
-// // URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
-// const looksLikeImageUrl = (u?: string | null) =>
-//   !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
 
 // 이모티콘 업로드 결과 캐시(중복 업로드 방지)
 const emojiUploadCache = new Map<string, { imgKey: string; imgUrl: string }>();
@@ -69,7 +63,6 @@ interface ChatDetailTemplateProps {
   chatId: number;
   chatName: string;
   chatType: "group" | "personal";
-  //chatData: Record<string, ChatMessageResponse[]>;
   onBack: () => void;
   showHomeButton?: boolean;
   partyId?: number;
@@ -79,7 +72,6 @@ interface ChatDetailTemplateProps {
 export const ChatDetailTemplate = ({
   chatId,
   chatName,
-  //chatData,
   onBack,
   showHomeButton = false,
   partyId,
@@ -115,15 +107,15 @@ export const ChatDetailTemplate = ({
   } = useChatInfinite(chatId);
 
   // ===== 읽음 처리 =====
-  const { markReadNow } = useChatRead({
-    roomId: Number(chatId),
-    messages,
-    mode: "mock", // ← 백엔드 URL 확정되면 "rest"로 교체
-    // wsSendFn: payload => stompClient.publish({...}) 형태로 주입 가능
-    //   // TODO(WS): sendReadWS(chatId, payload) 등으로 연결
-    //   return { lastReadMessageId: payload.lastReadMessageId };
-    // },
-  });
+  // const { markReadNow } = useChatRead({
+  //   roomId: Number(chatId),
+  //   messages,
+  //   mode: "mock", // ← 백엔드 URL 확정되면 "rest"로 교체
+  //   // wsSendFn: payload => stompClient.publish({...}) 형태로 주입 가능
+  //   //   // TODO(WS): sendReadWS(chatId, payload) 등으로 연결
+  //   //   return { lastReadMessageId: payload.lastReadMessageId };
+  //   // },
+  // });
 
   // 활성 방/읽음카운트 스토어 연동
   const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
@@ -155,10 +147,13 @@ export const ChatDetailTemplate = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  //🌟
   const emojiRef = useRef<HTMLDivElement>(null);
 
-  //🌟
+  // 하단 붙어있음 상태
+  const [stickToBottom, setStickToBottom] = useState(true);
+  const isNearBottom = (el: HTMLDivElement) =>
+    el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+
   const toggleEmoji = useCallback(() => setShowEmoji(v => !v), []);
 
   // 초기 로드시 맨 아래로
@@ -196,20 +191,67 @@ export const ChatDetailTemplate = ({
     return () => io.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  // 하단 근처 도달 시 자동 읽음 처리(목업)
+  // 🌟하단 근처 도달 시 자동 읽음 처리(목업)
+  // useEffect(() => {
+  //   const root = scrollAreaRef.current;
+  //   if (!root) return;
+
+  //   const onScroll = () => {
+  //     const nearBottom =
+  //       root.scrollHeight - root.scrollTop - root.clientHeight < 60;
+  //     if (nearBottom) markReadNow();
+  //   };
+
+  //   root.addEventListener("scroll", onScroll);
+  //   return () => root.removeEventListener("scroll", onScroll);
+  // }, [markReadNow]);
+  // 스크롤 시 하단 붙음 상태 추적 (+ 읽음 트리거는 선택)
+  useEffect(
+    () => {
+      const root = scrollAreaRef.current;
+      if (!root) return;
+      const onScroll = () => {
+        setStickToBottom(isNearBottom(root));
+        // 읽음 처리 아직 미구현이면 아래는 주석 처리 가능
+        // if (isNearBottom(root)) markReadNow();
+      };
+      root.addEventListener("scroll", onScroll);
+      return () => root.removeEventListener("scroll", onScroll);
+    },
+    [
+      /* markReadNow (선택) */
+    ],
+  );
+
+  // 🌟이미지/이모티콘 로드 시 하단 붙이기(캡처 단계)
   useEffect(() => {
     const root = scrollAreaRef.current;
     if (!root) return;
-
-    const onScroll = () => {
-      const nearBottom =
-        root.scrollHeight - root.scrollTop - root.clientHeight < 60;
-      if (nearBottom) markReadNow();
+    const onMediaLoad = (e: Event) => {
+      if (!stickToBottom) return;
+      const t = e.target as HTMLElement | null;
+      if (t && /^(IMG|VIDEO|CANVAS|IFRAME)$/.test(t.tagName)) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "auto" }),
+        );
+      }
     };
+    root.addEventListener("load", onMediaLoad, true); // 캡처!
+    return () => root.removeEventListener("load", onMediaLoad, true);
+  }, [stickToBottom]);
 
-    root.addEventListener("scroll", onScroll);
-    return () => root.removeEventListener("scroll", onScroll);
-  }, [markReadNow]);
+  //🌟 레이아웃 변화 방어(이미지 리사이즈, 폰트로드 등)
+  useEffect(() => {
+    const root = scrollAreaRef.current;
+    if (!root) return;
+    const ro = new ResizeObserver(() => {
+      if (stickToBottom) {
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
+      }
+    });
+    ro.observe(root);
+    return () => ro.disconnect();
+  }, [stickToBottom]);
 
   //===== WS 연결 및 전송 =====
   const { sendText, sendImages, lastMessage } = useRawWsConnect({
@@ -302,34 +344,8 @@ export const ChatDetailTemplate = ({
       const ok = sendImages(chatId, payload);
       if (!ok) throw new Error("WS SEND 실패");
 
-      //🌟 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
+      //3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
       const now = new Date().toISOString();
-      // const makeOptimisticImage = (url: string): ChatMessageResponse => ({
-      //   messageId: -Date.now() - Math.floor(Math.random() * 1000),
-      //   senderId: currentUserId,
-      //   senderName: currentUserName,
-      //   senderProfileImageUrl: myAvatarUrl,
-      //   content: "",
-      //   messageType: "TEXT", // <- literal type 고정
-      //   images: [
-      //     {
-      //       imageId: -1, // 임시
-      //       imageUrl: url,
-      //       imgOrder: 1,
-      //       isEmoji: false,
-      //       originalFileName: "uploadImage",
-      //       fileSize: 0,
-      //       fileType: "image/*",
-      //     },
-      //   ],
-      //   //imageUrls: [url],
-      //   timestamp: now,
-      //   isMyMessage: true,
-      // });
-
-      // const optimistic: ChatMessageResponse[] = uploaded.map(u =>
-      //   makeOptimisticImage(u.imgUrl),
-      // );
       const optimistic: ChatMessageResponse[] = uploaded.map(u => ({
         messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
@@ -353,9 +369,14 @@ export const ChatDetailTemplate = ({
       }));
 
       setLiveMsgs((prev: ChatMessageResponse[]) => [...prev, ...optimistic]);
-      requestAnimationFrame(() =>
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      );
+      // 🌟requestAnimationFrame(() =>
+      //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      // );
+      if (stickToBottom) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+        );
+      }
     } catch (err) {
       console.error(err);
       // 업로드/전송 실패 시 낙관적 메시지 추가 이전이라 롤백 불필요
@@ -426,9 +447,14 @@ export const ChatDetailTemplate = ({
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
-      requestAnimationFrame(() =>
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      );
+      // requestAnimationFrame(() =>
+      //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      // );
+      if (stickToBottom) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+        );
+      }
     } catch (e) {
       console.error("[emoji] 전송 실패:", e);
     }
@@ -439,7 +465,7 @@ export const ChatDetailTemplate = ({
     void sendEmojiAsImage(chatId, emojiAssetPath);
   };
 
-  //🌟이미지 프리뷰
+  //이미지 프리뷰
   const handleImageClick = (p: { url: string; isEmoji: boolean }) => {
     if (!p.isEmoji) setPreviewImage(p.url); // 이모티콘은 모달X
   };
@@ -453,7 +479,6 @@ export const ChatDetailTemplate = ({
     const images = (msg.images ?? [])
       .slice()
       .sort((a, b) => a.imgOrder - b.imgOrder)
-      //🌟 .map(im => resolveFromKey(im.imgKey)) ?? [];
       .map(im => ({
         imageId: im.imageId,
         imageUrl: im.imageUrl,
@@ -464,30 +489,14 @@ export const ChatDetailTemplate = ({
         fileType: im.fileType,
       }));
 
-    // content가 이미지 URL이면(이모티콘 TEXT) 보조 처리
-    //const contentIsImg = looksLikeImageUrl(msg.content);
-    //const contentUrl = contentIsImg ? asUrlOrNull(msg.content) : null;
-    // const finalImgUrls =
-    //   imgFromArray.length > 0
-    //     ? imgFromArray
-    //     : contentIsImg
-    //       ? [msg.content!]
-    //       : [];
-    // const finalImgUrls = filterValidUrls(
-    //   imgFromArray.length > 0 ? imgFromArray : contentUrl ? [contentUrl] : [],
-    // );
-
     return {
       messageId: msg.messageId,
       senderId: msg.senderId,
       senderName: msg.senderName,
-      //🌟 senderProfileImageUrl: asUrlOrNull(msg.senderProfileImageUrl) ?? ProfileImg,
-      // content: finalImgUrls.length ? "" : (msg.content ?? ""),
       senderProfileImageUrl: msg.senderProfileImageUrl,
       content: images.length ? "" : (msg.content ?? ""),
       messageType: "TEXT",
       images,
-      //imageUrls: finalImgUrls,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
     };
@@ -528,12 +537,17 @@ export const ChatDetailTemplate = ({
       return [...prev, incoming];
     });
 
-    requestAnimationFrame(() =>
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-    );
-  }, [lastMessage, chatId, currentUserId]);
+    // 🌟requestAnimationFrame(() =>
+    //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+    // );
+    if (stickToBottom) {
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    }
+  }, [lastMessage, chatId, currentUserId, stickToBottom]);
 
-  // 🌟외부 클릭으로 닫기
+  // 외부 클릭으로 닫기
   useEffect(() => {
     if (!showEmoji) return;
 
