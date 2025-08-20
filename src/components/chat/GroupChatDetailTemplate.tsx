@@ -17,7 +17,7 @@ import { useChatRead } from "../../hooks/useChatRead";
 
 // WS 연결(원시 WebSocket 전용 훅)
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
+import { subscribeRoom } from "../../api/chat/rawWs";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
@@ -98,7 +98,7 @@ export const GroupChatDetailTemplate: React.FC<
   useEffect(() => {
     subscribeRoom(roomId);
     return () => {
-      unsubscribeRoom(roomId);
+      //unsubscribeRoom(roomId);
     };
   }, [roomId]);
 
