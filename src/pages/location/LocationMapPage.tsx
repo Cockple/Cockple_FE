@@ -31,6 +31,7 @@ export const LocationMapPage = () => {
   const location = useLocation();
   const returnPath = location.state?.returnPath ?? "/";
   const mode = location.state?.mode ?? "fill-only";
+  const isOnboarding = location.state?.isOnboarding ?? "";
 
   const user = false;
 
@@ -83,7 +84,7 @@ export const LocationMapPage = () => {
         className="px-4"
         onBackClick={() =>
           navigate(`/location/search?query=${query}`, {
-            state: { returnPath, mode },
+            state: { isOnboarding, returnPath, mode },
           })
         }
       />
