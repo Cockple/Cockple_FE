@@ -150,15 +150,15 @@ export const MyPageMyExercisePage = () => {
                   <ContentCardL
                     key={item.exerciseId}
                     id={item.exerciseId}
-                    isUserJoined={item.access.ispartyMember}
-                    isGuestAllowedByOwner={item.access.allowGuestInvitation}
+                    isUserJoined={item.access?.ispartyMember ?? false}
+                    isGuestAllowedByOwner={item.access?.allowGuestInvitation ?? false}
                     isCompleted={item.isCompleted}
                     title={item.partyName}
                     date={item.date}
                     location={item.buildingName}
                     time={`${item.startTime} ~ ${item.endTime}`}
-                    femaleLevel={item.levelRequirement.female} 
-                    maleLevel={item.levelRequirement.male}  
+                    femaleLevel={item.levelRequirement?.female ?? 0}
+                    maleLevel={item.levelRequirement?.male ?? 0}
                     currentCount={item.participation.current}
                     totalCount={item.participation.max}
                     like={isLiked}
