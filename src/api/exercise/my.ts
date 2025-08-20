@@ -16,8 +16,8 @@ export interface ExerciseItem {
   startTime: string;
   endTime: string;
   levelRequirement: {
-    female: string;
-    male: string;
+    female: string[]; 
+    male: string[];  
   };
   participation: {
     current: number;
@@ -26,6 +26,7 @@ export interface ExerciseItem {
   isBookmarked: boolean;
   isCompleted: boolean;
 }
+
 
 export interface MyExerciseItem {
   partyId: number;
@@ -88,8 +89,8 @@ export const getMyExercises = async ({
       max: item.maxCapacity ?? 0,
     },
     levelRequirement: {
-      female: item.levelRequirement?.female ?? "-",
-      male: item.levelRequirement?.male ?? "-",
+      female: item.femaleLevel ?? [],
+      male: item.maleLevel ?? [],
     },
     isBookmarked: item.isBookmarked ?? false,
     isCompleted: item.isCompleted ?? false,

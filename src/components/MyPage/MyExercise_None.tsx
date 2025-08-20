@@ -19,7 +19,7 @@ export const MyExercise_None = () => {
 
         {/* 버튼 */}
         <GR400_M
-          label="모임 둘러보기"
+          label="운동 둘러보기"
           onClick={() => navigate("/")}
         />
       </div>
