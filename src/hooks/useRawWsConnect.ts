@@ -8,12 +8,14 @@ import {
   type IncomingMessage,
   type WsSendFile,
   type WsSendImage,
+  addWsListener,
 } from "../api/chat/rawWs";
 import { useChatWsStore } from "../store/useChatWsStore";
 import useUserStore from "../store/useUserStore";
 
 //const getToken = () => localStorage.getItem("accessToken") || "";
 
+// - 재연결 시 서버가 Redis에 저장된 구독을 복원하므로, 여기서 별도 재구독 처리 불필요
 export const useRawWsConnect = (opts: {
   memberId: number;
   origin?: string;
@@ -57,7 +59,7 @@ export const useRawWsConnect = (opts: {
           if (!mounted.current) return;
           setLastMessage(msg);
 
-          // 🌟 WS → 전역 스토어 반영(목록 실시간 갱신)
+          // WS → 전역 스토어 반영(목록 실시간 갱신)
           if (msg.type === "SEND") {
             applyInbound(msg);
           }
@@ -77,10 +79,18 @@ export const useRawWsConnect = (opts: {
       },
     );
 
+    // 🌟전역 리스너 구독 → 이미 열린 소켓이라도 무조건 수신 가능
+    const off = addWsListener(msg => {
+      if (!mounted.current) return;
+      setLastMessage(msg);
+      if (msg.type === "SEND") applyInbound(msg);
+    });
+
     return () => {
       mounted.current = false;
+      off(); // 🌟전역 리스너 해제
     };
-  }, [opts.memberId, opts.origin, token]);
+  }, [opts.memberId, opts.origin, token, applyInbound]);
 
   return {
     isOpen,
