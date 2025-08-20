@@ -6,7 +6,7 @@ import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
-import type { FilterType, OrderType } from "../../api/exercise/my";
+import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
 // import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
 
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
@@ -58,7 +58,17 @@ const fetchExercises = useCallback(
         size: 10,
       });
 
-      setExerciseList(prev => (reset ? data : [...prev, ...data]));
+     setExerciseList(prev => {
+        const merged: ExerciseItem[] = reset ? data : [...prev, ...data];
+        const uniqueMap = new Map<number, ExerciseItem>();
+
+        merged.forEach((item) => {
+          uniqueMap.set(item.exerciseId, item);
+        });
+
+        return Array.from(uniqueMap.values());
+      });
+      
       setHasMore(data.length === 10);
     } catch (err) {
       console.error("운동 데이터 불러오기 실패", err);
