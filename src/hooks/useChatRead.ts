@@ -14,7 +14,7 @@ type Params = {
   wsSendFn?: (p: ReadPayload) => Promise<{ lastReadMessageId?: number }>; // WS 전용
 };
 
-// 👇 캐시에 들어있는 최소 형태만 정의 (확장 가능)
+// 캐시에 들어있는 최소 형태만 정의 (확장 가능)
 type ChatInitialCache = {
   chatRoomInfo?: {
     lastReadMessageId?: number | null;
