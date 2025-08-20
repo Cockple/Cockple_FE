@@ -42,7 +42,7 @@ export const LocationMapPage = () => {
       navigate(returnPath);
     } else {
       navigate(returnPath, {
-        state: { payload },
+        state: { selectedPlace: place },
       });
       console.log(returnPath);
     }
