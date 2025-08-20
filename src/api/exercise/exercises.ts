@@ -89,6 +89,15 @@ interface RawExerciseResponse {
   };
 }
 
+export interface CancelSelfResponse {
+  code: string;
+  message: string;
+  data?: any;
+  errorReason?: any;
+  success: boolean;
+}
+
+
 // 운동 상세 조회
 export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDetailResponse> => {
   const response = await api.get<{ code: string; message: string; data: RawExerciseResponse; success: boolean }>(
@@ -142,10 +151,16 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
   };
 };
 
-// 특정 참여자 운동 취소
-export const cancelSelf = async (exerciseId: number, memberId: number) => {
-  const response = await api.delete(`/api/exercises/${exerciseId}/participants/${memberId}`);
-  return response.data;
+
+// 참여 중인 자신 운동 나가기
+export const cancelSelf = async (exerciseId: number): Promise<CancelSelfResponse> => {
+  try {
+    const response = await api.delete<CancelSelfResponse>(`/api/exercises/${exerciseId}/participants/my`);
+    return response.data;
+  } catch (error: any) {
+    console.error("운동 참여 취소 API 호출 실패:", error);
+    throw error.response?.data || error;
+  }
 };
 
 // 참여하는 운동 삭제하기

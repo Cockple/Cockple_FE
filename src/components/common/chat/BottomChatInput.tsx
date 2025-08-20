@@ -125,16 +125,22 @@ const BottomChatInput = ({
           className={`outline-0 w-full body-md-500 overflow-hidden resize-none ${isMultiLine ? "h-auto h-min-14 h-max-32" : ""}`}
           rows={1}
         />
-        {/* 이모티콘 버튼 */}
-        <Clear_M
-          iconMap={{
-            disabled: Imogi,
-            default: Imogi,
-            pressing: Imogi,
-            clicked: Imogi,
-          }}
-          onClick={onToggleEmoji}
-        />
+        <span
+          data-emoji-safe // 🔒 외부클릭 예외 영역
+          onMouseDown={e => e.stopPropagation()}
+          onTouchStart={e => e.stopPropagation()}
+        >
+          {/* 이모티콘 버튼 */}
+          <Clear_M
+            iconMap={{
+              disabled: Imogi,
+              default: Imogi,
+              pressing: Imogi,
+              clicked: Imogi,
+            }}
+            onClick={onToggleEmoji}
+          />
+        </span>
       </div>
 
       {/* 전송 버튼 */}

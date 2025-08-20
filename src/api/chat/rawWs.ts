@@ -47,18 +47,59 @@ export type ErrorResponse = {
   errorCode: string;
   message: string;
 };
-export type SubscriptionResponse = {
-  type: "SUBSCRIBE";
+
+// --- 🌟채팅방목록 구독
+export type ChatRoomListUpdate = {
+  type: "CHAT_ROOM_LIST_UPDATE";
   chatRoomId: number;
-  message: string;
+  lastMessage: {
+    content: string | null;
+    timestamp: string | null;
+    messageType: "TEXT";
+  };
+  newUnreadCount: number;
   timestamp: string;
 };
-export type UnsubscribeResponse = {
-  type: "UNSUBSCRIBE"; // 문서/예시 상 불일치 대비
-  chatRoomId: number;
-  message: string;
-  timestamp: string;
-};
+
+// 🌟export type SubscriptionResponse = {
+//   type: "SUBSCRIBE";
+//   chatRoomId: number;
+//   message: string;
+//   timestamp: string;
+// };
+export type SubscriptionResponse =
+  | {
+      type: "SUBSCRIBE";
+      chatRoomId: number;
+      message: string;
+      timestamp: string;
+    }
+  | {
+      type: "SUBSCRIBE";
+      chatRoomIds: number[];
+      message: string;
+      timestamp: string;
+    };
+
+// 🌟export type UnsubscribeResponse = {
+//   type: "UNSUBSCRIBE"; // 문서/예시 상 불일치 대비
+//   chatRoomId: number;
+//   message: string;
+//   timestamp: string;
+// };
+export type UnsubscribeResponse =
+  | {
+      type: "UNSUBSCRIBE";
+      chatRoomId: number;
+      message: string;
+      timestamp: string;
+    }
+  | {
+      type: "UNSUBSCRIBE";
+      chatRoomIds: number[];
+      message: string;
+      timestamp: string;
+    };
 
 // 새 브로드캐스트 포맷
 export type BroadcastMessage = {
@@ -80,14 +121,27 @@ export type IncomingMessage =
   | ErrorResponse
   | SubscriptionResponse
   | UnsubscribeResponse
-  | BroadcastMessage;
+  | BroadcastMessage
+  | ChatRoomListUpdate; // 🌟 (채팅방 목록을 구독한 상대방에게 보내는 업데이트)
 
-//현재 구독 중인 방 목록을 전역으로 유지
+//현재 구독 중인 방 목록을 전역으로 유지 (클라이언트 단의 '의도' 상태)
+// 서버는 Redis에 실제 구독을 보관/복원하므로 재연결시 재구독 전송은 불필요
 const currentRooms = new Set<number>();
 
 // 재연결 백오프
 let reconnectTimer: number | null = null;
 let reconnectAttempt = 0;
+
+//🌟전역 리스너(Event Bus)
+type MsgListener = (data: IncomingMessage) => void;
+const listeners = new Set<MsgListener>();
+
+export const addWsListener = (fn: MsgListener) => {
+  listeners.add(fn);
+  return () => {
+    listeners.delete(fn);
+  };
+};
 
 type Handlers = {
   onOpen?: (info?: ConnectResponse) => void;
@@ -117,18 +171,6 @@ const getToken = () => {
 };
 const hasToken = () => !!getToken();
 
-// 🌟서버로 보낼 메시지 타입
-// type OutgoingMessage =
-//   | { type: "SUBSCRIBE"; chatRoomId: number }
-//   | { type: "UNSUBSCRIBE"; chatRoomId: number }
-//   | { type: "SEND"; chatRoomId: number; messageType?: "TEXT"; content: string }
-//   | {
-//       type: "SEND";
-//       chatRoomId: number;
-//       messageType?: "IMAGE";
-//       imgKeys: string[];
-//       content?: string;
-//     };
 export type WsSendFile = {
   fileKey: string;
   originalFileName: string;
@@ -155,6 +197,8 @@ type WsSendEnvelope = {
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "UNSUBSCRIBE"; chatRoomId: number }
+  | { type: "SUBSCRIBE_CHAT_LIST"; memberRooms: number[] } // 🌟목록 탭용
+  | { type: "UNSUBSCRIBE_CHAT_LIST"; memberRooms: number[] } // 🌟목록 탭용
   | WsSendEnvelope;
 
 const sendJSON = (msg: OutgoingMessage) => {
@@ -198,20 +242,35 @@ export const connectRawWs = (
   // readyState가 OPEN이 되면 onopen 호출
   sock.onopen = () => {
     reconnectAttempt = 0;
+    console.log("[WS open]");
     handlers.onOpen?.();
 
     // 자동 재구독
-    if (currentRooms.size) {
-      [...currentRooms].forEach(id =>
-        sendJSON({ type: "SUBSCRIBE", chatRoomId: id }),
-      );
-    }
+    // ->
+    // 재연결 시 재구독 불필요: 서버가 Redis에 구독 상태를 보관/복원
+    // if (currentRooms.size) {
+    //   [...currentRooms].forEach(id => {
+    //     //sendJSON({ type: "SUBSCRIBE", chatRoomId: id }),
+    //     const ok = sendJSON({ type: "SUBSCRIBE", chatRoomId: id });
+    //     console.log("[WS→] auto-resubscribe", id, ok ? "OK" : "FAIL");
+    //   });
+    // }
   };
 
   sock.onmessage = (e: MessageEvent) => {
     try {
       const parsed: IncomingMessage = JSON.parse(e.data);
+      console.log("[WS←] message", parsed); // 디버깅
       handlers.onMessage?.(parsed);
+
+      // 🌟전역 리스너 브로드캐스트
+      listeners.forEach(fn => {
+        try {
+          fn(parsed);
+        } catch (err) {
+          console.warn("ws listener err", err);
+        }
+      });
     } catch {
       console.warn("[SockJS] Non-JSON message:", e.data);
     }
@@ -257,16 +316,31 @@ export const disconnectRawWs = () => {
 export const rawWsState = () => ws?.readyState; // 0/1/2/3
 export const isRawWsOpen = () => ws?.readyState === WebSocket.OPEN;
 
+//🌟
+export const subscribeChatList = (roomIds: number[]) => {
+  if (!roomIds.length) return;
+  const ok = sendJSON({ type: "SUBSCRIBE_CHAT_LIST", memberRooms: roomIds });
+  console.log("[WS→] SUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
+};
+
 //
 export const subscribeRoom = (roomId: number) => {
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
-  sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
+  const ok = sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
+  console.log("[WS→] SUBSCRIBE", roomId, ok ? "OK" : "DEFER");
 };
 
 //
 export const subscribeMany = (roomIds: number[]) => {
   roomIds.forEach(id => subscribeRoom(id));
+};
+
+//🌟
+export const unsubscribeChatList = (roomIds: number[]) => {
+  if (!roomIds.length) return;
+  const ok = sendJSON({ type: "UNSUBSCRIBE_CHAT_LIST", memberRooms: roomIds });
+  console.log("[WS→] UNSUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
 };
 
 //
@@ -282,6 +356,7 @@ export const unsubscribeRoom = (roomId: number) => {
 
 //
 export const unsubscribeAll = () => {
+  // 서버가 구독을 영속화하므로, 진짜로 모두 끊고 싶을 때만 호출하세요.
   [...currentRooms].forEach(id =>
     sendJSON({ type: "UNSUBSCRIBE", chatRoomId: id }),
   );

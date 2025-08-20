@@ -15,8 +15,8 @@ export const Modal_ExDel  = ({ onConfirm, onCancel }: ModalCautionProps) => {
 
       <div className="flex flex-col items-center text-center gap-1 mb-4 leading-snug">
         <Del_rd className="w-8 h-8" />
-        <p className="header-h4">정말 모임을 삭제하시겠어요?</p>
-        <p className="body-rg-500">모임에 대한 모든 정보가 사라져요.</p>
+        <p className="header-h4">정말 운동을 삭제하시겠어요?</p>
+        <p className="body-rg-500">운동에 대한 모든 정보가 사라져요.</p>
         <p className="body-rg-500">‘삭제하기’를 누르시면, 번복할 수 없으니</p>
         <p className="body-rg-500">신중한 선택 부탁드려요.</p>
       </div>

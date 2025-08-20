@@ -283,6 +283,7 @@ export const MyGroupExercisePage = () => {
                   date={selectedDate}
                   time={`${ex.startTime} ~ ${ex.endTime}`}
                   location={ex.buildingName}
+                  isFavorite={ex.isBookmarked}
                   imageSrc={ex.profileImageUrl ?? appIcon}
                   onClick={() => onClickExercise(ex.partyId)}
                 />

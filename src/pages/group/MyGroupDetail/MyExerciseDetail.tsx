@@ -17,8 +17,9 @@ import {
   deleteExercise,
 } from "../../../api/exercise/exercises";
 import { cancelByLeader } from "../../../api/exercise/participants";
-import type { ExerciseDetailResponse } from "../../../api/exercise/exercises";
+import type { ExerciseDetailResponse, CancelSelfResponse } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
+
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
@@ -82,7 +83,7 @@ export const MyExerciseDetail = () => {
     }
   }, [exerciseIdNumber, user?.memberId]);
 
-  // 더미 들어오면 삭제 모달 확인
+  //운동 취소 api
   const handleDeleteMember = async (
     participantId: number,
     options?: { isGuest?: boolean; isLeaderAction?: boolean },
@@ -90,28 +91,26 @@ export const MyExerciseDetail = () => {
     if (!exerciseIdNumber) return;
 
     try {
-      let res;
+      let res: CancelSelfResponse;
       if (options?.isLeaderAction) {
-        // 모임장이 다른 참여자 삭제
-        res = await cancelByLeader(
-          exerciseIdNumber,
-          participantId,
-          options.isGuest ?? false,
-        );
+        //모임장 다른 참여자 추방
+        res = await cancelByLeader(exerciseIdNumber, participantId, options.isGuest ?? false);
       } else {
-        // 일반 참여자가 자신 삭제
-        res = await cancelSelf(exerciseIdNumber, participantId);
+        // 나 자신 모임 취소
+        res = await cancelSelf(exerciseIdNumber);        
       }
 
-      if (res?.success) {
+      if (res.success) {
         setMembers(prev => prev.filter(m => m.participantId !== participantId));
-        setParticipantsCount(res.data.currentParticipants);
-        console.log(`${res.data.memberName} 참여 취소 완료`);
+        setParticipantsCount(prev => prev - 1);
+        alert("참여 취소 완료");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("멤버 삭제 실패:", error);
+      alert(error?.message || "참여 취소 실패");
     }
   };
+
 
   if (!detail) {
     return <p className="p-4">불러오는 중...</p>;
@@ -121,13 +120,10 @@ export const MyExerciseDetail = () => {
     <>
       <PageHeader
         title="내 운동 상세"
-        onMoreClick={() => setIsSortOpen(true)}
+        onMoreClick={isCurrentUserLeader ? () => setIsSortOpen(true) : undefined}
         onBackClick={() => {
-          if (returnPath === -1) {
-            navigate(-1);
-          } else {
-            navigate(returnPath);
-          }
+          if (returnPath === -1) navigate(-1);
+          else navigate(returnPath);
         }}
       />
 
@@ -270,7 +266,9 @@ export const MyExerciseDetail = () => {
         options={["운동 수정하기", "운동 삭제하기"]}
         onSelect={option => {
           if (option === "운동 수정하기") {
-            navigate(`/group/exercise/edit/${exerciseId}`);
+            navigate(
+              `/group/exercise/edit/${exerciseId}?returnPath=${returnPath}`,
+            );
           }
           if (option === "운동 삭제하기") {
             setIsSortOpen(false);

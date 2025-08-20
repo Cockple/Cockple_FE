@@ -1,6 +1,12 @@
 // 그룹 채팅창 템플릿: ChatDetailTemplate와 동일한 구조/흐름으로 정리
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 //import { useNavigate } from "react-router-dom";
 
 import ChattingComponent from "../common/chat/ChattingComponent";
@@ -13,11 +19,11 @@ import ChatDateSeparator from "./ChatDataSeperator";
 
 // 데이터 훅
 import { useChatInfinite } from "../../hooks/useChatInfinite";
-import { useChatRead } from "../../hooks/useChatRead";
+//import { useChatRead } from "../../hooks/useChatRead";
 
 // WS 연결(원시 WebSocket 전용 훅)
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
+import { subscribeRoom } from "../../api/chat/rawWs";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
@@ -88,17 +94,17 @@ export const GroupChatDetailTemplate: React.FC<
   } = useChatInfinite(roomId);
 
   // ===== 읽음 처리: 진입/스크롤 하단 도달 시 =====
-  const { markReadNow } = useChatRead({
-    roomId,
-    messages,
-    mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
-  });
+  // const { markReadNow } = useChatRead({
+  //   roomId,
+  //   messages,
+  //   mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
+  // });
 
   // 방 입장/퇴장: 단일 구독 유지
   useEffect(() => {
     subscribeRoom(roomId);
     return () => {
-      unsubscribeRoom(roomId);
+      //unsubscribeRoom(roomId);
     };
   }, [roomId]);
 
@@ -116,6 +122,14 @@ export const GroupChatDetailTemplate: React.FC<
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null!);
+  const emojiRef = useRef<HTMLDivElement>(null);
+
+  // 하단 붙어있음 상태
+  const [stickToBottom, setStickToBottom] = useState(true);
+  const isNearBottom = (el: HTMLDivElement) =>
+    el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+
+  const toggleEmoji = useCallback(() => setShowEmoji(v => !v), []);
 
   // 초기 로드시 맨 아래로 이동
   useEffect(() => {
@@ -152,19 +166,53 @@ export const GroupChatDetailTemplate: React.FC<
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   // 하단 근처 도달 시 읽음 처리
+  // 스크롤 시 하단 붙음 상태 추적 (+ 읽음 트리거는 선택)
+  useEffect(
+    () => {
+      const root = scrollAreaRef.current;
+      if (!root) return;
+      const onScroll = () => {
+        setStickToBottom(isNearBottom(root));
+        // 읽음 처리 아직 미구현이면 아래는 주석 처리 가능
+        // if (isNearBottom(root)) markReadNow();
+      };
+      root.addEventListener("scroll", onScroll);
+      return () => root.removeEventListener("scroll", onScroll);
+    },
+    [
+      /* markReadNow (선택) */
+    ],
+  );
+
+  // 🌟이미지/이모티콘 로드 시 하단 붙이기(캡처 단계)
   useEffect(() => {
     const root = scrollAreaRef.current;
     if (!root) return;
-
-    const onScroll = () => {
-      const nearBottom =
-        root.scrollHeight - root.scrollTop - root.clientHeight < 60;
-      if (nearBottom) markReadNow();
+    const onMediaLoad = (e: Event) => {
+      if (!stickToBottom) return;
+      const t = e.target as HTMLElement | null;
+      if (t && /^(IMG|VIDEO|CANVAS|IFRAME)$/.test(t.tagName)) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "auto" }),
+        );
+      }
     };
+    root.addEventListener("load", onMediaLoad, true); // 캡처!
+    return () => root.removeEventListener("load", onMediaLoad, true);
+  }, [stickToBottom]);
 
-    root.addEventListener("scroll", onScroll);
-    return () => root.removeEventListener("scroll", onScroll);
-  }, [markReadNow]);
+  //🌟 레이아웃 변화 방어(이미지 리사이즈, 폰트로드 등)
+  useEffect(() => {
+    const root = scrollAreaRef.current;
+    if (!root) return;
+    const ro = new ResizeObserver(() => {
+      if (stickToBottom) {
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
+      }
+    });
+    ro.observe(root);
+    return () => ro.disconnect();
+  }, [stickToBottom]);
 
   //===== WS 연결 및 전송 =====
   // ChatDetailTemplate와 동일 인터페이스 사용(sendImages)
@@ -272,9 +320,11 @@ export const GroupChatDetailTemplate: React.FC<
       }));
 
       setLiveMsgs(prev => [...prev, ...optimistic]);
-      requestAnimationFrame(() =>
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      );
+      if (stickToBottom) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+        );
+      }
     } catch (err) {
       console.error(err);
       // 업로드/전송 실패 시 낙관적 추가 이전이라 롤백 불필요
@@ -335,9 +385,11 @@ export const GroupChatDetailTemplate: React.FC<
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
-      requestAnimationFrame(() =>
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      );
+      if (stickToBottom) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+        );
+      }
     } catch (e) {
       console.error("[emoji] 전송 실패:", e);
     }
@@ -370,17 +422,6 @@ export const GroupChatDetailTemplate: React.FC<
         fileSize: im.fileSize,
         fileType: im.fileType,
       }));
-
-    // content가 이미지 URL이면(이모티콘 TEXT 케이스 예방)
-    // const contentIsImg = looksLikeImageUrl(msg.content);
-    // const finalImgUrls =
-    //   imgFromArray.length > 0
-    //     ? imgFromArray
-    //     : contentIsImg
-    //       ? [msg.content!]
-    //       : [];
-
-    //const isImage = finalImgUrls.length > 0;
 
     return {
       messageId: msg.messageId,
@@ -430,10 +471,40 @@ export const GroupChatDetailTemplate: React.FC<
       return [...prev, incoming];
     });
 
-    requestAnimationFrame(() =>
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-    );
-  }, [lastMessage, roomId, currentUserId]);
+    if (stickToBottom) {
+      requestAnimationFrame(() =>
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+      );
+    }
+  }, [lastMessage, roomId, currentUserId, stickToBottom]);
+
+  // 외부 클릭으로 닫기
+  useEffect(() => {
+    if (!showEmoji) return;
+
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const pickerEl = emojiRef.current;
+      const target = e.target as Node | null;
+
+      // (1) 픽커 내부면 무시
+      if (pickerEl && target && pickerEl.contains(target)) return;
+
+      // (2) 안전 영역(토글 버튼 등) 클릭이면 무시
+      //   => 아래 2)에서 버튼에 data-emoji-safe 부여함
+      if (target instanceof Element && target.closest?.("[data-emoji-safe]"))
+        return;
+
+      // 그 외 아무 곳이나 클릭 → 닫기
+      setShowEmoji(false);
+    };
+
+    document.addEventListener("mousedown", handlePointerDown, true);
+    document.addEventListener("touchstart", handlePointerDown, true);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown, true);
+      document.removeEventListener("touchstart", handlePointerDown, true);
+    };
+  }, [showEmoji]);
 
   if (initError) return <div className="p-6">메시지 불러오기 실패</div>;
 
@@ -526,11 +597,13 @@ export const GroupChatDetailTemplate: React.FC<
           onSendMessage={handleSendMessage}
           onImageUpload={handleImageUpload}
           fileInputRef={fileInputRef}
-          onToggleEmoji={() => setShowEmoji(v => !v)} // ⭐ 이모티콘 토글
+          onToggleEmoji={toggleEmoji}
           onFocusInput={() => setShowEmoji(false)} // 입력창 포커스 → 닫기
         />
         {showEmoji && (
-          <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+          <div ref={emojiRef}>
+            <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+          </div>
         )}
       </div>
     </div>

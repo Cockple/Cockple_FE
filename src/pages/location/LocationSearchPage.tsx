@@ -43,6 +43,13 @@ export const LocationSearchPage = () => {
   //   : (location.state?.returnPath ?? "/");
   const returnPath = location.state?.returnPath ?? "/";
 
+  const x = searchParams.get("x");
+  const y = searchParams.get("y");
+  const place = searchParams.get("place");
+  const address = searchParams.get("address");
+  const road = searchParams.get("road");
+  // const query = searchParams.get("query");
+
   const mode = location.state?.mode ?? "fill-only";
   const fetchPlaces = async (newPage = 1, isNewSearch = false) => {
     try {
@@ -143,17 +150,17 @@ export const LocationSearchPage = () => {
 
   const handleSelect = async (place: Place) => {
     const payload = transformPlaceToPayload(place);
-    const isOnboardingNow = !!useUserStore.getState().user?.isNewMember;
-    const targetPath = isOnboardingNow
-      ? "/onboarding/profile"
-      : (location.state?.returnPath ?? "/");
+    // const isOnboardingNow = !!useUserStore.getState().user?.isNewMember;
+    // const targetPath = isOnboardingNow
+    //   ? "/onboarding/profile"
+    //   : (location.state?.returnPath ?? "/");
 
     if (mode === "call-api") {
       // api 요청
       await postMyProfileLocation(payload);
-      navigate(targetPath);
+      navigate(returnPath);
     } else {
-      navigate(targetPath, {
+      navigate(returnPath, {
         state: { selectedPlace: place },
       });
       console.log(returnPath);
@@ -227,7 +234,18 @@ export const LocationSearchPage = () => {
             className="fixed bottom-0 w-full max-w-[444px] flex justify-center -mb-3 -ml-4 bg-white"
             onClick={() => handleSelect(results[selectedId])}
           >
-            <Grad_GR400_L label="이 위치로 위치 등록" />
+            <Grad_GR400_L
+              label="이 위치로 위치 등록"
+              onClick={() =>
+                handleSelect({
+                  place_name: place ?? "",
+                  address_name: address ?? "",
+                  road_address_name: road ?? "",
+                  x: x ?? "",
+                  y: y ?? "",
+                })
+              }
+            />
           </div>
         )}
       </div>

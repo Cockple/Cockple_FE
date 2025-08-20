@@ -6,9 +6,7 @@ import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
 import { MyExercise_None } from "../../components/MyPage/MyExercise_None";
 import TabSelector from "../../components/common/TabSelector";
 import { getMyExercises } from "../../api/exercise/my";
-import type { FilterType, OrderType } from "../../api/exercise/my";
-// import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
-
+import type { FilterType, OrderType, ExerciseItem } from "../../api/exercise/my";
 import { useLikedExerciseIds } from "../../hooks/useLikedItems";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +20,7 @@ export const MyPageMyExercisePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const pageSize = 10;
 
   const { exerciseList, setExerciseList } = useMyExerciseStore();
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -45,45 +44,57 @@ export const MyPageMyExercisePage = () => {
     return sort === "오래된 순" ? "OLDEST" : "LATEST";
   };
 
-  // 운동 데이터 불러오기
-const fetchExercises = useCallback(
-  async (reset = false) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const data = await getMyExercises({
-        filterType: mapTabToFilterType(selectedTab),
-        orderType: mapSortToOrderType(sortOption),
-        page: reset ? 0 : page,
-        size: 10,
-      });
+  // 운동 데이터 fetch
+  const fetchExercises = useCallback(
+    async (reset = false) => {
+      if (isLoading) return;
+      setIsLoading(true);
+      try {
+        const data = await getMyExercises({
+          filterType: mapTabToFilterType(selectedTab),
+          orderType: mapSortToOrderType(sortOption),
+          page: reset ? 0 : page,
+          size: pageSize,
+        });
 
-      setExerciseList(prev => (reset ? data : [...prev, ...data]));
-      setHasMore(data.length === 10);
-    } catch (err) {
-      console.error("운동 데이터 불러오기 실패", err);
-      if (reset) setExerciseList([]);
-    } finally {
-      setIsLoading(false);
-    }
-  },
-  [page, selectedTab, sortOption, isLoading, setExerciseList]
-);
+        setExerciseList(prev => {
+          const merged: ExerciseItem[] = reset ? data : [...prev, ...data];
+          const uniqueMap = new Map<number, ExerciseItem>();
+          merged.forEach(item => uniqueMap.set(item.exerciseId, item));
+          return Array.from(uniqueMap.values());
+        });
 
+        // 마지막 페이지 판단
+        setHasMore(data.length === pageSize);
+      } catch (err) {
+        console.error("운동 데이터 불러오기 실패", err);
+        if (reset) setExerciseList([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [page, selectedTab, sortOption, isLoading, setExerciseList]
+  );
 
-  // 페이지 로드 시 서버 데이터 가져오기
+  // 초기 로딩
   useEffect(() => {
     fetchExercises(true);
   }, []);
 
-  // 탭/정렬 변경 시 reset
+  // 탭/정렬 변경 시 초기화
   useEffect(() => {
     setPage(0);
     fetchExercises(true);
   }, [selectedTab, sortOption]);
 
+  // page 변경 시 데이터 fetch
   useEffect(() => {
-    if (!observerRef.current || !hasMore || isLoading) return;
+    if (page > 0) fetchExercises();
+  }, [page]);
+
+  useEffect(() => {
+    const node = observerRef.current;
+    if (!node || !hasMore || isLoading) return;
 
     const observer = new IntersectionObserver(
       entries => {
@@ -91,20 +102,15 @@ const fetchExercises = useCallback(
           setPage(prev => prev + 1);
         }
       },
-      { threshold: 1.0 },
+      { threshold: 1.0 }
     );
 
-    observer.observe(observerRef.current);
+    observer.observe(node);
 
     return () => {
-      if (observerRef.current) observer.unobserve(observerRef.current);
+      observer.unobserve(node);
     };
-  }, [observerRef.current, hasMore, isLoading]);
-
-  useEffect(() => {
-    if (page > 0) fetchExercises();
-  }, [page]);
-
+  }, [hasMore, isLoading]);
 
   if (isExerciseLikedLoading) {
     return <LoadingSpinner />;
@@ -139,6 +145,7 @@ const fetchExercises = useCallback(
                 onClick={() => setIsSortOpen(!isSortOpen)}
               />
             </div>
+
             <div className="flex flex-col items-center justify-center">
               {exerciseList.map(item => {
                 const isLiked = likedExerciseIds.includes(item.exerciseId);
@@ -146,23 +153,24 @@ const fetchExercises = useCallback(
                   <ContentCardL
                     key={item.exerciseId}
                     id={item.exerciseId}
-                    isUserJoined={item.access.ispartyMember}
-                    isGuestAllowedByOwner={item.access.allowGuestInvitation}
+                    isUserJoined={item.access?.ispartyMember ?? false}
+                    isGuestAllowedByOwner={item.access?.allowGuestInvitation ?? false}
                     isCompleted={item.isCompleted}
                     title={item.partyName}
                     date={item.date}
                     location={item.buildingName}
                     time={`${item.startTime} ~ ${item.endTime}`}
-                    femaleLevel={[item.levelRequirement.female]}
-                    maleLevel={[item.levelRequirement.male]}
+                    femaleLevel={item.levelRequirement?.female ?? 0}
+                    maleLevel={item.levelRequirement?.male ?? 0}
                     currentCount={item.participation.current}
                     totalCount={item.participation.max}
                     like={isLiked}
                   />
                 );
               })}
+
               <div ref={observerRef} className="h-10" />
-              {isLoading && (
+              {isLoading && hasMore && (
                 <div className="py-4">
                   <LoadingSpinner />
                 </div>
