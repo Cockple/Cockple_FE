@@ -81,7 +81,11 @@ export const LocationMapPage = () => {
       <PageHeader
         title="주소 검색"
         className="px-4"
-        onBackClick={() => navigate(`/location/search?query=${query}`)}
+        onBackClick={() =>
+          navigate(`/location/search?query=${query}`, {
+            state: { returnPath, mode },
+          })
+        }
       />
 
       {user && <ProgressBar width="72" className="mx-4" />}
