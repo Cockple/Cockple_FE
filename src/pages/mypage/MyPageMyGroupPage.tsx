@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Sort from "../../components/common/Sort";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
@@ -6,11 +6,11 @@ import { Group_M } from "../../components/common/contentcard/Group_M";
 import { MyGroupNone } from "../../components/MyPage/MyGroupNone";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
-import { getMyGroups } from "../../api/party/my";
-import type { PartyData } from "../../api/party/my";
+import { getMyGroups, type PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import { useLocation, useNavigate } from "react-router-dom";
 import appIcon from "@/assets/images/app_icon.png?url";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
@@ -20,37 +20,72 @@ export const MyPageMyGroupPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const returnParam = new URLSearchParams(location.search).get("return");
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
     useLikedGroupIds();
 
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+      observerRef.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage(prev => prev + 1);
+        }
+      });
+      if (node) observerRef.current.observe(node);
+    },
+    [isLoading, hasMore],
+  );
+
   useEffect(() => {
     const fetchGroups = async () => {
+      setIsLoading(true);
       try {
         const result = await getMyGroups({
           created: isChecked,
           sort: sortOption,
+          page,     
+          size: 10,  
         });
+
         const resultWithLike = result.map(group => ({
           ...group,
           like: likedGroupIds.includes(group.partyId),
         }));
 
-        setGroups(resultWithLike);
+        setGroups(prev =>
+          page === 0 ? resultWithLike : [...prev, ...resultWithLike],
+        );
+
+        setHasMore(resultWithLike.length > 0); 
       } catch (err) {
         console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     if (!isGroupLikedLoading) {
       fetchGroups();
     }
-  }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading]);
+  }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading, page]);
+
+  // 필터/정렬 바뀌면 페이지 리셋
+  useEffect(() => {
+    setPage(0);
+    setGroups([]);
+    setHasMore(true);
+  }, [isChecked, sortOption]);
 
   const hasGroups = groups.length > 0;
 
   const onBackClick = () => {
+    const returnParam = new URLSearchParams(location.search).get("return");
     if (returnParam) {
       navigate(returnParam);
     } else {
@@ -65,61 +100,75 @@ export const MyPageMyGroupPage = () => {
       </div>
 
       <div className="flex-1 flex flex-col mt-4">
-        {hasGroups && (
-          <div className="mb-8">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <button onClick={() => setIsChecked(!isChecked)}>
-                  {isChecked ? (
-                    <CheckCircledFilled className="w-4 h-4" />
-                  ) : (
-                    <CheckCircled className="w-4 h-4" />
-                  )}
-                </button>
-                <label className="body-rg-500">내가 만든 모임</label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sort
-                  label={sortOption}
-                  isOpen={isSortOpen}
-                  onClick={() => setIsSortOpen(!isSortOpen)}
-                />
+        {groups.length === 0 && isLoading ? (
+          <div className="flex flex-1 items-center justify-center py-20">
+            <LoadingSpinner />
+          </div>
+        ) : hasGroups ? (
+          <>
+            <div className="mb-8">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setIsChecked(!isChecked)}>
+                    {isChecked ? (
+                      <CheckCircledFilled className="w-4 h-4" />
+                    ) : (
+                      <CheckCircled className="w-4 h-4" />
+                    )}
+                  </button>
+                  <label className="body-rg-500">내가 만든 모임</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Sort
+                    label={sortOption}
+                    isOpen={isSortOpen}
+                    onClick={() => setIsSortOpen(!isSortOpen)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
 
-        <div className="flex-1 flex flex-col gap-4">
-          {hasGroups ? (
-            groups.map(group => {
-              return (
-                <div key={group.partyId}>
-                  <Group_M
-                    id={group.partyId}
-                    groupName={group.partyName}
-                    groupImage={group.partyImgUrl ?? appIcon}
-                    location={`${group.addr1} / ${group.addr2}`}
-                    femaleLevel={group.femaleLevel}
-                    maleLevel={group.maleLevel}
-                    nextActivitDate={group.nextExerciseInfo}
-                    upcomingCount={group.totalExerciseCount}
-                    like={group.isBookmarked}
-                    isMine={group.isMine ?? false}
-                    onClick={() =>
-                      navigate(
-                        `/group/${group.partyId}?return=${encodeURIComponent(location.pathname + location.search)}`,
-                      )
-                    }
-                    // onToggleFavorite={handleToggleFavorite}
-                  />
-                  <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+            <div className="flex-1 flex flex-col gap-4">
+              {groups.map((group, index) => {
+                const isLast = index === groups.length - 1;
+                return (
+                  <div
+                    key={group.partyId}
+                    ref={isLast ? lastElementRef : null}
+                  >
+                    <Group_M
+                      id={group.partyId}
+                      groupName={group.partyName}
+                      groupImage={group.partyImgUrl ?? appIcon}
+                      location={`${group.addr1} / ${group.addr2}`}
+                      femaleLevel={group.femaleLevel}
+                      maleLevel={group.maleLevel}
+                      nextActivitDate={group.nextExerciseInfo}
+                      upcomingCount={group.totalExerciseCount}
+                      like={group.isBookmarked}
+                      isMine={group.isMine ?? false}
+                      onClick={() =>
+                        navigate(
+                          `/group/${group.partyId}?return=${encodeURIComponent(
+                            location.pathname + location.search,
+                          )}`,
+                        )
+                      }
+                    />
+                    <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                  </div>
+                );
+              })}
+              {isLoading && (
+                <div className="flex justify-center items-center py-4">
+                  <LoadingSpinner />
                 </div>
-              );
-            })
-          ) : (
-            <MyGroupNone />
-          )}
-        </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <MyGroupNone />
+        )}
       </div>
 
       <SortBottomSheet

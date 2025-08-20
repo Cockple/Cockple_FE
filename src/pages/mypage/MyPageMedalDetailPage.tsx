@@ -14,23 +14,24 @@ import type { ContestDetailResponse } from "../../api/contest/member";
 import type { ContestRecordDetailResponse } from "../../api/contest/contestmy";
 import { getMyProfile } from "../../api/member/my";
 import BaseProfileImg from "@/assets/images/base_profile_img.png?url";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner"; 
 
 interface MedalDetail {
-  photo?: string[];           // 이미지 URL 배열
-  title?: string;             // 대회명
-  date?: string;              // 날짜
-  participationType?: string; // 참여 형태
-  record?: string;            // 대회 기록
-  videoUrl?: string[];        // 영상 링크 배열
+  photo?: string[];
+  title?: string;
+  date?: string;
+  participationType?: string;
+  record?: string;
+  videoUrl?: string[];
 }
 
 export const MyPageMedalDetailPage = () => {
   const navigate = useNavigate();
   const params = useParams<{ memberId?: string; contestId?: string; contentId?: string }>();
   const memberId = params.memberId;
-  // const contestId = params.contestId;
   const [medalDetail, setMedalDetail] = useState<MedalDetail | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const contentId = params.contestId || params.contentId;
 
@@ -58,11 +59,13 @@ export const MyPageMedalDetailPage = () => {
     };
     fetchProfile();
   }, []);
+
   useEffect(() => {
     if (!contentId) return;
 
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         let data: ContestDetailResponse | ContestRecordDetailResponse | null = null;
 
         if (memberId) {
@@ -73,44 +76,56 @@ export const MyPageMedalDetailPage = () => {
 
         if (!data) {
           setMedalDetail(null);
+          setIsLoading(false);
           return;
         }
 
-        // 이미지 URL 디코딩 + 중복 https 제거
-        // const processedImages: string[] = ((data as any).contestImgUrls ?? []).map((url: string) => {
-        //   const decoded = decodeURIComponent(url);
-        //   return decoded.replace(/^https?:\/{2,}/, "https://");
-        // });
-
-       // contestImgUrls 처리
         setMedalDetail({
           title: data.contestName ?? "",
           date: data.date ?? "",
           participationType: `${data.type ?? ""} - ${data.level ?? ""}`,
-          record: data.content ?? "",
           photo: ((data as any).contestImgUrls ?? []).map((url: string) => {
-            // URL 디코딩
             let decoded = decodeURIComponent(url);
-            // 중복 S3 경로 제거
             decoded = decoded.replace(
               /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
               "https://"
             );
             return decoded;
           }),
-          videoUrl: (data as any).contestVideoUrls ?? [],
+          videoUrl: Array.isArray((data as any).contestVideoUrls)
+            ? (data as any).contestVideoUrls
+            : [],
+          record: typeof data.content === "string" ? data.content : "",
         });
-
       } catch (err) {
         console.error(err);
         setMedalDetail(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, [contentId, memberId]);
 
-  if (!medalDetail) return <div>로딩 중...</div>;
+  // 로딩 중 스피너 표시
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="translate-y-10">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
+
+  if (!medalDetail) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p>메달 정보를 불러올 수 없습니다.</p>
+      </div>
+    );
+  }
 
   const displayImages = medalDetail.photo?.length ? medalDetail.photo : [Kitty];
   const urls = medalDetail.videoUrl ?? [];

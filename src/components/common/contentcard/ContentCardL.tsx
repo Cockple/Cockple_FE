@@ -162,8 +162,6 @@ export const ContentCardL = ({
         </div>
         <RightAngle
           className="w-4 h-4"
-          // onClick={() => navigate(`/group/Mygroup/MyExerciseDetail/${id}`)}
-
           onClick={() =>
             navigate(
               `/group/Mygroup/MyExerciseDetail/${id}?returnPath=${loca.pathname}`,
@@ -187,16 +185,30 @@ export const ContentCardL = ({
           <span>{time}</span>
         </div>
 
-        <div className="w-[19.9375rem] flex gap-[0.8125rem]">
+       <div className="w-[19.9375rem] flex gap-[0.8125rem]">
+        {femaleLevel.length > 0 && (
           <div className="flex items-center gap-1 w-[9rem] truncate">
             <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
-            <span className="truncate">{femaleLevel}</span>
+            <span className="truncate">
+              {femaleLevel.length > 1
+                ? `${femaleLevel[0]} ~ ${femaleLevel[femaleLevel.length - 1]}`
+                : femaleLevel[0]}
+            </span>
           </div>
+        )}
+
+        {maleLevel.length > 0 && (
           <div className="flex items-center gap-1 w-[9rem] truncate">
             <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
-            <span className="truncate">{maleLevel}</span>
+            <span className="truncate">
+              {maleLevel.length > 1
+                ? `${maleLevel[0]} ~ ${maleLevel[maleLevel.length - 1]}`
+                : maleLevel[0]}
+            </span>
           </div>
-        </div>
+        )}
+      </div>
+
 
         <div className="flex items-center gap-1">
           <People className="w-[0.875rem] h-[0.875rem]" />
@@ -204,41 +216,40 @@ export const ContentCardL = ({
         </div>
       </div>
 
-      {/* 버튼 */}
-      {!isCompleted && (
-        <div
-          className={`flex ${showGuestButton ? "gap-[0.8125rem]" : ""} w-[19.9375rem]`}
-        >
-          <button
-            onClick={handleJoin}
-            onMouseDown={() => setIsStartPressing(true)}
-            onMouseUp={() => setIsStartPressing(false)}
-            onMouseLeave={() => setIsStartPressing(false)}
-            onTouchStart={() => setIsStartPressing(true)}
-            onTouchEnd={() => setIsStartPressing(false)}
-            className={`h-[2.25rem] rounded body-rg-500 
-              bg-[#F4F5F6] transition-colors duration-150
-              ${showGuestButton ? "w-[9.5625rem]" : "w-[19.9375rem]"}
-              ${isStarted ? "text-red-500" : "text-[#0B9A4E]"}`}
-          >
-            {isStarted ? "운동 취소하기" : "운동 시작하기"}
-          </button>
-
-          {showGuestButton && (
+        {/* 버튼 */}
+        {!isCompleted && (
+          <div className={`flex gap-2 w-full`}>
             <button
-              onMouseDown={() => setIsGuestPressing(true)}
-              onMouseUp={() => setIsGuestPressing(false)}
-              onMouseLeave={() => setIsGuestPressing(false)}
-              onTouchStart={() => setIsGuestPressing(true)}
-              onTouchEnd={() => setIsGuestPressing(false)}
-              className="w-[9.5625rem] h-[2.25rem] rounded bg-[#F4F5F6] body-rg-500 text-black transition-colors duration-150"
-              onClick={() => navigate(`/group/inviteGuest/${id}`)}
+              onClick={handleJoin}
+              onMouseDown={() => setIsStartPressing(true)}
+              onMouseUp={() => setIsStartPressing(false)}
+              onMouseLeave={() => setIsStartPressing(false)}
+              onTouchStart={() => setIsStartPressing(true)}
+              onTouchEnd={() => setIsStartPressing(false)}
+              className={`h-[2.25rem] rounded body-rg-500 
+                bg-[#F4F5F6] transition-colors duration-150
+                ${showGuestButton ? "flex-1" : "flex-1 text-center"}
+                ${isStarted ? "text-red-500" : "text-[#0B9A4E]"}`}
             >
-              게스트 초대하기
+              {isStarted ? "운동 취소하기" : "운동 시작하기"}
             </button>
-          )}
-        </div>
-      )}
+
+            {showGuestButton && (
+              <button
+                onMouseDown={() => setIsGuestPressing(true)}
+                onMouseUp={() => setIsGuestPressing(false)}
+                onMouseLeave={() => setIsGuestPressing(false)}
+                onTouchStart={() => setIsGuestPressing(true)}
+                onTouchEnd={() => setIsGuestPressing(false)}
+                className="h-[2.25rem] rounded bg-[#F4F5F6] body-rg-500 text-black transition-colors duration-150 flex-1"
+                onClick={() => navigate(`/group/inviteGuest/${id}`)}
+              >
+                게스트 초대하기
+              </button>
+            )}
+          </div>
+        )}
+
       {showFavoriteLimitModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <CautionExerciseModals

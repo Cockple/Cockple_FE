@@ -68,7 +68,9 @@ export const MyPageEditPage = ({
   const [editMode, setEditMode] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  // const [uploading, setUploading] = useState(false);
+  const [selectedGender, setSelectedGender] = useState<"FEMALE" | "MALE" | "UNKNOWN">(
+    gender ?? "UNKNOWN"
+  );
 
   const initialDataRef = useRef({
     name: initialNameProp ?? "",
@@ -96,6 +98,14 @@ export const MyPageEditPage = ({
     EXPERT: "자강",
     NONE: "급수 없음",
   };
+  const serverToLabelKeywordMap: Record<string, string> = {
+    BRAND: "브랜드 스폰",
+    FREE: "가입비 무료",
+    FRIENDSHIP: "친목",
+    MANAGER_MATCH: "운영진이 게임을 짜드려요",
+    NONE: "NONE",
+  };
+
   const labelToServerMap: Record<string, string> = Object.fromEntries(
     Object.entries(serverToLabelMap).map(([k, v]) => [v, k])
   );
@@ -186,6 +196,17 @@ export const MyPageEditPage = ({
         setSelectedDate(data.birth ?? "");
         setSelectedLevel(serverToLabelMap[data.level || "NONE"] ?? "급수 없음");
         if (data.profileImgUrl) setProfileImage(data.profileImgUrl);
+        if (data.gender === "FEMALE" || data.gender === "MALE") {
+          setSelectedGender(data.gender);
+        }
+        if (data.keywords && Array.isArray(data.keywords)) {
+        const initialKeywords = data.keywords
+          .map((k: string) => serverToLabelKeywordMap[k])
+          .filter(Boolean) as string[];
+        setSelectedKeywords(initialKeywords); 
+        } else {
+        setSelectedKeywords([]); 
+        }
       })
       .catch(console.error);
   }, []);
@@ -286,7 +307,13 @@ export const MyPageEditPage = ({
       <PageHeader title="정보 수정하기" onBackClick={onBackClick} />
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
-          <Modal_Caution onConfirm={handleConfirmLeave} onCancel={handleCancelLeave} />
+          <Modal_Caution 
+            onConfirm={handleConfirmLeave} 
+            onCancel={handleCancelLeave} 
+            title="필수입력 정보가 모두 입력되지 않았어요."
+            location="마이페이지로"
+            alertText="계속 수정하기"
+          />
         </div>
       )}
       <div className="flex flex-col">
@@ -330,10 +357,16 @@ export const MyPageEditPage = ({
         <div className="mb-8 flex justify-between items-center">
           <label className="text-left header-h5">성별</label>
           <div className="flex items-center header-h5 gap-2">
-            {gender === "FEMALE" ? <>여성 <Female className="w-4 h-4" /></> :
-            <>남성 <Male className="w-4 h-4" /></>}
+            {selectedGender === "FEMALE" ? (
+              <>여성 <Female className="w-4 h-4" /></>
+            ) : selectedGender === "MALE" ? (
+              <>남성 <Male className="w-4 h-4" /></>
+            ) : (
+              <>회원가입 성별 미선택</>
+            )}
           </div>
         </div>
+
 
         {/* 생년월일 */}
         <div className="mb-8 flex flex-col items-start">
@@ -436,7 +469,7 @@ export const MyPageEditPage = ({
                   return (
                     <TextBox
                       key={k}
-                      isSelected={isSelected}
+                      isSelected={selectedKeywords.includes(k)} 
                       className={`py-2 rounded-xl whitespace-nowrap w-auto max-w-full ${k === "친목" ? "px-[1.4rem]" : "px-[2.7rem]"}`}
                       onClick={() => setSelectedKeywords(prev => isSelected ? prev.filter(x => x !== k) : [...prev, k])}
                     >
