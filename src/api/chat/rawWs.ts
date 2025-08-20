@@ -86,6 +86,8 @@ export type IncomingMessage =
 // 서버는 Redis에 실제 구독을 보관/복원하므로 재연결시 재구독 전송은 불필요
 const currentRooms = new Set<number>();
 
+const pendingOutbox: OutgoingMessage[] = [];
+
 // 재연결 백오프
 let reconnectTimer: number | null = null;
 let reconnectAttempt = 0;
@@ -157,12 +159,21 @@ type OutgoingMessage =
 
 const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+  // if (ws && ws.readyState === WebSocket.OPEN) {
+  //   ws.send(JSON.stringify(msg));
+  //   console.log("[WS→] SEND", msg);
+  //   return true;
+  // }
+  // console.warn("[WS] not open. drop:", msg);
+  // return false;
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(msg));
     console.log("[WS→] SEND", msg);
     return true;
   }
-  console.warn("[WS] not open. drop:", msg);
+  console.warn("[WS] not open. queued:", msg);
+  // ✅ 아직 OPEN 아니면 큐에 적재 → onopen에서 flush
+  pendingOutbox.push(msg);
   return false;
 };
 
@@ -198,6 +209,19 @@ export const connectRawWs = (
     reconnectAttempt = 0;
     console.log("[WS open]");
     handlers.onOpen?.();
+
+    // 추가
+    if (currentRooms.size) {
+      for (const id of currentRooms) {
+        pendingOutbox.push({ type: "SUBSCRIBE", chatRoomId: id });
+      }
+    }
+
+    while (pendingOutbox.length && ws && ws.readyState === WebSocket.OPEN) {
+      const m = pendingOutbox.shift()!;
+      ws.send(JSON.stringify(m));
+      console.log("[WS→] FLUSH", m);
+    }
 
     // 자동 재구독
     // ->
