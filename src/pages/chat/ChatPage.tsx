@@ -20,7 +20,8 @@ import {
 
 // ws
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
+// import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
+import { subscribeChatList, unsubscribeChatList } from "../../api/chat/rawWs";
 import { useDebounce } from "../../hooks/useDebounce";
 
 // store
@@ -174,10 +175,18 @@ export const ChatPage = () => {
     const prev = new Set(prevRoomsRef.current);
     const next = new Set(visibleRoomIds);
 
-    // 새로 보이게 된 방만 구독
-    for (const id of next) if (!prev.has(id)) subscribeRoom(id);
-    // 더 이상 보이지 않는 방만 해제
-    for (const id of prev) if (!next.has(id)) unsubscribeRoom(id);
+    //🌟 // 새로 보이게 된 방만 구독
+    // for (const id of next) if (!prev.has(id)) subscribeRoom(id);
+    // // 더 이상 보이지 않는 방만 해제
+    // for (const id of prev) if (!next.has(id)) unsubscribeRoom(id);
+    const added: number[] = [];
+    const removed: number[] = [];
+
+    for (const id of next) if (!prev.has(id)) added.push(id);
+    for (const id of prev) if (!next.has(id)) removed.push(id);
+
+    if (added.length) subscribeChatList(added);
+    if (removed.length) unsubscribeChatList(removed);
 
     prevRoomsRef.current = visibleRoomIds;
 
@@ -188,7 +197,7 @@ export const ChatPage = () => {
     };
   }, [isOpen, visibleRoomIds]);
 
-  // 🌟 렌더 직전, 스토어 메타를 카드 데이터에 덮어쓰기
+  // 렌더 직전, 스토어 메타를 카드 데이터에 덮어쓰기
   const mergedGroup = useMemo(() => {
     return groupChatRooms.map(r => {
       const m = meta[r.chatRoomId];
