@@ -181,9 +181,9 @@ export const ChatPage = () => {
 
     prevRoomsRef.current = visibleRoomIds;
 
-    // 페이지 완전히 떠날 때만 모두 해제(상세 페이지에서 단일 구독 예정)
     return () => {
-      prevRoomsRef.current.forEach(id => unsubscribeRoom(id));
+      // 서버가 Redis에 구독을 보관하므로, 명시적 해제를 원하지 않는 한 유지합니다.
+      //prevRoomsRef.current.forEach(id => unsubscribeRoom(id));
       prevRoomsRef.current = [];
     };
   }, [isOpen, visibleRoomIds]);
