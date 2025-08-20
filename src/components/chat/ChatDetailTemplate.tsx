@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
-import ProfileImg from "../../assets/images/Profile_Image.png";
+import ProfileImg from "@/assets/images/Profile_Image.png?url";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
@@ -20,7 +20,7 @@ import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
-// 🌟 store
+// store
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import useUserStore from "../../store/useUserStore";
@@ -42,14 +42,14 @@ const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
 const resolveFromKey = (key?: string | null) =>
   key ? `${S3_BASE}${String(key).replace(/^\/+/, "")}` : null;
 const asUrlOrNull = (u?: string | null) => (u && u.trim() ? u : null);
-const filterValidUrls = (arr: Array<string | null | undefined>) =>
-  arr.filter((u): u is string => !!u && !!u.trim());
+// const filterValidUrls = (arr: Array<string | null | undefined>) =>
+//   arr.filter((u): u is string => !!u && !!u.trim());
 
-// 🌟URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
-const looksLikeImageUrl = (u?: string | null) =>
-  !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
+// // URL이 이미지처럼 보이는지 보수적으로 판별(이모티콘 TEXT 대응)
+// const looksLikeImageUrl = (u?: string | null) =>
+//   !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
 
-// 🌟추가: 이모티콘 업로드 결과 캐시(중복 업로드 방지)
+// 이모티콘 업로드 결과 캐시(중복 업로드 방지)
 const emojiUploadCache = new Map<string, { imgKey: string; imgUrl: string }>();
 
 // 간단 빈 상태/에러/로딩 UI
@@ -139,7 +139,6 @@ export const ChatDetailTemplate = ({
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  // ⭐이모티콘
   const [showEmoji, setShowEmoji] = useState(false);
 
   //낙관적/실시간 메시지 보관
@@ -220,20 +219,21 @@ export const ChatDetailTemplate = ({
     if (!text) return;
 
     const tempId = -Date.now(); // 임시 음수 id
-    const optimistic: ChatMessageResponse = {
+    const optimisticText: ChatMessageResponse = {
       messageId: tempId,
       senderId: currentUserId,
       senderName: currentUserName,
-      senderProfileImage: myAvatarUrl,
+      senderProfileImageUrl: myAvatarUrl,
       content: text,
       messageType: "TEXT",
-      imageUrls: [],
+      images: [],
+      //imageUrls: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
     };
 
     // 1) 즉시 화면 반영
-    setLiveMsgs(prev => [...prev, optimistic]);
+    setLiveMsgs(prev => [...prev, optimisticText]);
 
     // 2) 서버로 SEND
     const ok = sendText(chatId, text); // 또는 sendChatWS(chatId, text);
@@ -291,23 +291,55 @@ export const ChatDetailTemplate = ({
       const ok = sendImages(chatId, payload);
       if (!ok) throw new Error("WS SEND 실패");
 
-      // 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
+      //🌟 3) 낙관적 메시지(각 이미지 1장씩 별 메시지로 표시)
       const now = new Date().toISOString();
-      const makeOptimisticImage = (url: string): ChatMessageResponse => ({
+      // const makeOptimisticImage = (url: string): ChatMessageResponse => ({
+      //   messageId: -Date.now() - Math.floor(Math.random() * 1000),
+      //   senderId: currentUserId,
+      //   senderName: currentUserName,
+      //   senderProfileImageUrl: myAvatarUrl,
+      //   content: "",
+      //   messageType: "TEXT", // <- literal type 고정
+      //   images: [
+      //     {
+      //       imageId: -1, // 임시
+      //       imageUrl: url,
+      //       imgOrder: 1,
+      //       isEmoji: false,
+      //       originalFileName: "uploadImage",
+      //       fileSize: 0,
+      //       fileType: "image/*",
+      //     },
+      //   ],
+      //   //imageUrls: [url],
+      //   timestamp: now,
+      //   isMyMessage: true,
+      // });
+
+      // const optimistic: ChatMessageResponse[] = uploaded.map(u =>
+      //   makeOptimisticImage(u.imgUrl),
+      // );
+      const optimistic: ChatMessageResponse[] = uploaded.map(u => ({
         messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
         senderName: currentUserName,
-        senderProfileImage: myAvatarUrl,
+        senderProfileImageUrl: myAvatarUrl,
         content: "",
-        messageType: "TEXT", // <- literal type 고정
-        imageUrls: [url],
+        messageType: "TEXT",
+        images: [
+          {
+            imageId: -1, // 임시
+            imageUrl: u.imgUrl,
+            imgOrder: 1,
+            isEmoji: false,
+            originalFileName: u.file.name || "uploadImage",
+            fileSize: u.file.size,
+            fileType: u.file.type || "image/*",
+          },
+        ],
         timestamp: now,
         isMyMessage: true,
-      });
-
-      const optimistic: ChatMessageResponse[] = uploaded.map(u =>
-        makeOptimisticImage(u.imgUrl),
-      );
+      }));
 
       setLiveMsgs((prev: ChatMessageResponse[]) => [...prev, ...optimistic]);
       requestAnimationFrame(() =>
@@ -319,7 +351,7 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  // ⭐ 추가: 이모티콘을 '이미지 전송 플로우'로 보내는 유틸
+  // 이모티콘을 '이미지 전송 플로우'로 보내는 유틸
   const sendEmojiAsImage = async (
     chatRoomId: number,
     emojiAssetPath: string,
@@ -363,10 +395,21 @@ export const ChatDetailTemplate = ({
         messageId: -Date.now(),
         senderId: currentUserId,
         senderName: currentUserName,
-        senderProfileImage: myAvatarUrl,
+        senderProfileImageUrl: myAvatarUrl,
         content: "",
         messageType: "TEXT",
-        imageUrls: [imgUrl],
+        images: [
+          {
+            imageId: -2,
+            imageUrl: imgUrl,
+            imgOrder: 1,
+            isEmoji: true,
+            originalFileName: "emoji.png",
+            fileSize: 0,
+            fileType: "image/png",
+          },
+        ],
+        //imageUrls: [imgUrl],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
       };
@@ -380,35 +423,14 @@ export const ChatDetailTemplate = ({
     }
   };
 
-  // ⭐이모티콘 전송: URL을 TEXT로 보냄
-  // const handleSendEmoji = (emojiUrl: string) => {
-  //   const tempId = -Date.now();
-  //   // 낙관적 이미지 메시지
-  //   const optimistic: ChatMessageResponse = {
-  //     messageId: tempId,
-  //     senderId: currentUserId,
-  //     senderName: currentUserName,
-  //     senderProfileImage: "",
-  //     content: "",
-  //     messageType: "IMAGE",
-  //     imageUrls: [emojiUrl],
-  //     timestamp: new Date().toISOString(),
-  //     isMyMessage: true,
-  //   };
-  //   setLiveMsgs(prev => [...prev, optimistic]);
-
-  //   const ok = sendText(chatId, emojiUrl); // TEXT로 URL 전송
-  //   if (!ok) {
-  //     setLiveMsgs(prev => prev.filter(m => m.messageId !== tempId)); // 실패 롤백
-  //     return;
-  //   }
-  //   requestAnimationFrame(() =>
-  //     bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //   );
-  // };
-  // 🌟 교체: 기존 'TEXT로 URL 전송' → 이미지 전송 호출
+  //  기존 'TEXT로 URL 전송' → 이미지 전송 호출
   const handleSendEmoji = (emojiAssetPath: string) => {
     void sendEmojiAsImage(chatId, emojiAssetPath);
+  };
+
+  //🌟이미지 프리뷰
+  const handleImageClick = (p: { url: string; isEmoji: boolean }) => {
+    if (!p.isEmoji) setPreviewImage(p.url); // 이모티콘은 모달X
   };
 
   // ==== 수신 매핑 ====
@@ -417,35 +439,44 @@ export const ChatDetailTemplate = ({
     meId: number,
   ): ChatMessageResponse {
     // images[] → URL
-    const imgFromArray =
-      (msg.images ?? [])
-        .slice()
-        .sort((a, b) => a.imgOrder - b.imgOrder)
-        .map(im => resolveFromKey(im.imgKey)) ?? [];
+    const images = (msg.images ?? [])
+      .slice()
+      .sort((a, b) => a.imgOrder - b.imgOrder)
+      //🌟 .map(im => resolveFromKey(im.imgKey)) ?? [];
+      .map(im => ({
+        imageId: im.imageId,
+        imageUrl: im.imageUrl,
+        imgOrder: im.imgOrder,
+        isEmoji: !!im.isEmoji,
+        originalFileName: im.originalFileName,
+        fileSize: im.fileSize,
+        fileType: im.fileType,
+      }));
 
     // content가 이미지 URL이면(이모티콘 TEXT) 보조 처리
-    const contentIsImg = looksLikeImageUrl(msg.content);
-    const contentUrl = contentIsImg ? asUrlOrNull(msg.content) : null;
+    //const contentIsImg = looksLikeImageUrl(msg.content);
+    //const contentUrl = contentIsImg ? asUrlOrNull(msg.content) : null;
     // const finalImgUrls =
     //   imgFromArray.length > 0
     //     ? imgFromArray
     //     : contentIsImg
     //       ? [msg.content!]
     //       : [];
-    const finalImgUrls = filterValidUrls(
-      imgFromArray.length > 0 ? imgFromArray : contentUrl ? [contentUrl] : [],
-    );
-
-    //const isImage = finalImgUrls.length > 0;
+    // const finalImgUrls = filterValidUrls(
+    //   imgFromArray.length > 0 ? imgFromArray : contentUrl ? [contentUrl] : [],
+    // );
 
     return {
       messageId: msg.messageId,
       senderId: msg.senderId,
       senderName: msg.senderName,
-      senderProfileImage: asUrlOrNull(msg.senderProfileImageUrl) ?? ProfileImg,
-      content: finalImgUrls.length ? "" : (msg.content ?? ""),
+      //🌟 senderProfileImageUrl: asUrlOrNull(msg.senderProfileImageUrl) ?? ProfileImg,
+      // content: finalImgUrls.length ? "" : (msg.content ?? ""),
+      senderProfileImageUrl: msg.senderProfileImageUrl,
+      content: images.length ? "" : (msg.content ?? ""),
       messageType: "TEXT",
-      imageUrls: finalImgUrls,
+      images,
+      //imageUrls: finalImgUrls,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
     };
@@ -473,8 +504,8 @@ export const ChatDetailTemplate = ({
           m.messageType === incoming.messageType &&
           (m.content === incoming.content ||
             (m.messageType === "TEXT" &&
-              (m.imageUrls?.length ?? 0) > 0 &&
-              (incoming.imageUrls?.length ?? 0) > 0)) &&
+              (m.images?.length ?? 0) > 0 &&
+              (incoming.images?.length ?? 0) > 0)) &&
           Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
             5000,
       );
@@ -562,7 +593,8 @@ export const ChatDetailTemplate = ({
                     <ChattingComponent
                       message={chat}
                       isMe={chat.senderId === currentUserId}
-                      onImageClick={setPreviewImage}
+                      // onImageClick={setPreviewImage}
+                      onImageClick={handleImageClick}
                       time={formatEnLowerAmPm(chat.timestamp)}
                     />
                   </React.Fragment>
@@ -601,10 +633,10 @@ export const ChatDetailTemplate = ({
           onSendMessage={handleSendMessage}
           onImageUpload={handleImageUpload}
           fileInputRef={fileInputRef}
-          onToggleEmoji={() => setShowEmoji(v => !v)} // ⭐
-          onFocusInput={() => setShowEmoji(false)} // ⭐ 입력창 클릭/포커스 → 닫기
+          onToggleEmoji={() => setShowEmoji(v => !v)} //
+          onFocusInput={() => setShowEmoji(false)} // 입력창 클릭/포커스 → 닫기
         />
-        {/* ⭐입력창 아래에 표시 (카톡처럼) */}
+        {/* 입력창 아래에 표시 (카톡처럼) */}
         {showEmoji && (
           <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
         )}

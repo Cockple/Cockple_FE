@@ -18,7 +18,7 @@ export const Modal_Add_Caution = ({ onConfirm, onCancel }: ModalCautionProps) =>
         <EmojiSurprise className="w-8 h-8" />
         <p className="header-h4">정말 떠나시겠어요?</p>
         <p className="body-rg-500">대회 기록이 저장되지 않았어요.</p>
-        <p className="body-rg-500">‘뒤로가기’를 선택하시면, 마이페이지로 이동하며</p>
+        <p className="body-rg-500">‘뒤로가기’를 선택하시면, 내 메달 페이지로 이동하며</p>
         <p className="body-rg-500">변경 사항은 저장되지 않아요.</p>
       </div>
 

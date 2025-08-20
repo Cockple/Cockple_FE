@@ -64,6 +64,7 @@ export const useMyProfile = () =>
     queryKey: ["user"],
     queryFn: getMyProfile,
   });
+  
 // 프로필 수정
 export const patchMyProfile = async (payload: ProfileUpdatePayload) => {
   const response = await api.patch("/api/my/profile", payload);

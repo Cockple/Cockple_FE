@@ -57,6 +57,7 @@ export const MyPageMedalAddPage = () => {
     typeof formOptions[number] | null
   >(null);
   const [recordText, setRecordText] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const pickerRef = useRef<{ getDueString: () => string }>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +75,7 @@ export const MyPageMedalAddPage = () => {
     "단식": "SINGLE",
     "남복": "MEN_DOUBLES",
     "여복": "WOMEN_DOUBLES",
-    "혼복": "MIXED",
+    "혼복": "MIX_DOUBLES",
   };
 
 
@@ -133,7 +134,9 @@ export const MyPageMedalAddPage = () => {
         participationType: `${data.type} - ${data.level}`,
         record: data.content,
         photo: data.contestImgUrls.map(sanitizeUrl),
-        videoUrl: data.contestVideoUrls,
+        videoUrl: data.contestVideoUrls?.length ? data.contestVideoUrls : [""],
+
+        // videoUrl: data.contestVideoUrls,
       });
     } catch (error) {
       console.error("기존 대회 기록 불러오기 실패", error);
@@ -286,13 +289,13 @@ const handlePhotoClick = () => {
         content: recordText || undefined,
         contentIsOpen: true,
         videoIsOpen: true,
-        contestVideos: videoLinks.filter((link) => link.trim() !== ""),
+        contestVideos: videoLinks.some(link => link.trim() !== "") ? videoLinks.filter(link => link.trim() !== "") : undefined,
+
+        // contestVideos: videoLinks.filter((link) => link.trim() !== ""),
         contestImgs: photos.map((p: any) => (typeof p === "string" ? p : p.url)),
       };
 
-
-
-      console.log("요청 바디:", requestBody);
+     console.log("요청 바디:", requestBody);
 
       let response;
       if (isEditMode && contestId) {
@@ -365,16 +368,17 @@ const handlePhotoClick = () => {
               ref={containerRef}
               className="flex gap-2 overflow-x-auto no-scrollbar"
             >
-              <button
-                onClick={handlePhotoClick}
-                className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
-                type="button"
-              >
-                <div className="flex flex-col text-center justify-center">
-                  <Camera />
-                  <label>{`${photos.length} / 3`}</label>
-                </div>
-              </button>
+             <button
+              onClick={handlePhotoClick}
+              className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
+              type="button"
+            >
+              <div className="flex flex-col items-center justify-center text-center">
+                <Camera />
+                <label className="mt-1">{`${photos.length} / 3`}</label>
+              </div>
+            </button>
+
 
               {photos.map((src, i) => (
                 <div
@@ -553,12 +557,22 @@ const handlePhotoClick = () => {
                 title="대회 기록"
                 maxLength={100}
                 Label="비공개"
+                value={recordText}
+                checked={isPrivate}
+                onChange={(checked, value) => {
+                  setIsPrivate(checked);
+                  setRecordText(value);
+                }}
               />
             </div>
           </div>
 
           {/* 영상 링크 */}
-          <MyMedalCheckBox title="영상 링크" />
+          <MyMedalCheckBox
+            title="영상 링크"
+            value={videoLinks.length ? videoLinks : [""]}
+            onChange={setVideoLinks}
+          />
 
           {/* 저장 버튼  오류 발생 */}
           <Grad_GR400_L

@@ -12,17 +12,24 @@ export type WsStatus = "idle" | "connecting" | "open" | "closed" | "error";
 //type ServerMessageType = 'CONNECT' | 'ERROR' | 'SUBSCRIBE' | 'SEND' | 'SYSTEM';
 
 // 서버 → 클라이언트(브로드캐스트)===================================
-//🌟
 export type BcFile = {
   fileKey: string;
   originalFileName: string;
   fileSize: number;
   fileType: string;
 };
-//🌟
+
 export type BcImage = {
-  imgKey: string;
+  //🌟
+  // imgKey: string;
+  // imgOrder: number;
+  // originalFileName: string;
+  // fileSize: number;
+  // fileType: string;
+  imageId: number;
+  imageUrl: string;
   imgOrder: number;
+  isEmoji: boolean;
   originalFileName: string;
   fileSize: number;
   fileType: string;
@@ -63,7 +70,7 @@ export type BroadcastMessage = {
   images: BcImage[] | null;
   senderId: number;
   senderName: string;
-  senderProfileImageUrl: string | null;
+  senderProfileImageUrl: string;
   timestamp: string;
   unreadCount?: number;
 };

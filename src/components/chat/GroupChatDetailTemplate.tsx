@@ -30,6 +30,10 @@ import { LoadingSpinner } from "../common/LoadingSpinner";
 // 이모티콘
 import EmojiPicker from "../common/chat/EmojiPicker";
 import { EMOJIS } from "../common/chat/emojis";
+import { useMyProfile } from "../../api/member/my";
+
+//이미지
+import ProfileImg from "@/assets/images/Profile_Image.png?url";
 
 // ===== 유틸: 키 → 표시 URL =====
 const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
@@ -38,10 +42,7 @@ const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
 );
 const resolveFromKey = (key?: string | null) =>
   key ? `${S3_BASE}${String(key).replace(/^\/+/, "")}` : "";
-
-// URL이 이미지처럼 보이는지(방어적으로) 판별
-const looksLikeImageUrl = (u?: string | null) =>
-  !!u && /^https?:\/\/.+\.(png|jpe?g|gif|webp|jfif|svg)$/i.test(u);
+const asUrlOrNull = (u?: string | null) => (u && u.trim() ? u : null);
 
 // 이모티콘 업로드 결과 캐시(중복 업로드 방지)
 const emojiUploadCache = new Map<string, { imgKey: string; imgUrl: string }>();
@@ -65,6 +66,16 @@ export const GroupChatDetailTemplate: React.FC<
   const storeUser = useUserStore(s => s.user);
   const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;
   const currentUserName = storeUser?.nickname ?? resolveNickname() ?? "나";
+
+  const { data: myProfile } = useMyProfile();
+
+  // 내 아바타 URL (imgUrl 우선, 없으면 imgKey로 생성, 그래도 없으면 기본 이미지)
+  const myAvatarUrl = useMemo(() => {
+    const direct = asUrlOrNull(myProfile?.imgUrl);
+    if (direct) return direct;
+    const fromKey = resolveFromKey(myProfile?.imgKey);
+    return fromKey ?? ProfileImg; // 항상 유효한 값 보장
+  }, [myProfile]);
 
   const {
     messages, // 오름차순
@@ -178,10 +189,10 @@ export const GroupChatDetailTemplate: React.FC<
       messageId: tempId,
       senderId: currentUserId,
       senderName: currentUserName,
-      senderProfileImage: "",
+      senderProfileImageUrl: myAvatarUrl,
       content: text,
       messageType: "TEXT",
-      imageUrls: [],
+      images: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
     };
@@ -242,10 +253,20 @@ export const GroupChatDetailTemplate: React.FC<
         messageId: -Date.now() - Math.floor(Math.random() * 1000),
         senderId: currentUserId,
         senderName: currentUserName,
-        senderProfileImage: "",
+        senderProfileImageUrl: myAvatarUrl,
         content: "",
         messageType: "TEXT",
-        imageUrls: [u.imgUrl],
+        images: [
+          {
+            imageId: -1, // 임시
+            imageUrl: u.imgUrl,
+            imgOrder: 1,
+            isEmoji: false,
+            originalFileName: u.file.name || "uploadImage",
+            fileSize: u.file.size,
+            fileType: u.file.type || "image/*",
+          },
+        ],
         timestamp: now,
         isMyMessage: true,
       }));
@@ -295,10 +316,20 @@ export const GroupChatDetailTemplate: React.FC<
         messageId: -Date.now(),
         senderId: currentUserId,
         senderName: currentUserName,
-        senderProfileImage: "",
+        senderProfileImageUrl: myAvatarUrl,
         content: "",
         messageType: "TEXT",
-        imageUrls: [imgUrl],
+        images: [
+          {
+            imageId: -2,
+            imageUrl: imgUrl,
+            imgOrder: 1,
+            isEmoji: true,
+            originalFileName: "emoji.png",
+            fileSize: 0,
+            fileType: "image/png",
+          },
+        ],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
       };
@@ -316,26 +347,38 @@ export const GroupChatDetailTemplate: React.FC<
     void sendEmojiAsImage(emojiAssetPath);
   };
 
+  //🌟이미지 프리뷰
+  const handleImageClick = (p: { url: string; isEmoji: boolean }) => {
+    if (!p.isEmoji) setPreviewImage(p.url); // 이모티콘은 모달X
+  };
+
   // ==== 수신 매핑 ====
   function mapBroadcastToUi(
     msg: import("../../api/chat/rawWs").BroadcastMessage,
     meId: number,
   ): ChatMessageResponse {
     // images[] → URL
-    const imgFromArray =
-      (msg.images ?? [])
-        .slice()
-        .sort((a, b) => a.imgOrder - b.imgOrder)
-        .map(im => resolveFromKey(im.imgKey)) ?? [];
+    const images = (msg.images ?? [])
+      .slice()
+      .sort((a, b) => a.imgOrder - b.imgOrder)
+      .map(im => ({
+        imageId: im.imageId,
+        imageUrl: im.imageUrl,
+        imgOrder: im.imgOrder,
+        isEmoji: !!im.isEmoji,
+        originalFileName: im.originalFileName,
+        fileSize: im.fileSize,
+        fileType: im.fileType,
+      }));
 
     // content가 이미지 URL이면(이모티콘 TEXT 케이스 예방)
-    const contentIsImg = looksLikeImageUrl(msg.content);
-    const finalImgUrls =
-      imgFromArray.length > 0
-        ? imgFromArray
-        : contentIsImg
-          ? [msg.content!]
-          : [];
+    // const contentIsImg = looksLikeImageUrl(msg.content);
+    // const finalImgUrls =
+    //   imgFromArray.length > 0
+    //     ? imgFromArray
+    //     : contentIsImg
+    //       ? [msg.content!]
+    //       : [];
 
     //const isImage = finalImgUrls.length > 0;
 
@@ -343,13 +386,10 @@ export const GroupChatDetailTemplate: React.FC<
       messageId: msg.messageId,
       senderId: msg.senderId,
       senderName: msg.senderName,
-      senderProfileImage: msg.senderProfileImageUrl ?? "",
-      // content: isImage ? "" : (msg.content ?? ""),
-      // messageType: isImage ? "IMAGE" : "TEXT",
-      content: finalImgUrls.length ? "" : (msg.content ?? ""),
-      messageType: "TEXT", // ★ WS는 항상 사용자 메시지이므로 TEXT로 고정
-
-      imageUrls: finalImgUrls,
+      senderProfileImageUrl: msg.senderProfileImageUrl,
+      content: images.length ? "" : (msg.content ?? ""),
+      messageType: "TEXT",
+      images,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
     };
@@ -377,8 +417,8 @@ export const GroupChatDetailTemplate: React.FC<
           m.messageType === incoming.messageType &&
           (m.content === incoming.content ||
             (m.messageType === "TEXT" &&
-              (m.imageUrls?.length ?? 0) > 0 &&
-              (incoming.imageUrls?.length ?? 0) > 0)) &&
+              (m.images?.length ?? 0) > 0 &&
+              (incoming.images?.length ?? 0) > 0)) &&
           Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
             5000,
       );
@@ -446,7 +486,7 @@ export const GroupChatDetailTemplate: React.FC<
                     <ChattingComponent
                       message={chat}
                       isMe={chat.senderId === currentUserId}
-                      onImageClick={setPreviewImage}
+                      onImageClick={handleImageClick}
                       time={formatEnLowerAmPm(chat.timestamp)}
                     />
                   </React.Fragment>

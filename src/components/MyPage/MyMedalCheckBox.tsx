@@ -7,14 +7,19 @@ import { useForm, Controller } from "react-hook-form";
 
 interface CheckBoxDismissTruncateProps {
   title: string;
+  value: string[];                       
+  onChange: (newLinks: string[]) => void;  
 }
 
 export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
   title,
+  value,
+  onChange
 }) => {
-  const { control, setValue } = useForm();
+  const [recordTexts, setRecordTexts] = useState<string[]>(value.length ? value : [""]);
+  const { control } = useForm();
 
-  const [recordTexts, setRecordTexts] = useState<string[]>([""]);
+  // const [recordTexts, setRecordTexts] = useState<string[]>([""]);
   const [isPrivate, setIsPrivate] = useState(false);
 
   const textAreaRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -32,24 +37,25 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
       adjustHeight(idx);
     });
   }, [recordTexts]);
-
+  
   const onChangeText = (idx: number, value: string) => {
     const newTexts = [...recordTexts];
     newTexts[idx] = value;
     setRecordTexts(newTexts);
-    setValue(`name_${idx}`, value, { shouldDirty: true });
+    onChange(newTexts); // 부모에 전달
   };
 
   const handleRemove = (idx: number) => {
     const updated = [...recordTexts];
     if (updated.length === 1) {
       updated[0] = "";
-      setValue(`name_0`, "", { shouldDirty: true });
     } else {
       updated.splice(idx, 1);
-      setRecordTexts(updated);
     }
+    setRecordTexts(updated);
+    onChange(updated); // 부모에 전달
   };
+
 
   return (
     <div className="w-full flex flex-col gap-2">
@@ -103,6 +109,7 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
                   onChange={e => {
                     field.onChange(e);
                     onChangeText(idx, e.target.value);
+                    
                   }}
                 />
               )}
@@ -121,9 +128,13 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
       })}
 
       {!isPrivate && recordTexts[recordTexts.length - 1].trim() !== "" && (
-        <White_L_Thin_Add
+       <White_L_Thin_Add
           label="추가하기"
-          onClick={() => setRecordTexts([...recordTexts, ""])}
+          onClick={() => {
+            const updated = [...recordTexts, ""];
+            setRecordTexts(updated);
+            onChange(updated); // 부모에 전달
+          }}
         />
       )}
     </div>
