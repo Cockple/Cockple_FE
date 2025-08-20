@@ -20,6 +20,7 @@ export const MyPageMyExercisePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const pageSize = 10;
 
   const { exerciseList, setExerciseList } = useMyExerciseStore();
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -43,6 +44,7 @@ export const MyPageMyExercisePage = () => {
     return sort === "오래된 순" ? "OLDEST" : "LATEST";
   };
 
+  // 운동 데이터 fetch
   const fetchExercises = useCallback(
     async (reset = false) => {
       if (isLoading) return;
@@ -52,21 +54,18 @@ export const MyPageMyExercisePage = () => {
           filterType: mapTabToFilterType(selectedTab),
           orderType: mapSortToOrderType(sortOption),
           page: reset ? 0 : page,
-          size: 10,
+          size: pageSize,
         });
 
-      setExerciseList(prev => {
+        setExerciseList(prev => {
           const merged: ExerciseItem[] = reset ? data : [...prev, ...data];
           const uniqueMap = new Map<number, ExerciseItem>();
-
-          merged.forEach((item) => {
-            uniqueMap.set(item.exerciseId, item);
-          });
-
+          merged.forEach(item => uniqueMap.set(item.exerciseId, item));
           return Array.from(uniqueMap.values());
         });
-        
-        setHasMore(data.length === 10);
+
+        // 마지막 페이지 판단
+        setHasMore(data.length === pageSize);
       } catch (err) {
         console.error("운동 데이터 불러오기 실패", err);
         if (reset) setExerciseList([]);
@@ -77,17 +76,25 @@ export const MyPageMyExercisePage = () => {
     [page, selectedTab, sortOption, isLoading, setExerciseList]
   );
 
+  // 초기 로딩
   useEffect(() => {
     fetchExercises(true);
   }, []);
 
+  // 탭/정렬 변경 시 초기화
   useEffect(() => {
     setPage(0);
     fetchExercises(true);
   }, [selectedTab, sortOption]);
 
+  // page 변경 시 데이터 fetch
   useEffect(() => {
-    if (!observerRef.current || !hasMore || isLoading) return;
+    if (page > 0) fetchExercises();
+  }, [page]);
+
+  useEffect(() => {
+    const node = observerRef.current;
+    if (!node || !hasMore || isLoading) return;
 
     const observer = new IntersectionObserver(
       entries => {
@@ -95,20 +102,15 @@ export const MyPageMyExercisePage = () => {
           setPage(prev => prev + 1);
         }
       },
-      { threshold: 1.0 },
+      { threshold: 1.0 }
     );
 
-    observer.observe(observerRef.current);
+    observer.observe(node);
 
     return () => {
-      if (observerRef.current) observer.unobserve(observerRef.current);
+      observer.unobserve(node);
     };
-  }, [observerRef.current, hasMore, isLoading]);
-
-  useEffect(() => {
-    if (page > 0) fetchExercises();
-  }, [page]);
-
+  }, [hasMore, isLoading]);
 
   if (isExerciseLikedLoading) {
     return <LoadingSpinner />;
@@ -143,6 +145,7 @@ export const MyPageMyExercisePage = () => {
                 onClick={() => setIsSortOpen(!isSortOpen)}
               />
             </div>
+
             <div className="flex flex-col items-center justify-center">
               {exerciseList.map(item => {
                 const isLiked = likedExerciseIds.includes(item.exerciseId);
@@ -165,8 +168,9 @@ export const MyPageMyExercisePage = () => {
                   />
                 );
               })}
+
               <div ref={observerRef} className="h-10" />
-              {isLoading && (
+              {isLoading && hasMore && (
                 <div className="py-4">
                   <LoadingSpinner />
                 </div>
