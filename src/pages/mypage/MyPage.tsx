@@ -81,9 +81,9 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
       D: "D조",
       BEGINNER: "초심",
       NOVICE: "왕초심",
-      NONE: "정보 없음",
+      NONE: "급수 없음",
     };
-    return level ? levelMap[level.toUpperCase()] ?? "정보 없음" : "정보 없음";
+    return level ? levelMap[level.toUpperCase()] ?? "급수 없음" : "급수 없음";
   }
 
   const totalMedals = profile.myMedalTotal || 0;

@@ -128,32 +128,32 @@ export const Group_M = ({
 
           {/* 레벨 */}
           <div className="flex gap-[0.625rem] w-full">
-            <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
-              <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
-              <span
-                className="text-left truncate"
-                title={(femaleLevel ?? []).join(", ")}
-              >
-                {(femaleLevel ?? []).join(", ")}
-              </span>
-            </div>
-            <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
-              <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
-              <span
-                className="text-left truncate"
-                title={(maleLevel ?? []).join(", ")}
-              >
-                {(maleLevel ?? []).join(", ")}
-              </span>
-            </div>
+            {femaleLevel && femaleLevel.length > 0 && (
+              <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
+                <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
+                <span className="text-left truncate" title={`${femaleLevel[0]} ~ ${femaleLevel[femaleLevel.length - 1]}`}>
+                  {femaleLevel.length > 1
+                    ? `${femaleLevel[0]} ~ ${femaleLevel[femaleLevel.length - 1]}`
+                    : femaleLevel[0]}
+                </span>
+              </div>
+            )}
+
+            {maleLevel && maleLevel.length > 0 && (
+              <div className="flex items-center gap-[0.25rem] max-w-[6rem] overflow-hidden">
+                <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
+                <span className="text-left truncate" title={`${maleLevel[0]} ~ ${maleLevel[maleLevel.length - 1]}`}>
+                  {maleLevel.length > 1
+                    ? `${maleLevel[0]} ~ ${maleLevel[maleLevel.length - 1]}`
+                    : maleLevel[0]}
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* 다음 일정 */}
-          <p
-            className="truncate w-full text-left"
-            title={`${nextActivitDate} 운동 • 운동 ${upcomingCount}개 잔여 예정`}
-          >
-            {nextActivitDate} 운동 • 운동 {upcomingCount}개 잔여 예정
+        {/* 다음 일정 */}
+          <p className="truncate w-full text-left" title={nextActivitDate ? `${nextActivitDate} 운동 • 운동 ${upcomingCount}개 잔여 예정` : `운동 ${upcomingCount}개 잔여 예정`}>
+            {nextActivitDate ? `${nextActivitDate}  • 운동 ${upcomingCount}개 잔여 예정` : `운동 ${upcomingCount}개 잔여 예정`}
           </p>
         </div>
       </div>
