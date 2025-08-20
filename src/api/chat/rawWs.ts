@@ -47,18 +47,59 @@ export type ErrorResponse = {
   errorCode: string;
   message: string;
 };
-export type SubscriptionResponse = {
-  type: "SUBSCRIBE";
+
+// --- 🌟채팅방목록 구독
+export type ChatRoomListUpdate = {
+  type: "CHAT_ROOM_LIST_UPDATE";
   chatRoomId: number;
-  message: string;
+  lastMessage: {
+    content: string | null;
+    timestamp: string | null;
+    messageType: "TEXT";
+  };
+  newUnreadCount: number;
   timestamp: string;
 };
-export type UnsubscribeResponse = {
-  type: "UNSUBSCRIBE"; // 문서/예시 상 불일치 대비
-  chatRoomId: number;
-  message: string;
-  timestamp: string;
-};
+
+// 🌟export type SubscriptionResponse = {
+//   type: "SUBSCRIBE";
+//   chatRoomId: number;
+//   message: string;
+//   timestamp: string;
+// };
+export type SubscriptionResponse =
+  | {
+      type: "SUBSCRIBE";
+      chatRoomId: number;
+      message: string;
+      timestamp: string;
+    }
+  | {
+      type: "SUBSCRIBE";
+      chatRoomIds: number[];
+      message: string;
+      timestamp: string;
+    };
+
+// 🌟export type UnsubscribeResponse = {
+//   type: "UNSUBSCRIBE"; // 문서/예시 상 불일치 대비
+//   chatRoomId: number;
+//   message: string;
+//   timestamp: string;
+// };
+export type UnsubscribeResponse =
+  | {
+      type: "UNSUBSCRIBE";
+      chatRoomId: number;
+      message: string;
+      timestamp: string;
+    }
+  | {
+      type: "UNSUBSCRIBE";
+      chatRoomIds: number[];
+      message: string;
+      timestamp: string;
+    };
 
 // 새 브로드캐스트 포맷
 export type BroadcastMessage = {
@@ -80,7 +121,8 @@ export type IncomingMessage =
   | ErrorResponse
   | SubscriptionResponse
   | UnsubscribeResponse
-  | BroadcastMessage;
+  | BroadcastMessage
+  | ChatRoomListUpdate; // 🌟 (채팅방 목록을 구독한 상대방에게 보내는 업데이트)
 
 //현재 구독 중인 방 목록을 전역으로 유지 (클라이언트 단의 '의도' 상태)
 // 서버는 Redis에 실제 구독을 보관/복원하므로 재연결시 재구독 전송은 불필요
@@ -153,6 +195,8 @@ type WsSendEnvelope = {
 type OutgoingMessage =
   | { type: "SUBSCRIBE"; chatRoomId: number }
   | { type: "UNSUBSCRIBE"; chatRoomId: number }
+  | { type: "SUBSCRIBE_CHAT_LIST"; memberRooms: number[] } // 🌟목록 탭용
+  | { type: "UNSUBSCRIBE_CHAT_LIST"; memberRooms: number[] } // 🌟목록 탭용
   | WsSendEnvelope;
 
 const sendJSON = (msg: OutgoingMessage) => {
@@ -270,11 +314,17 @@ export const disconnectRawWs = () => {
 export const rawWsState = () => ws?.readyState; // 0/1/2/3
 export const isRawWsOpen = () => ws?.readyState === WebSocket.OPEN;
 
+//🌟
+export const subscribeChatList = (roomIds: number[]) => {
+  if (!roomIds.length) return;
+  const ok = sendJSON({ type: "SUBSCRIBE_CHAT_LIST", memberRooms: roomIds });
+  console.log("[WS→] SUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
+};
+
 //
 export const subscribeRoom = (roomId: number) => {
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
-  //🌟sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
   const ok = sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
   console.log("[WS→] SUBSCRIBE", roomId, ok ? "OK" : "DEFER");
 };
@@ -282,6 +332,13 @@ export const subscribeRoom = (roomId: number) => {
 //
 export const subscribeMany = (roomIds: number[]) => {
   roomIds.forEach(id => subscribeRoom(id));
+};
+
+//🌟
+export const unsubscribeChatList = (roomIds: number[]) => {
+  if (!roomIds.length) return;
+  const ok = sendJSON({ type: "UNSUBSCRIBE_CHAT_LIST", memberRooms: roomIds });
+  console.log("[WS→] UNSUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
 };
 
 //
