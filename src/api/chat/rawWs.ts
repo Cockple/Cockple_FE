@@ -138,7 +138,9 @@ const listeners = new Set<MsgListener>();
 
 export const addWsListener = (fn: MsgListener) => {
   listeners.add(fn);
-  return () => listeners.delete(fn);
+  return () => {
+    listeners.delete(fn);
+  };
 };
 
 type Handlers = {

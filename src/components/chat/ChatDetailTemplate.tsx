@@ -20,7 +20,11 @@ import { useNavigate } from "react-router-dom";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 //import { useChatRead } from "../../hooks/useChatRead";
 
-import { subscribeRoom } from "../../api/chat/rawWs";
+import {
+  addWsListener,
+  subscribeRoom,
+  type IncomingMessage,
+} from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
@@ -254,7 +258,8 @@ export const ChatDetailTemplate = ({
   }, [stickToBottom]);
 
   //===== WS 연결 및 전송 =====
-  const { sendText, sendImages, lastMessage } = useRawWsConnect({
+  //const { sendText, sendImages, lastMessage } = useRawWsConnect({
+  const { sendText, sendImages } = useRawWsConnect({
     memberId: currentUserId,
     origin: "https://cockple.store",
   });
@@ -503,49 +508,92 @@ export const ChatDetailTemplate = ({
   }
 
   // ===== WS 수신 반영 =====
-  const lastMessageRef = useRef(lastMessage);
+  // const lastMessageRef = useRef(lastMessage);
+  // useEffect(() => {
+  //   lastMessageRef.current = lastMessage;
+  // }, [lastMessage]);
+
+  // useEffect(() => {
+  //   const msg = lastMessageRef.current;
+  //   if (!msg || msg.type !== "SEND") return;
+  //   if (msg.chatRoomId !== chatId) return;
+
+  //   const incoming = mapBroadcastToUi(msg, currentUserId);
+
+  //   setLiveMsgs(prev => {
+  //     // 낙관적 메시지와 교체(시간 가까우면)
+  //     const idx = prev.findIndex(
+  //       m =>
+  //         m.messageId < 0 &&
+  //         m.isMyMessage &&
+  //         m.messageType === incoming.messageType &&
+  //         (m.content === incoming.content ||
+  //           (m.messageType === "TEXT" &&
+  //             (m.images?.length ?? 0) > 0 &&
+  //             (incoming.images?.length ?? 0) > 0)) &&
+  //         Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
+  //           5000,
+  //     );
+  //     if (idx >= 0) {
+  //       const copy = [...prev];
+  //       copy[idx] = incoming;
+  //       return copy;
+  //     }
+  //     return [...prev, incoming];
+  //   });
+
+  //   // 🌟requestAnimationFrame(() =>
+  //   //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+  //   // );
+  //   if (stickToBottom) {
+  //     requestAnimationFrame(() =>
+  //       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+  //     );
+  //   }
+  // }, [lastMessage, chatId, currentUserId, stickToBottom]);
+  // 🌟WS 원본 이벤트를 직접 구독 (타이밍/의존성 이슈 제거)
   useEffect(() => {
-    lastMessageRef.current = lastMessage;
-  }, [lastMessage]);
-
-  useEffect(() => {
-    const msg = lastMessageRef.current;
-    if (!msg || msg.type !== "SEND") return;
-    if (msg.chatRoomId !== chatId) return;
-
-    const incoming = mapBroadcastToUi(msg, currentUserId);
-
-    setLiveMsgs(prev => {
-      // 낙관적 메시지와 교체(시간 가까우면)
-      const idx = prev.findIndex(
-        m =>
-          m.messageId < 0 &&
-          m.isMyMessage &&
-          m.messageType === incoming.messageType &&
-          (m.content === incoming.content ||
-            (m.messageType === "TEXT" &&
-              (m.images?.length ?? 0) > 0 &&
-              (incoming.images?.length ?? 0) > 0)) &&
-          Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
-            5000,
-      );
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = incoming;
-        return copy;
+    const off = addWsListener((msg: IncomingMessage) => {
+      if (msg.type !== "SEND") return;
+      if (msg.chatRoomId !== chatId) return;
+      const incoming = mapBroadcastToUi(msg, currentUserId);
+      console.log("[DETAIL] incoming", msg.type, msg.chatRoomId, chatId); //🌟
+      setLiveMsgs(prev => {
+        // 교체 매칭(낙관치 ↔ 확정치)
+        const idx = prev.findIndex(
+          m =>
+            m.messageId < 0 &&
+            m.isMyMessage &&
+            m.messageType === incoming.messageType &&
+            (m.content === incoming.content ||
+              ((m.images?.length ?? 0) > 0 &&
+                (incoming.images?.length ?? 0) > 0 &&
+                m.images!.some(oi =>
+                  incoming.images!.some(
+                    ii =>
+                      (oi.originalFileName &&
+                        oi.originalFileName === ii.originalFileName) ||
+                      (oi.fileSize && oi.fileSize === ii.fileSize),
+                  ),
+                ))) &&
+            Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
+              5000,
+        );
+        if (idx >= 0) {
+          const copy = [...prev];
+          copy[idx] = incoming;
+          return copy;
+        }
+        return [...prev, incoming]; // 교체 실패해도 반드시 추가
+      });
+      if (stickToBottom) {
+        requestAnimationFrame(() =>
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
+        );
       }
-      return [...prev, incoming];
     });
-
-    // 🌟requestAnimationFrame(() =>
-    //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-    // );
-    if (stickToBottom) {
-      requestAnimationFrame(() =>
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      );
-    }
-  }, [lastMessage, chatId, currentUserId, stickToBottom]);
+    return off;
+  }, [chatId, currentUserId, stickToBottom]);
 
   // 외부 클릭으로 닫기
   useEffect(() => {

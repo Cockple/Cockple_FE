@@ -1,7 +1,7 @@
 // API 데이터 형태에 맞춘 타입
 
 export interface LastMessage {
-  messageId: number | null;
+  //messageId: number | null;
   content: string | null;
   timestamp: string | null;
   messageType: "TEXT" | "IMAGE" | string | null;
@@ -14,13 +14,6 @@ export interface GroupChatRoom {
   partyImgUrl: string;
   memberCount: number;
   unreadCount: number;
-  // lastMessage: {
-  //   messageId: number;
-  //   content: string;
-  //   senderName: string;
-  //   timestamp: string;
-  //   messageType: "TEXT" | "IMAGE";
-  // };
   lastMessage: LastMessage | null;
 }
 
