@@ -168,6 +168,7 @@ export const GroupPage = () => {
                   groupImage={item.partyImgUrl ?? appIcon}
                   upcomingCount={item.totalExerciseCount}
                   isMine={true}
+                  like={item.isBookmarked}
                   onClick={() => navigate(`/group/${item.partyId}`)}
                 />
               ))

@@ -130,13 +130,16 @@ export const GroupLayout = () => {
   };
 
   const isJoined = partyDetail?.memberStatus === "MEMBER";
+  const isOwner =
+    partyDetail?.memberRole === "party_MANAGER" ||
+    partyDetail?.memberRole === "party_SUBMANAGER";
 
   return (
     <div className="flex flex-col">
       <PageHeader
         title={groupName}
         onBackClick={handleBackClick}
-        onMoreClick={() => setIsMoreOpen(true)}
+        onMoreClick={isOwner ? () => setIsMoreOpen(true) : undefined}
       />
 
       <TabSelector
