@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useChatInfinite } from "../../hooks/useChatInfinite";
 import { useChatRead } from "../../hooks/useChatRead";
 
-import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
+import { subscribeRoom } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
@@ -130,7 +130,7 @@ export const ChatDetailTemplate = ({
     clearUnread(chatId); // 입장 즉시 0으로 (서버 PATCH는 useChatRead에서)
 
     return () => {
-      unsubscribeRoom(chatId);
+      //unsubscribeRoom(chatId);
       setActiveRoom(null); // 상세 퇴장
     };
   }, [chatId, setActiveRoom, clearUnread]);
