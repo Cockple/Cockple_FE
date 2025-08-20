@@ -10,7 +10,12 @@ import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
 import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
 import { LocationField } from "../../components/common/LocationField";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { Location } from "../../components/common/contentcard/Location";
 import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { transformPlaceToPayload } from "../../utils/address";
@@ -56,9 +61,12 @@ export const CreateExercise = () => {
   const { groupId, exerciseId } = useParams();
   const { data: editData } = useExerciseEditDetail(exerciseId!);
   const [errorMsg, setErrorMsg] = useState("");
+  const [searchParams] = useSearchParams();
+  const returnPath = searchParams.get("returnPath") ?? "";
 
   useEffect(() => {
     if (editData) {
+      console.log("수정 데이터", editData);
       setSelectedDate(editData.date);
       setLocationDetail({
         buildingName: editData.buildingName,
@@ -129,6 +137,7 @@ export const CreateExercise = () => {
     if (selectedDate && locationDetail && headCount) {
       const formattedStartTime = formatKoreanTimeToHHMMSS(startTime);
       const formattedEndTime = formatKoreanTimeToHHMMSS(endTime);
+
       const payload = {
         date: String(selectedDate),
         buildingName: locationDetail.buildingName || "",
@@ -183,7 +192,9 @@ export const CreateExercise = () => {
 
   const onBackClick = () => {
     if (exerciseId) {
-      navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`);
+      navigate(
+        `/group/Mygroup/MyExerciseDetail/${exerciseId}?returnPath=${returnPath}`,
+      );
     } else {
       navigate(`/group/${groupId}`);
     }
@@ -252,12 +263,12 @@ export const CreateExercise = () => {
         <div className="flex flex-col gap-5">
           <TitleBtn
             label="모임 멤버 게스트 초대 허용"
-            checked={allowGuestInvite}
+            checked={!!allowGuestInvite}
             onChange={setAllowGuestInvite}
           />
           <TitleBtn
             label="외부 게스트 참여 허용"
-            checked={allowExternalGuest}
+            checked={!!allowExternalGuest}
             onChange={setAllowExternalGuest}
           />
         </div>
