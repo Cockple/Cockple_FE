@@ -16,6 +16,7 @@ import WeeklyCalendar from "../../components/common/Date_Time/WeeklyCalendar";
 import { transformPlaceToPayload } from "../../utils/address";
 import useCreateExerciseStore from "../../store/createExerciseStore";
 import { createExerciseApi } from "../../api/exercise/createExerciseApi";
+import { useMyExerciseStore } from "../../store/myExerciseStore";  //연두 : 추가했어요
 import {
   formatKoreanTimeToHHMMSS,
   formatToKoreanTimeWithAmPm,
@@ -47,6 +48,7 @@ export const CreateExercise = () => {
     setLocationDetail,
     resetForm,
   } = useCreateExerciseStore();
+const { addExercise } = useMyExerciseStore();
 
   const [openModal, setOpenModal] = useState(false);
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
@@ -159,6 +161,7 @@ export const CreateExercise = () => {
           }
           const data = await createExerciseApi(groupId, payload);
           console.log(data);
+          addExercise(data); //연두 : 추가했어요
           navigate(`/group/${groupId}`);
           resetForm();
         }

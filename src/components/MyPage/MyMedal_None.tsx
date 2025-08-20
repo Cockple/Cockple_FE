@@ -1,8 +1,7 @@
 // // 내 메달에 대화가 없는 경우 "대화 기록 추가하기" 버튼을 누르면 이동하는 화면입니다.
 import { useNavigate } from "react-router-dom";
-import Logo from "../../assets/icons/Logo_Typo.svg?react";
 import GR400_M from "../common/Btn_Static/Text/GR400_M";
-
+import NoneImg from "../../assets/images/None_Error.png";
 export const MyMedal_None = () => {
   const navigate = useNavigate();
 
@@ -16,7 +15,7 @@ export const MyMedal_None = () => {
         </div>
 
         {/* 로고 */}
-        <Logo className="w-44 h-44" />
+        <img src={NoneImg} className="w-[11.25rem] h-[11.25rem] object-contain" />
 
         {/* 버튼 */}
         <GR400_M

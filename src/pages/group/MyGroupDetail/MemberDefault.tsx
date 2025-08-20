@@ -1,3 +1,4 @@
+// 모임 -> 모임탭에 멤버 화면
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -5,7 +6,6 @@ import {
   getPartyMembers,
   type Member as ApiMember,
 } from "../../../api/party/members";
-
 import { leaveParty } from "../../../api/party/my";
 import type { ModalConfig } from "../../../components/group/modalConfig";
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
@@ -14,9 +14,12 @@ import Search from "../../../assets/icons/search.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
+import { useGroupNameStore } from "../../../store/useGroupNameStore";
 
 export const MemberDefault = () => {
   const { groupId } = useParams<{ groupId: string }>();
+  const { groupName } = useGroupNameStore();
+
   const partyId = Number(groupId);
 
   const [members, setMembers] = useState<MemberProps[]>([]);
@@ -28,11 +31,9 @@ export const MemberDefault = () => {
   const [myRole, setMyRole] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 배포 오류 방지 코드
-  console.log(myRole);
-
   const navigate = useNavigate();
 
+  // API 멤버 -> 프론트 MemberProps 매핑
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
@@ -40,13 +41,14 @@ export const MemberDefault = () => {
     gender: m.gender,
     level: m.level,
     isMe: !!m.isMe,
-    isLeader: m.role === "OWNER",
+    isLeader:
+      m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER",
     position:
-      m.role === "OWNER"
+      m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER"
         ? "leader"
         : m.role === "SUBOWNER"
-          ? "sub_leader"
-          : null,
+        ? "sub_leader"
+        : null,
     status: m.role === "WAITING" ? "waiting" : "Participating",
   });
 
@@ -63,8 +65,10 @@ export const MemberDefault = () => {
             male: summary.maleCount,
             female: summary.femaleCount,
           });
+
           const me = members.find((m: ApiMember) => m.isMe);
           setMyRole(me?.role || null);
+          console.log("본인 role:", me?.role);
         }
       } catch (err) {
         console.error("멤버 조회 실패", err);
@@ -73,24 +77,22 @@ export const MemberDefault = () => {
     fetchMembers();
   }, [partyId]);
 
-  //모임 탈퇴 나 자신, 모임장
+  // 모임 탈퇴 or 다른 멤버 삭제
   const handleLeaveOrRemove = async (memberId: number, isMe: boolean) => {
     try {
       if (isMe) {
-        // 본인 탈퇴
         const res = await leaveParty(partyId);
         if (res.data.success) {
           alert("모임 탈퇴 성공!");
-          setMembers(prev => prev.filter(m => m.memberId !== memberId));
+          setMembers((prev) => prev.filter((m) => m.memberId !== memberId));
         } else {
           alert(res.data.message || "모임 탈퇴 실패");
         }
       } else {
-        // 다른 멤버 삭제
         const res = await removeMemberFromParty(partyId, memberId);
         if (res.data.success) {
           alert("멤버 삭제 성공!");
-          setMembers(prev => prev.filter(m => m.memberId !== memberId));
+          setMembers((prev) => prev.filter((m) => m.memberId !== memberId));
         } else {
           alert(res.data.message || "멤버 삭제 실패");
         }
@@ -102,7 +104,7 @@ export const MemberDefault = () => {
   };
 
   // 검색어 필터링
-  const filteredMembers = members.filter(member => {
+  const filteredMembers = members.filter((member) => {
     const term = searchTerm.toLowerCase();
     return (
       member.name.toLowerCase().includes(term) ||
@@ -112,7 +114,7 @@ export const MemberDefault = () => {
 
   return (
     <>
-      <PageHeader title="운동 상세" />
+      <PageHeader title={groupName} />
 
       {/* 검색 및 참여 인원 */}
       <div className="flex flex-col mb-8">
@@ -122,7 +124,7 @@ export const MemberDefault = () => {
             placeholder="이름, 급수로 검색"
             className="w-full border rounded-xl p-2 pr-14 body-md-500 text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2">
             <Search className="w-6 h-6" />
@@ -143,31 +145,34 @@ export const MemberDefault = () => {
       </div>
 
       {/* 멤버 리스트 */}
-      {filteredMembers.map((member, idx) => {
-        const modalConfig: ModalConfig | undefined =
-          member.isMe && !member.isLeader
+        {filteredMembers.map((member, idx) => {
+          const isCurrentUser = member.isMe ?? false;
+          const isLeaderUser =
+            myRole === "OWNER" || myRole === "MANAGER" || myRole === "party_MANAGER"; 
+          const showDeleteButton = isCurrentUser || (isLeaderUser && !isCurrentUser);
+ 
+          const modalConfig: ModalConfig | undefined = showDeleteButton
             ? {
-                title: "정말 모임을 탈퇴하시겠어요?",
-                messages: [
-                  "'탈퇴하기'를 누르시면, 복구할 수 없으니",
-                  "신중한 선택 부탁드려요.",
-                ],
-                confirmLabel: "탈퇴하기",
-                onConfirm: () => {
-                  if (member.memberId != null) {
-                    handleLeaveOrRemove(member.memberId, true);
-                  }
-                },
+                title: isCurrentUser
+                  ? "정말 모임을 탈퇴하시겠어요?"
+                  : "정말 이 멤버를 추방하시겠어요?",
+                messages: isCurrentUser
+                  ? [
+                      "'탈퇴하기'를 누르시면, 복구할 수 없으니",
+                      "신중한 선택 부탁드려요.",
+                    ]
+                  : ["이 멤버를 모임에서 제외하시겠어요?", "복구할 수 없습니다."],
+                confirmLabel: isCurrentUser ? "탈퇴하기" : "추방하기",
+                onConfirm: () => handleLeaveOrRemove(member.memberId!, isCurrentUser),
               }
             : undefined;
-
         return (
           <div key={idx}>
             <Member
               {...member}
               number={idx + 1}
               onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
-              showDeleteButton={member.isMe && !member.isLeader}
+              showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}
             />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />

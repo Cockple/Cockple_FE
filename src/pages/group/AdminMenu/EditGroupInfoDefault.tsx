@@ -197,12 +197,15 @@ export const EditGroupInfoDefault = () => {
 
   return (
     <div className="flex flex-col gap-8 mb-8">
-      <PageHeader title="대회 기록 추가하기" onBackClick={handleBackClick} />
+      <PageHeader title="대회 기록 수정하기" onBackClick={handleBackClick} />
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Caution
             onConfirm={handleConfirmLeave}
             onCancel={handleCancelLeave}
+            title={"수정 사항이 저장되지 않았어요."}
+            alertText={"계속 작성하기"}
+            location={"모임 상세 페이지로"}
           />
         </div>
       )}

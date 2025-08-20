@@ -51,7 +51,7 @@ export interface PostContestRecordRequest {
   contestName: string;
   date?: string;             
   medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
-  type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIXED"; 
+  type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES"; 
   level: "EXPERT" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "NONE";
   content?: string;
   contentIsOpen?: boolean;   
