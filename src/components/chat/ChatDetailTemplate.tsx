@@ -1,6 +1,12 @@
 // 그룹 채팅창과 개인 채팅창에 사용되는 공통 컴포넌트(템플릿)
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
@@ -149,6 +155,11 @@ export const ChatDetailTemplate = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  //🌟
+  const emojiRef = useRef<HTMLDivElement>(null);
+
+  //🌟
+  const toggleEmoji = useCallback(() => setShowEmoji(v => !v), []);
 
   // 초기 로드시 맨 아래로
   useEffect(() => {
@@ -522,6 +533,34 @@ export const ChatDetailTemplate = ({
     );
   }, [lastMessage, chatId, currentUserId]);
 
+  // 🌟외부 클릭으로 닫기
+  useEffect(() => {
+    if (!showEmoji) return;
+
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const pickerEl = emojiRef.current;
+      const target = e.target as Node | null;
+
+      // (1) 픽커 내부면 무시
+      if (pickerEl && target && pickerEl.contains(target)) return;
+
+      // (2) 안전 영역(토글 버튼 등) 클릭이면 무시
+      //   => 아래 2)에서 버튼에 data-emoji-safe 부여함
+      if (target instanceof Element && target.closest?.("[data-emoji-safe]"))
+        return;
+
+      // 그 외 아무 곳이나 클릭 → 닫기
+      setShowEmoji(false);
+    };
+
+    document.addEventListener("mousedown", handlePointerDown, true);
+    document.addEventListener("touchstart", handlePointerDown, true);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown, true);
+      document.removeEventListener("touchstart", handlePointerDown, true);
+    };
+  }, [showEmoji]);
+
   // ==== 렌더 ====
   if (initError) return <div className="p-6">메시지 불러오기 실패</div>;
 
@@ -633,12 +672,19 @@ export const ChatDetailTemplate = ({
           onSendMessage={handleSendMessage}
           onImageUpload={handleImageUpload}
           fileInputRef={fileInputRef}
-          onToggleEmoji={() => setShowEmoji(v => !v)} //
+          //🌟onToggleEmoji={() => setShowEmoji(v => !v)} //
+          onToggleEmoji={toggleEmoji}
           onFocusInput={() => setShowEmoji(false)} // 입력창 클릭/포커스 → 닫기
         />
         {/* 입력창 아래에 표시 (카톡처럼) */}
         {showEmoji && (
-          <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+          //🌟<EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+          <div
+            ref={emojiRef}
+            // className="absolute left-0 right-0 bottom-[4.25rem] z-50" // 필요시 위치 조정
+          >
+            <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+          </div>
         )}
       </div>
     </div>
