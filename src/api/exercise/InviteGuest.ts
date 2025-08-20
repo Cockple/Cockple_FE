@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../api";
 import type { inviteGuestRequestDTO } from "../../types/InviteGuest";
+import { AxiosError } from "axios";
+import axios from "axios";
+import axiosLib from "axios";
 
 //게스트 정보 가져오기
 export const getInviteGuestList = async (exerciseId: number) => {
@@ -41,7 +44,7 @@ export const usePostInviteForm = (
       onSuccess();
     },
     onError: err => {
-      console.log(err);
+      console.log("ㄷㄷ", err);
     },
   });
 };
@@ -62,7 +65,13 @@ export const useDeleteInviteForm = (exerciseId: number) => {
       });
     },
     onError: err => {
-      console.log(err);
+      if (axiosLib.isAxiosError(err)) {
+        if (err.response?.data?.code === "PARTY409") {
+          alert("이미 초대를 보냈습니다.");
+        } else {
+          console.error(err.response?.data);
+        }
+      }
     },
   });
 };
