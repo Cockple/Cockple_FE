@@ -67,7 +67,7 @@ export const getMyExercises = async ({
       "pageable.size": size,
     },
   });
-  console.log("서버 응답 전체:", response.data); // ✅ 여기서 확인
+  console.log("서버 응답 전체:", response.data);
 
   const rawList = response.data?.data?.exercises ?? [];
 
