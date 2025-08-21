@@ -147,17 +147,64 @@ export const postMyContestRecord = async (
 };
 
 // 내 대회 기록 상세 조회
+// export const getContestRecordDetail = async (
+//   contestId: number
+// ): Promise<ContestRecordDetailResponse> => {
+//   try {
+//     const response = await api.get(`/api/contests/my/${contestId}`);
+//     return response.data.data; 
+//   } catch (error) {
+//     console.error("대회 기록 상세 조회 오류", error);
+//     throw error;
+//   }
+// };
+
+// 내 대회 기록 상세 조회
 export const getContestRecordDetail = async (
   contestId: number
 ): Promise<ContestRecordDetailResponse> => {
   try {
-    const response = await api.get(`/api/contests/my/${contestId}`);
-    return response.data.data; 
+    const response = await api.get<{
+      code: string;
+      message: string;
+      data: ContestRecordDetailResponse;
+      success: boolean;
+    }>(`/api/contests/my/${contestId}`);
+
+    const detail = response.data.data;
+
+    if (!detail) {
+      throw new Error("대회 기록 상세 정보가 없습니다.");
+    }
+
+    return {
+      contestName: detail.contestName ?? "",
+      date: detail.date ?? "",
+      medalType: detail.medalType ?? "NONE",
+      type: detail.type ?? "SINGLE",
+      level: detail.level ?? "NONE",
+      content: detail.content ?? "",
+      contentIsOpen: detail.contentIsOpen ?? false,
+      videoIsOpen: detail.videoIsOpen ?? false,
+      contestVideoUrls: Array.isArray(detail.contestVideoUrls)
+        ? detail.contestVideoUrls
+        : [],
+      contestImgUrls: Array.isArray(detail.contestImgUrls)
+        ? detail.contestImgUrls
+        : [],
+      contestImgsToDelete: Array.isArray(detail.contestImgsToDelete)
+        ? detail.contestImgsToDelete
+        : [],
+      contestVideoIdsToDelete: Array.isArray(detail.contestVideoIdsToDelete)
+        ? detail.contestVideoIdsToDelete
+        : [],
+    };
   } catch (error) {
     console.error("대회 기록 상세 조회 오류", error);
     throw error;
   }
 };
+
 // 내 대회 기록 삭제
 export const deleteContestRecord = async (contestId: number): Promise<void> => {
   try {
