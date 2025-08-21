@@ -4,6 +4,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import type { ChatMessageResponse, ImageInfo } from "../../../types/chat";
 
 import BaseProfileImage from "@/assets/images/base_profile_img.png";
+
+import clsx from "clsx"; // 상단에 추가
+
 interface ChattingComponentProps {
   message: ChatMessageResponse;
   isMe: boolean;
@@ -62,7 +65,7 @@ const ChattingComponent = ({
         return (
           <button
             type="button"
-            className="block focus:outline-none"
+            className="block focus:outline-none min-h-[1px] [contain:layout]"
             //onClick={() => onClick?.({ url: img.imageUrl, isEmoji })}
             aria-label="emoji-1"
           >
@@ -80,14 +83,14 @@ const ChattingComponent = ({
       return (
         <button
           type="button"
-          className="block max-w-[15rem] focus:outline-none"
+          className="block w-full max-w-[15rem] focus:outline-none min-h-[1px] [contain:layout]"
           onClick={() => onClick?.({ url: img.imageUrl, isEmoji: img.isEmoji })}
           aria-label="image-1"
         >
           <img
             src={img.imageUrl}
             alt="img-1"
-            className="w-full h-auto rounded-lg object-cover"
+            className="block w-full h-auto max-h-[60svh] object-contain"
             loading="lazy"
           />
         </button>
@@ -95,10 +98,18 @@ const ChattingComponent = ({
     }
 
     // 2/4장: 2열 그리드, 3/5장 이상: 3열 그리드
-    const cols = count === 2 || count === 4 ? 2 : 3;
+    //const cols = count === 2 || count === 4 ? 2 : 3;
+    const colsClass =
+      count === 2 || count === 4 ? "grid-cols-2" : "grid-cols-3";
 
     return (
-      <div className={`grid grid-cols-${cols} gap-2 max-w-[15rem]`}>
+      // <div className={`grid grid-cols-${cols} gap-2 max-w-[15rem]`}>
+      <div
+        className={clsx(
+          "grid gap-2 w-full max-w-[15rem] min-h-[1px] [contain:layout]", // ★ w-full/min-h/contain 추가
+          colsClass, // ★ 빌드 타임 클래스 보장
+        )}
+      >
         {images.map((img, idx) => (
           <button
             key={idx}
@@ -176,7 +187,7 @@ const ChattingComponent = ({
             {/*IMAGE*/}
             {/* IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
             {hasImages && (
-              <div className="mr-3 flex flex-col items-end max-w-[15rem]">
+              <div className="mr-3 flex flex-col items-end max-w-[15rem] min-w-0 min-h-[1px] [contain:layout]">
                 <ImageTiles images={imgs} onClick={onImageClick} />
               </div>
             )}
@@ -227,7 +238,7 @@ const ChattingComponent = ({
             {/*IMAGE*/}
             {/* IMAGE: messageType이 TEXT더라도 imgs가 있으면 이미지 출력 */}
             {hasImages && (
-              <div className="mr-3 flex flex-col items-end max-w-[15rem]">
+              <div className="mr-3 flex flex-col items-end max-w-[15rem] min-w-0 min-h-[1px] [contain:layout]">
                 <ImageTiles images={imgs} onClick={onImageClick} />
               </div>
             )}
