@@ -197,7 +197,7 @@ export const EditGroupInfoDefault = () => {
 
   return (
     <div className="flex flex-col gap-8 mb-8">
-      <PageHeader title="대회 기록 수정하기" onBackClick={handleBackClick} />
+      <PageHeader title="모임 정보 수정" onBackClick={handleBackClick} />
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Caution
