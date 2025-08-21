@@ -13,9 +13,11 @@ import Search from "../../../assets/icons/search.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
 export const MemberDefault = () => {
   const { groupId } = useParams<{ groupId: string }>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const partyId = Number(groupId);
 
@@ -53,6 +55,7 @@ export const MemberDefault = () => {
 
   useEffect(() => {
     const fetchMembers = async () => {
+      setIsLoading(true); // 로딩 시작
       try {
         const res = await getPartyMembers(partyId);
         if (res.success) {
@@ -71,6 +74,8 @@ export const MemberDefault = () => {
         }
       } catch (err) {
         console.error("멤버 조회 실패", err);
+      } finally {
+        setIsLoading(false); // 로딩 종료
       }
     };
     fetchMembers();
@@ -110,6 +115,15 @@ export const MemberDefault = () => {
       member.level.toLowerCase().includes(term)
     );
   });
+
+  // 로딩 시 스피너 표시
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <>
