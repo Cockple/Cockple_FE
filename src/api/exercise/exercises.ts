@@ -218,18 +218,3 @@ export const deleteExercise = async (exerciseId: number) => {
   }
 };
 
-//게스트 참여 취소
-// export const cancelGuestInvitation = async (
-//   exerciseId: number,
-//   guestId: number
-// ): Promise<CancelGuestResponse> => {
-//   try {
-//     const res = await api.delete<CancelGuestResponse>(
-//       `/api/exercises/${exerciseId}/guests/${guestId}`
-//     );
-//     return res.data;
-//   } catch (err: any) {
-//     console.error("게스트 취소 실패", err);
-//     throw err;
-//   }
-// };

@@ -13,7 +13,7 @@ import { useNavigate, useParams  } from "react-router-dom";
 import { updateParty, getPartyDetail } from "../../../api/party/patchParties";
 import type { UpdatePartyRequest, PartyDetail } from "../../../api/party/patchParties";
 import { addWon, fmtKRW } from "../../../utils/moneychange";
-import { uploadImages } from "../../../api/image/imageUpload"; // 추가
+import { uploadImage } from "../../../api/image/imageUpload"; 
 
 const dayOptions = ["전체", "월", "화", "수", "목", "금", "토", "일"];
 const timeOptions = ["상시", "오전", "오후"];
@@ -22,14 +22,13 @@ export const EditGroupInfoDefault = () => {
   const { partyId } = useParams<{ partyId: string }>(); 
   const numericPartyId = Number(partyId);
   console.log(numericPartyId);
-const digits = (s: string) => s.replace(/\D/g, "");
-const [joinFeeChecked, setJoinFeeChecked] = useState(false); // 체크 상태 관리
-const [joinFeeText, setJoinFeeText] = useState("");
-
+  const digits = (s: string) => s.replace(/\D/g, "");
+  const [joinFeeChecked, setJoinFeeChecked] = useState(false); 
+  const [joinFeeText, setJoinFeeText] = useState("");
+  const [designatedChecked, setDesignatedChecked] = useState(false);
   const navigate = useNavigate();
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string>("");
-  // const [photos, setPhotos] = useState<string[]>([]);
   const [isChanged, setIsChanged] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [monthlyFeeChecked, setMonthlyFeeChecked] = useState(false);
@@ -38,8 +37,8 @@ const [joinFeeText, setJoinFeeText] = useState("");
   const [designatedText, setDesignatedText] = useState("");
   const [contentText, setContentText] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [photos, setPhotos] = useState<string[]>([]); // 이미지 URL 미리보기용
-  const [photoKeys, setPhotoKeys] = useState<string[]>([]); // 서버에 저장할 imgKey 배열
+  const [photos, setPhotos] = useState<string[]>([]); 
+  const [photoKeys, setPhotoKeys] = useState<string[]>([]); 
 
   const isFormValid =
     selectedDays.length > 0 &&
@@ -106,15 +105,14 @@ const [joinFeeText, setJoinFeeText] = useState("");
 
     try {
       const payload: UpdatePartyRequest = {
-        activityDay: selectedDays,         // 요일 배열
-        activityTime: selectedTime,        // 시간
+        activityDay: selectedDays,
+        activityTime: selectedTime,
         designatedCock: designatedText || undefined,
-        joinPrice: joinFeeText ? Number(joinFeeText) : undefined,
-        price: monthlyFeeText ? Number(monthlyFeeText) : undefined,
-        content: "", // InputField에서 값 받아서 넣어야 함
-        keyword: ["브랜드 스폰", "가입비 무료"], // 실제 선택 키워드 반영
-        imgKeys: photoKeys, // ✅ 첫 번째 이미지만 전송
-        // imgKey: photos[0] || undefined, // 대표 이미지 key
+        joinPrice: joinFeeText ? Number(joinFeeText.replace(/\D/g, "")) : undefined,
+        price: monthlyFeeText ? Number(monthlyFeeText.replace(/\D/g, "")) : undefined,
+        content: contentText || undefined,
+        keyword: keywords.length > 0 ? keywords : undefined,
+        imgKey: photoKeys[0] || undefined, 
       };
 
       const res = await updateParty(numericPartyId, payload);
@@ -165,13 +163,6 @@ const [joinFeeText, setJoinFeeText] = useState("");
     }
   };
 
-  // 사진 제거
-  const handleRemovePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
-    setPhotoKeys(prev => prev.filter((_, i) => i !== index));
-  };
-
-
   // 사진 추가 시 스크롤 이동
   useEffect(() => {
     if (containerRef.current && photos.length > 0) {
@@ -189,23 +180,22 @@ const [joinFeeText, setJoinFeeText] = useState("");
     }
   };
 
-// 파일 선택 후 이미지 읽기 + 업로드
-const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const files = e.target.files;
-  if (files && files.length > 0) {
-    try {
-      // 여러 파일 업로드
-      const { images } = await uploadImages("PARTY", Array.from(files));
+  // 파일 선택 후 단일 이미지 업로드
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      // imgUrl, imgKey 따로 관리
-      setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
-      setPhotoKeys(prev => [...prev, ...images.map(img => img.imgKey)]);
+    try {
+      const { imgUrl, imgKey } = await uploadImage("PARTY", file);
+
+      // 단일 이미지라 기존 이미지 덮어쓰기
+      setPhotos([imgUrl]);
+      setPhotoKeys([imgKey]);
     } catch (err) {
       console.error("이미지 업로드 실패:", err);
       alert("이미지 업로드 중 오류가 발생했습니다.");
     }
-  }
-};
+  };
 
   return (
     <div className="flex flex-col gap-8 mb-8">
@@ -256,13 +246,13 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           maxLength={20}
           Label="없음"
           showIcon={true}
-          value={designatedText}           
+          value={designatedText}  
+          checked={designatedChecked}         
           onChange={(checked, value) => {
-            console.log(checked);
-            setDesignatedText(value);
+            setDesignatedChecked(checked);
+            setDesignatedText(value);   
           }}
         />
-
         <CheckBox_Long_noButton
           title="가입비"
           maxLength={100}
@@ -276,7 +266,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             setJoinFeeText(formatted);
           }}
         />
-
         <CheckBox_Long_noButton
           title="회비"
           maxLength={100}
@@ -316,26 +305,27 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
           >
             <div className="flex flex-col items-center justify-center text-center">
                 <Camera />
-                <label className="mt-1">{`${photos.length} / 3`}</label>
+                {/* <label className="mt-1">{`${photos.length} / 3`}</label> */}
             </div>
           </button>
 
-          {photos.map((src, i) => (
-            <div
-              key={i}
-              className="relative w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] overflow-hidden"
-            >
-              <img
-                src={src}
-                alt={`uploaded-${i}`}
-                className="w-full h-full object-cover rounded-xl"
-              />
-              <Dismiss_Gy800
-                onClick={() => handleRemovePhoto(i)}
-                className="absolute top-1 right-1 w-6 h-6 p-1 cursor-pointer"
-              />
-            </div>
-          ))}
+          {photos[0] && (
+          <div className="relative w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] overflow-hidden">
+            <img
+              src={photos[0]}
+              alt="uploaded"
+              className="w-full h-full object-cover rounded-xl"
+            />
+            <Dismiss_Gy800
+              onClick={() => {
+                setPhotos([]);
+                setPhotoKeys([]);
+              }}
+              className="absolute top-1 right-1 w-6 h-6 p-1 cursor-pointer"
+            />
+          </div>
+        )}
+
         </div>
 
         {/* 소개 글 및 키워드 */}
@@ -343,8 +333,8 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         <InputField
           title="멤버에게 하고 싶은 말 / 소개"
           maxLength={45}
-          value={contentText}            // API에서 받아온 초기값
-          onChange={setContentText}      // 수정 시 상태 업데이트
+          value={contentText}           
+          onChange={setContentText}    
         />
       
         </div>
@@ -352,22 +342,21 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             키워드
           </label>
           <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
-            {["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"].map((kw, i) => (
+            {["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"].map((kw) => (
               <TagBtn
-                key={i}
-                isSelected={keywords.includes(kw)}     
+                key={`${kw}-${keywords.includes(kw)}`} 
+                isSelected={keywords.includes(kw)}
                 onClick={() => {
-                  if (keywords.includes(kw)) {
-                    setKeywords(prev => prev.filter(k => k !== kw));
-                  } else {
-                    setKeywords(prev => [...prev, kw]);
-                  }
+                  setKeywords(prev =>
+                    prev.includes(kw) ? prev.filter(k => k !== kw) : [...prev, kw]
+                  );
                 }}
               >
                 {kw}
               </TagBtn>
             ))}
           </div>
+
         <Grad_GR400_L
           label="수정하기"
           initialStatus={isFormValid ? "default" : "disabled"}
