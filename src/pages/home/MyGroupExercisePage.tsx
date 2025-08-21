@@ -10,7 +10,7 @@ import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
 import type { Swiper as SwiperClass } from "swiper";
 import { generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Week } from "../../types/calendar";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import {
   fetchMyGroupCalendar,
   type CalExercise,
@@ -284,7 +284,7 @@ export const MyGroupExercisePage = () => {
                   time={`${ex.startTime} ~ ${ex.endTime}`}
                   location={ex.buildingName}
                   isFavorite={ex.isBookmarked}
-                  imageSrc={ex.profileImageUrl ?? appIcon}
+                  imageSrc={ex.profileImageUrl ?? DefaultGroupImg}
                   onClick={() => onClickExercise(ex.partyId)}
                 />
               </div>

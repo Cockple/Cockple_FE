@@ -42,7 +42,7 @@ import { EMOJIS } from "../common/chat/emojis";
 import { useMyProfile } from "../../api/member/my";
 
 // 이미지
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 // ===== 유틸: 키 → 표시 URL =====
 const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
@@ -640,7 +640,7 @@ export const ChatDetailTemplate = ({
         {showHomeButton && (
           <div className="fixed top-[4.25rem] left-1/2 -translate-x-1/2 z-10 mt-2">
             <ChatBtn
-              imgSrc={partyProfileImg ? partyProfileImg : appIcon}
+              imgSrc={partyProfileImg ? partyProfileImg : DefaultGroupImg}
               onClick={() => {
                 navigate(`/group/${partyId}`);
                 console.log(`/group/${partyId}로 이동`);
