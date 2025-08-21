@@ -24,7 +24,7 @@ export const MyPageMyGroupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const pageSize = 10; // 한 페이지에 가져올 데이터 수
+  const pageSize = 50; // 한 페이지에 가져올 데이터 수 걍 많이 가져옴
 
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
     useLikedGroupIds();

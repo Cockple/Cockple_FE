@@ -34,6 +34,7 @@ import axios from "axios";
 export const CreateExercise = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { addExercise } = useMyExerciseStore();
 
   const {
     selectedDate,
@@ -54,7 +55,6 @@ export const CreateExercise = () => {
     setLocationDetail,
     resetForm,
   } = useCreateExerciseStore();
-  const { addExercise } = useMyExerciseStore();
 
   const [openModal, setOpenModal] = useState(false);
   const [timeType, setTimeType] = useState<"start" | "end" | null>(null);
@@ -171,7 +171,7 @@ export const CreateExercise = () => {
           }
           const data = await createExerciseApi(groupId, payload);
           console.log(data);
-          addExercise(data); //연두 : 추가했어요
+          addExercise(data); // 연두 : store에 바로 추가
           navigate(`/group/${groupId}`);
           resetForm();
         }
