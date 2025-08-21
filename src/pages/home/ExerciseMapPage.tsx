@@ -16,7 +16,7 @@ import {
 } from "../../api/exercise/getExerciseMapApi";
 import { FloatingButton } from "../../components/common/system/FloatingButton";
 import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { useNavigate } from "react-router-dom";
 
 interface Exercise {
@@ -339,7 +339,7 @@ export const ExerciseMapPage = () => {
                   date={selectedDate}
                   time={`${exercise.startTime} ~ ${exercise.endTime}`}
                   location={selectedLocation.buildingName}
-                  imageSrc={exercise.profileImageUrl ?? appIcon}
+                  imageSrc={exercise.profileImageUrl ?? DefaultGroupImg}
                   className="w-full"
                   onClick={() =>
                     navigate(

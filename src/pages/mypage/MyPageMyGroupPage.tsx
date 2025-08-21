@@ -9,7 +9,7 @@ import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?reac
 import { getMyGroups, type PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import { useLocation, useNavigate } from "react-router-dom";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 export const MyPageMyGroupPage = () => {
@@ -25,7 +25,8 @@ export const MyPageMyGroupPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10; // 한 페이지에 가져올 데이터 수
 
-  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
+  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
+    useLikedGroupIds();
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback(
@@ -39,7 +40,7 @@ export const MyPageMyGroupPage = () => {
       });
       if (node) observerRef.current.observe(node);
     },
-    [isLoading, hasMore]
+    [isLoading, hasMore],
   );
 
   // 그룹 데이터 fetch
@@ -60,7 +61,8 @@ export const MyPageMyGroupPage = () => {
         }));
 
         setGroups(prev => {
-          const merged = page === 0 ? resultWithLike : [...prev, ...resultWithLike];
+          const merged =
+            page === 0 ? resultWithLike : [...prev, ...resultWithLike];
           const uniqueMap = new Map<number, PartyData>();
           merged.forEach(group => uniqueMap.set(group.partyId, group));
           return Array.from(uniqueMap.values());
@@ -114,11 +116,19 @@ export const MyPageMyGroupPage = () => {
             <div className="mb-8 flex justify-between items-start">
               <div className="flex items-center gap-2">
                 <button onClick={() => setIsChecked(!isChecked)}>
-                  {isChecked ? <CheckCircledFilled className="w-4 h-4" /> : <CheckCircled className="w-4 h-4" />}
+                  {isChecked ? (
+                    <CheckCircledFilled className="w-4 h-4" />
+                  ) : (
+                    <CheckCircled className="w-4 h-4" />
+                  )}
                 </button>
                 <label className="body-rg-500">내가 만든 모임</label>
               </div>
-              <Sort label={sortOption} isOpen={isSortOpen} onClick={() => setIsSortOpen(!isSortOpen)} />
+              <Sort
+                label={sortOption}
+                isOpen={isSortOpen}
+                onClick={() => setIsSortOpen(!isSortOpen)}
+              />
             </div>
 
             <div className="flex-1 flex flex-col gap-4">
@@ -129,7 +139,7 @@ export const MyPageMyGroupPage = () => {
                     <Group_M
                       id={group.partyId}
                       groupName={group.partyName}
-                      groupImage={group.partyImgUrl ?? appIcon}
+                      groupImage={group.partyImgUrl ?? DefaultGroupImg}
                       location={`${group.addr1} / ${group.addr2}`}
                       femaleLevel={group.femaleLevel}
                       maleLevel={group.maleLevel}
@@ -139,7 +149,7 @@ export const MyPageMyGroupPage = () => {
                       isMine={group.isMine ?? false}
                       onClick={() =>
                         navigate(
-                          `/group/${group.partyId}?return=${encodeURIComponent(location.pathname + location.search)}`
+                          `/group/${group.partyId}?return=${encodeURIComponent(location.pathname + location.search)}`,
                         )
                       }
                     />

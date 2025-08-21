@@ -5,7 +5,7 @@ import AddIcon from "@/assets/icons/add.svg";
 import Btn_Static from "../common/Btn_Static/Btn_Static";
 import { useNavigate } from "react-router-dom";
 import { useMyExerciseApi } from "../../api/exercise/getMyExerciseApi";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import dayjs from "dayjs";
 
 const dayOfWeekMap: Record<string, string> = {
@@ -61,7 +61,7 @@ export const MyGroupWorkoutSection = () => {
                 date={getFormattedDate(item.date, item.dayOfWeek ?? "")}
                 time={getFormattedTime(item.startTime)}
                 location={item.buildingName}
-                imageSrc={item.profileImageUrl ?? appIcon}
+                imageSrc={item.profileImageUrl ?? DefaultGroupImg}
                 onClick={() => navigate(`/group/${item.partyId}`)}
               />
             );

@@ -15,7 +15,7 @@ import {
   usePartySuggestion,
   type PartySuggestion,
 } from "../../api/party/getPartySuggeston";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 export const GroupPage = () => {
   const location = useLocation();
@@ -127,7 +127,7 @@ export const GroupPage = () => {
                     <Group_S
                       title={item.partyName}
                       location={`${item.addr1}/${item.addr2}`}
-                      imageSrc={item.partyImgUrl ?? appIcon}
+                      imageSrc={item.partyImgUrl ?? DefaultGroupImg}
                     />
                   </div>
                 ))}
@@ -165,7 +165,7 @@ export const GroupPage = () => {
                   femaleLevel={item.femaleLevel}
                   maleLevel={item.maleLevel}
                   nextActivitDate={item.nextExerciseInfo}
-                  groupImage={item.partyImgUrl ?? appIcon}
+                  groupImage={item.partyImgUrl ?? DefaultGroupImg}
                   upcomingCount={item.totalExerciseCount}
                   isMine={true}
                   like={item.isBookmarked}
