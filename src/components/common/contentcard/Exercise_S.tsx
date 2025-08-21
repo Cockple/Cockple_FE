@@ -46,9 +46,9 @@ export const Exercise_S = ({
         <p className="body-sm-500 truncate w-full">{title}</p>
         <p className="body-sm-500 truncate w-full">{`${date} ${time}`}</p>
 
-        <div className="flex items-center gap-[0.25rem] w-full overflow-hidden">
+        <div className="flex items-center justify-center gap-[0.25rem] w-full overflow-hidden">
           <Vector className="w-[0.875rem] h-[0.875rem] shrink-0" />
-          <p className="truncate body-sm-400 w-full">{location}</p>
+          <p className="truncate body-sm-400">{location}</p>
         </div>
       </div>
     </div>
