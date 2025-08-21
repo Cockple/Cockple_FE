@@ -17,6 +17,8 @@ import { formatDate } from "../../utils/time";
 
 import { mapLevels } from "../../utils/gradeMapper";
 
+import DefaultProfile from "../../assets/images/base_profile_img.png";
+
 const MemberRequestPage = () => {
   const { partyId } = useParams();
   const [activeTab, setActiveTab] = useState<"request" | "approved">("request");
@@ -156,7 +158,7 @@ const MemberRequestPage = () => {
                     imgUrl={
                       req.profileImageUrl
                         ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${req.profileImageUrl}`
-                        : null
+                        : DefaultProfile
                     }
                     onAccept={
                       submitting ? undefined : () => openApproveModal(req)

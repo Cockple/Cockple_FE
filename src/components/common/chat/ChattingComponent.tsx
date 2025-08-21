@@ -65,7 +65,7 @@ const ChattingComponent = ({
         return (
           <button
             type="button"
-            className="block focus:outline-none min-h-[1px] [contain:layout]"
+            className="block focus:outline-none"
             //onClick={() => onClick?.({ url: img.imageUrl, isEmoji })}
             aria-label="emoji-1"
           >
@@ -83,14 +83,14 @@ const ChattingComponent = ({
       return (
         <button
           type="button"
-          className="block w-full max-w-[15rem] focus:outline-none min-h-[1px] [contain:layout]"
+          className="block max-w-[15rem] focus:outline-none"
           onClick={() => onClick?.({ url: img.imageUrl, isEmoji: img.isEmoji })}
           aria-label="image-1"
         >
           <img
             src={img.imageUrl}
             alt="img-1"
-            className="block w-full h-auto max-h-[60svh] object-contain"
+            className="w-full h-auto object-contain"
             loading="lazy"
           />
         </button>
