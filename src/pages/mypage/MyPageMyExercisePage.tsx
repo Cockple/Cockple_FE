@@ -362,7 +362,7 @@ export const MyPageMyExercisePage = () => {
                     time={`${item.startTime} ~ ${item.endTime}`}
                     femaleLevel={item.levelRequirement?.female ?? 0}
                     maleLevel={item.levelRequirement?.male ?? 0}
-                    currentCount={item.participation.current}
+                    currentCount={item.participation?.current}
                     totalCount={item.participation.max}
                     like={isLiked}
                   />

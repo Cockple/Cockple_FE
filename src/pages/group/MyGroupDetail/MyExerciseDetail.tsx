@@ -22,6 +22,7 @@ import type {
   CancelSelfResponse,
 } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
+import { useDeleteInviteForm } from "../../../api/exercise/InviteGuestApi";
 
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
@@ -41,21 +42,23 @@ export const MyExerciseDetail = () => {
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
   const currentUser = members.find(m => m.isMe);
-  const isCurrentUserLeader = currentUser?.isLeader ??
+  const isCurrentUserLeader =
+    currentUser?.isLeader ||
     detail?.participantMembers?.some(
-      p => p.id === user?.memberId && p.position === "party_MANAGER"
-    ) ?? false;
-  // const isCurrentUserLeader = currentUser?.isLeader ?? false;
-  // const isCurrentUserLeader = currentUser?.isLeader ?? 
-  //   detail?.participantMembers?.some(p => p.id === user?.memberId && p.position === "party_MANAGER") ?? 
-  //   false;
+      p => p.id === user?.memberId && p.position === "party_MANAGER",
+    ) ||
+    false;
+
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
+
+  // 게스트 삭제 훅
+  const deleteGuestMutation = useDeleteInviteForm(exerciseIdNumber);
 
   // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
     if (exerciseIdNumber) {
-      getExerciseDetail(exerciseIdNumber,  user?.memberId).then(res => {
+      getExerciseDetail(exerciseIdNumber, user?.memberId).then(res => {
         console.log("운동 상세 데이터:", res);
         setDetail(res);
 
@@ -123,6 +126,23 @@ export const MyExerciseDetail = () => {
     }
   };
 
+  // 게스트 삭제 핸들러
+  const handleDeleteGuest = (guestId: number) => {
+    deleteGuestMutation.mutate(guestId, {
+      onSuccess: () => {
+        alert("게스트 초대 취소 성공");
+        // UI에서 바로 삭제
+        setMembers(prev =>
+          prev.filter(m => !(m.isGuest && m.participantId === guestId)),
+        );
+        setParticipantsCount(prev => prev - 1);
+      },
+      onError: (err: any) => {
+        alert(err?.response?.data?.message || "게스트 삭제 실패");
+      },
+    });
+  };
+
   if (!detail) {
     return <p className="p-4">불러오는 중...</p>;
   }
@@ -131,7 +151,9 @@ export const MyExerciseDetail = () => {
     <>
       <PageHeader
         title="내 운동 상세"
-        onMoreClick={isCurrentUserLeader ? () => setIsSortOpen(true) : undefined}
+        onMoreClick={
+          isCurrentUserLeader ? () => setIsSortOpen(true) : undefined
+        }
         onBackClick={() => {
           if (returnPath === -1) navigate(-1);
           else navigate(returnPath);
@@ -201,14 +223,14 @@ export const MyExerciseDetail = () => {
                   if (!member.isGuest) {
                     navigate(`/mypage/profile/${member.memberId}`);
                   }
-                }}               
+                }}
                 onDelete={() => {
-                if (member.participantId !== undefined) {
-                  handleDeleteMember(member.participantId, {
-                    isLeaderAction: isCurrentUserLeader && !member.isMe,
-                  });
-                }
-                  }}
+                  if (member.participantId !== undefined) {
+                    handleDeleteMember(member.participantId, {
+                      isLeaderAction: isCurrentUserLeader && !member.isMe,
+                    });
+                  }
+                }}
                 showDeleteButton={
                   isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
                 }
@@ -258,11 +280,16 @@ export const MyExerciseDetail = () => {
                       navigate(`/mypage/profile/${member.memberId}`)
                     }
                     onDelete={() => {
-                      const updated = waitingMembers.filter(
-                        (_, i) => i !== idx,
-                      );
-                      setWaitingMembers(updated);
-                      setWaitingCount(updated.length);
+                      if (
+                        member.isGuest &&
+                        member.participantId !== undefined
+                      ) {
+                        handleDeleteGuest(member.participantId);
+                      } else if (member.participantId !== undefined) {
+                        handleDeleteMember(member.participantId, {
+                          isLeaderAction: isCurrentUserLeader && !member.isMe,
+                        });
+                      }
                     }}
                     showDeleteButton={
                       isCurrentUserLeader ||
