@@ -35,7 +35,7 @@ export type ResponseAlertDto = {
   content: string;
   type: AlertType;
   isRead: boolean;
-  imgUrl: string;
+  imgKey: string;
   data?: AlertData; //운동 id, 날짜
 };
 

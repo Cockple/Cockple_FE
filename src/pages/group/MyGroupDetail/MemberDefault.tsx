@@ -13,11 +13,9 @@ import Search from "../../../assets/icons/search.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
-// import { useGroupNameStore } from "../../../store/useGroupNameStore";
 
 export const MemberDefault = () => {
   const { groupId } = useParams<{ groupId: string }>();
-  // const { groupName } = useGroupNameStore();
 
   const partyId = Number(groupId);
 
@@ -36,7 +34,9 @@ export const MemberDefault = () => {
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
-    imgUrl: m.profileImageUrl || null,
+    imgUrl: m.profileImageUrl
+    ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${m.profileImageUrl}`
+    : null,
     gender: m.gender,
     level: m.level,
     isMe: !!m.isMe,

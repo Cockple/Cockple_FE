@@ -223,7 +223,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgUrl ?? DefaultGroupImg}
+                imageSrc={alert.imgKey ?? DefaultGroupImg}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -232,7 +232,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgUrl ?? DefaultGroupImg}
+                imageSrc={alert.imgKey ?? DefaultGroupImg}
                 alertType={alert.type}
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={
