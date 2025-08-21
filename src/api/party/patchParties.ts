@@ -2,15 +2,16 @@
 import api from "../api";
 
 export interface UpdatePartyRequest {
-  activityDay: string[];      // 활동 요일 배열
-  activityTime: string;       // 활동 시간
-  designatedCock?: string;    // 지정콕
-  joinPrice?: number;         // 가입비
-  price?: number;             // 회비
-  keyword?: string[];         // 키워드
-  content?: string;           // 소개 내용
-  imgKeys?: string[]; // 여러 장
+  activityDay: string[];      // 필수
+  activityTime: string;       // 필수
+  designatedCock?: string;    // 선택
+  joinPrice?: number;         // 선택
+  price?: number;             // 선택
+  keyword?: string[];         // 선택
+  content?: string;           // 선택
+  imgKey?: string;            // 선택, 단일 이미지 key
 }
+
 export interface PartyDetail {
   partyId: number;
   partyName: string;
