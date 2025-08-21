@@ -97,6 +97,24 @@ export interface CancelSelfResponse {
   success: boolean;
 }
 
+//게스트 참여 삭제
+export interface CancelGuestResponse {
+  code: string;
+  message: string;
+  data?: {
+    imgUrl: string;
+    imgKey: string;
+    originalFileName: string;
+    fileSize: number;
+    fileType: string;
+  };
+  errorReason?: {
+    code: string;
+    message: string;
+    httpStatus: string;
+  };
+  success: boolean;
+}
 
 // 운동 상세 조회
 export const getExerciseDetail = async (exerciseId: number, currentUserId?: number): Promise<ExerciseDetailResponse> => {
@@ -180,5 +198,21 @@ export const deleteExercise = async (exerciseId: number) => {
   } catch (error: any) {
     console.error("운동 삭제 API 호출 실패:", error);
     throw error.response?.data || error;
+  }
+};
+
+//게스트 참여 취소
+export const cancelGuestInvitation = async (
+  exerciseId: number,
+  guestId: number
+): Promise<CancelGuestResponse> => {
+  try {
+    const res = await api.delete<CancelGuestResponse>(
+      `/api/exercises/${exerciseId}/guests/${guestId}`
+    );
+    return res.data;
+  } catch (err: any) {
+    console.error("게스트 취소 실패", err);
+    throw err;
   }
 };

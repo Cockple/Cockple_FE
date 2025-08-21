@@ -15,6 +15,7 @@ import {
   getExerciseDetail,
   cancelSelf,
   deleteExercise,
+  cancelGuestInvitation ,
 } from "../../../api/exercise/exercises";
 import { cancelByLeader } from "../../../api/exercise/participants";
 import type {
@@ -120,6 +121,32 @@ export const MyExerciseDetail = () => {
     } catch (error: any) {
       console.error("멤버 삭제 실패:", error);
       alert(error?.message || "참여 취소 실패");
+    }
+  };
+  //게스트 삭제
+  const handleCancelGuest = async (exerciseId: number, guestId: number) => {
+    try {
+      const res = await cancelGuestInvitation(exerciseId, guestId);
+      if (res.success) {
+        alert("게스트 초대 취소 성공");
+        setMembers(prev =>
+          prev.filter(m => !(m.isGuest && m.participantId === guestId))
+        );
+        setParticipantsCount(prev => prev - 1);
+
+      } else {
+        alert(res.message || "게스트 취소 실패");
+      }
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        alert("본인이 초대한 게스트가 아니어서 취소할 수 없습니다.");
+      } else if (err.response?.status === 400) {
+        alert("이미 시작된 운동이라 취소할 수 없습니다.");
+      } else if (err.response?.status === 404) {
+        alert("운동 또는 참여 기록을 찾을 수 없습니다.");
+      } else {
+        alert("서버 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -257,12 +284,14 @@ export const MyExerciseDetail = () => {
                     onClick={() =>
                       navigate(`/mypage/profile/${member.memberId}`)
                     }
-                    onDelete={() => {
-                      const updated = waitingMembers.filter(
-                        (_, i) => i !== idx,
-                      );
-                      setWaitingMembers(updated);
-                      setWaitingCount(updated.length);
+                   onDelete={() => {
+                      if (member.isGuest && member.participantId !== undefined) {
+                        handleCancelGuest(exerciseIdNumber, member.participantId);
+                      } else if (member.participantId !== undefined) {
+                        handleDeleteMember(member.participantId, {
+                          isLeaderAction: isCurrentUserLeader && !member.isMe,
+                        });
+                      }
                     }}
                     showDeleteButton={
                       isCurrentUserLeader ||
