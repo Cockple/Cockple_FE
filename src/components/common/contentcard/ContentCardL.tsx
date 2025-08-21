@@ -30,7 +30,7 @@ interface ContentCardLProps {
   time: string;
   femaleLevel: string[];
   maleLevel: string[];
-  currentCount: number;
+  currentCount?: number;
   totalCount: number;
   like?: boolean;
   LikeCount?: number;
@@ -66,8 +66,7 @@ export const ContentCardL = ({
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
-  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); //운동 50개 넘어가면 모달창
-  //const queryClient = useQueryClient();
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); 
   const [favorite, setFavorite] = useState(like);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -131,10 +130,10 @@ export const ContentCardL = ({
     try {
       if (!originalIsJoined) {
         await joinExercise(id);
-        setCurrent(current + 1);
+        setCurrent((current ?? 0) + 1);
       } else {
         await cancelExercise(id);
-        setCurrent(current - 1);
+        setCurrent((current ?? 0) - 1);
       }
       await queryClient.invalidateQueries({ queryKey: ["partyCalendar"] });
       await queryClient.invalidateQueries({ queryKey: ["partyDetail"] });
