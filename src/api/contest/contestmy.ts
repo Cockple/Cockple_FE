@@ -47,6 +47,20 @@ export interface MyContestRecord {
   medalImgUrl: string;
 }
 
+// export interface PostContestRecordRequest {
+//   contestName: string;
+//   date?: string;             
+//   medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
+//   type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES"; 
+//   level: "EXPERT" | "BEGINNER" | "NOVICE" | "SEMI_EXPERT" | "A" | "B" | "C" | "D" | "NONE";
+//   content?: string;
+//   contentIsOpen?: boolean;   
+//   videoIsOpen?: boolean;    
+//   contestVideos?: string[];
+//   contestImgs?: string[];     
+  
+// }
+
 export interface PostContestRecordRequest {
   contestName: string;
   date?: string;             
@@ -56,9 +70,12 @@ export interface PostContestRecordRequest {
   content?: string;
   contentIsOpen?: boolean;   
   videoIsOpen?: boolean;    
-  contestVideos?: string[];
-  contestImgs?: string[];     
+  contestVideos?: string[];           // 남긴 영상
+  contestVideosToDelete?: string[];   // 삭제할 영상
+  contestImgs?: string[];             
+  contestImgsToDelete?: string[];     // 삭제할 이미지
 }
+
 
 // 내 대회 기록 등록 응답 데이터 타입 
 interface PostContestRecordResponse {
@@ -216,13 +233,47 @@ export const deleteContestRecord = async (contestId: number): Promise<void> => {
 };
 
 // 내 대회 기록 수정
-export async function patchMyContestRecord(contestId: number, body: PostContestRecordRequest) {
+// export async function patchMyContestRecord(contestId: number, body: PostContestRecordRequest) {
+//   try {
+//     const response = await api.patch(`/api/contests/my/${contestId}`, body);
+//     // 서버가 빈 응답을 보내면 data가 undefined일 수 있음
+//     return response.data ?? { success: true, data: null };
+//   } catch (error: any) {
+//     console.error("대회 기록 PATCH 오류", error);
+//     throw error;
+//   }
+// }
+
+// 내 대회 기록 수정
+export interface PatchContestRecordRequest extends PostContestRecordRequest {
+  contestImgsToDelete?: string[];    // 삭제할 이미지 key
+  contestVideoIdsToDelete?: number[]; // 삭제할 영상 id
+}
+
+export interface PatchContestRecordResponse {
+  code: string;
+  message: string;
+  data: any; // 서버 응답 데이터 구조에 따라 필요시 구체화 가능
+  success: boolean;
+}
+
+export const patchMyContestRecord = async (
+  contestId: number,
+  body: PatchContestRecordRequest
+): Promise<PatchContestRecordResponse> => {
   try {
-    const response = await api.patch(`/api/contests/my/${contestId}`, body);
-    // 서버가 빈 응답을 보내면 data가 undefined일 수 있음
-    return response.data ?? { success: true, data: null };
+    const response = await api.patch<PatchContestRecordResponse>(
+      `/api/contests/my/${contestId}`,
+      body
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "대회 기록 수정 실패");
+    }
+
+    return response.data;
   } catch (error: any) {
-    console.error("대회 기록 PATCH 오류", error);
+    console.error("대회 기록 PATCH 오류", error.response?.data || error.message);
     throw error;
   }
-}
+};
