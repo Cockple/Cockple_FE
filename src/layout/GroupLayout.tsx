@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 import { useGroupNameStore } from "../store/useGroupNameStore";
 import { SortBottomSheet } from "../components/common/SortBottomSheet";
 import { deleteParty } from "../api/party/patchParties";
-import { Modal_Del } from "../components/group/Modal_Del";
 import api from "../api/api";
 import { usePartyDetail } from "../api/exercise/getpartyDetail";
 import { getJoinParty } from "../api/party/getJoinParty";
 import Grad_Mix_L from "../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Join } from "../components/group/Modal_Join";
 import axios, { AxiosError } from "axios";
+import type { CommonResponse } from "../types/common";
+import type { PersonalChatRoom } from "../types/chat";
+import { Modal_Del } from "../components/group/Modal_Del";
 
 const options = [
   { label: "홈", value: "" },
@@ -115,14 +117,35 @@ export const GroupLayout = () => {
   };
 
   const onClickChat = async () => {
+    // try {
+    //   const { data } = await api.post("/api/chats/direct", null, {
+    //     params: {
+    //       targetMemberId: partyDetail?.ownerId,
+    //     },
+    //   });
+
+    //   navigate(`/chat/personal/${data.data.chatRoomId}`);
     try {
-      const { data } = await api.post("/api/chats/direct", null, {
-        params: {
-          targetMemberId: partyDetail?.ownerId,
+      const targetMemberId = partyDetail?.ownerId;
+      if (!targetMemberId) {
+        alert("모임장의 정보가 없어 개인채팅을 시작할 수 없습니다.");
+        return;
+      }
+
+      const { data } = await api.post<CommonResponse<PersonalChatRoom>>(
+        "/api/chats/direct",
+        null,
+        { params: { targetMemberId } },
+      );
+
+      const { chatRoomId, displayName } = data.data;
+
+      navigate(`/chat/personal/${chatRoomId}`, {
+        state: {
+          chatName: displayName,
+          profileImageUrl: data.data.profileImageUrl, // 필요 시 넘길 수 있음
         },
       });
-
-      navigate(`/chat/personal/${data.data.chatRoomId}`);
     } catch (err) {
       console.log(err);
     }
