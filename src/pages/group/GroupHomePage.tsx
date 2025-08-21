@@ -465,27 +465,36 @@ export const GroupHomePage = () => {
         {loadingCal ? (
           <div className="py-6 text-gray-500">운동을 불러오는 중…</div>
         ) : selectedDayExercises.length > 0 ? (
-          selectedDayExercises.map(ex => (
-            <div className="border-b-1 border-gy-200 mb-3" key={ex.exerciseId}>
-              <ContentCardL
-                id={ex.exerciseId}
-                isUserJoined={!!isJoined}
-                isGuestAllowedByOwner
-                isCompleted={false}
-                title={partyDetail?.partyName ?? "모임 운동"}
-                date={selectedDate}
-                location={ex.buildingName}
-                time={`${ex.startTime} ~ ${ex.endTime}`}
-                femaleLevel={ex.femaleLevel}
-                maleLevel={ex.maleLevel}
-                currentCount={ex.currentParticipants}
-                totalCount={ex.maxCapacity}
-                like={ex.isBookmarked}
-                onToggleFavorite={() => {}}
-                isParticipating={ex.isParticipating}
-              />
-            </div>
-          ))
+          selectedDayExercises.map(ex => {
+            const exerciseEnd = new Date(`${selectedDate}T${ex.startTime}`);
+            const now = new Date();
+
+            const isCompleted = exerciseEnd < now;
+            return (
+              <div
+                className="border-b-1 border-gy-200 mb-3"
+                key={ex.exerciseId}
+              >
+                <ContentCardL
+                  id={ex.exerciseId}
+                  isUserJoined={!!isJoined}
+                  isGuestAllowedByOwner
+                  isCompleted={isCompleted}
+                  title={partyDetail?.partyName ?? "모임 운동"}
+                  date={selectedDate}
+                  location={ex.buildingName}
+                  time={`${ex.startTime} ~ ${ex.endTime}`}
+                  femaleLevel={ex.femaleLevel}
+                  maleLevel={ex.maleLevel}
+                  currentCount={ex.currentParticipants}
+                  totalCount={ex.maxCapacity}
+                  like={ex.isBookmarked}
+                  onToggleFavorite={() => {}}
+                  isParticipating={ex.isParticipating}
+                />
+              </div>
+            );
+          })
         ) : (
           <div className="text-center py-6 text-gray-500">
             선택한 날짜에 등록된 운동이 없어요.
