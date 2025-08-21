@@ -9,7 +9,7 @@ interface CheckBoxLongnoButton {
   maxLength?: number;
   showIcon?: boolean;
   value?: string;
-  checked?: boolean;                  // 부모에서 전달
+  checked?: boolean;                  
   onChange?: (checked: boolean, value: string) => void;
 }
 
@@ -19,7 +19,7 @@ export const CheckBox_Long_noButton = ({
   maxLength,
   showIcon = false,
   value = "",
-  checked = false,                     // 부모 상태
+  checked = false,                    
   onChange,
 }: CheckBoxLongnoButton) => {
   const [Texts, setTexts] = useState<string[]>([value]);
@@ -42,8 +42,17 @@ export const CheckBox_Long_noButton = ({
   }, [value]);
 
   const togglePrivate = () => {
-    onChange?.(!checked, Texts[0] || "");
+    const newChecked = !checked;
+
+    // 체크가 true가 되면 텍스트 초기화
+    if (newChecked) {
+      setTexts([""]);
+      onChange?.(newChecked, "");
+    } else {
+      onChange?.(newChecked, Texts[0] || "");
+    }
   };
+
 
   const onChangeText = (idx: number, value: string) => {
     if (checked) return; // 체크 상태면 수정 불가
@@ -76,7 +85,7 @@ export const CheckBox_Long_noButton = ({
       {Texts.map((text, idx) => (
        <textarea
           ref={el => {
-            textAreaRefs.current[idx] = el;  // 이제 타입 오류 없어야 함
+            textAreaRefs.current[idx] = el;  
           }}
           value={text}
           onChange={e => onChangeText(idx, e.target.value)}
