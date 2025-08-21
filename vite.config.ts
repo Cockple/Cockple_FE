@@ -22,10 +22,9 @@ export default defineConfig(({ mode }) => {
           enabled: true,
         },
         manifest: {
-          name: "Do It Together",
-          short_name: "DOITTO",
-          description:
-            "집안일 협동 기록 서비스, 효율적으로 집안일을 관리하세요.",
+          name: "콕플:Cockple",
+          short_name: "Cockple",
+          description: "배드민턴을 위한 가장 스마트한 모임 플랫폼",
           start_url: "/",
           display: "standalone",
           background_color: "#ffffff",
