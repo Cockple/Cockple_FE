@@ -4,24 +4,20 @@ import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?reac
 import White_L_Thin_Add from "./White_L_Thin_Add";
 import Dismiss from "../../assets/icons/dismiss.svg?react";
 import { useForm, Controller } from "react-hook-form";
-
-interface CheckBoxDismissTruncateProps {
+interface MyMedalCheckBoxProps {
   title: string;
-  value: string[];                       
-  onChange: (newLinks: string[]) => void;  
+  value: string[];                        
+  onChange: (newLinks: string[]) => void; 
 }
 
-export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
+export const MyMedalCheckBox: React.FC<MyMedalCheckBoxProps> = ({
   title,
   value,
   onChange
 }) => {
-  const [recordTexts, setRecordTexts] = useState<string[]>(value.length ? value : [""]);
+  const [recordTexts, setRecordTexts] = useState<string[]>(value.length ? [...value] : [""]);
   const { control } = useForm();
-
-  // const [recordTexts, setRecordTexts] = useState<string[]>([""]);
   const [isPrivate, setIsPrivate] = useState(false);
-
   const textAreaRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const adjustHeight = (idx: number) => {
@@ -32,62 +28,50 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
     }
   };
 
+  // value가 바뀌면 내부 state 동기화
   useEffect(() => {
-    recordTexts.forEach((_, idx) => {
-      adjustHeight(idx);
-    });
+    setRecordTexts(value && value.length ? [...value] : [""]);
+  }, [value]);
+
+  useEffect(() => {
+    recordTexts.forEach((_, idx) => adjustHeight(idx));
   }, [recordTexts]);
-  
+
   const onChangeText = (idx: number, value: string) => {
-    const newTexts = [...recordTexts];
-    newTexts[idx] = value;
-    setRecordTexts(newTexts);
-    onChange(newTexts); // 부모에 전달
+    const newLinks = [...recordTexts];
+    newLinks[idx] = value;
+    setRecordTexts(newLinks);
+    onChange(newLinks.filter(v => v.trim() !== "")); // 빈 문자열 제거 후 전달
   };
 
   const handleRemove = (idx: number) => {
     const updated = [...recordTexts];
-    if (updated.length === 1) {
-      updated[0] = "";
-    } else {
-      updated.splice(idx, 1);
-    }
-    setRecordTexts(updated);
-    onChange(updated); // 부모에 전달
+    updated.splice(idx, 1);
+    setRecordTexts(updated.length ? updated : [""]);
+    onChange(updated.filter(v => v.trim() !== ""));
   };
 
 
+
+  const handleAdd = () => {
+    const updated = [...recordTexts, ""];
+    setRecordTexts(updated);
+    onChange(updated);
+  };
+
   return (
     <div className="w-full flex flex-col gap-2">
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <label
-              className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}
-            >
-              {title}
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsPrivate(prev => !prev)}
-              type="button"
-              className="focus:outline-none"
-            >
-              {isPrivate ? (
-                <CheckCircledFilled className="w-4 h-4" />
-              ) : (
-                <CheckCircled className="w-4 h-4" />
-              )}
-            </button>
-            <label className="body-rg-500">비공개</label>
-          </div>
-        </div>
+      <div className="flex justify-between items-center">
+        <label className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}>
+          {title}
+        </label>
+        <button onClick={() => setIsPrivate(prev => !prev)} type="button">
+          {isPrivate ? <CheckCircledFilled className="w-4 h-4" /> : <CheckCircled className="w-4 h-4" />}
+        </button>
       </div>
 
       {recordTexts.map((text, idx) => {
         const showDismiss = text.trim() !== "";
-
         return (
           <div key={idx} className="relative">
             <Controller
@@ -109,8 +93,8 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
                   onChange={e => {
                     field.onChange(e);
                     onChangeText(idx, e.target.value);
-                    
                   }}
+                  value={recordTexts[idx]}
                 />
               )}
             />
@@ -127,16 +111,11 @@ export const MyMedalCheckBox: React.FC<CheckBoxDismissTruncateProps> = ({
         );
       })}
 
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
       {!isPrivate && recordTexts[recordTexts.length - 1].trim() !== "" && (
-       <White_L_Thin_Add
-          label="추가하기"
-          onClick={() => {
-            const updated = [...recordTexts, ""];
-            setRecordTexts(updated);
-            onChange(updated); // 부모에 전달
-          }}
-        />
+        <White_L_Thin_Add label="추가하기" onClick={handleAdd} />
       )}
+    </div>
     </div>
   );
 };
