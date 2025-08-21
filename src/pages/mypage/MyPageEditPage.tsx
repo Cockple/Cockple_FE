@@ -17,6 +17,7 @@ import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import CicleSRED from "../../assets/icons/cicle_s_red.svg?react";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 import {
   getMyProfile,
@@ -71,6 +72,7 @@ export const MyPageEditPage = ({
   const [selectedGender, setSelectedGender] = useState<"FEMALE" | "MALE" | "UNKNOWN">(
     gender ?? "UNKNOWN"
   );
+  const [isLoading, setIsLoading] = useState(true); 
 
   const initialDataRef = useRef({
     name: initialNameProp ?? "",
@@ -188,41 +190,48 @@ export const MyPageEditPage = ({
   // ==============================
   // 데이터 로드
   // ==============================
+  
   useEffect(() => {
-    getMyProfileLocations().then(setLocations).catch(console.error);
-    getMyProfile()
-      .then(data => {
-        setName(data.memberName ?? "");
-        setSelectedDate(data.birth ?? "");
-        setSelectedLevel(serverToLabelMap[data.level || "NONE"] ?? "급수 없음");
-        if (data.profileImgUrl) setProfileImage(data.profileImgUrl);
-        if (data.gender === "FEMALE" || data.gender === "MALE") {
-          setSelectedGender(data.gender);
-        }
-        if (data.keywords && Array.isArray(data.keywords)) {
+  getMyProfileLocations()
+    .then(setLocations)
+    .catch(console.error)
+    .finally(() => setIsLoading(false)); 
+
+  getMyProfile()
+    .then(data => {
+      setName(data.memberName ?? "");
+      setSelectedDate(data.birth ?? "");
+      setSelectedLevel(serverToLabelMap[data.level || "NONE"] ?? "급수 없음");
+      if (data.profileImgUrl) setProfileImage(data.profileImgUrl);
+      if (data.gender === "FEMALE" || data.gender === "MALE") {
+        setSelectedGender(data.gender);
+      }
+      if (data.keywords && Array.isArray(data.keywords)) {
         const initialKeywords = data.keywords
           .map((k: string) => serverToLabelKeywordMap[k])
           .filter(Boolean) as string[];
         setSelectedKeywords(initialKeywords); 
-        } else {
+      } else {
         setSelectedKeywords([]); 
-        }
-      })
-      .catch(console.error);
-  }, []);
-//대표 주소 선택 및 저장 및 UI 변경
+      }
+    })
+    .catch(console.error)
+    .finally(() => setIsLoading(false));
+}, []);
+
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         const data: UserAddress[] = await getMyProfileLocations();
         setLocations(data);
-
-        // 대표 주소 선택
         const main = data.find(l => l.isMainAddr);
         if (main) setSelectedId(main.addrId);
       } catch (err) {
         console.error(err);
-      }
+      }finally {
+      setIsLoading(false); 
+    }
+      
     };
 
     fetchLocations();
@@ -301,7 +310,13 @@ export const MyPageEditPage = ({
   const handleConfirmLeave = () => { setIsModalOpen(false); navigate("/myPage"); };
   const handleCancelLeave = () => setIsModalOpen(false);
   const toggleEditMode = () => setEditMode(prev => !prev);
-
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
   return (
     <>
       <PageHeader title="정보 수정하기" onBackClick={onBackClick} />

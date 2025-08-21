@@ -12,6 +12,7 @@ import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
 import { useNavigate, useParams  } from "react-router-dom";
 import { updateParty, getPartyDetail } from "../../../api/party/patchParties";
 import type { UpdatePartyRequest, PartyDetail } from "../../../api/party/patchParties";
+import { addWon, fmtKRW } from "../../../utils/moneychange";
 
 const dayOptions = ["전체", "월", "화", "수", "목", "금", "토", "일"];
 const timeOptions = ["상시", "오전", "오후"];
@@ -20,6 +21,9 @@ export const EditGroupInfoDefault = () => {
   const { partyId } = useParams<{ partyId: string }>(); 
   const numericPartyId = Number(partyId);
   console.log(numericPartyId);
+const digits = (s: string) => s.replace(/\D/g, "");
+const [joinFeeChecked, setJoinFeeChecked] = useState(false); // 체크 상태 관리
+const [joinFeeText, setJoinFeeText] = useState("");
 
   const navigate = useNavigate();
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -27,10 +31,10 @@ export const EditGroupInfoDefault = () => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [isChanged, setIsChanged] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [monthlyFeeChecked, setMonthlyFeeChecked] = useState(false);
+  const [monthlyFeeText, setMonthlyFeeText] = useState("");
 
   const [designatedText, setDesignatedText] = useState("");
-  const [joinFeeText, setJoinFeeText] = useState("");
-  const [monthlyFeeText, setMonthlyFeeText] = useState("");
   const [contentText, setContentText] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
 
@@ -238,59 +242,48 @@ export const EditGroupInfoDefault = () => {
           singleSelect={true}
         />
       </div>
+      <div className="flex flex-col gap-y-6"> 
+        <CheckBox_Long_noButton
+          title="지정콕"
+          maxLength={20}
+          Label="없음"
+          showIcon={true}
+          value={designatedText}           
+          onChange={(checked, value) => {
+            console.log(checked);
+            setDesignatedText(value);
+          }}
+        />
 
-      <div>
-        <div className="flex justify-between items-start">
-          <CheckBox_Long_noButton
-            title="지정콕"
-            maxLength={20}
-            Label="없음"
-            showIcon={true}
-            onChange={(checked, value) => {
-              // ‼️ 배포 오류를 위한 임시 코드
-              console.log(checked);
-              setDesignatedText(value);
-            }}
-          />
-        </div>
-        <div className="flex justify-between items-start">
-          <CheckBox_Long_noButton
-            title="가입비"
-            maxLength={100}
-            Label="없음"
-            showIcon={true}
-            onChange={(checked, value) => {
-              // ‼️ 배포 오류를 위한 임시 코드
-              console.log(checked);
-              setJoinFeeText(value);
-            }}
-          />
-        </div>
-        <div className="flex justify-between items-start">
-          <CheckBox_Long_noButton
-            title="회비"
-            maxLength={100}
-            Label="없음"
-            showIcon={true}
-            onChange={(checked, value) => {
-              // ‼️ 배포 오류를 위한 임시 코드
-              console.log(checked);
-              setMonthlyFeeText(value);
-            }}
-              value={monthlyFeeText} // 기존 값 표시
+        <CheckBox_Long_noButton
+          title="가입비"
+          maxLength={100}
+          Label="없음"
+          showIcon={true}
+          value={joinFeeText}
+          checked={joinFeeChecked}
+          onChange={(checked, value) => {
+            setJoinFeeChecked(checked);
+            const formatted = addWon(fmtKRW(digits(value)));
+            setJoinFeeText(formatted);
+          }}
+        />
 
-          />
-          {/* <CheckBox_Long_noButton
-  title="회비"
-  maxLength={100}
-  Label="없음"
-  showIcon={true}
-  onChange={(checked, value) => setMonthlyFeeText(value)}
-  value={monthlyFeeText} // 기존 값 표시
-/> */}
-
-        </div>
+        <CheckBox_Long_noButton
+          title="회비"
+          maxLength={100}
+          Label="없음"
+          showIcon={true}
+          value={monthlyFeeText}  
+          checked={monthlyFeeChecked}
+          onChange={(checked, value) => {
+            setMonthlyFeeChecked(checked);
+            const formatted = addWon(fmtKRW(digits(value)));
+            setMonthlyFeeText(formatted);
+          }}
+        />
       </div>
+
 
       {/* 사진 업로드 */}
       <div className=" flex-grow min-h-0 overflow-y-auto">
@@ -313,9 +306,9 @@ export const EditGroupInfoDefault = () => {
             className="w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] flex items-center justify-center body-rg-500 bg-white"
             type="button"
           >
-            <div className="flex flex-col text-center justify-center">
-              <Camera />
-              <label>{`${photos.length} / 3`}</label>
+            <div className="flex flex-col items-center justify-center text-center">
+                <Camera />
+                <label className="mt-1">{`${photos.length} / 3`}</label>
             </div>
           </button>
 
@@ -339,18 +332,34 @@ export const EditGroupInfoDefault = () => {
 
         {/* 소개 글 및 키워드 */}
         <div className="mt-8">
-        
-          <InputField title="멤버에게 하고 싶은 말 / 소개" maxLength={45} />
+        <InputField
+          title="멤버에게 하고 싶은 말 / 소개"
+          maxLength={45}
+          value={contentText}            // API에서 받아온 초기값
+          onChange={setContentText}      // 수정 시 상태 업데이트
+        />
+      
         </div>
-        <label className="flex items-center text-left header-h5 mb-1">
-          키워드
-        </label>
-        <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
-          <TagBtn>브랜드 스폰</TagBtn>
-          <TagBtn>가입비 무료</TagBtn>
-          <TagBtn>친목</TagBtn>
-          <TagBtn>운영진이 게임을 짜드려요</TagBtn>
-        </div>
+          <label className="flex items-center text-left header-h5 mb-1">
+            키워드
+          </label>
+          <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
+            {["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"].map((kw, i) => (
+              <TagBtn
+                key={i}
+                isSelected={keywords.includes(kw)}     
+                onClick={() => {
+                  if (keywords.includes(kw)) {
+                    setKeywords(prev => prev.filter(k => k !== kw));
+                  } else {
+                    setKeywords(prev => [...prev, kw]);
+                  }
+                }}
+              >
+                {kw}
+              </TagBtn>
+            ))}
+          </div>
         <Grad_GR400_L
           label="수정하기"
           initialStatus={isFormValid ? "default" : "disabled"}

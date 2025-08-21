@@ -15,6 +15,8 @@ import type {
 import api from "../../api/api";
 import { formatDate } from "../../utils/time";
 
+import { mapLevels } from "../../utils/gradeMapper";
+
 const MemberRequestPage = () => {
   const { partyId } = useParams();
   const [activeTab, setActiveTab] = useState<"request" | "approved">("request");
@@ -34,10 +36,8 @@ const MemberRequestPage = () => {
     const res = await api.get<MemberJoinRequestResponse>(
       `/api/parties/${partyId}/join-requests?status=PENDING`,
     );
-    //🌟
-    // const data = res.data.data.content;
-    // const mapped = data.map(toMemberProps("request"));
-    // setRequests(mapped);
+
+    console.log(res.data.data);
     setRequests(res.data.data.content);
   };
 
@@ -46,10 +46,7 @@ const MemberRequestPage = () => {
     const res = await api.get<MemberJoinRequestResponse>(
       `/api/parties/${partyId}/join-requests?status=APPROVED`,
     );
-    //🌟
-    // const data = res.data.data.content;
-    // const mapped = data.map(toMemberProps("approved"));
-    // setApproved(mapped);
+
     setApproved(res.data.data.content);
   };
 
@@ -59,44 +56,10 @@ const MemberRequestPage = () => {
     fetchApprovedMembers();
   }, [partyId]);
 
-  // MemberJoinRequest → MemberProps 변환 함수
-  // const toMemberProps =
-  //   (status: "request" | "approved") =>
-  //   (item: MemberJoinReqeust): MemberProps => ({
-  //     requestId: item.joinRequestId,
-  //     status,
-  //     name: item.nickname,
-  //     gender: item.gender,
-  //     level: item.level,
-  //     birth: status === "request" ? item.createdAt : item.updatedAt,
-  //   });
-
   // 승인 처리
   const handleApprove = async () => {
     if (!selectedMember || !partyId) return;
 
-    // 1.
-    // const { name, gender, level } = selectedMember;
-
-    // const updated: MemberProps = {
-    //   status: "approved",
-    //   name,
-    //   gender,
-    //   level,
-    //   birth: getToday(), // 승인 날짜
-    // };
-
-    //2.
-    // const updated: MemberProps = {
-    //   ...selectedMember,
-    //   status: "approved",
-    //   birth: getToday(),
-    // };
-    // setApproved(prev => [...prev, updated]);
-    // setRequests(prev => prev.filter(m => m.name !== selectedMember.name));
-    // closeModal();
-
-    //3.
     try {
       setSubmitting(true);
       console.log(selectedMember);
@@ -172,20 +135,6 @@ const MemberRequestPage = () => {
       />
 
       <div className="flex-1 flex flex-col gap-3 mt-2">
-        {/* {activeTab === "request" &&
-          requests.map(member => (
-            <Member
-              key={member.name}
-              {...member}
-              onAccept={() => openApproveModal(member)}
-              onReject={() => openRejectModal(member)}
-            />
-          ))}
-
-        {activeTab === "approved" &&
-          approved.map(member => (
-            <Member key={member.name} {...member} status="approved" />
-          ))} */}
         {activeTab === "request" && (
           <>
             {requests.length === 0 ? (
@@ -200,7 +149,8 @@ const MemberRequestPage = () => {
                     requestId={req.joinRequestId}
                     name={req.nickname}
                     gender={req.gender}
-                    level={req.level}
+                    // level={req.level}
+                    level={mapLevels([req.level])[0] ?? "급수 없음"}
                     birth={formatDate(req.createdAt)}
                     imgUrl={req.profileImageUrl}
                     onAccept={
@@ -230,7 +180,8 @@ const MemberRequestPage = () => {
                   requestId={req.joinRequestId}
                   name={req.nickname}
                   gender={req.gender}
-                  level={req.level}
+                  // level={req.level}
+                  level={mapLevels([req.level])[0] ?? "급수 없음"}
                   birth={formatDate(req.updatedAt ?? req.createdAt)}
                   imgUrl={req.profileImageUrl}
                 />
