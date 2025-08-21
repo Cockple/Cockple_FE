@@ -53,8 +53,6 @@ export const MyExerciseDetail = () => {
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
 
-  // const { data: guestData } = useInviteGuest(exerciseIdNumber);
-
   // 게스트 삭제 훅
   const deleteGuestMutation = useDeleteInviteForm(exerciseIdNumber);
 

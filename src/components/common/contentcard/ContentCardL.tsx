@@ -30,7 +30,7 @@ interface ContentCardLProps {
   time: string;
   femaleLevel: string[];
   maleLevel: string[];
-  currentCount: number;
+  currentCount?: number;
   totalCount: number;
   like?: boolean;
   LikeCount?: number;
@@ -131,10 +131,10 @@ export const ContentCardL = ({
     try {
       if (!originalIsJoined) {
         await joinExercise(id);
-        setCurrent(current + 1);
+        setCurrent((current ?? 0) + 1);
       } else {
         await cancelExercise(id);
-        setCurrent(current - 1);
+        setCurrent((current ?? 0) - 1);
       }
       await queryClient.invalidateQueries({ queryKey: ["partyCalendar"] });
       await queryClient.invalidateQueries({ queryKey: ["partyDetail"] });
