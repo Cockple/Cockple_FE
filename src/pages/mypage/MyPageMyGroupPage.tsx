@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Sort from "../../components/common/Sort";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
@@ -8,7 +9,6 @@ import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
 import { getMyGroups, type PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
-import { useLocation, useNavigate } from "react-router-dom";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
@@ -17,6 +17,7 @@ export const MyPageMyGroupPage = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -29,16 +30,23 @@ export const MyPageMyGroupPage = () => {
     useLikedGroupIds();
 
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const isLoadingRef = useRef(isLoading);
+  useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
+
+  // 마지막 요소 ref
   const lastElementRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (isLoading) return;
-      if (observerRef.current) observerRef.current?.disconnect();
+      if (observerRef.current) observerRef.current.disconnect();
+      if (!node || !hasMore) return;
+
       observerRef.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasMore && !isLoadingRef.current) {
           setPage(prev => prev + 1);
         }
       });
-      if (node) observerRef.current.observe(node);
+
+      observerRef.current.observe(node);
     },
     [isLoading, hasMore],
   );
@@ -46,7 +54,9 @@ export const MyPageMyGroupPage = () => {
   // 그룹 데이터 fetch
   useEffect(() => {
     const fetchGroups = async () => {
+      if (!hasMore) return;
       setIsLoading(true);
+
       try {
         const result = await getMyGroups({
           created: isChecked,
@@ -68,6 +78,7 @@ export const MyPageMyGroupPage = () => {
           return Array.from(uniqueMap.values());
         });
 
+        // 마지막 페이지 판단!!!
         setHasMore(resultWithLike.length === pageSize);
       } catch (err) {
         console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
@@ -76,10 +87,8 @@ export const MyPageMyGroupPage = () => {
       }
     };
 
-    if (!isGroupLikedLoading) {
-      fetchGroups();
-    }
-  }, [isChecked, sortOption, likedGroupIds, isGroupLikedLoading, page]);
+    if (!isGroupLikedLoading) fetchGroups();
+  }, [isChecked, sortOption, page, likedGroupIds, isGroupLikedLoading, hasMore]);
 
   // 필터/정렬 변경 시 초기화
   useEffect(() => {
@@ -92,11 +101,7 @@ export const MyPageMyGroupPage = () => {
 
   const onBackClick = () => {
     const returnParam = new URLSearchParams(location.search).get("return");
-    if (returnParam) {
-      navigate(returnParam);
-    } else {
-      navigate("/mypage");
-    }
+    navigate(returnParam ?? "/mypage");
   };
 
   return (
@@ -106,7 +111,6 @@ export const MyPageMyGroupPage = () => {
       </div>
 
       <div className="flex-1 flex flex-col mt-4">
-        {/* 첫 로딩 스피너 */}
         {groups.length === 0 && isLoading ? (
           <div className="flex flex-1 items-center justify-center py-20">
             <LoadingSpinner />
@@ -158,7 +162,6 @@ export const MyPageMyGroupPage = () => {
                 );
               })}
 
-              {/* 하단 로딩 스피너: 마지막 페이지에서는 안보이도록 */}
               {isLoading && hasMore && (
                 <div className="flex justify-center items-center py-4">
                   <LoadingSpinner />
