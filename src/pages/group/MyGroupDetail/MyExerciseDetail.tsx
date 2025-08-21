@@ -37,7 +37,7 @@ export const MyExerciseDetail = () => {
 
   const [detail, setDetail] = useState<ExerciseDetailResponse | null>(null);
   const [members, setMembers] = useState<MemberProps[]>([]);
-  const [participantsCount, setParticipantsCount] = useState(0);
+  // const [participantsCount, setParticipantsCount] = useState(0);
 
   const [waitingMembers, setWaitingMembers] = useState<MemberProps[]>([]);
   const [waitingCount, setWaitingCount] = useState(0);
@@ -75,7 +75,7 @@ export const MyExerciseDetail = () => {
 
         }));
         setMembers(participants);
-        setParticipantsCount(participants.length);
+        // setParticipantsCount(participants.length);
 
         const waitingList: MemberProps[] = res.waitingMembers.map(w => ({
           participantId: w.id,
@@ -118,7 +118,7 @@ export const MyExerciseDetail = () => {
         alert("참여 취소 완료");
         setMembers(prev => prev.filter(m => m.participantId !== participantId));
         setWaitingMembers(prev => prev.filter(m => m.participantId !== participantId));
-        setParticipantsCount(prev => prev - 1);
+        // setParticipantsCount(prev => prev - 1);
         setWaitingCount(prev => prev - 1);
 
         queryClient.invalidateQueries({
