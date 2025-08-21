@@ -220,7 +220,12 @@ export const GroupHomePage = () => {
       },
       { label: "회비", value: partyDetail?.price ?? "" },
       { label: "가입비", value: partyDetail?.joinPrice ?? "" },
-      { label: "지정콕", value: partyDetail?.designatedCock ?? "" },
+      {
+        label: "지정콕",
+        value: partyDetail?.designatedCock
+          ? partyDetail.designatedCock
+          : "없음",
+      },
     ],
     [partyDetail],
   );
