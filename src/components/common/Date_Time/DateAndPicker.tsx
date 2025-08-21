@@ -36,7 +36,7 @@ const DateAndTimePicker = forwardRef<
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 75 }, (_, i) =>
     (currentYear - i).toString(),
-  );
+  ).reverse();
   const months = Array.from({ length: 12 }, (_, i) =>
     String(i + 1).padStart(2, "0"),
   );
