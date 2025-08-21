@@ -22,6 +22,10 @@ import type {
   CancelSelfResponse,
 } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
+import {
+  useDeleteInviteForm, 
+} from "../../../api/exercise/InviteGuestApi";
+
 
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
@@ -45,12 +49,14 @@ export const MyExerciseDetail = () => {
     detail?.participantMembers?.some(
       p => p.id === user?.memberId && p.position === "party_MANAGER"
     ) ?? false;
-  // const isCurrentUserLeader = currentUser?.isLeader ?? false;
-  // const isCurrentUserLeader = currentUser?.isLeader ?? 
-  //   detail?.participantMembers?.some(p => p.id === user?.memberId && p.position === "party_MANAGER") ?? 
-  //   false;
+
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
+
+  // const { data: guestData } = useInviteGuest(exerciseIdNumber);
+
+  // 게스트 삭제 훅
+  const deleteGuestMutation = useDeleteInviteForm(exerciseIdNumber);
 
   // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
@@ -122,6 +128,24 @@ export const MyExerciseDetail = () => {
       alert(error?.message || "참여 취소 실패");
     }
   };
+
+  // 게스트 삭제 핸들러
+  const handleDeleteGuest = (guestId: number) => {
+    deleteGuestMutation.mutate(guestId, {
+      onSuccess: () => {
+        alert("게스트 초대 취소 성공");
+        // UI에서 바로 삭제
+        setMembers(prev =>
+          prev.filter(m => !(m.isGuest && m.participantId === guestId))
+        );
+        setParticipantsCount(prev => prev - 1);
+      },
+      onError: (err: any) => {
+        alert(err?.response?.data?.message || "게스트 삭제 실패");
+      },
+    });
+  };
+
 
   if (!detail) {
     return <p className="p-4">불러오는 중...</p>;
@@ -257,13 +281,15 @@ export const MyExerciseDetail = () => {
                     onClick={() =>
                       navigate(`/mypage/profile/${member.memberId}`)
                     }
-                    onDelete={() => {
-                      const updated = waitingMembers.filter(
-                        (_, i) => i !== idx,
-                      );
-                      setWaitingMembers(updated);
-                      setWaitingCount(updated.length);
-                    }}
+                  onDelete={() => {
+                            if (member.isGuest && member.participantId !== undefined) {
+                              handleDeleteGuest(member.participantId);
+                            } else if (member.participantId !== undefined) {
+                              handleDeleteMember(member.participantId, {
+                                isLeaderAction: isCurrentUserLeader && !member.isMe,
+                              });
+                            }
+                          }}
                     showDeleteButton={
                       isCurrentUserLeader ||
                       (member.isMe && !isCurrentUserLeader)
