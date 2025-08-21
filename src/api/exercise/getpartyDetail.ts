@@ -13,8 +13,8 @@ export interface PartyDetailResponse {
   ownerId: number;
   activityDays: string[];
   activityTime: string;
-  femaleLevel: string[];
-  maleLevel: string[];
+  femaleLevel?: string[];
+  maleLevel?: string[];
   minBirthYear: number;
   maxBirthYear: number;
   price: number;
