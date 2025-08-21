@@ -5,14 +5,51 @@ import svgr from "vite-plugin-svgr";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+import { VitePWA } from "vite-plugin-pwa";
 
-// https://vite.dev/config/
-// ✅ defineConfig에 함수를 전달하여 'mode'를 받아옵니다.
 export default defineConfig(({ mode }) => {
   const isProduction = mode === "production";
 
   return {
-    plugins: [react(), svgr(), tailwindcss()],
+    plugins: [
+      react(),
+      svgr(),
+      tailwindcss(),
+      VitePWA({
+        registerType: "autoUpdate",
+        // 개발에서도 PWA 테스트할 수 있게
+        devOptions: {
+          enabled: true,
+        },
+        manifest: {
+          name: "Do It Together",
+          short_name: "DOITTO",
+          description:
+            "집안일 협동 기록 서비스, 효율적으로 집안일을 관리하세요.",
+          start_url: "/",
+          display: "standalone",
+          background_color: "#ffffff",
+          theme_color: "#ffffff",
+          lang: "ko",
+          icons: [
+            {
+              src: "icons/app_icon.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable",
+            },
+            {
+              src: "icons/app_icon.png",
+              sizes: "512x512",
+              type: "image/png",
+            },
+          ],
+        },
+        // 필요하면 캐싱 전략 등을 여기서 workbox로 커스터마이즈 가능
+        // workbox: { /* runtimeCaching 등 */ },
+      }),
+    ],
+
     assetsInclude: ["**/*.svg"],
 
     resolve: {
@@ -25,15 +62,16 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ["swiper", "swiper/react"],
     },
+
     server: {
       host: true,
     },
+
     define: {
-      global: "globalThis", // 또는 'window'
-      // 'process.env': {},           // (혹시 'process is not defined' 뜨면 주석 해제)
+      global: "globalThis",
     },
 
-    // ✅ 프로덕션 빌드가 아닐 때만 test 설정을 포함시킵니다.
+    // vitest / storybook 테스트 설정은 prod가 아닐 때만 포함
     ...(!isProduction && {
       test: {
         projects: [
@@ -46,18 +84,13 @@ export default defineConfig(({ mode }) => {
                 ),
               }),
             ],
-
             test: {
               name: "storybook",
               browser: {
                 enabled: true,
                 headless: true,
                 provider: "playwright",
-                instances: [
-                  {
-                    browser: "chromium",
-                  },
-                ],
+                instances: [{ browser: "chromium" }],
               },
               setupFiles: [".storybook/vitest.setup.ts"],
             },
