@@ -41,10 +41,14 @@ export const MyExerciseDetail = () => {
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
   const currentUser = members.find(m => m.isMe);
+  const isCurrentUserLeader = currentUser?.isLeader ??
+    detail?.participantMembers?.some(
+      p => p.id === user?.memberId && p.position === "party_MANAGER"
+    ) ?? false;
   // const isCurrentUserLeader = currentUser?.isLeader ?? false;
-  const isCurrentUserLeader = currentUser?.isLeader ?? 
-    detail?.participantMembers?.some(p => p.id === user?.memberId && p.position === "모임장") ?? 
-    false;
+  // const isCurrentUserLeader = currentUser?.isLeader ?? 
+  //   detail?.participantMembers?.some(p => p.id === user?.memberId && p.position === "party_MANAGER") ?? 
+  //   false;
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
 
@@ -63,7 +67,7 @@ export const MyExerciseDetail = () => {
           level: p.level,
           isMe: p.id === user?.memberId,
           memberId: p.id,
-          isLeader: p.position === "모임장",
+          isLeader: p.position === "party_MANAGER",
           position: p.position,
           imgUrl: p.imgUrl ?? null,
           canCancel: p.canCancel,
@@ -127,9 +131,7 @@ export const MyExerciseDetail = () => {
     <>
       <PageHeader
         title="내 운동 상세"
-        onMoreClick={
-          isCurrentUserLeader ? () => setIsSortOpen(true) : undefined
-        }
+        onMoreClick={isCurrentUserLeader ? () => setIsSortOpen(true) : undefined}
         onBackClick={() => {
           if (returnPath === -1) navigate(-1);
           else navigate(returnPath);
@@ -195,12 +197,18 @@ export const MyExerciseDetail = () => {
                 position={member.position}
                 memberId={member.memberId}
                 imgUrl={member.imgUrl}
-                onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
-                onDelete={() => {
-                  if (member.participantId !== undefined) {
-                    handleDeleteMember(member.participantId);
+                onClick={() => {
+                  if (!member.isGuest) {
+                    navigate(`/mypage/profile/${member.memberId}`);
                   }
-                }}
+                }}               
+                onDelete={() => {
+                if (member.participantId !== undefined) {
+                  handleDeleteMember(member.participantId, {
+                    isLeaderAction: isCurrentUserLeader && !member.isMe,
+                  });
+                }
+                  }}
                 showDeleteButton={
                   isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
                 }
