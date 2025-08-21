@@ -21,7 +21,7 @@ import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import type { ContestRecordDetailResponse } from  "../../api/contest/contestmy";
+import type { ContestRecordDetailResponse, PatchContestRecordRequest } from  "../../api/contest/contestmy";
 
 interface MedalDetail {
   photo?: string[];
@@ -41,7 +41,6 @@ export const MyPageMedalAddPage = () => {
   const navigate = useNavigate();
   const mode = location.state?.mode ?? null;
   const contestId = location.state?.contestId ?? null; //contestId 받아오가
-  // console.log("contestId",contestId);
   const medalData = location.state?.medalData ?? null;
   const isEditMode = mode === "edit";
 
@@ -252,30 +251,30 @@ export const MyPageMedalAddPage = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-const handlePhotoClick = () => {
-  if (photos.length < 3 && fileInputRef.current) {
-    fileInputRef.current.click();
-  }
-};
-
-  const isDataChanged = () => {
-    return (
-      tournamentName.trim() !== "" ||
-      selectedForm !== null ||
-      selectedGrade !== "" ||
-      recordText.trim() !== "" ||
-      videoLinks.some(link => link.trim() !== "") ||
-      photos.length > 0 ||
-      selectedIndex !== null ||
-      selectedDate !== undefined
-    );
+  const handlePhotoClick = () => {
+    if (photos.length < 3 && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
- const isSaveEnabled =
-    tournamentName.trim() !== "" &&
-    selectedDate !== "" &&
-    selectedForm !== null &&
-    selectedLevel !== "";
+    const isDataChanged = () => {
+      return (
+        tournamentName.trim() !== "" ||
+        selectedForm !== null ||
+        selectedGrade !== "" ||
+        recordText.trim() !== "" ||
+        videoLinks.some(link => link.trim() !== "") ||
+        photos.length > 0 ||
+        selectedIndex !== null ||
+        selectedDate !== undefined
+      );
+    };
+
+  const isSaveEnabled =
+      tournamentName.trim() !== "" &&
+      selectedDate !== "" &&
+      selectedForm !== null &&
+      selectedLevel !== "";
 
 
   // 저장 클릭 핸들러
@@ -283,11 +282,14 @@ const handlePhotoClick = () => {
     if (!isSaveEnabled) return;
 
     try {
-      const mappedType: PostContestRecordRequest["type"] =
-        selectedForm ? typeMap[selectedForm] : "SINGLE";
+      const mappedType = selectedForm ? typeMap[selectedForm] : "SINGLE";
       const mappedLevel = selectedLevel ? levelMap[selectedLevel] : "EXPERT";
 
-      const requestBody: PostContestRecordRequest = {
+      // 삭제 대상 이미지는 기존과 동일
+      const photosToDelete = initialData?.photo?.filter(p => !photos.includes(p)) || [];
+
+      // 영상은 id가 없으므로 삭제 처리 불가, 그냥 새로 입력된 링크만 전송
+      const patchBody: PatchContestRecordRequest = {
         contestName: tournamentName,
         date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
         medalType:
@@ -303,25 +305,21 @@ const handlePhotoClick = () => {
         content: recordText || undefined,
         contentIsOpen: true,
         videoIsOpen: true,
-        // contestVideos: videoLinks.some(link => link.trim() !== "") ? videoLinks.filter(link => link.trim() !== "") : undefined,
-  contestVideos: [...videoLinks],
-
-        // contestVideos: videoLinks.filter((link) => link.trim() !== ""),
-        contestImgs: photos.map((p: any) => (typeof p === "string" ? p : p.url)),
+        contestVideos: videoLinks, 
+        contestImgs: photos,
+        contestImgsToDelete: photosToDelete,
+        contestVideoIdsToDelete: [], 
       };
-
-     console.log("요청 바디:", requestBody);
 
       let response;
       if (isEditMode && contestId) {
-        response = await patchMyContestRecord(contestId, requestBody);
+        response = await patchMyContestRecord(contestId, patchBody);
       } else {
-        response = await postMyContestRecord(requestBody);
+        response = await postMyContestRecord(patchBody);
       }
 
       if (response.success && response.data) {
-        const newContestId = response.data.contestId;
-        navigate(`/mypage/mymedal/${newContestId}`);
+        navigate(`/mypage/mymedal/${response.data.contestId}`);
       } else {
         alert("저장에 실패했습니다: " + response.message);
       }
@@ -330,15 +328,6 @@ const handlePhotoClick = () => {
       alert("서버와 통신 중 오류가 발생했습니다.");
     }
   };
-
-
-useEffect(() => {
-  if (initialData?.videoUrl) {
-    setVideoLinks([...initialData.videoUrl]); // 복사본 사용
-  }
-}, [initialData]);
-
-
 
   const onBackClick = () => {
     if (isDataChanged()) {

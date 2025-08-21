@@ -111,9 +111,11 @@ export const MyMedalCheckBox: React.FC<MyMedalCheckBoxProps> = ({
         );
       })}
 
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
       {!isPrivate && recordTexts[recordTexts.length - 1].trim() !== "" && (
         <White_L_Thin_Add label="추가하기" onClick={handleAdd} />
       )}
+    </div>
     </div>
   );
 };
