@@ -5,7 +5,7 @@ import api from "../api";
 export interface ApiParticipant {
   participantId: number;
   num: number;
-  memberId?: number;  
+  memberId?: number;
   guestId?: number;
   imgUrl: string | null;
   name: string;
@@ -65,6 +65,7 @@ export interface ExerciseDetailResponse {
   waitingCount: number;
   waitingGenderCount: { male: number; female: number };
   waitingMembers: MemberProps[];
+  isManager: boolean;
 }
 
 interface RawExerciseResponse {
@@ -97,27 +98,52 @@ export interface CancelSelfResponse {
   success: boolean;
 }
 
+//게스트 참여 삭제
+export interface CancelGuestResponse {
+  code: string;
+  message: string;
+  data?: {
+    imgUrl: string;
+    imgKey: string;
+    originalFileName: string;
+    fileSize: number;
+    fileType: string;
+  };
+  errorReason?: {
+    code: string;
+    message: string;
+    httpStatus: string;
+  };
+  success: boolean;
+}
 
 // 운동 상세 조회
-export const getExerciseDetail = async (exerciseId: number, currentUserId?: number): Promise<ExerciseDetailResponse> => {
-  const response = await api.get<{ code: string; message: string; data: RawExerciseResponse; success: boolean }>(
-    `/api/exercises/${exerciseId}`
-  );
+export const getExerciseDetail = async (
+  exerciseId: number,
+  currentUserId?: number,
+): Promise<ExerciseDetailResponse> => {
+  const response = await api.get<{
+    code: string;
+    message: string;
+    data: RawExerciseResponse;
+    success: boolean;
+  }>(`/api/exercises/${exerciseId}`);
 
   const raw = response.data.data;
+  console.log("!!", raw);
 
   const mapLevelToKorean = (level: string) => {
     const levelMap: Record<string, string> = {
-      "A": "A조",
-      "B": "B조",
-      "C": "C조",
-      "D": "D조",
-      "BEGINNER": "왕초심",
-      "NOVICE": "초심",
-      "NONE": "레벨 미정",
-      "ADVANCED": "상급",
-      "SEMI_EXPERT": "준자강",
-      "EXPERT": "자강",
+      A: "A조",
+      B: "B조",
+      C: "C조",
+      D: "D조",
+      BEGINNER: "왕초심",
+      NOVICE: "초심",
+      NONE: "레벨 미정",
+      ADVANCED: "상급",
+      SEMI_EXPERT: "준자강",
+      EXPERT: "자강",
     };
     return levelMap[level] || level;
   };
@@ -129,14 +155,16 @@ export const getExerciseDetail = async (exerciseId: number, currentUserId?: numb
     name: p.name,
     gender: p.gender,
     level: mapLevelToKorean(p.level),
-    isMe: currentUserId === p.participantId,       
-    isLeader: currentUserId === p.participantId
-      ? p.partyPosition === "party_MANAGER"               
-      : false,
+    isMe: currentUserId === p.participantId,
+    isLeader:
+      currentUserId === p.participantId
+        ? p.partyPosition === "party_MANAGER"
+        : false,
     position: p.partyPosition,
     imgUrl: p.profileImageUrl ?? null,
-    canCancel: currentUserId === p.participantId || p.canCancel, 
+    canCancel: currentUserId === p.participantId || p.canCancel,
     guest: p.inviterName ?? null,
+    isManager: p.isManager,
   });
 
   return {
@@ -155,16 +183,19 @@ export const getExerciseDetail = async (exerciseId: number, currentUserId?: numb
       male: raw.waiting.manCount,
       female: raw.waiting.womenCount,
     },
+    isManager: raw.isManager,
     waitingMembers: raw.waiting.list.map(transformMember),
   };
 };
 
-
-
 // 참여 중인 자신 운동 나가기
-export const cancelSelf = async (exerciseId: number): Promise<CancelSelfResponse> => {
+export const cancelSelf = async (
+  exerciseId: number,
+): Promise<CancelSelfResponse> => {
   try {
-    const response = await api.delete<CancelSelfResponse>(`/api/exercises/${exerciseId}/participants/my`);
+    const response = await api.delete<CancelSelfResponse>(
+      `/api/exercises/${exerciseId}/participants/my`,
+    );
     return response.data;
   } catch (error: any) {
     console.error("운동 참여 취소 API 호출 실패:", error);
@@ -176,9 +207,25 @@ export const cancelSelf = async (exerciseId: number): Promise<CancelSelfResponse
 export const deleteExercise = async (exerciseId: number) => {
   try {
     const response = await api.delete(`/api/exercises/${exerciseId}`);
-    return response.data; 
+    return response.data;
   } catch (error: any) {
     console.error("운동 삭제 API 호출 실패:", error);
     throw error.response?.data || error;
   }
 };
+
+//게스트 참여 취소
+// export const cancelGuestInvitation = async (
+//   exerciseId: number,
+//   guestId: number
+// ): Promise<CancelGuestResponse> => {
+//   try {
+//     const res = await api.delete<CancelGuestResponse>(
+//       `/api/exercises/${exerciseId}/guests/${guestId}`
+//     );
+//     return res.data;
+//   } catch (err: any) {
+//     console.error("게스트 취소 실패", err);
+//     throw err;
+//   }
+// };
