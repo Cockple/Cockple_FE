@@ -57,7 +57,12 @@ const BottomChatInput = ({
 
   // -----> 추가
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!isMobile && e.key === "Enter" && !e.shiftKey) {
+    if (
+      !isMobile &&
+      e.key === "Enter" &&
+      !e.shiftKey &&
+      !e.nativeEvent.isComposing
+    ) {
       e.preventDefault();
       handleSend();
     }

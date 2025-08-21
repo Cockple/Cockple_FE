@@ -19,14 +19,7 @@ import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
-  const response = await api.get<AlertListResponse>(
-    "/api/notifications",
-    // {
-    // headers: {
-    //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    // },
-    // }
-  );
+  const response = await api.get<AlertListResponse>("/api/notifications");
 
   console.log("내 알림 목록: ", response.data.data);
   return response.data.data;
@@ -34,17 +27,11 @@ const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
 
 export const AlertPage = () => {
   const navigate = useNavigate();
-  //추가
   const queryClient = useQueryClient();
 
-  //const [showApproveModal, setShowApproveModal] = useState(false);
-  //const [showRejectModal, setShowRejectModal] = useState(false);
   const [targetId, setTargetId] = useState<number | null>(null);
-  //추가
   const [modalType, setModalType] = useState<"approve" | "reject" | null>(null);
-  //const [notifications, setNotifications] = useState<ResponseAlertDto[]>([]);
 
-  //추가
   const {
     data: notifications = [],
     isLoading,
@@ -55,20 +42,18 @@ export const AlertPage = () => {
     staleTime: 1000 * 60,
   });
 
-  // 알림 리스트 필터링된 상태로 보여주기
+  // INVITE/CHANGE/SIMPLE 만 노출
   const visibleNotifications = notifications.filter(alert =>
     ["INVITE", "CHANGE", "SIMPLE"].includes(alert.type),
   );
 
   const handleAccept = (id: number) => {
     setTargetId(id);
-    //setShowApproveModal(true);
     setModalType("approve");
   };
 
   const handleReject = (id: number) => {
     setTargetId(id);
-    //setShowRejectModal(true);
     setModalType("reject");
   };
 
@@ -107,6 +92,25 @@ export const AlertPage = () => {
     return typeof id === "number" ? id : Number(id ?? NaN);
   }
 
+  // 🌟CHANGE/SIMPLE 읽음 처리 공통 뮤테이션
+  const markReadMutation = useMutation({
+    mutationFn: async (notification: ResponseAlertDto) => {
+      const { notificationId, type } = notification;
+
+      // 현재 구현처럼 쿼리스트링로 전송
+      await api.patch(`/api/notifications/${notificationId}?type=${type}`);
+
+      // 명세서대로 body로 보내야 한다면 위 1줄 대신 아래 사용
+      // await api.patch(`/api/notifications/${notificationId}`, { type });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: err => {
+      console.error("읽음 처리 실패:", err);
+    },
+  });
+
   const approveMutation = useMutation({
     mutationFn: async (notification: ResponseAlertDto) => {
       const { notificationId, partyId } = notification;
@@ -115,24 +119,12 @@ export const AlertPage = () => {
       // 알림 상태 수정 (INVITE → INVITE_ACCEPT)
       await api.patch(
         `/api/notifications/${notificationId}?type=INVITE_ACCEPT`,
-        //{ type: "INVITE_ACCEPT" },
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        //   },
-        // },
       );
 
       if (partyId && invitationId) {
-        await api.patch(
-          `/api/parties/invitations/${invitationId}`,
-          { action: "APPROVE" },
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          //   },
-          // },
-        );
+        await api.patch(`/api/parties/invitations/${invitationId}`, {
+          action: "APPROVE",
+        });
         console.log("모임으로 승인 요청 보냄, 초대 아이디: ", invitationId);
       } else if (partyId && !invitationId) {
         console.log("모임 있지만 invitationId 없음");
@@ -155,24 +147,12 @@ export const AlertPage = () => {
 
       await api.patch(
         `/api/notifications/${notificationId}?type=INVITE_REJECT`,
-        //{ type: "INVITE_REJECT" },
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        //   },
-        // },
       );
 
       if (data?.invitationId) {
-        await api.patch(
-          `/api/parties/invitations/${data.invitationId}`,
-          { action: "REJECT" },
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          //   },
-          // },
-        );
+        await api.patch(`/api/parties/invitations/${data.invitationId}`, {
+          action: "REJECT",
+        });
       }
     },
     onSuccess: () => {
@@ -185,7 +165,7 @@ export const AlertPage = () => {
   });
 
   const shouldMoveToDetail = (type: string): boolean => {
-    // 운동 삭제 & 모임 삭제 제외
+    // SIMPLE(운동/모임 삭제 알림 등)은 상세 이동 X
     return !(type === "SIMPLE");
   };
 
@@ -196,7 +176,6 @@ export const AlertPage = () => {
     return undefined;
   };
 
-  //추가
   const selectedAlert = notifications.find(
     alert => alert.notificationId === targetId,
   );
@@ -223,7 +202,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgUrl ?? DefaultGroupImg}
+                imageSrc={alert.imgKey ?? DefaultGroupImg}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -232,13 +211,23 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgUrl ?? DefaultGroupImg}
+                imageSrc={alert.imgKey ?? DefaultGroupImg}
                 alertType={alert.type}
                 descriptionText={getDescriptionText(alert.type)}
+                // onClick={
+                //   shouldMoveToDetail(alert.type)
+                //     ? () => handleDetail(alert.partyId, alert.data)
+                //     : undefined
+                // }
                 onClick={
-                  shouldMoveToDetail(alert.type)
-                    ? () => handleDetail(alert.partyId, alert.data)
-                    : undefined
+                  // 🌟CHANGE: 읽음 처리 후 상세 이동
+                  // 🌟SIMPLE: 읽음 처리만
+                  () => {
+                    markReadMutation.mutate(alert);
+                    if (shouldMoveToDetail(alert.type)) {
+                      handleDetail(alert.partyId, alert.data);
+                    }
+                  }
                 }
               />
             ),

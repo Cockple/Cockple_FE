@@ -189,14 +189,14 @@ export const ContentCardL = ({
             <div className="flex items-center gap-1 w-[9rem] truncate">
               <Female className="w-[0.875rem] h-[0.875rem] shrink-0" />
               <span className="truncate">
-                {femaleLevel.length > 1
+                {femaleLevel && femaleLevel.length > 1
                   ? `${femaleLevel[0]} ~ ${femaleLevel[femaleLevel.length - 1]}`
                   : femaleLevel[0]}
               </span>
             </div>
           )}
 
-          {maleLevel.length > 0 && (
+          {maleLevel && maleLevel.length > 0 && (
             <div className="flex items-center gap-1 w-[9rem] truncate">
               <Male className="w-[0.875rem] h-[0.875rem] shrink-0" />
               <span className="truncate">

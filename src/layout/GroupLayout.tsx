@@ -29,7 +29,6 @@ export const GroupLayout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [joinErrorMessage, setJoinErrorMessage] = useState("");
-
   //////////////////////////////////////////////////////////////////////////////
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
@@ -137,7 +136,7 @@ export const GroupLayout = () => {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title={groupName}
+        title={partyDetail?.partyName ?? groupName}
         onBackClick={handleBackClick}
         onMoreClick={isOwner ? () => setIsMoreOpen(true) : undefined}
       />
@@ -157,7 +156,7 @@ export const GroupLayout = () => {
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         selected=""
-        options={["모임 삭제하기", "부모임 설정하기", "모임 정보 수정하기"]}
+        options={["모임 삭제하기", "모임 정보 수정하기"]}
         onSelect={label => {
           if (label === "모임 삭제하기") {
             setIsMoreOpen(false);

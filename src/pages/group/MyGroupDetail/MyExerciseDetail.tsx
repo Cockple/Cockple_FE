@@ -22,10 +22,7 @@ import type {
   CancelSelfResponse,
 } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
-import {
-  useDeleteInviteForm, 
-} from "../../../api/exercise/InviteGuestApi";
-
+import { useDeleteInviteForm } from "../../../api/exercise/InviteGuestApi";
 
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
@@ -48,9 +45,9 @@ export const MyExerciseDetail = () => {
   const isCurrentUserLeader =
     currentUser?.isLeader ||
     detail?.participantMembers?.some(
-      p => p.id === user?.memberId && p.position === "party_MANAGER"
-    ) || false;
-
+      p => p.id === user?.memberId && p.position === "party_MANAGER",
+    ) ||
+    false;
 
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
@@ -61,7 +58,7 @@ export const MyExerciseDetail = () => {
   // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
     if (exerciseIdNumber) {
-      getExerciseDetail(exerciseIdNumber,  user?.memberId).then(res => {
+      getExerciseDetail(exerciseIdNumber, user?.memberId).then(res => {
         console.log("운동 상세 데이터:", res);
         setDetail(res);
 
@@ -136,7 +133,7 @@ export const MyExerciseDetail = () => {
         alert("게스트 초대 취소 성공");
         // UI에서 바로 삭제
         setMembers(prev =>
-          prev.filter(m => !(m.isGuest && m.participantId === guestId))
+          prev.filter(m => !(m.isGuest && m.participantId === guestId)),
         );
         setParticipantsCount(prev => prev - 1);
       },
@@ -146,7 +143,6 @@ export const MyExerciseDetail = () => {
     });
   };
 
-
   if (!detail) {
     return <p className="p-4">불러오는 중...</p>;
   }
@@ -155,7 +151,9 @@ export const MyExerciseDetail = () => {
     <>
       <PageHeader
         title="내 운동 상세"
-        onMoreClick={isCurrentUserLeader ? () => setIsSortOpen(true) : undefined}
+        onMoreClick={
+          isCurrentUserLeader ? () => setIsSortOpen(true) : undefined
+        }
         onBackClick={() => {
           if (returnPath === -1) navigate(-1);
           else navigate(returnPath);
@@ -225,14 +223,14 @@ export const MyExerciseDetail = () => {
                   if (!member.isGuest) {
                     navigate(`/mypage/profile/${member.memberId}`);
                   }
-                }}               
+                }}
                 onDelete={() => {
-                if (member.participantId !== undefined) {
-                  handleDeleteMember(member.participantId, {
-                    isLeaderAction: isCurrentUserLeader && !member.isMe,
-                  });
-                }
-                  }}
+                  if (member.participantId !== undefined) {
+                    handleDeleteMember(member.participantId, {
+                      isLeaderAction: isCurrentUserLeader && !member.isMe,
+                    });
+                  }
+                }}
                 showDeleteButton={
                   isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
                 }
@@ -281,15 +279,18 @@ export const MyExerciseDetail = () => {
                     onClick={() =>
                       navigate(`/mypage/profile/${member.memberId}`)
                     }
-                  onDelete={() => {
-                            if (member.isGuest && member.participantId !== undefined) {
-                              handleDeleteGuest(member.participantId);
-                            } else if (member.participantId !== undefined) {
-                              handleDeleteMember(member.participantId, {
-                                isLeaderAction: isCurrentUserLeader && !member.isMe,
-                              });
-                            }
-                          }}
+                    onDelete={() => {
+                      if (
+                        member.isGuest &&
+                        member.participantId !== undefined
+                      ) {
+                        handleDeleteGuest(member.participantId);
+                      } else if (member.participantId !== undefined) {
+                        handleDeleteMember(member.participantId, {
+                          isLeaderAction: isCurrentUserLeader && !member.isMe,
+                        });
+                      }
+                    }}
                     showDeleteButton={
                       isCurrentUserLeader ||
                       (member.isMe && !isCurrentUserLeader)

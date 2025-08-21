@@ -1,14 +1,10 @@
 import { Group_M } from "../common/contentcard/Group_M";
 import { ContentCardL } from "../common/contentcard/ContentCardL";
 import type { ExerciseCard, GroupCard } from "../../types/liked";
-// import {
-//   useLikedExerciseIds,
-//   useLikedGroupIds,
-// } from "../../hooks/useLikedItems";
 import { useEffect, useState } from "react";
 import { LikedEmptyState } from "./LikedEmptyState";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
-//import { LoadingSpinner } from "../common/LoadingSpinner";
+import { mapLevels } from "../../utils/gradeMapper";
 
 interface LikedListProps {
   activeTab: "group" | "exercise";
@@ -35,24 +31,10 @@ const LikedList = ({
   const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
     useState<number[]>([]);
 
-  //🌟
-  // const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
-  //   useLikedGroupIds();
-  // const { data: likedExerciseIds = [], isLoading: isExerciseLikedLoading } =
-  //   useLikedExerciseIds();
-
   useEffect(() => {
     console.log(likedGroupIds);
     console.log(likedExerciseIds);
   }, [likedGroupIds, likedExerciseIds]);
-
-  // const isLikedLoading = isGroupTab
-  //   ? isGroupLikedLoading
-  //   : isExerciseLikedLoading;
-
-  // if (isLikedLoading) {
-  //   return <LoadingSpinner />;
-  // }
 
   const isEmpty = isGroupTab
     ? groupCards.length === 0
@@ -90,6 +72,10 @@ const LikedList = ({
                 likedGroupIds.includes(card.partyId) &&
                 !tempUnbookmarkedGroupIds.includes(card.partyId);
 
+              // 🌟급수 한글 변환
+              const femaleLevelKo = mapLevels(card.femaleLevel);
+              const maleLevelKo = mapLevels(card.maleLevel);
+
               return (
                 <div key={card.partyId} className="border-b border-gy-200 pb-1">
                   <Group_M
@@ -97,8 +83,8 @@ const LikedList = ({
                     groupName={card.partyName}
                     groupImage={card.profileImgUrl ?? DefaultGroupImg}
                     location={`${card.addr1}/${card.addr2}`}
-                    femaleLevel={card.femaleLevel}
-                    maleLevel={card.maleLevel}
+                    femaleLevel={femaleLevelKo}
+                    maleLevel={maleLevelKo}
                     nextActivitDate={card.latestExerciseDate}
                     upcomingCount={card.exerciseCnt}
                     like={isLiked}
@@ -113,6 +99,10 @@ const LikedList = ({
                 likedExerciseIds.includes(card.exerciseId) &&
                 !tempUnbookmarkedExerciseIds.includes(card.exerciseId);
 
+              // 🌟급수 한글 변환
+              const femaleLevelKo = mapLevels(card.femaleLevel);
+              const maleLevelKo = mapLevels(card.maleLevel);
+
               return (
                 <div key={card.exerciseId}>
                   <ContentCardL
@@ -124,8 +114,8 @@ const LikedList = ({
                     date={card.date}
                     location={card.buildingAddr || card.streetAddr}
                     time={`${card.startExerciseTime}~${card.endExerciseTime}`}
-                    femaleLevel={card.femaleLevel}
-                    maleLevel={card.maleLevel}
+                    femaleLevel={femaleLevelKo}
+                    maleLevel={maleLevelKo}
                     currentCount={card.nowMemberCnt}
                     totalCount={card.maxMemberCnt}
                     like={isLiked}
