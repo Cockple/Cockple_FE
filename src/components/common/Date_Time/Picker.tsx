@@ -13,12 +13,12 @@ export default function Picker({
 }: PickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isScrollingProgrammatically = useRef(false);
-  const itemHeight = 40; // 각 아이템의 높이 (px)
+  const itemHeight = 40; // 아이템 높이
 
-  const [containerHeight, setContainerHeight] = useState(208); // 초기값은 h-52 (Tailwind 기준)
-  const paddingHeight = (containerHeight - itemHeight) / 2; // 중앙 정렬을 위한 패딩 계산
+  const [containerHeight, setContainerHeight] = useState(208);
+  const paddingHeight = (containerHeight - itemHeight) / 2; // 중앙 정렬 패딩
 
-  // 컨테이너 높이 실시간 측정 (반응형 대응)
+  // 높이 실시간 측정
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -78,6 +78,7 @@ export default function Picker({
       {options.map(option => (
         <div
           key={option}
+          onClick={() => onChange(option)}
           className={`flex items-center justify-center snap-center transition-colors duration-200 ${
             option === selectedValue ? "text-black " : "text-gray-300"
           }`}

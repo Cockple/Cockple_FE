@@ -82,6 +82,7 @@ export const GroupBasicInfo = () => {
               onConfirm={handleConfirmLeave}
               onCancel={handleCancelLeave}
               location="이전페이지로"
+              alertText="모임 만들기"
             />
           </div>
         )}

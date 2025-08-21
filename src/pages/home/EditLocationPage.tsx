@@ -34,7 +34,7 @@ export const EditLocationPage = () => {
 
   const onClickEdit = async () => {
     await setMainAddress(Number(selectedId));
-    navigate(-1);
+    navigate("/");
   };
 
   useEffect(() => {
