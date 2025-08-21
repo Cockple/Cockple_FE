@@ -46,6 +46,8 @@ export const usePostInviteForm = (
       if (axiosLib.isAxiosError(err)) {
         if (err.response?.data?.code === "EXERCISE304") {
           alert(err.response.data.message);
+        } else if (err.response?.data?.code === "EXERCISE403") {
+          alert(err.response.data.message);
         } else {
           console.error(err.response?.data);
         }
@@ -70,8 +72,11 @@ export const useDeleteInviteForm = (exerciseId: number) => {
       });
     },
     onError: err => {
+      console.log(err);
       if (axiosLib.isAxiosError(err)) {
         if (err.response?.data?.code === "EXERCISE304") {
+          alert(err.response.data.message);
+        } else if (err.response?.data?.code === "EXERCISE404") {
           alert(err.response.data.message);
         } else {
           console.error(err.response?.data);
