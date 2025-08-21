@@ -107,7 +107,7 @@ export const GroupPage = () => {
           <div
             ref={scrollRef}
             onScroll={onScroll}
-            className="flex gap-1 overflow-x-auto scrollbar-hide"
+            className="flex  gap-1 overflow-x-auto scrollbar-hide"
           >
             {status === "error" ? (
               <div className="px-4 py-6 text-red-500">
