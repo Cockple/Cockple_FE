@@ -16,6 +16,7 @@ import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1
 import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
   const response = await api.get<AlertListResponse>(
@@ -222,7 +223,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgUrl}
+                imageSrc={alert.imgUrl ?? DefaultGroupImg}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -231,7 +232,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgUrl}
+                imageSrc={alert.imgUrl ?? DefaultGroupImg}
                 alertType={alert.type}
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={

@@ -29,7 +29,7 @@ import {
 } from "../../api/exercise/getPartyCalendar";
 import type { Swiper as SwiperClass } from "swiper";
 import "swiper/css";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { generateWeeksFromRange } from "../../utils/dateUtils";
 import type { Week } from "../../types/calendar";
 import { usePartyMembershipStore } from "../../store/usePartyMembershipStore";
@@ -387,7 +387,7 @@ export const GroupHomePage = () => {
               "w-30 h-30 border-hard shrink-0 overflow-hidden flex items-center",
             )}
           >
-            <img src={partyDetail.partyImgUrl ?? appIcon} />
+            <img src={partyDetail.partyImgUrl ?? DefaultGroupImg} />
           </div>
           <div className="flex flex-col flex-1">
             <div className="body-rg-500 text-left mb-2">

@@ -3,7 +3,7 @@ import Peopel from "../../../assets/icons/people.svg?react";
 import { Num_Noti } from "./Num_Noti";
 
 // 이미지
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 export interface GroupChatProps {
   imageSrc: string;
@@ -36,7 +36,7 @@ export const GroupChat = ({
       onTouchEnd={() => setPressing(false)}
     >
       <img
-        src={imageSrc ? imageSrc : appIcon}
+        src={imageSrc ? imageSrc : DefaultGroupImg}
         alt={chatName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem] flex-shrink-0"
       />
