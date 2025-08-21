@@ -325,6 +325,7 @@ export const subscribeChatList = (roomIds: number[]) => {
 
 //
 export const subscribeRoom = (roomId: number) => {
+  console.log(currentRooms);
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
   const ok = sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });
