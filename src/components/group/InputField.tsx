@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 interface InputFieldProps {
   title?: string;
   maxLength?: number;
-  value?: string; // 부모에서 전달할 값
-  onChange?: (value: string) => void; // 값 변경 시 부모에 전달
+  value?: string;
+  onChange?: (value: string) => void; 
 }
 
 export const InputField = ({ title, maxLength, value = "", onChange }: InputFieldProps) => {
