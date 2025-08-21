@@ -41,6 +41,5 @@ export const usePartyDetail = (partyId: number) => {
     queryKey: ["partyDetail", partyId],
     queryFn: () => getPartyDetail(partyId),
     enabled: !!partyId,
-    staleTime: 1000 * 60 * 5,
   });
 };

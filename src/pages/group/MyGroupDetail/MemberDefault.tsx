@@ -1,6 +1,6 @@
 // 모임 -> 모임탭에 멤버 화면
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   removeMemberFromParty,
   getPartyMembers,
@@ -30,15 +30,13 @@ export const MemberDefault = () => {
   const [myRole, setMyRole] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const navigate = useNavigate();
-
   // API 멤버 -> 프론트 MemberProps 매핑
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
     imgUrl: m.profileImageUrl
-    ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${m.profileImageUrl}`
-    : null,
+      ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${m.profileImageUrl}`
+      : null,
     gender: m.gender,
     level: m.level,
     isMe: !!m.isMe,
@@ -51,6 +49,7 @@ export const MemberDefault = () => {
         ? "sub_leader"
         : null,
     status: m.role === "WAITING" ? "waiting" : "Participating",
+    inviterName: "", 
   });
 
   useEffect(() => {
@@ -183,7 +182,6 @@ export const MemberDefault = () => {
               {...member}
               number={idx + 1}
               imgUrl={member.imgUrl}
-              onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
               showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}
             />

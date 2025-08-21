@@ -80,14 +80,15 @@ export const MyPageMedalAddPage = () => {
 
 
   const levelMap: Record<string, PostContestRecordRequest["level"]> = {
-    "왕초심": "BEGINNER",
+    "왕초심": "NOVICE",
     "초심": "BEGINNER",
-    "D조": "BEGINNER",
-    "C조": "INTERMEDIATE",
-    "B조": "INTERMEDIATE",
-    "A조": "ADVANCED",
-    "준자강": "ADVANCED",
-    "자강": "ADVANCED",
+    "D조": "D",
+    "C조": "C",
+    "B조": "B",
+    "A조": "A",
+    "준자강": "SEMI_EXPERT",
+    "자강": "EXPERT",
+    "급수 없음":"NONE",
   };
   const parseParticipationType = (participationType: string): typeof formOptions[number] | null => {
     if (!participationType) return null;
@@ -306,11 +307,11 @@ const handlePhotoClick = () => {
 
       if (response.success && response.data) {
         const newContestId = response.data.contestId;
-        alert(
-          isEditMode
-            ? "대회 기록이 성공적으로 수정되었습니다."
-            : "대회 기록이 성공적으로 등록되었습니다."
-        );
+        // alert(
+        //   isEditMode
+        //     ? "대회 기록이 성공적으로 수정되었습니다."
+        //     : "대회 기록이 성공적으로 등록되었습니다."
+        // );
         navigate(`/mypage/mymedal/${newContestId}`);
       } else {
         alert("저장에 실패했습니다: " + response.message);

@@ -27,7 +27,7 @@ export default function InviteGuestList({
           ? `전국 ${apilevel}`
           : apilevel;
     const numberStatus = item.isWaiting ? "waiting" : "Participating";
-    const apiNumber = item.participantNumber;
+    const apiNumber = item.isWaiting ? "대기" : "참석";
     return (
       <Member
         key={item.guestId}
@@ -40,6 +40,7 @@ export default function InviteGuestList({
         showDeleteButton={true}
         useDeleteModal={false}
         isGuest={true}
+        guestNumber={true}
         onDelete={() => handleDelete.mutate(item.guestId)}
       />
     );

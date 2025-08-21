@@ -51,6 +51,8 @@ export interface MemberProps {
   imgUrl: string | null;
   canCancel: boolean;
   guest: string | null;
+  inviterName: string;
+
 }
 
 // 최종 변환 타입
@@ -164,6 +166,7 @@ export const getExerciseDetail = async (
     imgUrl: p.profileImageUrl ?? null,
     canCancel: currentUserId === p.participantId || p.canCancel,
     guest: p.inviterName ?? null,
+    inviterName: p.inviterName ?? "",   
     isManager: p.isManager,
   });
 
@@ -183,6 +186,7 @@ export const getExerciseDetail = async (
       male: raw.waiting.manCount,
       female: raw.waiting.womenCount,
     },
+    
     isManager: raw.isManager,
     waitingMembers: raw.waiting.list.map(transformMember),
   };

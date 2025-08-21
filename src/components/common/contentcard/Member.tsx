@@ -30,12 +30,13 @@ interface MemberProps {
   birth?: string;
   showStar?: boolean;
   isGuest?: boolean;
+  guestNumber?: boolean;
   guestName?: string;
   number?: number | string;
   isMe?: boolean;
   isLeader?: boolean;
   isMangaer?: boolean;
-
+  inviterName?: string;
   onAccept?: () => void;
   onReject?: () => void;
   onClick?: () => void;
@@ -122,6 +123,7 @@ export const Member = ({
   onReject,
   onClick,
   onDelete,
+  guestNumber = false,
   useDeleteModal = true,
   isMe = false,
   isLeader = false,
@@ -178,10 +180,17 @@ export const Member = ({
               className="w-full h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              <p className="body-md-500">
-                {status === "Participating" && `No.${number}`}
-                {status === "waiting" && `대기.${number}`}
-              </p>
+              {guestNumber ? (
+                <p className="body-md-500">
+                  {status === "Participating" && number}
+                  {status === "waiting" && number}
+                </p>
+              ) : (
+                <p className="body-md-500">
+                  {status === "Participating" && `No.${number}`}
+                  {status === "waiting" && `대기.${number}`}
+                </p>
+              )}
               {imgUrl ? (
                 <img
                   src={imgUrl}
