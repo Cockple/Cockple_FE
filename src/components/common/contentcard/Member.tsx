@@ -35,7 +35,7 @@ interface MemberProps {
   isMe?: boolean;
   isLeader?: boolean;
   isMangaer?: boolean;
-
+  inviterName:string;
   onAccept?: () => void;
   onReject?: () => void;
   onClick?: () => void;

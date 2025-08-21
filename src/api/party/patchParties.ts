@@ -9,7 +9,7 @@ export interface UpdatePartyRequest {
   price?: number;             // 회비
   keyword?: string[];         // 키워드
   content?: string;           // 소개 내용
-  imgKey?: string;            // 모임 이미지 key
+  imgKeys?: string[]; // 여러 장
 }
 export interface PartyDetail {
   partyId: number;
@@ -29,7 +29,7 @@ export interface PartyDetail {
   designatedCock: string;
   keywords: string[];
   content?: string;
-  partyImgUrl?: string;
+  partyImgUrls?: string[];
 }
 
 export interface UpdatePartyResponse {

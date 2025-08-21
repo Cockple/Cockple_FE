@@ -13,6 +13,7 @@ import { useNavigate, useParams  } from "react-router-dom";
 import { updateParty, getPartyDetail } from "../../../api/party/patchParties";
 import type { UpdatePartyRequest, PartyDetail } from "../../../api/party/patchParties";
 import { addWon, fmtKRW } from "../../../utils/moneychange";
+import { uploadImages } from "../../../api/image/imageUpload"; // 추가
 
 const dayOptions = ["전체", "월", "화", "수", "목", "금", "토", "일"];
 const timeOptions = ["상시", "오전", "오후"];
@@ -28,7 +29,7 @@ const [joinFeeText, setJoinFeeText] = useState("");
   const navigate = useNavigate();
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string>("");
-  const [photos, setPhotos] = useState<string[]>([]);
+  // const [photos, setPhotos] = useState<string[]>([]);
   const [isChanged, setIsChanged] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [monthlyFeeChecked, setMonthlyFeeChecked] = useState(false);
@@ -37,6 +38,8 @@ const [joinFeeText, setJoinFeeText] = useState("");
   const [designatedText, setDesignatedText] = useState("");
   const [contentText, setContentText] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]); // 이미지 URL 미리보기용
+  const [photoKeys, setPhotoKeys] = useState<string[]>([]); // 서버에 저장할 imgKey 배열
 
   const isFormValid =
     selectedDays.length > 0 &&
@@ -62,7 +65,7 @@ const [joinFeeText, setJoinFeeText] = useState("");
         setMonthlyFeeText(data.price?.toString() || "");
         setContentText(data.content || "");
         setKeywords(data.keywords || []);
-        if (data.partyImgUrl) setPhotos([data.partyImgUrl]);
+        // if (data.partyImgUrl) setPhotos([data.partyImgUrl]);
       } catch (err) {
         console.error("모임 정보 불러오기 실패", err);
       }
@@ -110,7 +113,8 @@ const [joinFeeText, setJoinFeeText] = useState("");
         price: monthlyFeeText ? Number(monthlyFeeText) : undefined,
         content: "", // InputField에서 값 받아서 넣어야 함
         keyword: ["브랜드 스폰", "가입비 무료"], // 실제 선택 키워드 반영
-        imgKey: photos[0] || undefined, // 대표 이미지 key
+        imgKeys: photoKeys, // ✅ 첫 번째 이미지만 전송
+        // imgKey: photos[0] || undefined, // 대표 이미지 key
       };
 
       const res = await updateParty(numericPartyId, payload);
@@ -163,10 +167,10 @@ const [joinFeeText, setJoinFeeText] = useState("");
 
   // 사진 제거
   const handleRemovePhoto = (index: number) => {
-    const newPhotos = [...photos];
-    newPhotos.splice(index, 1);
-    setPhotos(newPhotos);
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setPhotoKeys(prev => prev.filter((_, i) => i !== index));
   };
+
 
   // 사진 추가 시 스크롤 이동
   useEffect(() => {
@@ -185,19 +189,23 @@ const [joinFeeText, setJoinFeeText] = useState("");
     }
   };
 
-  // 파일 선택 후 이미지 읽기
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setPhotos(prev => [...prev, reader.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
+// 파일 선택 후 이미지 읽기 + 업로드
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (files && files.length > 0) {
+    try {
+      // 여러 파일 업로드
+      const { images } = await uploadImages("PARTY", Array.from(files));
+
+      // imgUrl, imgKey 따로 관리
+      setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
+      setPhotoKeys(prev => [...prev, ...images.map(img => img.imgKey)]);
+    } catch (err) {
+      console.error("이미지 업로드 실패:", err);
+      alert("이미지 업로드 중 오류가 발생했습니다.");
     }
-  };
+  }
+};
 
   return (
     <div className="flex flex-col gap-8 mb-8">
