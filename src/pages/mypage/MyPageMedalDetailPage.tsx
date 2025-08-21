@@ -348,13 +348,13 @@ export const MyPageMedalDetailPage = () => {
 //           setMedalDetail(null);
 //           return;
 //         }
-
-//      setMedalDetail({
+// setMedalDetail({
 //   title: "contestName" in data ? data.contestName : "",
 //   date: "date" in data ? data.date : "",
-//   participationType: "type" in data && "level" in data ? `${data.type} - ${data.level}` : "",
+//   participationType:
+//     "type" in data && "level" in data ? `${data.type} - ${data.level}` : "",
 //   photo: Array.isArray("contestImgUrls" in data ? data.contestImgUrls : [])
-//     ? data.contestImgUrls.map(url =>
+//     ? (data.contestImgUrls as string[]).map(url =>
 //         decodeURIComponent(url).replace(
 //           /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
 //           "https://"
@@ -362,10 +362,11 @@ export const MyPageMedalDetailPage = () => {
 //       )
 //     : [],
 //   videoUrl: Array.isArray("contestVideoUrls" in data ? data.contestVideoUrls : [])
-//     ? data.contestVideoUrls
+//     ? (data.contestVideoUrls as string[])
 //     : [],
 //   record: "content" in data && typeof data.content === "string" ? data.content : "",
 // });
+
 
 
 //       } catch (err) {

@@ -1,4 +1,4 @@
-// //운동 상세 페이지 -> 신청하기
+// 운동 상세 페이지 -> 신청하기
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import Caution from "../../../assets/icons/caution.svg?react";
@@ -22,7 +22,6 @@ import type {
   CancelSelfResponse,
 } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
-import { useDeleteInviteForm } from "../../../api/exercise/InviteGuestApi";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
 export const MyExerciseDetail = () => {
@@ -46,10 +45,7 @@ export const MyExerciseDetail = () => {
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
 
-  // 게스트 삭제 훅
-  const deleteGuestMutation = useDeleteInviteForm(exerciseIdNumber);
-
-  // 운동 상세 조회 이거 다시 확인
+  // 운동 상세 조회
   useEffect(() => {
     if (exerciseIdNumber) {
       getExerciseDetail(exerciseIdNumber, user?.memberId).then(res => {
@@ -71,6 +67,8 @@ export const MyExerciseDetail = () => {
           imgUrl: p.imgUrl ?? null,
           canCancel: p.canCancel,
           isGuest: !!p.guest,
+          inviterName: p.inviterName ?? "", 
+
         }));
         setMembers(participants);
         setParticipantsCount(participants.length);
@@ -83,6 +81,9 @@ export const MyExerciseDetail = () => {
           status: "waiting" as const,
           isMe: w.id === user?.memberId,
           position: w.position,
+          isGuest: !!w.guest,
+          inviterName: w.inviterName ?? "", 
+
         }));
         setWaitingMembers(waitingList);
         setWaitingCount(waitingList.length);
@@ -90,7 +91,7 @@ export const MyExerciseDetail = () => {
     }
   }, [exerciseIdNumber, user?.memberId]);
 
-  //운동 취소 api
+  // 운동 취소 / 멤버 삭제
   const handleDeleteMember = async (
     participantId: number,
     options?: { isGuest?: boolean; isLeaderAction?: boolean },
@@ -100,7 +101,7 @@ export const MyExerciseDetail = () => {
     try {
       let res: CancelSelfResponse;
       if (options?.isLeaderAction) {
-        //모임장 다른 참여자 추방
+        // 모임장이 다른 참여자 또는 게스트 추방
         res = await cancelByLeader(
           exerciseIdNumber,
           participantId,
@@ -122,23 +123,6 @@ export const MyExerciseDetail = () => {
     }
   };
 
-  // 게스트 삭제 핸들러
-  const handleDeleteGuest = (guestId: number) => {
-    deleteGuestMutation.mutate(guestId, {
-      onSuccess: () => {
-        alert("게스트 초대 취소 성공");
-        // UI에서 바로 삭제
-        setMembers(prev =>
-          prev.filter(m => !(m.isGuest && m.participantId === guestId)),
-        );
-        setParticipantsCount(prev => prev - 1);
-      },
-      onError: (err: any) => {
-        alert(err?.response?.data?.message || "게스트 삭제 실패");
-      },
-    });
-  };
-
   if (!detail) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -146,7 +130,6 @@ export const MyExerciseDetail = () => {
       </div>
     );
   }
-
 
   return (
     <>
@@ -192,13 +175,9 @@ export const MyExerciseDetail = () => {
             </div>
             <div className="flex items-center gap-2">
               <Female className="w-4 h-4" />
-              <p className="body-rg-500">
-                {detail.participantGenderCount.female}
-              </p>
+              <p className="body-rg-500">{detail.participantGenderCount.female}</p>
               <Male className="w-4 h-4" />
-              <p className="body-rg-500">
-                {detail.participantGenderCount.male}
-              </p>
+              <p className="body-rg-500">{detail.participantGenderCount.male}</p>
             </div>
           </div>
         </div>
@@ -219,6 +198,7 @@ export const MyExerciseDetail = () => {
                 number={idx + 1}
                 position={member.position}
                 memberId={member.memberId}
+                guestName={member.inviterName} 
                 imgUrl={member.imgUrl}
                 onClick={() => {
                   if (!member.isGuest) {
@@ -229,6 +209,7 @@ export const MyExerciseDetail = () => {
                   if (member.participantId !== undefined) {
                     handleDeleteMember(member.participantId, {
                       isLeaderAction: isCurrentUserLeader && !member.isMe,
+                      isGuest: member.isGuest, 
                     });
                   }
                 }}
@@ -252,13 +233,9 @@ export const MyExerciseDetail = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Female className="w-4 h-4" />
-                <p className="body-rg-500">
-                  {detail.waitingGenderCount?.female ?? 0}
-                </p>
+                <p className="body-rg-500">{detail.waitingGenderCount?.female ?? 0}</p>
                 <Male className="w-4 h-4" />
-                <p className="body-rg-500">
-                  {detail.waitingGenderCount?.male ?? 0}
-                </p>
+                <p className="body-rg-500">{detail.waitingGenderCount?.male ?? 0}</p>
               </div>
             </div>
 
@@ -276,25 +253,21 @@ export const MyExerciseDetail = () => {
                     number={idx + 1}
                     position={member.position}
                     memberId={member.memberId}
+                    guestName={member.inviterName} 
                     imgUrl={member.imgUrl}
                     onClick={() =>
                       navigate(`/mypage/profile/${member.memberId}`)
                     }
                     onDelete={() => {
-                      if (
-                        member.isGuest &&
-                        member.participantId !== undefined
-                      ) {
-                        handleDeleteGuest(member.participantId);
-                      } else if (member.participantId !== undefined) {
+                      if (member.participantId !== undefined) {
                         handleDeleteMember(member.participantId, {
                           isLeaderAction: isCurrentUserLeader && !member.isMe,
+                          isGuest: member.isGuest, 
                         });
                       }
                     }}
                     showDeleteButton={
-                      isCurrentUserLeader ||
-                      (member.isMe && !isCurrentUserLeader)
+                      isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
                     }
                     modalConfig={modalConfig ?? undefined}
                   />
@@ -309,7 +282,6 @@ export const MyExerciseDetail = () => {
       <SortBottomSheet
         isOpen={isSortOpen}
         onClose={() => setIsSortOpen(false)}
-        // selected={sortOption}
         options={["운동 수정하기", "운동 삭제하기"]}
         onSelect={option => {
           if (option === "운동 수정하기") {
@@ -323,6 +295,7 @@ export const MyExerciseDetail = () => {
           }
         }}
       />
+
       {isDelModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <Modal_ExDel
