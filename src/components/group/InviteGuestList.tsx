@@ -31,8 +31,8 @@ export default function InviteGuestList({
 
     const watiingNum =
       idx <= MaxCount
-        ? (idx + 1).toString().padStart(2, "0")
-        : String(item.participantNumber).toString().padStart(2, "0");
+        ? (idx + 1).toString()
+        : String(item.participantNumber).toString();
 
     const numberStatus = idx <= MaxCount ? "Participating" : "waiting";
     return (
