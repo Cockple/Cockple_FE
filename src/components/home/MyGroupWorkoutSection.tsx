@@ -26,7 +26,7 @@ function getFormattedDate(dateString: string, dayOfWeek: string) {
 
 function getFormattedTime(timeString: string) {
   const fakeDate = "2000-01-01";
-  const fullDateTime = `${fakeDate}T${timeString}`; // "2000-01-01T01:06:00"
+  const fullDateTime = `${fakeDate}T${timeString}`;
   return dayjs(fullDateTime).format("hh:mm a").toLowerCase();
 }
 
