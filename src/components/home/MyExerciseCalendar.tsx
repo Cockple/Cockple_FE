@@ -6,6 +6,7 @@ import type { CalendarData, Exercise } from "../../types/calendar";
 import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
 import CustomhomeWeekly from "./CustomhomeWeekly";
 import { useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {
@@ -161,8 +162,13 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
     return allDays.find(d => d.date === selectedDate)?.exercises ?? [];
   }, [selectedDate, calendarData]);
 
-  if (isLoading) return <div>캘린더를 불러오는 중입니다...</div>;
-  if (error) return <div>오류가 발생했습니다: {error.message}</div>;
+  if (isLoading)
+    return (
+      <div className="text-center">
+        <LoadingSpinner />
+      </div>
+    );
+  if (error) return <div></div>;
 
   const handleExerciseClick = (partyId: number) => {
     navigate(`/group/${partyId}?date=${selectedDate}`);
