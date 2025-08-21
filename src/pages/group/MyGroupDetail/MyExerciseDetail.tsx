@@ -201,12 +201,8 @@ export const MyExerciseDetail = () => {
                   if (!member.isGuest) {
                     navigate(`/mypage/profile/${member.memberId}`);
                   }
-                }}                // onDelete={() => {
-                //   if (member.participantId !== undefined) {
-                //     handleDeleteMember(member.participantId);
-                //   }
-                // }}
-                 onDelete={() => {
+                }}               
+                onDelete={() => {
                 if (member.participantId !== undefined) {
                   handleDeleteMember(member.participantId, {
                     isLeaderAction: isCurrentUserLeader && !member.isMe,
