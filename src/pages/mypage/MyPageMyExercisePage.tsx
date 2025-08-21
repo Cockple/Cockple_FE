@@ -260,10 +260,14 @@ export const MyPageMyExercisePage = () => {
         });
 
         setExerciseList(prev => {
-          const merged: ExerciseItem[] = reset ? data : [...prev, ...data];
-          const uniqueMap = new Map<number, ExerciseItem>();
-          merged.forEach(item => uniqueMap.set(item.exerciseId, item));
-          return Array.from(uniqueMap.values());
+          if (reset) {
+            return data;
+          } else {
+            const merged = [...prev, ...data];
+            const uniqueMap = new Map<number, ExerciseItem>();
+            merged.forEach(item => uniqueMap.set(item.exerciseId, item));
+            return Array.from(uniqueMap.values());
+          }
         });
 
         setHasMore(data.length === pageSize);
