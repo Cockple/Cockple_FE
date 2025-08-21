@@ -136,7 +136,6 @@ export const usePartySuggestion = (opts?: {
   return useQuery({
     queryKey: ["partySuggestion", params],
     queryFn: () => fetchPartySuggestionPage(params),
-    staleTime: 60_000,
   });
 };
 
@@ -170,6 +169,5 @@ export const usePartySuggestionInfinite = (opts?: {
     getNextPageParam: lastPage => {
       return lastPage.last ? undefined : lastPage.number + 1;
     },
-    staleTime: 60_000,
   });
 };
