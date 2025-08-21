@@ -24,14 +24,14 @@ import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import type { ContestRecordDetailResponse } from  "../../api/contest/contestmy";
 
 interface MedalDetail {
-  photo?: string[];           // 이미지 URL 배열
-  title?: string;             // 대회명
-  date?: string;              // 날짜
-  participationType?: string; // 참여 형태
-  record?: string;            // 대회 기록
-  videoUrl?: string[];        // 영상 링크 배열
+  photo?: string[];
+  title?: string;
+  date?: string;
+  type?: string;  // API에서 오는 type
+  level?: string; // API에서 오는 level
+  record?: string;
+  videoUrl?: string[];
 }
-
 export const MyPageMedalAddPage = () => {
   const {
     register,
@@ -51,7 +51,9 @@ export const MyPageMedalAddPage = () => {
   const [tournamentName, setTournamentName] = useState(""); // 대화명 상태
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [videoLinks, setVideoLinks] = useState<string[]>([""]); // 최소 1개 영상
+  const [videoLinks, setVideoLinks] = useState<string[]>([]);
+
+  // const [videoLinks, setVideoLinks] = useState<string[]>([""]); // 최소 1개 영상
   const formOptions = ["혼복", "여복", "남복", "단식"] as const;
   const [selectedForm, setSelectedForm] = useState<
     typeof formOptions[number] | null
@@ -71,6 +73,7 @@ export const MyPageMedalAddPage = () => {
     "준자강",
     "자강",
   ];
+
   const typeMap: Record<typeof formOptions[number], PostContestRecordRequest["type"]> = {
     "단식": "SINGLE",
     "남복": "MEN_DOUBLES",
@@ -95,35 +98,37 @@ export const MyPageMedalAddPage = () => {
     if (participationType.includes("SINGLE")) return "단식";
     if (participationType.includes("MEN_DOUBLES")) return "남복";
     if (participationType.includes("WOMEN_DOUBLES")) return "여복";
-    if (participationType.includes("MIXED")) return "혼복";
+    if (participationType.includes("MIX_DOUBLES") || participationType.includes("MIXED")) return "혼복";
     return null;
   };
+
   const [initialData, setInitialData] = useState<MedalDetail | null>(null);
-//이미지 여러장 업로드 
+  //이미지
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     // 최대 3장 제한
-    const fileArray = Array.from(files).slice(0, 3 - photos.length); 
+    const availableSlots = 3 - photos.length; // photos: 현재 화면에 보이는 이미지 배열
+    const fileArray = Array.from(files).slice(0, availableSlots); 
     if (fileArray.length === 0) return;
 
     try {
-      // 여러 장 업로드 API 호출
       const { images } = await uploadImages("CONTEST", fileArray);
-
-      // 서버에서 받은 이미지 URL을 상태에 추가
-      setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)]);
+      setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)].slice(0, 3)); 
+      // slice로 혹시 모를 초과 방지
     } catch (err) {
       console.error("이미지 업로드 실패", err);
       alert("이미지 업로드 중 오류가 발생했습니다.");
     }
   };
+
   const sanitizeUrl = (url: string) => {
   // S3 버킷 경로가 중복되거나 인코딩된 경우 정리
     const parts = url.split('https%3A/');
     return parts.length > 1 ? decodeURIComponent('https:' + parts[1]) : url;
   };
+
 
   // API에서 contestId로 상세 데이터 불러오기
   const fetchContestDetail = async (contestId: string) => {
@@ -132,56 +137,75 @@ export const MyPageMedalAddPage = () => {
       setInitialData({
         title: data.contestName,
         date: data.date,
-        participationType: `${data.type} - ${data.level}`,
+        type: data.type,     
+        level: data.level,   
         record: data.content,
         photo: data.contestImgUrls.map(sanitizeUrl),
         videoUrl: data.contestVideoUrls?.length ? data.contestVideoUrls : [""],
-
-        // videoUrl: data.contestVideoUrls,
       });
     } catch (error) {
       console.error("기존 대회 기록 불러오기 실패", error);
     }
   };
-
   useEffect(() => {
     if (isEditMode && contestId) {
       fetchContestDetail(contestId);
     }
   }, [isEditMode, contestId]);
-  console.log(contestId);
 
+  // 초기값 세팅 useEffect
   useEffect(() => {
     if (initialData) {
+          console.log("initialData:", initialData);
+
       setTournamentName(initialData.title || "");
-      setSelectedForm(parseParticipationType(initialData.participationType || ""));
-      
-      // participationType 예: "MEN_DOUBLES - INTERMEDIATE"
-      const levelPart = initialData.participationType?.split(" - ")[1] ?? "";
-      const levelMapReverse: Record<string, string> = {
-        "BEGINNER": "왕초심",
-        "INTERMEDIATE": "C조",  // 또는 사용자가 원하면 INTERMEDIATE → C조 매핑
-        "ADVANCED": "A조",      // 예시
+
+      // 참여 형태 초기값
+      const typeMapReverse: Record<string, typeof formOptions[number]> = {
+        "SINGLE": "단식",
+        "MEN_DOUBLES": "남복",
+        "WOMEN_DOUBLES": "여복",
+        "MIX_DOUBLES": "혼복",
       };
-      setSelectedLevel(levelMapReverse[levelPart] ?? "");
-      
+      setSelectedForm(initialData.type ? typeMapReverse[initialData.type] ?? null : null);
+
+      // 급수 초기값
+      const levelMapReverse: Record<string, string> = {
+        "NOVICE": "왕초심",
+        "BEGINNER": "초심",
+        "D": "D조",
+        "C": "C조",
+        "B": "B조",
+        "A": "A조",
+        "SEMI_EXPERT": "준자강",
+        "EXPERT": "자강",
+        "NONE": "급수 없음",
+        "INTERMEDIATE": "C조", 
+        "ADVANCED": "A조"
+      };
+      setSelectedLevel(initialData.level ? levelMapReverse[initialData.level] ?? "" : "");
+
       setRecordText(initialData.record || "");
-      setVideoLinks(initialData.videoUrl?.length ? initialData.videoUrl : [""]);
+      setVideoLinks(initialData.videoUrl ? [...initialData.videoUrl] : [""]);
       setPhotos(initialData.photo || []);
       setSelectedDate(initialData.date || "");
     }
   }, [initialData]);
 
+
   useEffect(() => {
-    if (isEditMode && medalData) {
-      setTournamentName(medalData.title || "");
-      setSelectedForm(parseParticipationType(medalData.participationType));
-      setRecordText(medalData.record || "");
-      setVideoLinks(
-        medalData.videoUrl?.length > 0 ? medalData.videoUrl : [""]
-      );
+    const data = isEditMode ? medalData ?? initialData : null;
+    if (data) {
+      setTournamentName(data.title || "");
+      setSelectedForm(parseParticipationType(data.participationType || ""));
+      setRecordText(data.record || "");
+      setVideoLinks(data.videoUrl?.length ? data.videoUrl : [""]);
+      setPhotos(data.photo || []);
+      setSelectedDate(data.date || "");
+      setValue("tournamentName", data.title || "");
     }
-  }, [isEditMode, medalData]);
+  }, [isEditMode, medalData, initialData, setValue]);
+
 
   const [open, setOpen] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -198,17 +222,6 @@ export const MyPageMedalAddPage = () => {
       onChange: e => setTournamentName(e.target.value),
     });
   }, [register]);
-
-  // 수정 및 조회 상태에 따른 변화 보기
-  useEffect(() => {
-    if (isEditMode && medalData) {
-      setTournamentName(medalData.title || "");
-      setSelectedForm(medalData.participationType || null);
-      setRecordText(medalData.record || "");
-      setVideoLinks(medalData.videoUrl || [""]);
-    }
-  }, [isEditMode, medalData]);
-
 
   const images = [Medal_1, Medal_2, Medal_3]; 
   const handleCloseOverlay = () => {
@@ -290,7 +303,8 @@ const handlePhotoClick = () => {
         content: recordText || undefined,
         contentIsOpen: true,
         videoIsOpen: true,
-        contestVideos: videoLinks.some(link => link.trim() !== "") ? videoLinks.filter(link => link.trim() !== "") : undefined,
+        // contestVideos: videoLinks.some(link => link.trim() !== "") ? videoLinks.filter(link => link.trim() !== "") : undefined,
+  contestVideos: [...videoLinks],
 
         // contestVideos: videoLinks.filter((link) => link.trim() !== ""),
         contestImgs: photos.map((p: any) => (typeof p === "string" ? p : p.url)),
@@ -307,11 +321,6 @@ const handlePhotoClick = () => {
 
       if (response.success && response.data) {
         const newContestId = response.data.contestId;
-        // alert(
-        //   isEditMode
-        //     ? "대회 기록이 성공적으로 수정되었습니다."
-        //     : "대회 기록이 성공적으로 등록되었습니다."
-        // );
         navigate(`/mypage/mymedal/${newContestId}`);
       } else {
         alert("저장에 실패했습니다: " + response.message);
@@ -321,6 +330,14 @@ const handlePhotoClick = () => {
       alert("서버와 통신 중 오류가 발생했습니다.");
     }
   };
+
+
+useEffect(() => {
+  if (initialData?.videoUrl) {
+    setVideoLinks([...initialData.videoUrl]); // 복사본 사용
+  }
+}, [initialData]);
+
 
 
   const onBackClick = () => {
@@ -574,7 +591,6 @@ const handlePhotoClick = () => {
             value={videoLinks.length ? videoLinks : [""]}
             onChange={setVideoLinks}
           />
-
           {/* 저장 버튼  오류 발생 */}
           <Grad_GR400_L
             label="저장하기"
