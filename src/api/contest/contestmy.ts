@@ -52,7 +52,7 @@ export interface PostContestRecordRequest {
   date?: string;             
   medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
   type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES"; 
-  level: "EXPERT" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "NONE";
+  level: "EXPERT" | "BEGINNER" | "NOVICE" | "SEMI_EXPERT" | "A" | "B" | "C" | "D" | "NONE";
   content?: string;
   contentIsOpen?: boolean;   
   videoIsOpen?: boolean;    
