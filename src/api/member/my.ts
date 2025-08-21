@@ -57,8 +57,6 @@ export async function getMyProfile() {
   return response.data.data;
 }
 
-//
-
 export const useMyProfile = () =>
   useQuery({
     queryKey: ["user"],
