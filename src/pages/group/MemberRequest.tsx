@@ -152,7 +152,12 @@ const MemberRequestPage = () => {
                     // level={req.level}
                     level={mapLevels([req.level])[0] ?? "급수 없음"}
                     birth={formatDate(req.createdAt)}
-                    imgUrl={req.profileImageUrl}
+                    //imgUrl={req.profileImageUrl}
+                    imgUrl={
+                      req.profileImageUrl
+                        ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${req.profileImageUrl}`
+                        : null
+                    }
                     onAccept={
                       submitting ? undefined : () => openApproveModal(req)
                     }
@@ -183,7 +188,12 @@ const MemberRequestPage = () => {
                   // level={req.level}
                   level={mapLevels([req.level])[0] ?? "급수 없음"}
                   birth={formatDate(req.updatedAt ?? req.createdAt)}
-                  imgUrl={req.profileImageUrl}
+                  //imgUrl={req.profileImageUrl}
+                  imgUrl={
+                    req.profileImageUrl
+                      ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${req.profileImageUrl}`
+                      : null
+                  }
                 />
               ))
             )}
