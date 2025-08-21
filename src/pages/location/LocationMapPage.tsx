@@ -85,6 +85,7 @@ export const LocationMapPage = () => {
         onBackClick={() =>
           navigate(`/location/search?query=${query}`, {
             state: { isOnboarding, returnPath, mode },
+            replace: true,
           })
         }
       />

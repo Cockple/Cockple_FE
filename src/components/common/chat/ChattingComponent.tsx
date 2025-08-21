@@ -43,56 +43,9 @@ const ChattingComponent = ({
     ));
   };
 
-  //🌟
-  // 렌더링용 이미지 배열 (IMAGE 타입이 아니어도 imgUrls가 있으면 보여줌)
-  //const imgs = useMemo(() => message.imgUrls ?? [], [message.imgUrls]);
-  /**
-   *  이미지 렌더링 규칙 (서버가 TEXT로 내려오더라도 안전)
-   * 1) message.imgUrls 사용
-   * 2) message.imageUrls(서버 응답 키) fallback
-   * 3) content가 공개 이미지 URL이면 그걸 1장으로 간주
-   */
-  //🌟 const imgs = useMemo(() => {
-  //   const rawFromType = message.imageUrls ?? message.imageUrls ?? [];
-  //   const arr: string[] = Array.isArray(rawFromType)
-  //     ? rawFromType.filter(Boolean)
-  //     : [];
-
-  //   if (arr.length === 0 && looksLikeImageUrl(message.content)) {
-  //     arr.push(message.content as string);
-  //   }
-  //   return arr;
-  // }, [message]);
-
-  // const hasImages = imgs && imgs.length > 0;
   const imgs = useMemo<ImageInfo[]>(() => message.images ?? [], [message]);
   const hasImages = imgs.length > 0;
 
-  //🌟 const ImageTiles: React.FC<{
-  //   urls: string[];
-  //   onClick?: (src: string) => void;
-  // }> = ({ urls, onClick }) => {
-  //   const count = urls.length;
-
-  //   // 1장일 때는 그리드가 아니라 단일 이미지로 꽉 채움 (빈칸 X)
-  //   if (count === 1) {
-  //     const src = urls[0];
-  //     return (
-  //       <button
-  //         type="button"
-  //         className="block max-w-[15rem] focus:outline-none"
-  //         onClick={() => onClick?.(src)}
-  //         aria-label="image-1"
-  //       >
-  //         <img
-  //           src={src}
-  //           alt="img-1"
-  //           className="w-full h-auto rounded-lg object-cover"
-  //           loading="lazy"
-  //         />
-  //       </button>
-  //     );
-  //   }
   const ImageTiles: React.FC<{
     images: ImageInfo[];
     onClick?: (p: { url: string; isEmoji: boolean }) => void;
@@ -101,6 +54,29 @@ const ChattingComponent = ({
 
     if (count === 1) {
       const img = images[0];
+      //🌟
+      const isEmoji = !!img.isEmoji;
+
+      // 이모티콘: 고정 소형(원하면 56px/64px 등으로 바꿔도 됨)
+      if (isEmoji) {
+        return (
+          <button
+            type="button"
+            className="block focus:outline-none"
+            //onClick={() => onClick?.({ url: img.imageUrl, isEmoji })}
+            aria-label="emoji-1"
+          >
+            <img
+              src={img.imageUrl}
+              alt="emoji-1"
+              className="w-[10rem] h-[10rem] rounded-xl object-contain"
+              loading="lazy"
+              draggable={false}
+            />
+          </button>
+        );
+      }
+
       return (
         <button
           type="button"
@@ -121,27 +97,6 @@ const ChattingComponent = ({
     // 2/4장: 2열 그리드, 3/5장 이상: 3열 그리드
     const cols = count === 2 || count === 4 ? 2 : 3;
 
-    // 🌟  return (
-    //     <div className={`grid grid-cols-${cols} gap-2 max-w-[15rem]`}>
-    //       {urls.map((src, idx) => (
-    //         <button
-    //           key={idx}
-    //           type="button"
-    //           className="block focus:outline-none"
-    //           onClick={() => onClick?.(src)}
-    //           aria-label={`image-${idx + 1}`}
-    //         >
-    //           <img
-    //             src={src}
-    //             alt={`img-${idx + 1}`}
-    //             className="w-full aspect-square object-cover rounded-lg"
-    //             loading="lazy"
-    //           />
-    //         </button>
-    //       ))}
-    //     </div>
-    //   );
-    // };
     return (
       <div className={`grid grid-cols-${cols} gap-2 max-w-[15rem]`}>
         {images.map((img, idx) => (
