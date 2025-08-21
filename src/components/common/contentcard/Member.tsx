@@ -258,15 +258,12 @@ export const Member = ({
         return (
           <div className="w-[21.44rem] h-[7.5rem] rounded-[1rem] bg-white p-4 space-y-3">
             <div className="flex items-center gap-3">
-            {imgUrl ? (
-                <img
-                  src={imgUrl}
-                  alt={`${name} 프로필`}
-                  className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
-                />
-              ) : (
-                <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
-              )}                    
+           <img
+              src={imgUrl ?? undefined}
+              alt={`${name} 프로필`}
+              className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
+            />
+            {!imgUrl && <ProfileImage className="w-[2.5rem] h-[2.5rem]" />}
               <div className="flex flex-col justify-center gap-[0.25rem] w-[15.44rem] h-[2.75rem]">
                 <div className="flex items-center gap-1">
                   <p className="header-h5 text-black">{name}</p>

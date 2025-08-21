@@ -45,10 +45,12 @@ export const MyExerciseDetail = () => {
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
   const currentUser = members.find(m => m.isMe);
-  const isCurrentUserLeader = currentUser?.isLeader ??
+  const isCurrentUserLeader =
+    currentUser?.isLeader ||
     detail?.participantMembers?.some(
       p => p.id === user?.memberId && p.position === "party_MANAGER"
-    ) ?? false;
+    ) || false;
+
 
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
