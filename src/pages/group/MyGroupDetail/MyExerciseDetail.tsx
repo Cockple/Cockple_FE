@@ -24,9 +24,13 @@ import type {
 import useUserStore from "../../../store/useUserStore";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
+
+  const queryClient = useQueryClient();
 
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const exerciseIdNumber = Number(exerciseId);
@@ -91,37 +95,73 @@ export const MyExerciseDetail = () => {
     }
   }, [exerciseIdNumber, user?.memberId]);
 
-  // 운동 취소 / 멤버 삭제
-  const handleDeleteMember = async (
+  // 운동 취소 / 멤버 삭제 -> 새로고침 문제 ( 확인 필요 )
+   const handleDeleteMember = async (
     participantId: number,
-    options?: { isGuest?: boolean; isLeaderAction?: boolean },
+    options?: { isGuest?: boolean; isLeaderAction?: boolean }
   ) => {
     if (!exerciseIdNumber) return;
 
     try {
       let res: CancelSelfResponse;
       if (options?.isLeaderAction) {
-        // 모임장이 다른 참여자 또는 게스트 추방
         res = await cancelByLeader(
           exerciseIdNumber,
           participantId,
-          options.isGuest ?? false,
+          options.isGuest ?? false
         );
       } else {
-        // 나 자신 모임 취소
         res = await cancelSelf(exerciseIdNumber);
       }
 
       if (res.success) {
-        setMembers(prev => prev.filter(m => m.participantId !== participantId));
-        setParticipantsCount(prev => prev - 1);
         alert("참여 취소 완료");
+        setMembers(prev => prev.filter(m => m.participantId !== participantId));
+        setWaitingMembers(prev => prev.filter(m => m.participantId !== participantId));
+        setParticipantsCount(prev => prev - 1);
+        setWaitingCount(prev => prev - 1);
+
+        queryClient.invalidateQueries({
+          queryKey: ["exerciseDetail"], 
+          exact: false,
+        });
       }
     } catch (error: any) {
       console.error("멤버 삭제 실패:", error);
       alert(error?.message || "참여 취소 실패");
     }
   };
+
+  // const handleDeleteMember = async (
+  //   participantId: number,
+  //   options?: { isGuest?: boolean; isLeaderAction?: boolean },
+  // ) => {
+  //   if (!exerciseIdNumber) return;
+
+  //   try {
+  //     let res: CancelSelfResponse;
+  //     if (options?.isLeaderAction) {
+  //       // 모임장이 다른 참여자 또는 게스트 추방
+  //       res = await cancelByLeader(
+  //         exerciseIdNumber,
+  //         participantId,
+  //         options.isGuest ?? false,
+  //       );
+  //     } else {
+  //       // 나 자신 모임 취소
+  //       res = await cancelSelf(exerciseIdNumber);
+  //     }
+
+  //     if (res.success) {
+  //       setMembers(prev => prev.filter(m => m.participantId !== participantId));
+  //       setParticipantsCount(prev => prev - 1);
+  //       alert("참여 취소 완료");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("멤버 삭제 실패:", error);
+  //     alert(error?.message || "참여 취소 실패");
+  //   }
+  // };
 
   if (!detail) {
     return (
@@ -167,11 +207,10 @@ export const MyExerciseDetail = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label className="text-left header-h5">참여 인원</label>
-              <span>
-                {detail.participantGenderCount.male +
-                  detail.participantGenderCount.female}{" "}
-                / {participantsCount}
-              </span>
+<span>
+  {detail.participantGenderCount.male + detail.participantGenderCount.female} / {detail.participantsCount}
+</span>
+
             </div>
             <div className="flex items-center gap-2">
               <Female className="w-4 h-4" />
