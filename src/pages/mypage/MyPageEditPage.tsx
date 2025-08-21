@@ -219,14 +219,11 @@ export const MyPageEditPage = ({
     .finally(() => setIsLoading(false));
 }, []);
 
-//대표 주소 선택 및 저장 및 UI 변경
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         const data: UserAddress[] = await getMyProfileLocations();
         setLocations(data);
-
-        // 대표 주소 선택
         const main = data.find(l => l.isMainAddr);
         if (main) setSelectedId(main.addrId);
       } catch (err) {

@@ -1,110 +1,68 @@
 //모임 페이지에 EditGroupInfoDefault 사용하는 컴포입니다.
 import { useState, useEffect, useRef } from "react";
 
-interface CheckBoxLongnoButton {
+interface InputFieldProps {
   title?: string;
   maxLength?: number;
+  value?: string; // 부모에서 전달할 값
+  onChange?: (value: string) => void; // 값 변경 시 부모에 전달
 }
 
-export const InputField = ({ title, maxLength }: CheckBoxLongnoButton) => {
-  const [recordTexts, setRecordTexts] = useState<string[]>([""]);
+export const InputField = ({ title, maxLength, value = "", onChange }: InputFieldProps) => {
+  const [recordText, setRecordText] = useState(value);
+  const [isRecordFocused, setIsRecordFocused] = useState(false);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // ‼️ 배포 오류를 위한 임시 코드
-  const isPrivate = false;
-  // const [isPrivate, setIsPrivate] = useState(false);
-
-  const [isRecordFocused, setIsRecordFocused] = useState<boolean[]>([false]);
-
-  const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
-
-  const adjustHeight = (idx: number) => {
-    const textarea = textAreaRefs.current[idx];
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = textarea.scrollHeight + "px";
+  const adjustHeight = () => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + "px";
     }
   };
+
+  // 부모 값이 바뀌면 업데이트
+  useEffect(() => {
+    setRecordText(value);
+  }, [value]);
 
   useEffect(() => {
-    recordTexts.forEach((_, idx) => {
-      adjustHeight(idx);
-    });
-  }, [recordTexts]);
+    adjustHeight();
+  }, [recordText]);
 
-  const onChangeText = (idx: number, value: string) => {
-    if (isPrivate) return;
-
-    if (maxLength !== undefined && value.length > maxLength) {
-      value = value.slice(0, maxLength);
+  const handleChange = (val: string) => {
+    if (maxLength && val.length > maxLength) {
+      val = val.slice(0, maxLength);
     }
-
-    const newTexts = [...recordTexts];
-    newTexts[idx] = value;
-    setRecordTexts(newTexts);
-
-    if (isRecordFocused.length < recordTexts.length) {
-      setIsRecordFocused(prev => [...prev, false]);
-    }
-  };
-
-  const onFocus = (idx: number) => {
-    const newFocus = [...isRecordFocused];
-    newFocus[idx] = true;
-    setIsRecordFocused(newFocus);
-  };
-
-  const onBlur = (idx: number) => {
-    const newFocus = [...isRecordFocused];
-    newFocus[idx] = false;
-    setIsRecordFocused(newFocus);
+    setRecordText(val);
+    onChange?.(val);
   };
 
   return (
     <div className="w-full flex flex-col gap-2">
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <label
-              className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}
-            >
-              {title}
-            </label>
-          </div>
-        </div>
+      <div className="flex items-center justify-between">
+        <label className="header-h5 text-black">{title}</label>
       </div>
-
-      {recordTexts.map((text, idx) => (
-        <div key={idx} className="relative mb-4">
-          <div className="relative">
-            <textarea
-              ref={el => {
-                textAreaRefs.current[idx] = el;
-              }}
-              value={text}
-              onChange={e => onChangeText(idx, e.target.value)}
-              onFocus={() => onFocus(idx)}
-              onBlur={() => onBlur(idx)}
-              disabled={isPrivate}
-              maxLength={maxLength}
-              rows={1}
-              style={{ resize: "none", overflow: "hidden" }}
-              className={`w-full rounded-xl body-md-500 p-3 pb-8 leading-snug border
-                ${
-                  isPrivate
-                    ? "border-[#E4E7EA] cursor-not-allowed"
-                    : isRecordFocused[idx]
-                      ? "border-[#87C95E]"
-                      : "border-[#E4E7EA] text-black"
-                }
-                focus:outline-none
-              `}
-            />
-            <div className="body-rg-500 absolute bottom-3 right-3 text-[#D6DAE0]">
-              ({text.length}/{maxLength})
-            </div>
+      <div className="relative">
+        <textarea
+          ref={textAreaRef}
+          value={recordText}
+          onChange={e => handleChange(e.target.value)}
+          onFocus={() => setIsRecordFocused(true)}
+          onBlur={() => setIsRecordFocused(false)}
+          rows={1}
+          style={{ resize: "none", overflow: "hidden" }}
+          className={`w-full rounded-xl body-md-500 p-3 pb-8 leading-snug border
+            ${isRecordFocused ? "border-[#87C95E]" : "border-[#E4E7EA] text-black"}
+            focus:outline-none
+          `}
+        />
+        {maxLength && (
+          <div className="body-rg-500 absolute bottom-3 right-3 text-[#D6DAE0]">
+            ({recordText.length}/{maxLength})
           </div>
-        </div>
-      ))}
+        )}
+      </div>
     </div>
   );
 };
+
