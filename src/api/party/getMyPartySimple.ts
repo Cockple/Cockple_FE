@@ -69,6 +69,5 @@ export function useGetMyPartySimple(pageSize = 10) {
       return lastPage.number + 1;
     },
     refetchOnWindowFocus: false,
-    staleTime: 60_000,
   });
 }
