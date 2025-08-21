@@ -7,7 +7,7 @@ import "swiper/css/pagination";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
-import Kitty from "../../assets/images/Image Carousel.png";
+import None_Error from "../../assets/images/None_Error.png";
 import { getContestRecordDetail, deleteContestRecord } from "../../api/contest/contestmy";
 import { getMemberContestDetail } from "../../api/contest/member";
 import type { ContestDetailResponse } from "../../api/contest/member";
@@ -52,7 +52,7 @@ export const MyPageMedalDetailPage = () => {
     const fetchProfile = async () => {
       try {
         const profile = await getMyProfile();
-        setProfilePhoto(profile.profileImageUrl ?? null);
+        setProfilePhoto(profile.profileImgUrl ?? null);
       } catch (err) {
         console.error("프로필 조회 실패", err);
       }
@@ -127,7 +127,7 @@ export const MyPageMedalDetailPage = () => {
     );
   }
 
-  const displayImages = medalDetail.photo?.length ? medalDetail.photo : [Kitty];
+  const displayImages = medalDetail.photo?.length ? medalDetail.photo : [None_Error];
   const urls = medalDetail.videoUrl ?? [];
   const record = medalDetail.record ?? "";
   const date = medalDetail.date ?? "";
