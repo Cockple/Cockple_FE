@@ -45,7 +45,7 @@ export const getMyGroups = async ({
 export const leaveParty = async (partyId: number) => {
   try {
     const res = await api.delete(`/api/parties/${partyId}/members/my`);
-    return res; // ✅ axios 전체 응답 반환
+    return res;
   } catch (err: any) {
     if (err.response?.status === 403) {
       return {

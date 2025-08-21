@@ -17,7 +17,10 @@ import {
   deleteExercise,
 } from "../../../api/exercise/exercises";
 import { cancelByLeader } from "../../../api/exercise/participants";
-import type { ExerciseDetailResponse, CancelSelfResponse } from "../../../api/exercise/exercises";
+import type {
+  ExerciseDetailResponse,
+  CancelSelfResponse,
+} from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
 
 export const MyExerciseDetail = () => {
@@ -94,10 +97,14 @@ export const MyExerciseDetail = () => {
       let res: CancelSelfResponse;
       if (options?.isLeaderAction) {
         //모임장 다른 참여자 추방
-        res = await cancelByLeader(exerciseIdNumber, participantId, options.isGuest ?? false);
+        res = await cancelByLeader(
+          exerciseIdNumber,
+          participantId,
+          options.isGuest ?? false,
+        );
       } else {
         // 나 자신 모임 취소
-        res = await cancelSelf(exerciseIdNumber);        
+        res = await cancelSelf(exerciseIdNumber);
       }
 
       if (res.success) {
@@ -111,7 +118,6 @@ export const MyExerciseDetail = () => {
     }
   };
 
-
   if (!detail) {
     return <p className="p-4">불러오는 중...</p>;
   }
@@ -120,7 +126,9 @@ export const MyExerciseDetail = () => {
     <>
       <PageHeader
         title="내 운동 상세"
-        onMoreClick={isCurrentUserLeader ? () => setIsSortOpen(true) : undefined}
+        onMoreClick={
+          isCurrentUserLeader ? () => setIsSortOpen(true) : undefined
+        }
         onBackClick={() => {
           if (returnPath === -1) navigate(-1);
           else navigate(returnPath);
