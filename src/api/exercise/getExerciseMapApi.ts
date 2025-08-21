@@ -65,7 +65,6 @@ export const useMonthlyBuildings = ({
     ],
     queryFn: () =>
       fetchMonthlyBuildings({ date, latitude, longitude, radiusKm }),
-    staleTime: 1000 * 60 * 5,
   });
 
 //

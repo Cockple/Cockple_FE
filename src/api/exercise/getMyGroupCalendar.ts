@@ -74,6 +74,5 @@ export function useMyGroupCalendar(
   return useQuery({
     queryKey: ["myGroupCalendar", { orderType, startDate, endDate }],
     queryFn: () => fetchMyGroupCalendar({ orderType, startDate, endDate }),
-    staleTime: 60_000,
   });
 }
