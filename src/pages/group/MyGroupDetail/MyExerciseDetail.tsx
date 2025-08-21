@@ -40,14 +40,7 @@ export const MyExerciseDetail = () => {
 
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
-
-  const currentUser = members.find(m => m.isMe);
-  const isCurrentUserLeader =
-    currentUser?.isLeader ||
-    detail?.participantMembers?.some(
-      p => p.id === user?.memberId && p.position === "party_MANAGER",
-    ) ||
-    false;
+  const [isCurrentUserLeader, setIsCurrentUserLeader] = useState(false);
 
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
@@ -61,6 +54,8 @@ export const MyExerciseDetail = () => {
       getExerciseDetail(exerciseIdNumber, user?.memberId).then(res => {
         console.log("운동 상세 데이터:", res);
         setDetail(res);
+
+        setIsCurrentUserLeader(res.isManager);
 
         const participants: MemberProps[] = res.participantMembers.map(p => ({
           participantId: p.id,
