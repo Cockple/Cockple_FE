@@ -156,12 +156,20 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
             <White_L
               initialStatus="clicked"
               label="공지사항"
-              onClick={() => alert("공지사항 클릭")}
+              onClick={() =>
+                window.open(
+                  "https://www.notion.so/25634aa25d2880fd8572f0454c209030",
+                )
+              }
             />
             <White_L
               initialStatus="clicked"
               label="이용약관"
-              onClick={() => alert("이용약관 클릭")}
+              onClick={() =>
+                window.open(
+                  "https://www.notion.so/25634aa25d28807fa768df5deb1afc6f",
+                )
+              }
             />
             <White_L
               initialStatus="clicked"
