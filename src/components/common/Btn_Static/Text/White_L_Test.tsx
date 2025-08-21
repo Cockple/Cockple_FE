@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Pen from "../../../../assets/icons/pen.svg";
 import PenGY400 from "../../../../assets/icons/pen-gy-400.svg";
+import clsx from "clsx";
 
 type BtnStatus = "disabled" | "default" | "pressing" | "clicked";
 
@@ -56,7 +57,9 @@ const White_L_Test = ({
 
   return (
     <button
-      className={`flex flex-col w-[6rem] h-[9rem] p-2 justify-center items-center gap-2 border-hard flex-shrink-0 ${getBg()} ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+      className={clsx(
+        `flex flex-col  w-[6rem] h-[9rem] p-2 justify-start items-center gap-2 border-hard flex-shrink-0 ${getBg()} ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}`,
+      )}
       disabled={status === "disabled"}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}

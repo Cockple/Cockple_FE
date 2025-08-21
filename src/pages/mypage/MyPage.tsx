@@ -45,8 +45,8 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
     async function fetchProfile() {
       try {
         const data = await getMyProfile();
-        
-       setProfile({
+
+        setProfile({
           name: data.memberName,
           gender: data.gender === "MALE" ? "MALE" : "FEMALE",
           level: convertLevel(data.level),
@@ -58,10 +58,9 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
           myExerciseCount: data.myExerciseCnt,
           myMedalTotal:
             data.myGoldMedalCnt + data.mySilverMedalCnt + data.myBronzeMedalCnt,
-          profileImage: data.profileImgUrl || undefined, 
+          profileImage: data.profileImgUrl || undefined,
           disabled,
         });
-  
       } catch (error) {
         console.error("프로필 불러오기 실패", error);
       }
@@ -71,7 +70,6 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
   }, [disabled]);
 
   function convertLevel(level: string): string {
-
     const levelMap: Record<string, string> = {
       EXPERT: "자강",
       SEMI_EXPERT: "준자강",
@@ -83,7 +81,7 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
       NOVICE: "왕초심",
       NONE: "급수 없음",
     };
-    return level ? levelMap[level.toUpperCase()] ?? "급수 없음" : "급수 없음";
+    return level ? (levelMap[level.toUpperCase()] ?? "급수 없음") : "급수 없음";
   }
 
   const totalMedals = profile.myMedalTotal || 0;
