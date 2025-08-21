@@ -1,7 +1,8 @@
+import { useGetExerciseDetail } from "../../api/exercise/exerciseApi";
+import { useDeleteInviteForm } from "../../api/exercise/InviteGuestApi";
 import type { ResponseInviteGuest } from "../../types/guest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import { Member } from "../common/contentcard/Member";
-import { useDeleteInviteForm } from "../../api/exercise/InviteGuest";
 const { toKor } = userLevelMapper();
 
 type InviteGuestProps = {
@@ -15,22 +16,25 @@ export default function InviteGuestList({
 }: InviteGuestProps) {
   const handleDelete = useDeleteInviteForm(exerciseId);
 
+  //운동 상세 조회
+  const { data: detailData } = useGetExerciseDetail(exerciseId);
+  const MaxCount = detailData?.participants?.totalCount - 1;
   return data?.list.map((item: ResponseInviteGuest, idx: number) => {
     const apilevel = toKor(item.level);
 
-    console.log(apilevel);
     const responseLevelValue =
       apilevel === "disabled"
         ? "급수 없음"
         : ["A조", "B조", "C조", "D조"].includes(apilevel)
           ? `전국 ${apilevel}`
           : apilevel;
+
     const watiingNum =
-      idx <= 9
+      idx <= MaxCount
         ? (idx + 1).toString().padStart(2, "0")
         : String(item.participantNumber).toString().padStart(2, "0");
 
-    const numberStatus = idx <= 9 ? "Participating" : "waiting";
+    const numberStatus = idx <= MaxCount ? "Participating" : "waiting";
     return (
       <Member
         key={item.guestId}

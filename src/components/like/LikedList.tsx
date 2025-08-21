@@ -7,7 +7,7 @@ import type { ExerciseCard, GroupCard } from "../../types/liked";
 // } from "../../hooks/useLikedItems";
 import { useEffect, useState } from "react";
 import { LikedEmptyState } from "./LikedEmptyState";
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 //import { LoadingSpinner } from "../common/LoadingSpinner";
 
 interface LikedListProps {
@@ -95,7 +95,7 @@ const LikedList = ({
                   <Group_M
                     id={card.partyId}
                     groupName={card.partyName}
-                    groupImage={card.profileImgUrl ?? appIcon}
+                    groupImage={card.profileImgUrl ?? DefaultGroupImg}
                     location={`${card.addr1}/${card.addr2}`}
                     femaleLevel={card.femaleLevel}
                     maleLevel={card.maleLevel}
