@@ -200,11 +200,6 @@ export const MyExerciseDetail = () => {
                 memberId={member.memberId}
                 guestName={member.inviterName} 
                 imgUrl={member.imgUrl}
-                onClick={() => {
-                  if (!member.isGuest) {
-                    navigate(`/mypage/profile/${member.memberId}`);
-                  }
-                }}
                 onDelete={() => {
                   if (member.participantId !== undefined) {
                     handleDeleteMember(member.participantId, {
@@ -255,9 +250,6 @@ export const MyExerciseDetail = () => {
                     memberId={member.memberId}
                     guestName={member.inviterName} 
                     imgUrl={member.imgUrl}
-                    onClick={() =>
-                      navigate(`/mypage/profile/${member.memberId}`)
-                    }
                     onDelete={() => {
                       if (member.participantId !== undefined) {
                         handleDeleteMember(member.participantId, {

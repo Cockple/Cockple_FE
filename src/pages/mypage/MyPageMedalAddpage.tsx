@@ -307,11 +307,11 @@ const handlePhotoClick = () => {
 
       if (response.success && response.data) {
         const newContestId = response.data.contestId;
-        alert(
-          isEditMode
-            ? "대회 기록이 성공적으로 수정되었습니다."
-            : "대회 기록이 성공적으로 등록되었습니다."
-        );
+        // alert(
+        //   isEditMode
+        //     ? "대회 기록이 성공적으로 수정되었습니다."
+        //     : "대회 기록이 성공적으로 등록되었습니다."
+        // );
         navigate(`/mypage/mymedal/${newContestId}`);
       } else {
         alert("저장에 실패했습니다: " + response.message);

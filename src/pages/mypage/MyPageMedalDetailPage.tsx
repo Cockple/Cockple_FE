@@ -56,6 +56,23 @@ export const MyPageMedalDetailPage = () => {
     "C": "C조",
     "D": "D조",
   };
+  const sanitizeUrl = (url: string) => {
+    try {
+      // 1. 이미 디코딩된 URL이면 그대로 반환
+      let decoded = decodeURIComponent(url);
+
+      // 2. S3 경로 중복 제거
+      decoded = decoded.replace(
+        /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
+        "https://"
+      );
+
+      return decoded;
+    } catch (err) {
+      console.warn("URL 디코딩 실패:", url, err);
+      return url; // 오류가 나면 원본 URL 반환
+    }
+  };
 
 
   useEffect(() => {
@@ -83,15 +100,8 @@ export const MyPageMedalDetailPage = () => {
           date: data.date ?? "",
           type: data.type ?? "",
           level: data.level ?? "NONE",
-          // participationType: `${typeKor} - ${levelKor}`,
-          photo: ((data as any).contestImgUrls ?? []).map((url: string) => {
-            let decoded = decodeURIComponent(url);
-            decoded = decoded.replace(
-              /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
-              "https://"
-            );
-            return decoded;
-          }),
+          photo: Array.isArray((data as any).contestImgUrls) ? 
+            (data as any).contestImgUrls.map(sanitizeUrl) : [],
           videoUrl: Array.isArray((data as any).contestVideoUrls)
             ? (data as any).contestVideoUrls
             : [],
