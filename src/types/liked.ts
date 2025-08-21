@@ -1,18 +1,3 @@
-//나중에 삭제-------------------->
-// export type CommonResponse<T> = {
-//   code: string;
-//   message: string;
-//   data: T;
-//   errorReason: ErrorReasonDTO;
-//   success: boolean;
-// };
-
-// export type ErrorReasonDTO = {
-//   code: string;
-//   message: string;
-//   httpStatus: string;
-// };
-//------------------------------->
 import type { CommonResponse } from "./common";
 
 export type GroupCard = {
