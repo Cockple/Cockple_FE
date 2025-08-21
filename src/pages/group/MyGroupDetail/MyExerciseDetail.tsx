@@ -23,6 +23,7 @@ import type {
 } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
 import { useDeleteInviteForm } from "../../../api/exercise/InviteGuestApi";
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
@@ -139,8 +140,13 @@ export const MyExerciseDetail = () => {
   };
 
   if (!detail) {
-    return <p className="p-4">불러오는 중...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <LoadingSpinner />
+      </div>
+    );
   }
+
 
   return (
     <>
