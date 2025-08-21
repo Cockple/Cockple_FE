@@ -12,9 +12,9 @@ import {
   MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
-  ViceLeaderDefault,
+  // ViceLeaderDefault,
   EditGroupInfoDefault,
-  InviteDefault,
+  // InviteDefault,
 } from "./pages/group";
 import { ExerciseMapPage } from "./pages/home/ExerciseMapPage";
 import { AlertPage } from "./pages/alarm/AlertPage";
@@ -166,12 +166,12 @@ const router = createBrowserRouter([
       },
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
-      { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
+      // { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
       {
         path: "/group/admin/edit-info/:partyId",
         element: <EditGroupInfoDefault />,
       },
-      { path: "/group/admin/invite", element: <InviteDefault /> },
+      // { path: "/group/admin/invite", element: <InviteDefault /> },
 
       {
         path: "/group/recommend-filter",
