@@ -131,7 +131,7 @@ export const getExerciseDetail = async (exerciseId: number, currentUserId?: numb
     level: mapLevelToKorean(p.level),
     isMe: currentUserId === p.participantId,       
     isLeader: currentUserId === p.participantId
-      ? p.partyPosition === "모임장"               
+      ? p.partyPosition === "party_MANAGER"               
       : false,
     position: p.partyPosition,
     imgUrl: p.profileImageUrl ?? null,
