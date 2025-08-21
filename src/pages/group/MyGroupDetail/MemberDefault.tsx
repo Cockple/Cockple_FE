@@ -8,17 +8,16 @@ import {
 } from "../../../api/party/members";
 import { leaveParty } from "../../../api/party/my";
 import type { ModalConfig } from "../../../components/group/modalConfig";
-import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { Member } from "../../../components/common/contentcard/Member";
 import Search from "../../../assets/icons/search.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
-import { useGroupNameStore } from "../../../store/useGroupNameStore";
+// import { useGroupNameStore } from "../../../store/useGroupNameStore";
 
 export const MemberDefault = () => {
   const { groupId } = useParams<{ groupId: string }>();
-  const { groupName } = useGroupNameStore();
+  // const { groupName } = useGroupNameStore();
 
   const partyId = Number(groupId);
 
@@ -114,8 +113,6 @@ export const MemberDefault = () => {
 
   return (
     <>
-      <PageHeader title={groupName} />
-
       {/* 검색 및 참여 인원 */}
       <div className="flex flex-col mb-8">
         <div className="relative">
@@ -171,6 +168,7 @@ export const MemberDefault = () => {
             <Member
               {...member}
               number={idx + 1}
+              imgUrl={member.imgUrl}
               onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
               showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}

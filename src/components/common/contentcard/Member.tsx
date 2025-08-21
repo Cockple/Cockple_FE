@@ -114,6 +114,7 @@ export const Member = ({
   birth,
   showStar,
   isGuest,
+  imgUrl,
   guestName,
   number,
   onAccept,
@@ -180,7 +181,15 @@ export const Member = ({
                 {status === "Participating" && `No.${number}`}
                 {status === "waiting" && `대기.${number}`}
               </p>
-              <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+              {imgUrl ? (
+                <img
+                  src={imgUrl}
+                  alt={`${name} 프로필`}
+                  className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
+                />
+              ) : (
+                <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+              )}              
               <MemberInfo
                 name={name}
                 gender={gender}
@@ -214,7 +223,15 @@ export const Member = ({
       case "invite":
         return (
           <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
-            <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+             {imgUrl ? (
+                <img
+                  src={imgUrl}
+                  alt={`${name} 프로필`}
+                  className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
+                />
+              ) : (
+                <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+              )}               
             <MemberInfo {...{ name, gender, level }} />
             <Message
               className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
@@ -241,7 +258,15 @@ export const Member = ({
         return (
           <div className="w-[21.44rem] h-[7.5rem] rounded-[1rem] bg-white p-4 space-y-3">
             <div className="flex items-center gap-3">
-              <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+            {imgUrl ? (
+                <img
+                  src={imgUrl}
+                  alt={`${name} 프로필`}
+                  className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
+                />
+              ) : (
+                <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+              )}                    
               <div className="flex flex-col justify-center gap-[0.25rem] w-[15.44rem] h-[2.75rem]">
                 <div className="flex items-center gap-1">
                   <p className="header-h5 text-black">{name}</p>
@@ -280,7 +305,15 @@ export const Member = ({
         return (
           <div className="w-[21.44rem] h-[7.5rem] rounded-[1rem] bg-white p-4 space-y-3">
             <div className="flex items-center gap-3">
-              <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+            {imgUrl ? (
+                <img
+                  src={imgUrl}
+                  alt={`${name} 프로필`}
+                  className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
+                />
+              ) : (
+                <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
+              )}                    
               <div className="flex flex-col justify-center gap-[0.25rem] w-[15.44rem] h-[2.75rem]">
                 <div className="flex items-center gap-1">
                   <p className="header-h5 text-black">{name}</p>

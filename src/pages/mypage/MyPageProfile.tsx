@@ -34,9 +34,15 @@ export const MyPageProfile = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // 프로필 조회
+        // 다른 회원 프로필 조회
         const profile = await getProfile(numericMemberId);
-        setProfileData(profile);
+        // myPartyCnt → myGroupCount 매핑
+        const mappedProfile = {
+          ...profile,
+          myGroupCount: profile.myPartyCnt,
+        };
+        setProfileData(mappedProfile);
+        // setProfileData(profile);
 
         // 다른 회원 메달 조회
         const medals = await getOtherUserMedals(numericMemberId);
