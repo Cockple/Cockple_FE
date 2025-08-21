@@ -99,12 +99,45 @@ export interface CancelSelfResponse {
 
 
 // 운동 상세 조회
-export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDetailResponse> => {
+export const getExerciseDetail = async (exerciseId: number, currentUserId?: number): Promise<ExerciseDetailResponse> => {
   const response = await api.get<{ code: string; message: string; data: RawExerciseResponse; success: boolean }>(
     `/api/exercises/${exerciseId}`
   );
 
-  const raw = response.data.data; 
+  const raw = response.data.data;
+
+  const mapLevelToKorean = (level: string) => {
+    const levelMap: Record<string, string> = {
+      "A": "A조",
+      "B": "B조",
+      "C": "C조",
+      "D": "D조",
+      "BEGINNER": "왕초심",
+      "NOVICE": "초심",
+      "NONE": "레벨 미정",
+      "ADVANCED": "상급",
+      "SEMI_EXPERT": "준자강",
+      "EXPERT": "자강",
+    };
+    return levelMap[level] || level;
+  };
+
+  const transformMember = (p: any) => ({
+    id: p.participantId,
+    memberId: p.participantId,
+    status: "Participating",
+    name: p.name,
+    gender: p.gender,
+    level: mapLevelToKorean(p.level),
+    isMe: currentUserId === p.participantId,       
+    isLeader: currentUserId === p.participantId
+      ? p.partyPosition === "모임장"               
+      : false,
+    position: p.partyPosition,
+    imgUrl: p.profileImageUrl ?? null,
+    canCancel: currentUserId === p.participantId || p.canCancel, 
+    guest: p.inviterName ?? null,
+  });
 
   return {
     partyId: exerciseId,
@@ -116,40 +149,16 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
       male: raw.participants.manCount,
       female: raw.participants.womenCount,
     },
-    participantMembers: raw.participants.list.map((p: any) => ({
-      id: p.participantId,
-      memberId: p.participantId, 
-      status: "Participating",
-      name: p.name,
-      gender: p.gender,
-      level: p.level,
-      isMe: false,
-      isLeader: p.position === "모임장",
-      position: p.position,
-      imgUrl: p.profileImageUrl ?? null,
-      canCancel: true,
-      guest: p.inviterName ?? null,
-    })),
+    participantMembers: raw.participants.list.map(transformMember),
     waitingCount: raw.waiting.totalCount,
     waitingGenderCount: {
       male: raw.waiting.manCount,
       female: raw.waiting.womenCount,
     },
-    waitingMembers: raw.waiting.list.map((w: any) => ({
-      id: w.participantId,
-      status: "waiting",
-      name: w.name,
-      gender: w.gender,
-      level: w.level,
-      isMe: false,
-      isLeader: false,
-      position: w.partyPosition,
-      imgUrl: w.profileImageUrl ?? null,
-      canCancel: true,
-      guest: w.inviterName ?? null,
-    })),
+    waitingMembers: raw.waiting.list.map(transformMember),
   };
 };
+
 
 
 // 참여 중인 자신 운동 나가기

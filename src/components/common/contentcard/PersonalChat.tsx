@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Num_Noti } from "./Num_Noti";
 
 // 이미지
-import appIcon from "@/assets/images/app_icon.png?url";
+import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 export interface PersonalChatProps {
   imageSrc: string;
@@ -32,7 +32,7 @@ export const PersonalChat = ({
       onTouchEnd={() => setPressing(false)}
     >
       <img
-        src={imageSrc ? imageSrc : appIcon}
+        src={imageSrc ? imageSrc : DefaultGroupImg}
         alt={userName}
         className="w-[4rem] h-[4rem] rounded-[0.5rem]"
       />

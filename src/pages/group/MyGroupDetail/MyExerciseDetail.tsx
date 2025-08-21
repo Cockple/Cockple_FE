@@ -38,19 +38,20 @@ export const MyExerciseDetail = () => {
   const [waitingCount, setWaitingCount] = useState(0);
 
   const [isSortOpen, setIsSortOpen] = useState(false);
-  // const [sortOption, setSortOption] = useState("운동 수정하기");
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
   const currentUser = members.find(m => m.isMe);
-  const isCurrentUserLeader = currentUser?.isLeader ?? false;
-
+  // const isCurrentUserLeader = currentUser?.isLeader ?? false;
+  const isCurrentUserLeader = currentUser?.isLeader ?? 
+    detail?.participantMembers?.some(p => p.id === user?.memberId && p.position === "모임장") ?? 
+    false;
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
 
   // 운동 상세 조회 이거 다시 확인
   useEffect(() => {
     if (exerciseIdNumber) {
-      getExerciseDetail(exerciseIdNumber).then(res => {
+      getExerciseDetail(exerciseIdNumber,  user?.memberId).then(res => {
         console.log("운동 상세 데이터:", res);
         setDetail(res);
 
@@ -193,6 +194,7 @@ export const MyExerciseDetail = () => {
                 number={idx + 1}
                 position={member.position}
                 memberId={member.memberId}
+                imgUrl={member.imgUrl}
                 onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                 onDelete={() => {
                   if (member.participantId !== undefined) {
@@ -243,6 +245,7 @@ export const MyExerciseDetail = () => {
                     number={idx + 1}
                     position={member.position}
                     memberId={member.memberId}
+                    imgUrl={member.imgUrl}
                     onClick={() =>
                       navigate(`/mypage/profile/${member.memberId}`)
                     }
