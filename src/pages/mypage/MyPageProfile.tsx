@@ -10,6 +10,7 @@ import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
 import { createDirectChat } from "../../api/chat/direct";
 export const MyPageProfile = () => {
+
   const { memberId } = useParams<{ memberId: string }>();
   const numericMemberId = memberId ? Number(memberId) : null;
   const navigate = useNavigate();

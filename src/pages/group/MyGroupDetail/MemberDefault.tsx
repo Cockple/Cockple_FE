@@ -14,12 +14,14 @@ import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
+import { useNavigate } from "react-router-dom";
 
 export const MemberDefault = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const [isLoading, setIsLoading] = useState(false);
 
   const partyId = Number(groupId);
+  const navigate = useNavigate(); 
 
   const [members, setMembers] = useState<MemberProps[]>([]);
   const [participantsCount, setParticipantsCount] = useState(0);
@@ -184,6 +186,8 @@ export const MemberDefault = () => {
               imgUrl={member.imgUrl}
               showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}
+              onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
+
             />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>

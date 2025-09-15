@@ -95,11 +95,12 @@ const router = createBrowserRouter([
       { path: "confirm/start", element: <OnboardingConfirmStartPage /> },
     ],
   },
+  
   {
     element: (
-      <PrivateRoute>
+      // <PrivateRoute>
         <NavbarLayout />
-      </PrivateRoute>
+      // </PrivateRoute>
     ), // navbar + 로그인 필요 layout
     children: [
       { path: "/", element: <HomePage /> },
