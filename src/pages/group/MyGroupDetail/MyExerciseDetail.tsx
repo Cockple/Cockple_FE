@@ -207,9 +207,9 @@ export const MyExerciseDetail = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label className="text-left header-h5">참여 인원</label>
-<span>
-  {detail.participantGenderCount.male + detail.participantGenderCount.female} / {detail.participantsCount}
-</span>
+              <span>
+                {detail.participantGenderCount.male + detail.participantGenderCount.female} / {detail.participantsCount}
+              </span>
 
             </div>
             <div className="flex items-center gap-2">
@@ -239,6 +239,8 @@ export const MyExerciseDetail = () => {
                 memberId={member.memberId}
                 guestName={member.inviterName} 
                 imgUrl={member.imgUrl}
+                onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
+
                 onDelete={() => {
                   if (member.participantId !== undefined) {
                     handleDeleteMember(member.participantId, {
@@ -289,6 +291,7 @@ export const MyExerciseDetail = () => {
                     memberId={member.memberId}
                     guestName={member.inviterName} 
                     imgUrl={member.imgUrl}
+                    onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                     onDelete={() => {
                       if (member.participantId !== undefined) {
                         handleDeleteMember(member.participantId, {
