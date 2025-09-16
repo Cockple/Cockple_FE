@@ -8,7 +8,7 @@ import { getProfile } from "../../api/member/profile";
 import { getOtherUserMedals } from "../../api/contest/member"; 
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
-import { createDirectChat } from "../../api/chat/direct";
+// import { createDirectChat } from "../../api/chat/direct";
 export const MyPageProfile = () => {
 
   const { memberId } = useParams<{ memberId: string }>();
@@ -65,20 +65,20 @@ export const MyPageProfile = () => {
     fetchData();
   }, [numericMemberId]);
 
-  const handleChatClick = async () => {
-  if (!numericMemberId) return;
+//   const handleChatClick = async () => {
+//   if (!numericMemberId) return;
 
-  try {
-    const res = await createDirectChat(numericMemberId);
-    if (res.success && res.data?.chatRoomId) {
-      navigate(`/chat/personal/${res.data.chatRoomId}`);
-    } else {
-      console.error("채팅방 생성 실패", res);
-    }
-  } catch (err: any) {
-    console.error(err);
-  }
-};
+//   try {
+//     const res = await createDirectChat(numericMemberId);
+//     if (res.success && res.data?.chatRoomId) {
+//       navigate(`/chat/personal/${res.data.chatRoomId}`);
+//     } else {
+//       console.error("채팅방 생성 실패", res);
+//     }
+//   } catch (err: any) {
+//     console.error(err);
+//   }
+// };
 
 
   if (loading) return <div className="text-center py-10">로딩 중...</div>;
@@ -122,7 +122,7 @@ export const MyPageProfile = () => {
 
       <Grad_GR400_L
         label="개인 채팅 보내기"
-        onClick={handleChatClick}
+        // onClick={handleChatClick}
       />
     </div>
   );
