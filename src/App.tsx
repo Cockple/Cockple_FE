@@ -98,9 +98,9 @@ const router = createBrowserRouter([
   
   {
     element: (
-      <PrivateRoute>
+      // <PrivateRoute>
         <NavbarLayout />
-      </PrivateRoute>
+      // </PrivateRoute>
     ), // navbar + 로그인 필요 layout
     children: [
       { path: "/", element: <HomePage /> },
