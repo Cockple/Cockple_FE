@@ -64,7 +64,22 @@ export const MyPageProfile = () => {
 
     fetchData();
   }, [numericMemberId]);
-
+  
+  // 급수 
+  function convertLevel(level: string): string {
+    const levelMap: Record<string, string> = {
+      EXPERT: "자강",
+      SEMI_EXPERT: "준자강",
+      A: "A조",
+      B: "B조",
+      C: "C조",
+      D: "D조",
+      BEGINNER: "초심",
+      NOVICE: "왕초심",
+      NONE: "급수 없음",
+    };
+    return level ? (levelMap[level.toUpperCase()] ?? "급수 없음") : "급수 없음";
+  }
 //   const handleChatClick = async () => {
 //   if (!numericMemberId) return;
 
@@ -90,10 +105,11 @@ export const MyPageProfile = () => {
       <Profile
         name={profileData?.memberName || ""}
         gender={profileData?.gender === "MALE" ? "MALE" : "FEMALE"}
-        level={profileData?.level || ""}
+        level={convertLevel(profileData?.level || "")} 
         birth={profileData?.birth || ""}
         profileImage={profileData?.profileImgUrl || ""}
       />
+
 
       <div className="my-8 flex flex-col gap-4 w-full items-center">
         <MyPage_Text
