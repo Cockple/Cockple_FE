@@ -11,6 +11,7 @@ import { getMyGroups, type PartyData } from "../../api/party/my";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { getParties } from "../../api/member/profile";
 
 export const MyPageMyGroupPage = () => {
   const [groups, setGroups] = useState<PartyData[]>([]);
@@ -24,16 +25,22 @@ export const MyPageMyGroupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const pageSize = 50; // 한 페이지에 가져올 데이터 수 걍 많이 가져옴
+  const pageSize = 50;
 
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
     useLikedGroupIds();
 
+  const searchParams = new URLSearchParams(location.search);
+  const memberId = searchParams.get("memberId");
+  console.log(memberId);
+  const isMinePage = !memberId;
+
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isLoadingRef = useRef(isLoading);
-  useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
-  // 마지막 요소 ref
   const lastElementRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (observerRef.current) observerRef.current.disconnect();
@@ -58,12 +65,23 @@ export const MyPageMyGroupPage = () => {
       setIsLoading(true);
 
       try {
-        const result = await getMyGroups({
-          created: isChecked,
-          sort: sortOption,
-          page,
-          size: pageSize,
-        });
+        let result: PartyData[];
+
+        if (isMinePage) {
+          result = await getMyGroups({
+            created: isChecked,
+            sort: sortOption,
+            page,
+            size: pageSize,
+          });
+        } else {
+          result = await getParties(
+            Number(memberId),
+            page,
+            pageSize,
+            sortOption,
+          );
+        }
 
         const resultWithLike = result.map(group => ({
           ...group,
@@ -78,7 +96,6 @@ export const MyPageMyGroupPage = () => {
           return Array.from(uniqueMap.values());
         });
 
-        // 마지막 페이지 판단!!!
         setHasMore(resultWithLike.length === pageSize);
       } catch (err) {
         console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
@@ -88,21 +105,32 @@ export const MyPageMyGroupPage = () => {
     };
 
     if (!isGroupLikedLoading) fetchGroups();
-  }, [isChecked, sortOption, page, likedGroupIds, isGroupLikedLoading, hasMore]);
+  }, [
+    isChecked,
+    sortOption,
+    page,
+    likedGroupIds,
+    isGroupLikedLoading,
+    hasMore,
+    memberId,
+    isMinePage,
+  ]);
 
   // 필터/정렬 변경 시 초기화
   useEffect(() => {
     setPage(0);
     setGroups([]);
     setHasMore(true);
-  }, [isChecked, sortOption]);
+  }, [isChecked, sortOption, memberId]);
+
+  // 뒤로가기
+  const onBackClick = () => {
+    const returnParam = searchParams.get("return");
+    navigate(returnParam ?? "/mypage");
+  };
 
   const hasGroups = groups.length > 0;
 
-  const onBackClick = () => {
-    const returnParam = new URLSearchParams(location.search).get("return");
-    navigate(returnParam ?? "/mypage");
-  };
 
   return (
     <div className="flex flex-col min-h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
