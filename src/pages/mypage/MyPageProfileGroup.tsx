@@ -5,6 +5,7 @@ import Sort from "../../components/common/Sort";
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import { ProfileMyGroupNone } from "../../components/MyPage/ProfileMyGroupNone";
 import { useLikedGroupIds } from "../../hooks/useLikedItems";
+import { useNavigate } from "react-router-dom";
 
 interface GroupMProps {
   id: number;
@@ -27,7 +28,8 @@ interface MyPageProfileGroupProps {
 export const MyPageProfileGroup = ({ groups }: MyPageProfileGroupProps) => {
   // 찜 상태 불러오기
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
-
+  const navigate = useNavigate();
+  const onBackClick = () => navigate(-1);
   const [favoriteGroups, setFavoriteGroups] = useState<GroupMProps[]>(
     (groups || []).map(g => ({
       ...g,
@@ -55,7 +57,7 @@ export const MyPageProfileGroup = ({ groups }: MyPageProfileGroupProps) => {
 
   return (
     <>
-      <PageHeader title="모임" />
+      <PageHeader title="모임" onBackClick={onBackClick}/>
 
       <div className="flex flex-col h-full w-full max-w-[23.4375rem] p-4">
         {hasGroups && (
