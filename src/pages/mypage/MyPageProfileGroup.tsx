@@ -28,8 +28,10 @@ interface MyPageProfileGroupProps {
 export const MyPageProfileGroup = ({ groups }: MyPageProfileGroupProps) => {
   // 찜 상태 불러오기
   const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } = useLikedGroupIds();
+  
   const navigate = useNavigate();
   const onBackClick = () => navigate(-1);
+  
   const [favoriteGroups, setFavoriteGroups] = useState<GroupMProps[]>(
     (groups || []).map(g => ({
       ...g,
