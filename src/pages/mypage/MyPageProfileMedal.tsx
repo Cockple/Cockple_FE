@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
-import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
+// import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { MyMedal } from "../../components/common/contentcard/MyMedal";
 import { MyPage_Medal2 } from "../../components/common/contentcard/MyPage_Medal2";
 import { MyMedal_None } from "../../components/MyPage/MyMedal_None";
@@ -35,7 +35,7 @@ export const MyPageProfileMedal = () => {
   const [selectedTab, setSelectedTab] = useState<"전체" | "미입상 기록">("전체");
   const [error, setError] = useState<string | null>(null);
 
-  const onBackClick = () => navigate("/myPage");
+  const onBackClick = () => navigate(-1);
 
   useEffect(() => {
     if (!numericMemberId) {
@@ -85,7 +85,7 @@ export const MyPageProfileMedal = () => {
   return (
     <div className="flex flex-col min-h-[100dvh] w-full max-w-[23.4375rem] mx-auto bg-white">
       <div className="sticky top-0 z-20 bg-white">
-        <PageHeader title="내 메달" onBackClick={onBackClick} />
+        <PageHeader title="메달" onBackClick={onBackClick} />
       </div>
 
       <div className="flex flex-col gap-1 flex-grow overflow-y-auto">
@@ -138,11 +138,11 @@ export const MyPageProfileMedal = () => {
         )}
 
         {/* 대회 기록 추가 버튼 */}
-        {shownList.length > 0 && (
+        {/* {shownList.length > 0 && (
           <div className="mt-8">
             <Grad_GR400_L label="대회 기록 추가하기" onClick={() => navigate("/mypage/mymedal/add")} />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
