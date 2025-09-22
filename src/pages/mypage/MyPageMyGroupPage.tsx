@@ -125,7 +125,7 @@ export const MyPageMyGroupPage = () => {
 
   // 뒤로가기
   const onBackClick = () => {
-    const returnParam = searchParams.get("return");
+    // const returnParam = searchParams.get("return");
     // navigate(returnParam ?? "/mypage");
      navigate(-1);
   };
