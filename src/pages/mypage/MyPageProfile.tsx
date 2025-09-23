@@ -113,7 +113,7 @@ export const MyPageProfile = () => {
 
       <div className="my-8 flex flex-col gap-4 w-full items-center">
         <MyPage_Text
-          textLabel="내 모임"
+          textLabel="모임"
           numberValue={profileData?.myGroupCount ?? 0}
           onClick={() => 
             navigate(`/mypage/mygroup?memberId=${numericMemberId}`)
