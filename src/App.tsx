@@ -153,10 +153,6 @@ const router = createBrowserRouter([
         element: <MemberRequestPage />,
       },
 
-      // 연두 모임
-      //GroupDetailMemberDefault 사용X
-      // { path: "/group/detail/:partyId", element: <GroupDetailMemberDefault /> },
-
       {
         path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
         element: <MyExerciseDetail />,
