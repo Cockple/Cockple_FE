@@ -1,4 +1,4 @@
-import { useDeleteInviteForm } from "../../api/exercise/InviteGuestApi";
+import { useDeleteInviteForm } from "../../api/Exercise/InviteGuestApi";
 import type { ResponseInviteGuest } from "../../types/guest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import { Member } from "../common/contentcard/Member";
@@ -27,7 +27,9 @@ export default function InviteGuestList({
           ? `전국 ${apilevel}`
           : apilevel;
     const numberStatus = item.isWaiting ? "waiting" : "Participating";
-    const apiNumber = item.isWaiting ? "대기" : "참석";
+    const apiNumber = item.isWaiting
+      ? `대기.${item.participantNumber}`
+      : `No.${item.participantNumber}`;
     return (
       <Member
         key={item.guestId}
