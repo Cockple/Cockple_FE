@@ -1,4 +1,4 @@
-import { useDeleteInviteForm } from "../../api/Exercise/InviteGuestApi";
+import { useDeleteInviteForm } from "../../api/exercise/InviteGuestApi";
 import type { ResponseInviteGuest } from "../../types/guest";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import { Member } from "../common/contentcard/Member";
