@@ -41,13 +41,13 @@ export const useRawWsConnect = (opts: {
     // 토큰 없거나 memberId 무효면 연결 시도하지 않음
     if (!token || !opts.memberId) {
       setOpen(false);
-      console.log("토큰 없음: ");
+      // console.log("토큰 없음: ");
       return () => {
         mounted.current = false;
       };
     }
 
-    console.log("토큰 있음: ", token);
+    // console.log("토큰 있음: ", token);
 
     connectRawWs(
       { memberId: opts.memberId, origin: opts.origin },
