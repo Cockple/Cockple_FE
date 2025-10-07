@@ -225,9 +225,9 @@ export const LocationSearchPage = () => {
             );
           })}
 
-          {isLoading && (
+          {/* {isLoading && (
             <div className="py-4 text-center text-gy-400">불러오는 중...</div>
-          )}
+          )} */}
         </div>
         {selectedId !== null && (
           <div
