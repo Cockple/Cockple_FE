@@ -396,6 +396,7 @@ html::-webkit-scrollbar {
 body {
   height: 100%;
   overscroll-behavior-y: none;
+  color: #121212;
   font-family:
     "SUIT Variable",
     -apple-system,
