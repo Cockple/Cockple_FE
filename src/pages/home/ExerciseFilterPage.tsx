@@ -7,9 +7,12 @@ import { Toggle } from "../../components/common/Toggle";
 import { DropBox } from "../../components/common/DropBox";
 import { MultiSelectButtonGroup } from "../../components/common/MultiSelectButtonGroup";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
+import { GYEONGGI_DISTRICTS, SEOUL_DISTRICTS } from "../../constants/options";
 
 const cities = [
   { value: "서울특별시", enabled: true },
+  { value: "경기도", enabled: true },
+  { value: "전국구", enabled: true },
   { value: "부산광역시", enabled: false },
   { value: "대구광역시", enabled: false },
   { value: "인천광역시", enabled: false },
@@ -17,7 +20,6 @@ const cities = [
   { value: "대전광역시", enabled: false },
   { value: "울산광역시", enabled: false },
   { value: "세종특별자치시", enabled: false },
-  { value: "경기도", enabled: false },
   { value: "강원특별자치도", enabled: false },
   { value: "충청북도", enabled: false },
   { value: "충청남도", enabled: false },
@@ -26,36 +28,6 @@ const cities = [
   { value: "경상북도", enabled: false },
   { value: "경상남도", enabled: false },
   { value: "제주특별자치도", enabled: false },
-  { value: "전국구", enabled: false },
-];
-
-const seoulDistricts = [
-  "전체",
-  "종로구",
-  "중구",
-  "용산구",
-  "성동구",
-  "광진구",
-  "동대문구",
-  "중랑구",
-  "성북구",
-  "강북구",
-  "도봉구",
-  "노원구",
-  "은평구",
-  "서대문구",
-  "마포구",
-  "양천구",
-  "강서구",
-  "구로구",
-  "금천구",
-  "영등포구",
-  "동작구",
-  "관악구",
-  "서초구",
-  "강남구",
-  "송파구",
-  "강동구",
 ];
 
 const ALL_LEVELS = [
@@ -100,6 +72,15 @@ export const ExerciseFilterPage = () => {
   };
   const isAllLevelSelected = ALL_LEVELS.every(l => level.includes(l));
   const isAllStyleSelected = style === "전체";
+  const handleRegion = () => {
+    if (region[0] === "서울특별시") {
+      return SEOUL_DISTRICTS;
+    } else if (region[0] === "경기도") {
+      return GYEONGGI_DISTRICTS;
+    } else {
+      return ["전체"];
+    }
+  };
 
   return (
     <div className="pb-24 flex flex-col">
@@ -121,7 +102,7 @@ export const ExerciseFilterPage = () => {
               />
 
               <DropBox
-                options={seoulDistricts.map(d => ({
+                options={handleRegion().map(d => ({
                   value: d,
                 }))}
                 value={selectedDistrict}
