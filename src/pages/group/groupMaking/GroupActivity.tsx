@@ -7,10 +7,15 @@ import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
 import { DropBox } from "../../../components/common/DropBox";
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
-import { SEOUL_DISTRICTS, WEEKLY_KEY } from "../../../constants/options";
+import {
+  GYEONGGI_DISTRICTS,
+  SEOUL_DISTRICTS,
+  WEEKLY_KEY,
+} from "../../../constants/options";
 
 const cities = [
   { value: "서울특별시", enabled: true },
+  { value: "경기도", enabled: true },
   { value: "부산광역시", enabled: false },
   { value: "대구광역시", enabled: false },
   { value: "인천광역시", enabled: false },
@@ -18,7 +23,6 @@ const cities = [
   { value: "대전광역시", enabled: false },
   { value: "울산광역시", enabled: false },
   { value: "세종특별자치시", enabled: false },
-  { value: "경기도", enabled: false },
   { value: "강원특별자치도", enabled: false },
   { value: "충청북도", enabled: false },
   { value: "충청남도", enabled: false },
@@ -39,6 +43,7 @@ export const GroupActivity = () => {
 
   const selectedCity = region[0] || "";
   const selectedDistrict = region[1] || "전체";
+  console.log(region);
   //초기화
 
   const isFormValid =
@@ -49,6 +54,14 @@ export const GroupActivity = () => {
 
   const handleNext = () => {
     navigate("/group/making/filter");
+  };
+
+  const handleRegion = () => {
+    if (region[0] === "서울특별시") {
+      return SEOUL_DISTRICTS;
+    } else {
+      return GYEONGGI_DISTRICTS;
+    }
   };
 
   return (
@@ -76,7 +89,7 @@ export const GroupActivity = () => {
               />
 
               <DropBox
-                options={SEOUL_DISTRICTS.map(d => ({
+                options={handleRegion().map(d => ({
                   value: d,
                 }))}
                 value={selectedDistrict}
