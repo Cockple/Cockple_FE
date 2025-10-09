@@ -12,6 +12,7 @@ import { GYEONGGI_DISTRICTS, SEOUL_DISTRICTS } from "../../constants/options";
 const cities = [
   { value: "서울특별시", enabled: true },
   { value: "경기도", enabled: true },
+  { value: "전국구", enabled: true },
   { value: "부산광역시", enabled: false },
   { value: "대구광역시", enabled: false },
   { value: "인천광역시", enabled: false },
@@ -27,7 +28,6 @@ const cities = [
   { value: "경상북도", enabled: false },
   { value: "경상남도", enabled: false },
   { value: "제주특별자치도", enabled: false },
-  { value: "전국구", enabled: false },
 ];
 
 const ALL_LEVELS = [
@@ -75,8 +75,10 @@ export const ExerciseFilterPage = () => {
   const handleRegion = () => {
     if (region[0] === "서울특별시") {
       return SEOUL_DISTRICTS;
-    } else {
+    } else if (region[0] === "경기도") {
       return GYEONGGI_DISTRICTS;
+    } else {
+      return ["전체"];
     }
   };
 
