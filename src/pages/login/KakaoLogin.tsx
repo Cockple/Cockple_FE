@@ -24,7 +24,6 @@ export default function KakaoLogin() {
       return axios.post<KakaoLoginResponseDTO>("/api/oauth/login", { code });
     },
     onSuccess: ({ data }) => {
-      console.log("성공");
       console.log(data);
       const newUserData = {
         memberId: data.memberId,
