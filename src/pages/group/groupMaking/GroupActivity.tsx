@@ -44,6 +44,8 @@ export const GroupActivity = () => {
   const selectedCity = region[0] || "";
   const selectedDistrict = region[1] || "전체";
   console.log(region);
+  //주석도추가
+  console.log("진짜 디버깅 제발");
   //초기화
 
   const isFormValid =
