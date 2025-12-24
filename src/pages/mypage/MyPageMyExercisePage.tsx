@@ -1,4 +1,3 @@
-//배포 전.. 새로고침을 해야 잘 보임..?
 import { useState, useEffect, useRef, useCallback } from "react";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { SortBottomSheet } from "../../components/common/SortBottomSheet";
@@ -185,7 +184,9 @@ export const MyPageMyExercisePage = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">
-            <MyExercise_None />
+            <div className="mt-16">
+              <MyExercise_None />
+            </div>
           </div>
         )}
       </div>

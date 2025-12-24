@@ -32,7 +32,7 @@ export const MyPage_Text = ({
     <div
       role="button"
       tabIndex={0}
-      className={`w-[21.4375rem] h-[3rem] px-[0.75rem] py-[1rem] shadow-ds100 rounded-[1rem] flex items-center justify-between ${bgColor} ${cursorStyle} transition duration-200`}
+      className={`w-[21rem] h-[3rem] px-[0.75rem] py-[1rem] shadow-ds100 rounded-[1rem] flex items-center justify-between ${bgColor} ${cursorStyle} transition duration-200`}
       onClick={handleClick}
       onKeyDown={e => {
         if (e.key === "Enter" || e.key === " ") handleClick();
