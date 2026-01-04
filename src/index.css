@@ -388,14 +388,14 @@ html {
   background-color: lightgray;
   -ms-overflow-style: none; /* IE, Edge */
   scrollbar-width: none; /* Firefox */
+  overscroll-behavior: none;
 }
 html::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
-/* 전체 앱에 기본 폰트 적용 (선택사항) */
+/* 전체 앱에 기본 폰트 적용 */
 body {
   height: 100%;
-  overscroll-behavior-y: none;
   color: #121212;
   font-family:
     "SUIT Variable",
