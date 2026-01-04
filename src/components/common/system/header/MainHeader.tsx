@@ -2,14 +2,11 @@ import LogoIcon from "@/assets/icons/Logo.svg?url";
 import Alert from "@/assets/icons/alert.svg?url";
 import AlertNoti from "@/assets/icons/alert_noti.svg?url";
 import clsx from "clsx";
-import DropDownBtn from "../../DynamicBtn/DropDownBtn";
+import DropDownBtn from "@/components/common/DynamicBtn/DropDownBtn";
 import { useNavigate } from "react-router-dom";
-import {
-  getMyLocation,
-  type MyLocationType,
-} from "../../../../api/member/getMyLocation";
+import { getMyLocation, type MyLocationType } from "@/api/member/getMyLocation";
 import { useEffect, useState } from "react";
-import api from "../../../../api/api";
+import api from "@/api/api";
 
 interface MainHeaderProps {
   background?: "white" | "clear";

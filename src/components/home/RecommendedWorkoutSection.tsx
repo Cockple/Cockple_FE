@@ -1,8 +1,8 @@
 import ArrowRight from "@/assets/icons/arrow_right.svg";
-import Clear_XS from "../common/Btn_Static/Icon_Btn/Clear_XS";
-import { Exercise_M } from "../common/contentcard/Exercise_M";
+import Clear_XS from "@/components/common/Btn_Static/Icon_Btn/Clear_XS";
+import { Exercise_M } from "@/components/common/contentcard/Exercise_M";
 import { useNavigate } from "react-router-dom";
-import { useRecommendedExerciseApi } from "../../api/exercise/getRecommendedExerciseApi";
+import { useRecommendedExerciseApi } from "@/api/exercise/getRecommendedExerciseApi";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 export const RecommendedWorkoutSection = () => {

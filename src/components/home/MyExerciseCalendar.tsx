@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { WorkoutDayEntry } from "./WorkoutDayEntry";
-import { addDays, generateWeeksFromRange } from "../../utils/dateUtils";
+import { WorkoutDayEntry } from "@/components/home/WorkoutDayEntry";
+import { addDays, generateWeeksFromRange } from "@/utils/dateUtils";
 import type { Swiper as SwiperClass } from "swiper";
-import type { CalendarData, Exercise } from "../../types/calendar";
-import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
-import CustomhomeWeekly from "./CustomhomeWeekly";
+import type { CalendarData, Exercise } from "@/types/calendar";
+import { getMyExerciseCalendarApi } from "@/api/exercise/getMyExerciseCalendarApi";
+import CustomhomeWeekly from "@/components/home/CustomhomeWeekly";
 import { useNavigate } from "react-router-dom";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {

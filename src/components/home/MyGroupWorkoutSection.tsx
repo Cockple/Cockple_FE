@@ -1,10 +1,10 @@
-import Clear_XS from "../common/Btn_Static/Icon_Btn/Clear_XS";
-import { Exercise_S } from "../common/contentcard/Exercise_S";
+import Clear_XS from "@/components/common/Btn_Static/Icon_Btn/Clear_XS";
+import { Exercise_S } from "@/components/common/contentcard/Exercise_S";
 import ArrowRight from "@/assets/icons/arrow_right.svg";
 import AddIcon from "@/assets/icons/add.svg";
-import Btn_Static from "../common/Btn_Static/Btn_Static";
+import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
 import { useNavigate } from "react-router-dom";
-import { useMyExerciseApi } from "../../api/exercise/getMyExerciseApi";
+import { useMyExerciseApi } from "@/api/exercise/getMyExerciseApi";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import dayjs from "dayjs";
 
