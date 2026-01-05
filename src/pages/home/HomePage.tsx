@@ -1,29 +1,12 @@
 import { useEffect, useState } from "react";
-import { MainHeader } from "../../components/common/system/header/MainHeader";
-import { Footer } from "../../components/common/system/Footer";
-import { MyGroupWorkoutSection } from "../../components/home/MyGroupWorkoutSection";
-import { RecommendedWorkoutSection } from "../../components/home/RecommendedWorkoutSection";
-import { FloatingButton } from "../../components/common/system/FloatingButton";
+import { MyGroupWorkoutSection } from "@/components/home/MyGroupWorkoutSection";
+import { RecommendedWorkoutSection } from "@/components/home/RecommendedWorkoutSection";
+import { FloatingButton } from "@/components/common/system/FloatingButton";
 import MapIcon from "@/assets/icons/map_white.svg";
 import { useNavigate } from "react-router-dom";
-import { MyExerciseCalendar } from "../../components/home/MyExerciseCalendar";
-
-export type DailyExerciseItem = {
-  id: number;
-  title: string;
-  location: string;
-  time: string;
-  imgSrc: string;
-};
-
-export type GroupExerciseItem = {
-  id: number;
-  title: string;
-  location: string;
-  date: string;
-  time: string;
-  imgSrc: string;
-};
+import { MyExerciseCalendar } from "@/components/home/MyExerciseCalendar";
+import { MainHeader } from "@/components/common/system/header/MainHeader";
+import { Footer } from "@/components/common/system/Footer";
 
 export const HomePage = () => {
   const navigate = useNavigate();
