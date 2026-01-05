@@ -1,3 +1,4 @@
+// 다른 사용자의 프로필 화면(memberId로 구분)
 import { MyPage_Text } from "../../components/common/contentcard/MyPage_Text";
 import { Profile } from "../../components/MyPage/Profile";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
@@ -9,6 +10,7 @@ import { getOtherUserMedals } from "../../api/contest/member";
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
 import { createDirectChat } from "../../api/chat/direct";
+
 export const MyPageProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const numericMemberId = memberId ? Number(memberId) : null;

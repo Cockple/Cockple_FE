@@ -23,6 +23,7 @@ export const CheckBox_Long_noButton = ({
   onChange,
 }: CheckBoxLongnoButton) => {
   const [Texts, setTexts] = useState<string[]>([value]);
+  const [isFocused, setIsFocused] = useState(false);
   const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   const adjustHeight = (idx: number) => {
@@ -38,13 +39,16 @@ export const CheckBox_Long_noButton = ({
   }, [Texts]);
 
   useEffect(() => {
-    setTexts([value || ""]);
-  }, [value]);
+      if (!checked && isFocused) {
+        setTexts([value.replace(/원/g, "") || ""]);
+      } else {
+        setTexts([value || ""]);
+      }
+    }, [value, isFocused, checked]);
 
   const togglePrivate = () => {
     const newChecked = !checked;
 
-    // 체크가 true가 되면 텍스트 초기화
     if (newChecked) {
       setTexts([""]);
       onChange?.(newChecked, "");
@@ -54,12 +58,12 @@ export const CheckBox_Long_noButton = ({
   };
 
 
-  const onChangeText = (idx: number, value: string) => {
-    if (checked) return; // 체크 상태면 수정 불가
-    if (maxLength && value.length > maxLength) return;
+  const onChangeText = (idx: number, newValue: string) => {
+    if (checked) return;
+    if (maxLength && newValue.length > maxLength) return;
 
     const newTexts = [...Texts];
-    newTexts[idx] = value;
+    newTexts[idx] = newValue;
     setTexts(newTexts);
 
     onChange?.(checked, newTexts[0] || "");
@@ -89,6 +93,8 @@ export const CheckBox_Long_noButton = ({
           }}
           value={text}
           onChange={e => onChangeText(idx, e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           disabled={checked}
           maxLength={maxLength}
           rows={1}

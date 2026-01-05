@@ -8,7 +8,6 @@ export interface ApiMedalItem {
   medalImgUrl: string | null; 
 }
 
-
 export interface ApiMedalResponse {
   code: string;
   message: string;
@@ -47,20 +46,6 @@ export interface MyContestRecord {
   medalImgUrl: string;
 }
 
-// export interface PostContestRecordRequest {
-//   contestName: string;
-//   date?: string;             
-//   medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
-//   type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES"; 
-//   level: "EXPERT" | "BEGINNER" | "NOVICE" | "SEMI_EXPERT" | "A" | "B" | "C" | "D" | "NONE";
-//   content?: string;
-//   contentIsOpen?: boolean;   
-//   videoIsOpen?: boolean;    
-//   contestVideos?: string[];
-//   contestImgs?: string[];     
-  
-// }
-
 export interface PostContestRecordRequest {
   contestName: string;
   date?: string;             
@@ -70,10 +55,11 @@ export interface PostContestRecordRequest {
   content?: string;
   contentIsOpen?: boolean;   
   videoIsOpen?: boolean;    
-  contestVideos?: string[];           // 남긴 영상
-  contestVideosToDelete?: string[];   // 삭제할 영상
-  contestImgs?: string[];             
-  contestImgsToDelete?: string[];     // 삭제할 이미지
+  contestVideos?: string[];        
+  contestImgs?: string[];          
+  
+  contestImgsToDelete?: string[];     // 삭제할 이미지 
+  contestVideoIdsToDelete?: number[]; // 삭제할 영상 ID
 }
 
 
@@ -88,25 +74,25 @@ interface PostContestRecordResponse {
     level: string;
     date: string;
     medalImgUrl: string;
-  }[];
+  }; 
   success: boolean;
 }
 
+
 export interface ContestRecordDetailResponse {
   contestName: string;
-  date: string;  // "2025-08-10" 형식
-  medalType: string; // "SILVER" 등
-  type: string;  // 참여 형태 (e.g. "DOUBLE")
-  level: string; // 급수 (e.g. "INTERMEDIATE")
-  content: string; // 대회 기록 텍스트
+  date: string;  
+  medalType: string; 
+  type: string;  
+  level: string; 
+  content: string; 
   contentIsOpen: boolean;
   videoIsOpen: boolean;
-  contestVideoUrls: string[];  // 영상 링크 배열
-  contestImgUrls: string[];    // 이미지 경로 배열 (서버 상대경로)
-  contestImgsToDelete: string[];
-  contestVideoIdsToDelete: number[];
+  contestVideoUrls: any[];  
+  contestImgUrls: string[];    
+  contestImgsToDelete?: string[];
+  contestVideoIdsToDelete?: number[];
 }
-
 
 //내 메달 조회 
 export const getMyMedals = async (): Promise<MyMedalData> => {
@@ -130,7 +116,7 @@ export const getMyMedals = async (): Promise<MyMedalData> => {
           id: index,
           title: item.title,
           date: item.date,
-          medalImgUrl: item.medalImgUrl, // 그대로 전달
+          medalImgUrl: item.medalImgUrl, 
           isAwarded: item.isAwarded,
         }))
       : [],
@@ -163,18 +149,6 @@ export const postMyContestRecord = async (
   return response.data;
 };
 
-// 내 대회 기록 상세 조회
-// export const getContestRecordDetail = async (
-//   contestId: number
-// ): Promise<ContestRecordDetailResponse> => {
-//   try {
-//     const response = await api.get(`/api/contests/my/${contestId}`);
-//     return response.data.data; 
-//   } catch (error) {
-//     console.error("대회 기록 상세 조회 오류", error);
-//     throw error;
-//   }
-// };
 
 // 내 대회 기록 상세 조회
 export const getContestRecordDetail = async (
@@ -232,31 +206,19 @@ export const deleteContestRecord = async (contestId: number): Promise<void> => {
   }
 };
 
-// 내 대회 기록 수정
-// export async function patchMyContestRecord(contestId: number, body: PostContestRecordRequest) {
-//   try {
-//     const response = await api.patch(`/api/contests/my/${contestId}`, body);
-//     // 서버가 빈 응답을 보내면 data가 undefined일 수 있음
-//     return response.data ?? { success: true, data: null };
-//   } catch (error: any) {
-//     console.error("대회 기록 PATCH 오류", error);
-//     throw error;
-//   }
-// }
 
-// 내 대회 기록 수정
-export interface PatchContestRecordRequest extends PostContestRecordRequest {
-  contestImgsToDelete?: string[];    // 삭제할 이미지 key
-  contestVideoIdsToDelete?: number[]; // 삭제할 영상 id
-}
+export type PatchContestRecordRequest = PostContestRecordRequest;
 
 export interface PatchContestRecordResponse {
   code: string;
   message: string;
-  data: any; // 서버 응답 데이터 구조에 따라 필요시 구체화 가능
+  data: {
+    contestId: number;
+  };
   success: boolean;
 }
 
+// 내 대회 기록 수정
 export const patchMyContestRecord = async (
   contestId: number,
   body: PatchContestRecordRequest
