@@ -8,23 +8,6 @@ import { MyExerciseCalendar } from "@/components/home/MyExerciseCalendar";
 import { MainHeader } from "@/components/common/system/header/MainHeader";
 import { Footer } from "@/components/common/system/Footer";
 
-export type DailyExerciseItem = {
-  id: number;
-  title: string;
-  location: string;
-  time: string;
-  imgSrc: string;
-};
-
-export type GroupExerciseItem = {
-  id: number;
-  title: string;
-  location: string;
-  date: string;
-  time: string;
-  imgSrc: string;
-};
-
 export const HomePage = () => {
   const navigate = useNavigate();
   const [count, setCount] = useState<number | null>(null);

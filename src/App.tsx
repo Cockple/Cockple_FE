@@ -95,7 +95,7 @@ const router = createBrowserRouter([
       { path: "confirm/start", element: <OnboardingConfirmStartPage /> },
     ],
   },
-  
+
   {
     element: (
       <PrivateRoute>
