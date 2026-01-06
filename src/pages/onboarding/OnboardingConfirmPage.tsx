@@ -12,6 +12,7 @@ import {
   usePostKeywords,
   usePostOnboarding,
 } from "../../api/member/onboarding";
+import { keywordMap } from "@/constants/onboarding";
 
 export const ConfirmPage = () => {
   const location = useLocation();
@@ -37,12 +38,6 @@ export const ConfirmPage = () => {
 
   console.log(selectedTag);
 
-  const keywordMap: Record<string, string> = {
-    "브랜드 스폰": "BRAND",
-    "가입비 무료": "FREE",
-    친목: "FRIENDSHIP",
-    "운영진이 게임을 짜드려요": "MANAGER_MATCH",
-  };
   const mappedKeywords =
     selectedTag.length > 0
       ? selectedTag.map(tag => keywordMap[tag]).filter(Boolean)
