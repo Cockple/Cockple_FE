@@ -4,14 +4,14 @@ import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
 import Onboarding4 from "@/assets/images/onboarding3.png?url";
 import { useOnboardingState } from "../../store/useOnboardingStore";
-import { useState } from "react";
 import { userLevelMapper } from "../../utils/levelValueExchange";
 import { TAGMAP } from "../../constants/options";
-import { useGroupMakingFilterStore } from "../../store/useGroupMakingFilter";
 import {
   usePostKeywords,
   usePostOnboarding,
 } from "../../api/member/onboarding";
+import { keywordMap } from "@/constants/onboarding";
+import { useKeywordSelect } from "@/hooks/useKeywordSelect";
 
 export const ConfirmPage = () => {
   const location = useLocation();
@@ -20,29 +20,10 @@ export const ConfirmPage = () => {
   const params = useParams();
   const apiPartyId = Number(params.partyId);
 
-  const { level, memberName, gender, birth, keyword, imgKey, setTemp } =
-    useOnboardingState();
-  const { setFilter } = useGroupMakingFilterStore();
-  const [selectedTag, setSelectedTag] = useState<string[]>(keyword ?? []);
+  const { level, memberName, gender, birth, imgKey } = useOnboardingState();
   const { toEng } = userLevelMapper();
-  //태그 선택
-  const toggleTag = (tag: string) => {
-    const tagUpdated = selectedTag.includes(tag)
-      ? selectedTag.filter(t => t !== tag)
-      : [...selectedTag, tag];
-    setSelectedTag(tagUpdated);
-    setTemp({ keyword: tagUpdated });
-    setFilter("keywords", tagUpdated);
-  };
+  const { selectedTag, toggleTag } = useKeywordSelect();
 
-  console.log(selectedTag);
-
-  const keywordMap: Record<string, string> = {
-    "브랜드 스폰": "BRAND",
-    "가입비 무료": "FREE",
-    친목: "FRIENDSHIP",
-    "운영진이 게임을 짜드려요": "MANAGER_MATCH",
-  };
   const mappedKeywords =
     selectedTag.length > 0
       ? selectedTag.map(tag => keywordMap[tag]).filter(Boolean)
