@@ -19,7 +19,7 @@ export const LoginPage = () => {
       style={{ minHeight: "100dvh" }}
     >
       {/* 스와이퍼 */}
-      <div className="flex-1">
+      <section className="flex-1">
         <Swiper
           modules={[Pagination]}
           spaceBetween={50}
@@ -40,7 +40,7 @@ export const LoginPage = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
+      </section>
 
       <div className=" mb-6">
         <button
