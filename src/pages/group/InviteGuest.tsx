@@ -1,23 +1,22 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import TextBox from "../../components/common/Text_Box/TextBox";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
+import TextBox from "@/components/common/Text_Box/TextBox";
 import { useState } from "react";
-import Female from "../../assets/icons/female.svg?react";
-import Male from "../../assets/icons/male.svg?react";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import InputField from "../../components/common/Search_Filed/InputField";
-import DropCheckBox from "../../components/common/Drop_Box/DropCheckBox";
+import Female from "@/assets/icons/female.svg?react";
+import Male from "@/assets/icons/male.svg?react";
+import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
+import InputField from "@/components/common/Search_Filed/InputField";
+import DropCheckBox from "@/components/common/Drop_Box/DropCheckBox";
 import { useForm } from "react-hook-form";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 
-import { LEVEL_KEY } from "../../constants/options";
+import { LEVEL_KEY } from "@/constants/options";
 import { useParams } from "react-router-dom";
-import { handleInput } from "../../utils/handleDetected";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
-import InviteGuestList from "../../components/group/InviteGuestList";
+import { handleInput } from "@/utils/handleDetected";
+import InviteGuestList from "@/components/group/InviteGuestList";
 import {
   useInviteGuest,
   usePostInviteForm,
-} from "../../api/exercise/InviteGuestApi";
+} from "@/api/exercise/InviteGuestApi";
 
 export const InviteGuest = () => {
   //정보
@@ -53,18 +52,8 @@ export const InviteGuest = () => {
     setValue("levelOptions", "");
   });
   //게스트 정보 불러오기
-  const { data, isLoading, isError } = useInviteGuest(exerciseId);
+  const { data } = useInviteGuest(exerciseId);
 
-  if (isLoading)
-    return (
-      <div>
-        <LoadingSpinner />
-      </div>
-    );
-
-  if (isError) {
-    return <p className="body-rg-500">오류 발생</p>;
-  }
   const noneData = data?.list.length === 0;
 
   return (
