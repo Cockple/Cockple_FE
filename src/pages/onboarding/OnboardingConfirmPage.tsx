@@ -1,11 +1,11 @@
 import { useLocation, useParams } from "react-router-dom";
-import TagBtn from "../../components/common/DynamicBtn/TagBtn";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import IntroText from "../../components/onboarding/IntroText";
+import TagBtn from "@/components/common/DynamicBtn/TagBtn";
+import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
+import IntroText from "@/components/onboarding/IntroText";
 import Onboarding4 from "@/assets/images/onboarding3.png?url";
-import { useOnboardingState } from "../../store/useOnboardingStore";
-import { userLevelMapper } from "../../utils/levelValueExchange";
-import { TAGMAP } from "../../constants/options";
+import { useOnboardingState } from "@/store/useOnboardingStore";
+import { userLevelMapper } from "@/utils/levelValueExchange";
+import { TAGMAP } from "@/constants/options";
 import {
   usePostKeywords,
   usePostOnboarding,

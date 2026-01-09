@@ -1,16 +1,16 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import TextBox from "../../components/common/Text_Box/TextBox";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
+import TextBox from "@/components/common/Text_Box/TextBox";
 import { useRef, useState } from "react";
 import DateAndTimePicker, {
   type DateAndTimePickerHandle,
-} from "../../components/common/Date_Time/DateAndPicker";
+} from "@/components/common/Date_Time/DateAndPicker";
 import { useNavigate } from "react-router-dom";
-import { ProgressBar } from "../../components/common/ProgressBar";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import InputField from "../../components/common/Search_Filed/InputField";
-import { useOnboardingState } from "../../store/useOnboardingStore";
+import { ProgressBar } from "@/components/common/ProgressBar";
+import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
+import InputField from "@/components/common/Search_Filed/InputField";
+import { useOnboardingState } from "@/store/useOnboardingStore";
 import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
-import { handleInput } from "../../utils/handleDetected";
+import { handleInput } from "@/utils/handleDetected";
 
 export const OnboardingInfoPage = () => {
   const navigate = useNavigate();

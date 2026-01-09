@@ -1,7 +1,7 @@
-import { useDeleteInviteForm } from "../../api/exercise/InviteGuestApi";
-import type { ResponseInviteGuest } from "../../types/guest";
-import { userLevelMapper } from "../../utils/levelValueExchange";
-import { Member } from "../common/contentcard/Member";
+import { useDeleteInviteForm } from "@/api/exercise/InviteGuestApi";
+import type { ResponseInviteGuest } from "@/types/guest";
+import { userLevelMapper } from "@/utils/levelValueExchange";
+import { Member } from "@/components/common/contentcard/Member";
 const { toKor } = userLevelMapper();
 
 type InviteGuestProps = {
