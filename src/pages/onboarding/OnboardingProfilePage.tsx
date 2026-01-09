@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import ProfileImg from "../../components/common/Etc/ProfileImg";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
+import ProfileImg from "@/components/common/Etc/ProfileImg";
 import { useNavigate } from "react-router-dom";
-import { ProgressBar } from "../../components/common/ProgressBar";
-import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
-import IntroText from "../../components/onboarding/IntroText";
+import { ProgressBar } from "@/components/common/ProgressBar";
+import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
+import IntroText from "@/components/onboarding/IntroText";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import Basic_ProfileImg from "@/assets/images/base_profile_img.png?url";
-import { uploadImage } from "../../api/image/imageUpload";
-import { useOnboardingState } from "../../store/useOnboardingStore";
+import { uploadImage } from "@/api/image/imageUpload";
+import { useOnboardingState } from "@/store/useOnboardingStore";
 
 export const OnboardingProfilePage = () => {
   const setTemp = useOnboardingState(state => state.setTemp);
