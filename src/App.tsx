@@ -5,7 +5,6 @@ import { ChatPage } from "./pages/chat/ChatPage";
 import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-import { ErrorBoundary } from "react-error-boundary";
 import {
   GroupPage,
   ExerciseDetail,
@@ -48,7 +47,7 @@ import { MyGroupExercisePage } from "./pages/home/MyGroupExercisePage";
 import { OnboardingConfirmStartPage } from "./pages/onboarding/OnBoardingConfirmStartPage";
 import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { ExerciseFilterPage } from "./pages/home/ExerciseFilterPage";
 import { GroupLayout } from "./layout/GroupLayout";
 import { GroupHomePage } from "./pages/group/GroupHomePage";
@@ -73,7 +72,6 @@ import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
 import { resolveMemberId } from "./utils/auth";
 import { NoNavbarLayout } from "./layout/NoPtLayout";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -197,13 +195,7 @@ const router = createBrowserRouter([
 
       {
         path: "/group/inviteGuest/:exerciseId",
-        element: (
-          <ErrorBoundary fallback={<p>오류 발생</p>}>
-            <Suspense fallback={<LoadingSpinner />}>
-              <InviteGuest />
-            </Suspense>
-          </ErrorBoundary>
-        ),
+        element: <InviteGuest />,
       },
       { path: "/group/making/basic", element: <GroupBasicInfo /> },
       { path: "/group/making/activity", element: <GroupActivity /> },

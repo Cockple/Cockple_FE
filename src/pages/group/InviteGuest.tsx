@@ -1,8 +1,7 @@
 import { PageHeader } from "@/components/common/system/header/PageHeader";
 import TextBox from "@/components/common/Text_Box/TextBox";
-import { useState } from "react";
-import Female from "@/assets/icons/female.svg?react";
-import Male from "@/assets/icons/male.svg?react";
+import { Suspense, useState } from "react";
+
 import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
 import InputField from "@/components/common/Search_Filed/InputField";
 import DropCheckBox from "@/components/common/Drop_Box/DropCheckBox";
@@ -12,11 +11,10 @@ import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import { LEVEL_KEY } from "@/constants/options";
 import { useParams } from "react-router-dom";
 import { handleInput } from "@/utils/handleDetected";
-import InviteGuestList from "@/components/group/InviteGuestList";
-import {
-  useInviteGuest,
-  usePostInviteForm,
-} from "@/api/exercise/InviteGuestApi";
+import { usePostInviteForm } from "@/api/exercise/InviteGuestApi";
+import { InviteGuesetList } from "@/components/group/InviteGuestList";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { ErrorBoundary } from "react-error-boundary";
 
 export const InviteGuest = () => {
   //정보
@@ -51,10 +49,6 @@ export const InviteGuest = () => {
     isSelected(null);
     setValue("levelOptions", "");
   });
-  //게스트 정보 불러오기
-  const { data } = useInviteGuest(exerciseId);
-
-  const noneData = data?.list.length === 0;
 
   return (
     <>
@@ -109,30 +103,11 @@ export const InviteGuest = () => {
           </section>
 
           {/* 대기열 */}
-          <section>
-            {noneData ? (
-              <div>게스트를 초대해주세요!</div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <label className="text-left header-h5">초대된 인원</label>
-                    <p className="header-h5">{data?.totalCount}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Female className="w-4 h-4" />
-                    <p className="body-rg-500">{data?.femaleCount}</p>
-                    <Male className="w-4 h-4" />
-                    <p className="body-rg-500">{data?.maleCount}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center justify-center flex-col">
-              <InviteGuestList data={data} exerciseId={exerciseId} />
-            </div>
-          </section>
+          <ErrorBoundary fallback={<p>오류 발생</p>}>
+            <Suspense fallback={<LoadingSpinner />}>
+              <InviteGuesetList exerciseId={exerciseId} />
+            </Suspense>
+          </ErrorBoundary>
         </div>
         {/* 버튼 */}
         <div
