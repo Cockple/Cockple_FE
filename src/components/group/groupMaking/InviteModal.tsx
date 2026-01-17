@@ -1,7 +1,8 @@
 //아이콘// 신규 멤버 초대 모달
-import Dismiss from "../../../assets/icons/dismiss.svg";
-import Message from "../../../assets/icons/message.svg";
-import Btn_Static from "../../common/Btn_Static/Btn_Static";
+import Dismiss from "@/assets/icons/dismiss.svg";
+import Message from "@/assets/icons/message.svg";
+import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
+
 interface InviteModalProps {
   onClose: () => void;
   onInvite: () => void;

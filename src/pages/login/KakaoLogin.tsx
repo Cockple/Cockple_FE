@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "../../store/useUserStore";
+import useUserStore from "@/store/useUserStore";
 import { useMutation } from "@tanstack/react-query";
-import api from "../../api/api";
-import type { KakaoLoginResponseDTO } from "../../types/auth";
+import api from "@/api/api";
+import type { KakaoLoginResponseDTO } from "@/types/auth";
 
 export default function KakaoLogin() {
   const navigate = useNavigate();

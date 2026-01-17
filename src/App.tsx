@@ -193,7 +193,10 @@ const router = createBrowserRouter([
         ],
       },
 
-      { path: "/group/inviteGuest/:exerciseId", element: <InviteGuest /> },
+      {
+        path: "/group/inviteGuest/:exerciseId",
+        element: <InviteGuest />,
+      },
       { path: "/group/making/basic", element: <GroupBasicInfo /> },
       { path: "/group/making/activity", element: <GroupActivity /> },
       { path: "/group/making/filter", element: <GroupFilter /> },

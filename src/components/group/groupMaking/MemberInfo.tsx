@@ -1,5 +1,5 @@
-import Female from "../../../assets/icons/female.svg?react";
-import Male from "../../../assets/icons/male.svg?react";
+import Female from "@/assets/icons/female.svg?react";
+import Male from "@/assets/icons/male.svg?react";
 
 const MemberInfo = ({
   name,

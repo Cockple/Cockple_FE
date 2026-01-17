@@ -1,6 +1,6 @@
 import { SwiperSlide, Swiper } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import LoginSwiping from "../../components/login/LoginSwiping";
+import LoginSwiping from "@/components/login/LoginSwiping";
 import KakaoIcon from "@/assets/icons/kakao.svg?url";
 import { TEXT_MAP } from "@/constants/onboarding";
 

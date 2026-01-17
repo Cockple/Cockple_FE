@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import CameraIcon from "@/assets/icons/camera.svg?url";
 import DissMiss_GY from "@/assets/icons/dismiss_gy800.svg?url";
-import { useGroupMakingFilterStore } from "../../../store/useGroupMakingFilter";
-import { uploadImage } from "../../../api/image/imageUpload";
+import { useGroupMakingFilterStore } from "@/store/useGroupMakingFilter";
+import { uploadImage } from "@/api/image/imageUpload";
 
 export default function SingleImageUploadBtn() {
   const [preview, setPreview] = useState<string | null>(null);
