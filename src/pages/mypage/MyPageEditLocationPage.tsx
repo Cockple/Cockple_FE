@@ -29,12 +29,7 @@ export const MyPageEditLocationPage = ({
 
   const handleSearch = () => {
     console.log(`Searching for: ${searchText}`);
-    // 여기에 실제 주소 검색 API 호출 로직을 넣어야함
-    // 예: const response = await fetch(`/api/search-address?query=${searchText}`);
-    //     const data = await response.json();
-    //     setSearchResults(data);
-
-    setSearchResults([]); // 🚀 검색 결과를 빈 배열로 초기화 (또는 실제 API 결과로 채움)
+    setSearchResults([]);
     setSelectedLocationId(null);
   };
 

@@ -58,10 +58,8 @@ export const MyPageMedalDetailPage = () => {
   };
   const sanitizeUrl = (url: string) => {
     try {
-      // 1. 이미 디코딩된 URL이면 그대로 반환
       let decoded = decodeURIComponent(url);
 
-      // 2. S3 경로 중복 제거
       decoded = decoded.replace(
         /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
         "https://"
@@ -70,7 +68,7 @@ export const MyPageMedalDetailPage = () => {
       return decoded;
     } catch (err) {
       console.warn("URL 디코딩 실패:", url, err);
-      return url; // 오류가 나면 원본 URL 반환
+      return url;
     }
   };
 
@@ -138,6 +136,10 @@ export const MyPageMedalDetailPage = () => {
     );
   }
 
+  const onBackClick = () => {
+    navigate("/mypage/mymedal");
+  };
+
   const displayImages = medalDetail.photo?.length ? medalDetail.photo : [None_Error];
   const urls = medalDetail.videoUrl ?? [];
   const record = medalDetail.record ?? "";
@@ -146,8 +148,12 @@ export const MyPageMedalDetailPage = () => {
 
   return (
     <div className="w-full max-w-[444px] mx-auto min-h-screen bg-white relative overflow-x-hidden">
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[23.4375rem] z-20 bg-white">
-        <PageHeader title="내 메달" />
+      <div className="sticky top-0 z-20 bg-white">
+      {/* <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[23.4375rem] z-20 bg-white"> */}
+        <PageHeader 
+          title={medalDetail?.title || "대회 상세"} 
+          onBackClick={onBackClick} 
+        />
       </div>
 
       {/* 이미지 스와이퍼 */}

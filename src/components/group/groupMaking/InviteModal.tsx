@@ -1,8 +1,7 @@
-//아이콘
+//아이콘// 신규 멤버 초대 모달
 import Dismiss from "@/assets/icons/dismiss.svg";
 import Message from "@/assets/icons/message.svg";
 import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
-import GY800_S from "@/components/common/Btn_Static/Text/GY800_S";
 
 interface InviteModalProps {
   onClose: () => void;
@@ -22,8 +21,8 @@ const InviteModal = ({ onClose, onInvite }: InviteModalProps) => {
             clicked: Dismiss,
           }}
           bgColor="bg-white"
-          width="w-6"
-          height="h-6"
+          width="w-8"
+          height="h-8"
           onClick={onClose}
         />
       </div>
@@ -32,15 +31,22 @@ const InviteModal = ({ onClose, onInvite }: InviteModalProps) => {
         <img
           src={Message}
           alt="승인 아이콘"
-          className="w-8 h-8 aspect-square"
+          className="w-8 h-8 aspect-square scale-[1.3]"
         />
-        <p className="header-h4 text-black">멤버 초대를 보내시겠어요?</p>
-        <p className="flex flex-col items-center body-rg-500">
+        <p className="header-h4 text-[#121212]">멤버 초대를 보내시겠어요?</p>
+        <p className="flex flex-col items-center body-rg-500 text-[#121212]">
           초대받은 분께서 초대를 수락해주시면
           <br />
-          바로 모임 멤버로 추가되요
+          바로 모임 멤버로 추가돼요
         </p>
-        <GY800_S label="초대보내기" onClick={onInvite} />
+         <Btn_Static
+          kind="GR600"
+          size="S"
+          label="초대보내기"
+          textColor="text-[#0B9A4E]"
+          justify="justify-center"
+          onClick={onInvite}
+        />
       </div>
     </div>
   );
