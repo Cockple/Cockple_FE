@@ -20,7 +20,7 @@ export interface GroupChatRoom {
 export interface PersonalChatRoom {
   chatRoomId: number;
   displayName: string;
-  profileImageUrl: string;
+  profileImgUrl: string;
   unreadCount: number;
   // lastMessage?: {
   //   messageId: number;

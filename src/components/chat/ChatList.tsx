@@ -112,7 +112,7 @@ const ChatList = ({
                 className="border-b border-gy-200 pb-1"
               >
                 <PersonalChat
-                  imageSrc={chat.profileImageUrl ?? ""}
+                  imageSrc={chat.profileImgUrl ?? ""}
                   userName={chat.displayName}
                   lastMessage={lastText} // 안전
                   lastMessageTime={lastTime} // 안전
