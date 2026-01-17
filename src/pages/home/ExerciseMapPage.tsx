@@ -232,17 +232,11 @@ export const ExerciseMapPage = () => {
           building.latitude,
           building.longitude,
         ),
-        image: new window.kakao.maps.MarkerImage({
-          position: new window.kakao.maps.LatLng(
-            building.latitude,
-            building.longitude,
-          ),
-          image: new window.kakao.maps.MarkerImage(
-            markerIcon,
-            new window.kakao.maps.Size(28.8, 35.2),
-            { offset: new window.kakao.maps.Point(20, 20) },
-          ),
-        }),
+        image: new window.kakao.maps.MarkerImage(
+          markerIcon,
+          new window.kakao.maps.Size(28.8, 35.2),
+          { offset: new window.kakao.maps.Point(14.4, 35.2) },
+        ),
       });
 
       marker.setMap(map);
