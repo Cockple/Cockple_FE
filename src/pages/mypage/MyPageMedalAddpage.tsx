@@ -6,8 +6,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { CheckBox_Long_noButton } from "../../components/MyPage/CheckBox_Long_noButton";
 import { MyMedalCheckBox } from "../../components/MyPage/MyMedalCheckBox";
 import { useForm } from "react-hook-form";
-import { postMyContestRecord } from "../../api/contest/contestmy";
-import { getContestRecordDetail, patchMyContestRecord } from "../../api/contest/contestmy";
+import { 
+  postMyContestRecord, 
+  getContestRecordDetail, 
+  deleteContestRecord 
+} from "../../api/contest/contestmy";
 import type { PostContestRecordRequest } from "../../api/contest/contestmy";
 import DateAndTimePicker from "../../components/common/Date_Time/DateAndPicker";
 import Camera from "../../assets/icons/camera.svg?react";
@@ -20,12 +23,6 @@ import Dismiss_Gy800 from "../../assets/icons/dismiss_gy800.svg?react";
 import Circle_Red from "@/assets/icons/cicle_s_red.svg?url";
 import ArrowDown from "@/assets/icons/arrow_down.svg?url";
 import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
-import type { PatchContestRecordRequest } from "../../api/contest/contestmy";
-
-interface VideoData {
-  id?: number; 
-  url: string;
-}
 
 interface MedalDetail {
   photo?: string[];
@@ -34,7 +31,7 @@ interface MedalDetail {
   type?: string;
   level?: string;
   record?: string;
-  videoData?: VideoData[]; 
+  videoUrl?: string[];
   medalType?: string;
 }
 
@@ -51,11 +48,9 @@ export const MyPageMedalAddPage = () => {
   const [tournamentName, setTournamentName] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  
-  const [videoLinks, setVideoLinks] = useState<string[]>([]);
-  const [initialVideoObjects, setInitialVideoObjects] = useState<VideoData[]>([]);
-  const [initialData, setInitialData] = useState<MedalDetail | null>(null);
 
+  const [videoLinks, setVideoLinks] = useState<string[]>([]);
+  
   const formOptions = ["혼복", "여복", "남복", "단식"] as const;
   const [selectedForm, setSelectedForm] = useState<typeof formOptions[number] | null>(null);
   const [recordText, setRecordText] = useState("");
@@ -63,10 +58,9 @@ export const MyPageMedalAddPage = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const pickerRef = useRef<{ getDueString: () => string }>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const level = ["왕초심", "초심", "D조", "C조", "B조", "A조", "준자강", "자강"];
 
-  // 매핑 테이블
   const typeMap: Record<typeof formOptions[number], PostContestRecordRequest["type"]> = {
     "단식": "SINGLE",
     "남복": "MEN_DOUBLES",
@@ -85,9 +79,30 @@ export const MyPageMedalAddPage = () => {
     "급수 없음": "NONE",
   };
 
+  // URL 디코딩 및 정리 함수
   const sanitizeUrl = (url: string) => {
-    const parts = url.split('https%3A/');
-    return parts.length > 1 ? decodeURIComponent('https:' + parts[1]) : url;
+    let decoded = decodeURIComponent(url);
+    if (decoded.includes("https%3A")) {
+        decoded = decodeURIComponent(decoded);
+    }
+    const httpSplit = decoded.split("https://");
+    if (httpSplit.length > 2) {
+       return "https://" + httpSplit[httpSplit.length - 1];
+    }
+    return decoded;
+  };
+
+  //서버 전송용 Key 추출 함수
+  const extractKeyFromUrl = (url: string) => {
+    if (!url.startsWith("http")) return url;
+    const bucketName = "cockple-bucket/"; 
+    const parts = url.split(bucketName);
+    
+    if (parts.length > 1) {
+      return decodeURIComponent(parts[1]); 
+    }
+
+    return url;
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,8 +120,7 @@ export const MyPageMedalAddPage = () => {
     }
   };
 
-
-  // 1. 초기 데이터 로드 
+  //초기 데이터 로드 
   useEffect(() => {
     const initializeData = async () => {
       let dataToSet: MedalDetail | null = null;
@@ -114,18 +128,13 @@ export const MyPageMedalAddPage = () => {
       if (isEditMode && contestId) {
         try {
           const data: any = await getContestRecordDetail(Number(contestId));
-          let mappedVideos: VideoData[] = [];
+          
+          let mappedVideoUrls: string[] = [];
           if (data.contestVideoUrls && data.contestVideoUrls.length > 0) {
              if (typeof data.contestVideoUrls[0] === 'object') {
-                mappedVideos = data.contestVideoUrls.map((v: any) => ({
-                    id: v.contestVideoId || v.id, 
-                    url: v.videoUrl || v.url
-                }));
+                mappedVideoUrls = data.contestVideoUrls.map((v: any) => v.videoUrl || v.url);
              } else {
-                mappedVideos = data.contestVideoUrls.map((url: string) => ({
-                    id: undefined,
-                    url: url
-                }));
+                mappedVideoUrls = data.contestVideoUrls;
              }
           }
 
@@ -135,8 +144,8 @@ export const MyPageMedalAddPage = () => {
             type: data.type,
             level: data.level,
             record: data.content,
-            photo: data.contestImgUrls.map(sanitizeUrl),
-            videoData: mappedVideos,
+            photo: data.contestImgUrls.map(sanitizeUrl), 
+            videoUrl: mappedVideoUrls,
             medalType: data.medalType,
           };
         } catch (error) {
@@ -147,12 +156,10 @@ export const MyPageMedalAddPage = () => {
       }
 
       if (dataToSet) {
-        setInitialData(dataToSet);
         setTournamentName(dataToSet.title || "");
         setValue("tournamentName", dataToSet.title || "");
         setSelectedDate(dataToSet.date || "");
         
-        // 메달, 참여형태, 급수 설정
         if (dataToSet.medalType) {
             if (dataToSet.medalType === "GOLD") setSelectedIndex(0);
             else if (dataToSet.medalType === "SILVER") setSelectedIndex(1);
@@ -167,11 +174,7 @@ export const MyPageMedalAddPage = () => {
         setSelectedLevel(dataToSet.level ? levelMapReverse[dataToSet.level] ?? "" : "");
 
         setRecordText(dataToSet.record || "");
-        
-        const vData = dataToSet.videoData || [];
-        setInitialVideoObjects(vData);      
-        setVideoLinks(vData.map(v => v.url)); 
-        
+        setVideoLinks(dataToSet.videoUrl || []); 
         setPhotos(dataToSet.photo || []);
       }
     };
@@ -199,24 +202,9 @@ export const MyPageMedalAddPage = () => {
     try {
       const mappedType = selectedForm ? typeMap[selectedForm] : "SINGLE";
       const mappedLevel = selectedLevel ? levelMap[selectedLevel] : "EXPERT";
+      const photoKeys = photos.map(url => extractKeyFromUrl(url));
 
-      const photosToDelete = initialData?.photo?.filter(p => !photos.includes(p)) || [];
-      const newPhotosToAdd = isEditMode && initialData?.photo 
-        ? photos.filter(p => !initialData.photo?.includes(p)) 
-        : photos;
-
-      const videosToDeleteIds = initialVideoObjects
-        .filter(initVideo => !videoLinks.includes(initVideo.url)) 
-        .map(v => v.id) 
-        .filter((id): id is number => id !== undefined);
-
-      const newVideosToAdd = videoLinks.filter(currentUrl => {
-         const cleanUrl = currentUrl.trim();
-         if (!cleanUrl) return false;
-         return !initialVideoObjects.some(initVideo => initVideo.url === cleanUrl);
-      });
-
-      const patchBody: PatchContestRecordRequest = {
+      const postBody: PostContestRecordRequest = {
         contestName: tournamentName,
         date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
         medalType: selectedIndex === 0 ? "GOLD" : selectedIndex === 1 ? "SILVER" : selectedIndex === 2 ? "BRONZE" : "NONE",
@@ -226,29 +214,36 @@ export const MyPageMedalAddPage = () => {
         contentIsOpen: true,
         videoIsOpen: true,
         
-        contestVideos: newVideosToAdd,       
-        contestVideoIdsToDelete: videosToDeleteIds, 
+        contestVideos: videoLinks.filter(v => v.trim() !== ""),
+        contestImgs: photoKeys, 
         
-        contestImgs: newPhotosToAdd,         
-        contestImgsToDelete: photosToDelete,   
+        contestImgsToDelete: [],
+        contestVideoIdsToDelete: [],
       };
 
       let response;
+
       if (isEditMode && contestId) {
-        response = await patchMyContestRecord(contestId, patchBody);
+        // 수정 모드: 삭제 후 재성성
+        console.log("기존 게시글 삭제 시도...");
+        await deleteContestRecord(Number(contestId));
+        
+        console.log("새 게시글 등록 시도...");
+        response = await postMyContestRecord(postBody);
+        
       } else {
-        response = await postMyContestRecord({
-            ...patchBody, 
-            contestImgs: photos, 
-            contestVideos: videoLinks.filter(v => v.trim() !== "")
-        });
+        // 생성 모드
+        response = await postMyContestRecord(postBody);
       }
 
       if (response.success && response.data) {
-        navigate(`/mypage/mymedal/${response.data.contestId}`);
+        const newContestData = Array.isArray(response.data) ? response.data[0] : response.data;
+        const newId = newContestData.contestId;
+        navigate(`/mypage/mymedal/${newId}`, { replace: true });
       } else {
         alert("저장에 실패했습니다: " + response.message);
       }
+
     } catch (error) {
       console.error("대회 기록 저장 오류", error);
       alert("서버와 통신 중 오류가 발생했습니다.");
@@ -259,7 +254,7 @@ export const MyPageMedalAddPage = () => {
   const handleConfirmLeave = () => { setIsModalOpen(false); navigate("/myPage/mymedal"); };
   const handleCancelLeave = () => { setIsModalOpen(false); };
 
-  return (
+ return (
     <div className="max-w-[23.4375rem] mx-auto bg-white h-screen flex flex-col pt-2">
       <div className="flex-shrink-0 sticky top-0 z-20 bg-white ">
         <PageHeader title={isEditMode ? "대회 기록 수정하기" : "대회 기록 추가하기"} onBackClick={onBackClick} />
@@ -268,6 +263,7 @@ export const MyPageMedalAddPage = () => {
 
       <div className="flex-grow min-h-0 overflow-y-auto scrollbar-hide">
         <div className="flex flex-col gap-8">
+           {/* 이미지 업로드 */}
            <>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileChange} className="hidden" />
             <div ref={containerRef} className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -283,12 +279,13 @@ export const MyPageMedalAddPage = () => {
             </div>
           </>
 
-          
+          {/* 대회명 */}
           <div>
             <label className="flex items-center text-left header-h5 mb-1"> 대회명 <CicleSRED /> </label>
             <div className="relative"> <input type="text" className="w-full rounded-xl border-gy-200 border py-[0.625rem] px-3 focus:outline-none focus:border-active" value={tournamentName} onChange={(e) => setTournamentName(e.target.value)} /> </div>
           </div>
           
+          {/* 수상 */}
           <div>
             <label className="flex items-center text-left header-h5 mb-1"> 수상 </label>
             <div className="flex gap-2 w-full items-center justify-center">
@@ -297,6 +294,7 @@ export const MyPageMedalAddPage = () => {
             <p className="body-sm-500 text-left text-[#767B89] mt-1"> 입상하지 못했다면 선택하지 않아도 됩니다. </p>
           </div>
 
+          {/* 날짜 */}
           <div>
             <div className="text-left flex flex-col gap-2">
               <div className="flex px-1 gap-[2px] items-center"> <p className="header-h5">날짜</p> <img src={Circle_Red} alt="icon-cicle" /> </div>
@@ -305,6 +303,7 @@ export const MyPageMedalAddPage = () => {
             </div>
           </div>
 
+          {/* 참여 형태 */}
           <div>
             <label className="flex items-center text-left header-h5 mb-1"> 참여 형태 <CicleSRED /> </label>
             <div className="flex gap-4">
@@ -312,6 +311,7 @@ export const MyPageMedalAddPage = () => {
             </div>
           </div>
 
+          {/* 급수 */}
           <div>
             <label className="flex items-center text-left header-h5 mb-1"> 급수 <CicleSRED /> </label>
             <div className="flex items-center gap-4">
@@ -324,10 +324,12 @@ export const MyPageMedalAddPage = () => {
             </div>
           </div>
 
+          {/* 대회 기록 */}
           <div>
             <div className="flex justify-between items-start"> <CheckBox_Long_noButton title="대회 기록" maxLength={100} Label="비공개" value={recordText} checked={isPrivate} onChange={(checked, value) => { setIsPrivate(checked); setRecordText(value); }} /> </div>
           </div>
 
+          {/* 영상 링크 */}
           <MyMedalCheckBox
             title="영상 링크"
             value={videoLinks.length ? videoLinks : [""]}

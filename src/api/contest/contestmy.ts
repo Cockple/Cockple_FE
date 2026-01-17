@@ -1,6 +1,5 @@
 import api from "../api";
 
-// API 응답 타입 
 export interface ApiMedalItem {
   title: string;
   date: string;
@@ -206,14 +205,30 @@ export const deleteContestRecord = async (contestId: number): Promise<void> => {
   }
 };
 
+// 대회 기록 수정 요청 타입 정의 
+export interface PatchContestRecordRequest {
+  contestName: string;
+  date?: string;
+  medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
+  type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES";
+  level: "EXPERT" | "BEGINNER" | "NOVICE" | "SEMI_EXPERT" | "A" | "B" | "C" | "D" | "NONE";
+  content?: string;
+  contentIsOpen?: boolean;
+  videoIsOpen?: boolean;
+  contestVideos?: string[];
+  contestImgs?: string[];
+}
 
-export type PatchContestRecordRequest = PostContestRecordRequest;
-
+// 대회 기록 수정 응답 타입 정의 
 export interface PatchContestRecordResponse {
   code: string;
   message: string;
   data: {
-    contestId: number;
+    imgUrl: string;
+    imgKey: string;
+    originalFileName: string;
+    fileSize: number;
+    fileType: string;
   };
   success: boolean;
 }
