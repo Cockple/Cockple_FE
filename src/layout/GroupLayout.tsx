@@ -143,7 +143,7 @@ export const GroupLayout = () => {
       navigate(`/chat/personal/${chatRoomId}`, {
         state: {
           chatName: displayName,
-          profileImageUrl: data.data.profileImageUrl, // 필요 시 넘길 수 있음
+          profileImageUrl: data.data.profileImgUrl, // 필요 시 넘길 수 있음
         },
       });
     } catch (err) {
