@@ -1,8 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "../api";
-import type { inviteGuestRequestDTO } from "../../types/InviteGuest";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import type { inviteGuestRequestDTO } from "@/types/InviteGuest";
 
 import axiosLib from "axios";
+import api from "@/api/api";
 
 //게스트 정보 가져오기
 export const getInviteGuestList = async (exerciseId: number) => {
@@ -11,9 +15,8 @@ export const getInviteGuestList = async (exerciseId: number) => {
 };
 
 export const useInviteGuest = (exerciseId: number) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: ["inviteGuest", exerciseId],
-    enabled: !!exerciseId,
     queryFn: () => getInviteGuestList(exerciseId),
 
     select: res => res.data,

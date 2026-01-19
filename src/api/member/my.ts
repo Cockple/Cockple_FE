@@ -3,6 +3,24 @@ import api from "../api";
 // 메인 >> 건물명
 // 서브 >> 도로명
 
+// 사용자 마이페이지 
+export interface MyPageProps {
+  name?: string;
+  gender?: "FEMALE" | "MALE";
+  level?: string;
+  birth?: string;
+  profileImage?: File;
+
+  myGroupCount?: number;
+  myExerciseCount?: number;
+
+  myMedalTotal?: number;
+  goldCount?: number;
+  silverCount?: number;
+  bronzeCount?: number;
+  disabled?: boolean;
+}
+
 ///////주소 관련 interface//////
 export interface UserAddress {
   // id: number;
@@ -16,6 +34,7 @@ export interface UserAddress {
   longitude: number;
   isMainAddr: boolean;
 }
+
 //회원 주소 추가 시 필요한 interface
 export interface AddLocationPayload {
   addr1: string;

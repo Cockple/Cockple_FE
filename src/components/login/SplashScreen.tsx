@@ -1,5 +1,5 @@
 import SplashIcon from "@/assets/images/Logo_Typo.png?url";
-import useSplashStore from "../../store/useSplashStore";
+import useSplashStore from "@/store/useSplashStore";
 import { useEffect } from "react";
 
 export default function SplashScreen() {

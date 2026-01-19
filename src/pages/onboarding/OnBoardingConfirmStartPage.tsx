@@ -1,24 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import Btn_Static from "../../components/common/Btn_Static/Btn_Static";
 import IntroText from "../../components/onboarding/IntroText";
-import medal1 from "@/assets/icons/medal_1.svg";
-import medal2 from "@/assets/icons/medal_2.svg";
-import medal3 from "@/assets/icons/medal_3.svg";
+
 import AddIcon from "@/assets/icons/add.svg";
+import { MEDAL } from "@/constants/onboarding";
 
 export const OnboardingConfirmStartPage = () => {
   const navigate = useNavigate();
-  const MEDAL = [
-    { label: "금메달", icon: medal1 },
-    {
-      label: "은메달",
-      icon: medal2,
-    },
-    {
-      label: "동메달",
-      icon: medal3,
-    },
-  ];
+
   return (
     <div className="w-full  flex flex-col -mb-8 pt-14 min-h-dvh">
       <section className="flex items-center flex-col  gap-15 flex-1 ">
@@ -28,7 +17,6 @@ export const OnboardingConfirmStartPage = () => {
           isBar={true}
           className="pt-9 items-stretch text-left  w-full"
         />
-        {/* 끊고 */}
         <div className="flex gap-8 flex-col items-center">
           <div className="flex shadow-ds200-gr rounded-lg bg-white py-1 px-4 gap-1 items-center justify-center body-rg-500">
             <p>지금까지</p>

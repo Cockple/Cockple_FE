@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { PageHeader } from "../../components/common/system/header/PageHeader";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
 import ArrowDown from "@/assets/icons/arrow_down.svg";
 import ArrowUp from "@/assets/icons/arrow_up.svg";
-import { ExerciseMapCalendar } from "../../components/home/ExerciseMapCalendar";
-import { Exercise_M } from "../../components/common/contentcard/Exercise_M";
+import { ExerciseMapCalendar } from "@/components/home/ExerciseMapCalendar";
+import { Exercise_M } from "@/components/common/contentcard/Exercise_M";
 import myLocationIcon from "@/assets/icons/map_mylocation.svg?url";
 import markerIcon from "@/assets/icons/map_marker.svg?url";
 import { motion } from "framer-motion";
@@ -13,11 +13,12 @@ import {
   fetchMonthlyBuildings,
   useMonthlyBuildings,
   type MonthlyBuildingsResponse,
-} from "../../api/exercise/getExerciseMapApi";
-import { FloatingButton } from "../../components/common/system/FloatingButton";
+} from "@/api/exercise/getExerciseMapApi";
+import { FloatingButton } from "@/components/common/system/FloatingButton";
 import MyLocationIcon from "@/assets/icons/mylocation.svg?url";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { useNavigate } from "react-router-dom";
+import { loadKakaoMap } from "@/utils/loadKakaoMap";
 
 interface Exercise {
   exerciseId: number;
@@ -55,8 +56,19 @@ const getToday = (): string => {
 
 export const ExerciseMapPage = () => {
   const navigate = useNavigate();
+
   const mapRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapInstance = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const myMarkerRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markersRef = useRef<any[]>([]);
+  const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inFlightcenterFetchRef = useRef(false);
+
   const [calendar, setCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getToday());
   const [currentMonth, setCurrentMonth] = useState(() => new Date(getToday()));
@@ -73,9 +85,6 @@ export const ExerciseMapPage = () => {
     lat: number;
     lng: number;
   } | null>(null);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapInstance = useRef<any>(null);
 
   const ArrowIcon = calendar ? ArrowUp : ArrowDown;
 
@@ -96,55 +105,7 @@ export const ExerciseMapPage = () => {
 
   const effectiveData = fetchData ?? buildingData;
 
-  useEffect(() => {
-    if (!mapInstance.current || !window.kakao?.maps) return;
-
-    const map = mapInstance.current;
-
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    const handleIdle = () => {
-      const center = map.getCenter();
-      const newCenter = {
-        lat: center.getLat(),
-        lng: center.getLng(),
-      };
-
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        setMapCenter(newCenter); // ✅ 2초 후 중심 좌표 갱신
-      }, 2000);
-    };
-
-    window.kakao.maps.event.addListener(map, "idle", handleIdle);
-
-    return () => {
-      window.kakao.maps.event.removeListener(map, "idle", handleIdle);
-      clearTimeout(timeoutId);
-    };
-  }, [mapInstance.current]);
-
-  useEffect(() => {
-    if (!mapCenter) return;
-
-    const fetch = async () => {
-      try {
-        const newData = await fetchMonthlyBuildings({
-          date: currentMonth,
-          latitude: mapCenter.lat,
-          longitude: mapCenter.lng,
-          radiusKm: 3,
-        });
-
-        setFetchData(newData);
-      } catch (e) {
-        console.error("지도 중심 기준 건물 정보 가져오기 실패", e);
-      }
-    };
-
-    fetch();
-  }, [mapCenter, currentMonth]);
-
+  // floating button offset
   useEffect(() => {
     const updateOffset = () => {
       const screenWidth = window.innerWidth;
@@ -158,70 +119,152 @@ export const ExerciseMapPage = () => {
     return () => window.removeEventListener("resize", updateOffset);
   }, []);
 
+  // 카카오 SDK 로드 + 맵 1회 생성
   useEffect(() => {
-    if (!window.kakao?.maps?.load || !buildingData) return;
+    if (!buildingData) return;
+    if (!mapRef.current) return;
 
-    window.kakao.maps.load(() => {
-      const kakao = window.kakao;
-      const container = mapRef.current;
-      if (!container) return;
+    let cancelled = false;
 
-      const { centerLatitude, centerLongitude } = buildingData;
-      const centerPos = new kakao.maps.LatLng(centerLatitude, centerLongitude);
+    const initMap = async () => {
+      try {
+        await loadKakaoMap(import.meta.env.VITE_APP_KAKAO_MAP_KEY);
+        if (cancelled) return;
 
-      const map = new kakao.maps.Map(container, {
-        center: centerPos,
-        level: 3,
-        draggable: true,
-        scrollwheel: true,
-      });
-      mapInstance.current = map;
+        window.kakao.maps.load(() => {
+          if (cancelled) return;
+          if (mapInstance.current) return; // 이미 생성
 
-      const myLocationMarker = new kakao.maps.Marker({
-        position: centerPos,
-        image: new kakao.maps.MarkerImage(
-          myLocationIcon,
-          new kakao.maps.Size(40, 40),
-          { offset: new kakao.maps.Point(20, 20) },
+          const { centerLatitude, centerLongitude } = buildingData;
+          const centerPos = new window.kakao.maps.LatLng(
+            centerLatitude,
+            centerLongitude,
+          );
+
+          const map = new window.kakao.maps.Map(mapRef.current!, {
+            center: centerPos,
+            level: 3,
+            draggable: true,
+            scrollwheel: true,
+          });
+          mapInstance.current = map;
+
+          // 내 위치 마커
+          const myLocationMarker = new window.kakao.maps.Marker({
+            position: centerPos,
+            image: new window.kakao.maps.MarkerImage(
+              myLocationIcon,
+              new window.kakao.maps.Size(40, 40),
+              { offset: new window.kakao.maps.Point(20, 20) },
+            ),
+          });
+          myLocationMarker.setMap(map);
+          myMarkerRef.current = myLocationMarker;
+
+          // idle 리스너
+          const handleIdle = () => {
+            const center = map.getCenter();
+            const newCenter = { lat: center.getLat(), lng: center.getLng() };
+
+            if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+            idleTimeoutRef.current = setTimeout(() => {
+              setMapCenter(newCenter);
+            }, 800);
+          };
+
+          window.kakao.maps.event.addListener(map, "idle", handleIdle);
+
+          // 초기 중심값도 세팅
+          setMapCenter({ lat: centerLatitude, lng: centerLongitude });
+        });
+      } catch (err) {
+        console.error("kakao Map init failed: ", err);
+      }
+    };
+
+    initMap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [buildingData]);
+
+  // 지도 중심 변경되면 건물 정보 새로 가져오기
+  useEffect(() => {
+    if (!mapCenter) return;
+
+    const fetchByCenter = async () => {
+      if (inFlightcenterFetchRef.current) return;
+      inFlightcenterFetchRef.current = true;
+      try {
+        const newData = await fetchMonthlyBuildings({
+          date: currentMonth,
+          latitude: mapCenter.lat,
+          longitude: mapCenter.lng,
+          radiusKm: 3,
+        });
+
+        setFetchData(newData);
+      } catch (e) {
+        console.error("지도 중심 기준 건물 정보 가져오기 실패", e);
+      } finally {
+        inFlightcenterFetchRef.current = false;
+      }
+    };
+
+    fetchByCenter();
+  }, [mapCenter, currentMonth]);
+
+  // 마커 갱신: selectedDate/effectiveData 바뀔 때마다 기존 마커 제거 후 다시 그림
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || !window.kakao.maps) return;
+
+    // 기존 마커 제거
+    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current = [];
+
+    const buildings = effectiveData?.buildings?.[selectedDate] || [];
+
+    buildings.forEach(building => {
+      const marker = new window.kakao.maps.Marker({
+        position: new window.kakao.maps.LatLng(
+          building.latitude,
+          building.longitude,
+        ),
+        image: new window.kakao.maps.MarkerImage(
+          markerIcon,
+          new window.kakao.maps.Size(28.8, 35.2),
+          { offset: new window.kakao.maps.Point(14.4, 35.2) },
         ),
       });
-      myLocationMarker.setMap(map);
 
-      const buildings = effectiveData?.buildings[selectedDate] || [];
+      marker.setMap(map);
+      markersRef.current.push(marker);
 
-      buildings.forEach(building => {
-        const marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(
-            building.latitude,
-            building.longitude,
-          ),
-          image: new kakao.maps.MarkerImage(
-            markerIcon,
-            new kakao.maps.Size(28.8, 35.2),
-            { offset: new kakao.maps.Point(20, 20) },
-          ),
-          map,
-        });
+      window.kakao.maps.event.addListener(marker, "click", async () => {
+        try {
+          const detail = await fetchExerciseDetail({
+            date: selectedDate,
+            buildingName: building.buildingName,
+            streetAddr: building.streetAddr,
+          });
 
-        kakao.maps.event.addListener(marker, "click", async () => {
-          try {
-            const detail = await fetchExerciseDetail({
-              date: selectedDate,
-              buildingName: building.buildingName,
-              streetAddr: building.streetAddr,
-            });
-
-            console.log(detail);
-            setSelectedLocation(detail);
-            setIsExpanded(false); // 바텀시트 초기 높이로
-          } catch (e) {
-            console.error("운동 상세 조회 실패:", e);
-          }
-        });
+          setSelectedLocation(detail);
+          setIsExpanded(false);
+        } catch (err) {
+          console.error("운동 상세 조회 실패:", err);
+        }
       });
     });
-  }, [buildingData, selectedDate]);
 
+    return () => {
+      markersRef.current.forEach(m => m.setMap(null));
+      markersRef.current = [];
+    };
+  }, [selectedDate, effectiveData]);
+
+  // 바텀 시트 내부 스크롤 시 드래그 토글
   useEffect(() => {
     if (!isExpanded || !scrollRef.current) return;
     const el = scrollRef.current;
@@ -238,12 +281,18 @@ export const ExerciseMapPage = () => {
       info.offset.y < -10 &&
       selectedLocation &&
       selectedLocation.exercises.length > 2
-    )
+    ) {
       setIsExpanded(true);
-    else if (info.offset.y > 150 && enableDrag) {
+      return;
+    }
+
+    if (info.offset.y > 150 && enableDrag) {
       setIsExpanded(false);
       setSelectedLocation(null);
-    } else setIsExpanded(false);
+      return;
+    }
+
+    setIsExpanded(false);
   };
 
   // 운동 있는 날짜 리스트 추출
@@ -342,9 +391,7 @@ export const ExerciseMapPage = () => {
                   imageSrc={exercise.profileImageUrl ?? DefaultGroupImg}
                   className="w-full"
                   onClick={() =>
-                    navigate(
-                      `/group/${exercise.partyId}?date={${selectedDate}}`,
-                    )
+                    navigate(`/group/${exercise.partyId}?date=${selectedDate}`)
                   }
                 />
               </div>

@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { WorkoutDayEntry } from "./WorkoutDayEntry";
-import { addDays, generateWeeksFromRange } from "../../utils/dateUtils";
+import { WorkoutDayEntry } from "@/components/home/WorkoutDayEntry";
+import { addDays, generateWeeksFromRange } from "@/utils/dateUtils";
 import type { Swiper as SwiperClass } from "swiper";
-import type { CalendarData, Exercise } from "../../types/calendar";
-import { getMyExerciseCalendarApi } from "../../api/exercise/getMyExerciseCalendarApi";
-import CustomhomeWeekly from "./CustomhomeWeekly";
+import type { CalendarData, Exercise } from "@/types/calendar";
+import { getMyExerciseCalendarApi } from "@/api/exercise/getMyExerciseCalendarApi";
+import CustomhomeWeekly from "@/components/home/CustomhomeWeekly";
 import { useNavigate } from "react-router-dom";
-import { LoadingSpinner } from "../common/LoadingSpinner";
 
 // 오늘 날짜 생성 헬퍼 함수
 const getTodayString = () => {
@@ -21,15 +20,28 @@ interface MyExerciseCalendarProps {
   setCount: (count: number) => void;
 }
 
+// 초기 빈 캘린더 값 (2주 전 ~ 2주 후)
+const buildInitialCalendar = () => {
+  const today = getTodayString();
+
+  const startDate = addDays(today, -14);
+  const endDate = addDays(today, 14);
+
+  return {
+    startDate,
+    endDate,
+    weeks: generateWeeksFromRange(startDate, endDate),
+  };
+};
+
 export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
+  const [calendarData, setCalendarData] = useState<CalendarData>(() =>
+    buildInitialCalendar(),
+  );
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
-
   const swiperRef = useRef<SwiperClass | null>(null);
+  const inFlightRef = useRef(false);
 
   // 오늘 날짜 운동 개수 계산
   useEffect(() => {
@@ -50,8 +62,8 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
       endDate: string | null,
       direction?: "past" | "future",
     ) => {
-      const setLoading = direction ? setIsFetchingMore : setIsLoading;
-      setLoading(true);
+      if (inFlightRef.current) return;
+      inFlightRef.current = true;
       try {
         const newData = await getMyExerciseCalendarApi(startDate, endDate);
 
@@ -99,9 +111,7 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
           setCalendarData(newData);
         }
       } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
+        console.log(err);
       }
     },
     [],
@@ -119,7 +129,7 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
   // 무한 스크롤 핸들러
   const handleSlideChange = useCallback(
     (swiper: SwiperClass) => {
-      if (isFetchingMore || !calendarData) return;
+      if (inFlightRef.current) return;
       const buffer = 2;
       if (swiper.activeIndex >= calendarData.weeks.length - buffer) {
         const newStartDate = addDays(calendarData.endDate, 1);
@@ -132,7 +142,7 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
         fetchAndProcessData(newStartDate, newEndDate, "past");
       }
     },
-    [calendarData, isFetchingMore, fetchAndProcessData],
+    [calendarData, fetchAndProcessData],
   );
 
   const initialSlideIndex = useMemo(() => {
@@ -162,14 +172,6 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
     return allDays.find(d => d.date === selectedDate)?.exercises ?? [];
   }, [selectedDate, calendarData]);
 
-  if (isLoading)
-    return (
-      <div className="text-center">
-        <LoadingSpinner />
-      </div>
-    );
-  if (error) return <div></div>;
-
   const handleExerciseClick = (partyId: number) => {
     navigate(`/group/${partyId}?date=${selectedDate}`);
   };
@@ -177,16 +179,14 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
   return (
     <>
       <div className="w-full h-17">
-        {calendarData && (
-          <CustomhomeWeekly
-            weeks={calendarData.weeks}
-            selectedDate={selectedDate}
-            exerciseDays={exerciseDays}
-            onClick={handleDateClick}
-            onSlideChange={handleSlideChange}
-            initialSlide={initialSlideIndex}
-          />
-        )}
+        <CustomhomeWeekly
+          weeks={calendarData.weeks}
+          selectedDate={selectedDate}
+          exerciseDays={exerciseDays}
+          onClick={handleDateClick}
+          onSlideChange={handleSlideChange}
+          initialSlide={initialSlideIndex}
+        />
       </div>
       <WorkoutDayEntry
         exerciseData={selectedDayExercises}

@@ -1,3 +1,4 @@
+//신규 멤버 초대 화면
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import Btn_Static from "../../../components/common/Btn_Static/Btn_Static";
@@ -38,6 +39,16 @@ export const GroupMember = () => {
     size: 10,
   });
 
+  //임시 데이터
+  const MOCK_MEMBERS: ApiMember[] = Array.from({ length: 10 }, (_, index) => ({
+    userId: 1000 + index,
+    nickname: `게스트 ${index + 1}`,
+    gender: index % 2 === 0 ? "MALE" : "FEMALE",
+    level: ["초심자", "D조", "C조", "B조", "A조"][index % 5],
+    profileImageUrl: null,
+    status: "invite",
+  }));
+
   const submitInvite = async (userId: number) => {
     const res = await api.post(`/api/parties/${partyId}/invitations`, {
       userId,
@@ -63,7 +74,7 @@ export const GroupMember = () => {
     },
   });
 
-  const members: ApiMember[] = page?.content || [];
+  const members: ApiMember[] = page?.content?.length ? page.content : MOCK_MEMBERS;
 
   const memberList = useMemo(
     () =>
@@ -77,7 +88,11 @@ export const GroupMember = () => {
       })),
     [members],
   );
+  if (!isLoading) {
 
+    console.log(page);
+
+  }
   const filteredMembers = useMemo(() => {
     const filterText = debouncedSearch.trim().toLowerCase();
     if (!filterText) return memberList;
@@ -86,9 +101,6 @@ export const GroupMember = () => {
     );
   }, [memberList, debouncedSearch]);
 
-  if (!isLoading) {
-    console.log(page);
-  }
   const openModal = (userId: number) => {
     setSelectedUserId(userId);
     setIsOpenModal(true);
@@ -108,9 +120,12 @@ export const GroupMember = () => {
 
   return (
     <>
-      <div className="flex flex-col -mb-8 pt-14 min-h-dvh">
+      <div className="flex flex-col -mb-8 pt-14 min-h-dvh relative">
         <PageHeader title="신규 멤버 추천" />
-        <section className="text-left flex flex-col  gap-5 w-full mb-6 flex-1">
+        
+        {/* 🌟 1. 리스트 영역에 하단 패딩(pb-24) 추가 
+             버튼이 Fixed로 뜨기 때문에 리스트 끝부분이 가려지지 않게 여백 확보 */}
+        <section className="text-left flex flex-col gap-5 w-full mb-6 flex-1 pb-24">
           {/* 첫번째 */}
           <div className="mt-4">
             <SearchInput
@@ -129,9 +144,9 @@ export const GroupMember = () => {
           ))}
         </section>
 
-        {/* 버튼 */}
+        {/* 🌟 2. 버튼 Fixed 적용 */}
         <div
-          className={`flex items-center justify-center mb-6 mt-38 shrink-0 `}
+          className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[444px] px-4 pb-8 pt-4 z-10"
           onClick={handleNext}
         >
           <Btn_Static
@@ -141,6 +156,7 @@ export const GroupMember = () => {
             initialStatus={"default"}
           />
         </div>
+
         {isOpenModal && (
           <div className="fixed inset-0 flex justify-center items-center z-50">
             <InviteModal

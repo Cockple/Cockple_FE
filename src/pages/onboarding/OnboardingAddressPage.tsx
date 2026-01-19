@@ -1,7 +1,7 @@
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import { ProgressBar } from "../../components/common/ProgressBar";
-import IntroText from "../../components/onboarding/IntroText";
-import { LocationField } from "../../components/common/LocationField";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
+import { ProgressBar } from "@/components/common/ProgressBar";
+import IntroText from "@/components/onboarding/IntroText";
+import { LocationField } from "@/components/common/LocationField";
 
 export const OnboardingAddressPage = () => {
   return (

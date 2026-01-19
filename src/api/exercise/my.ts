@@ -25,6 +25,7 @@ export interface ExerciseItem {
   };
   isBookmarked: boolean;
   isCompleted: boolean;
+  isParticipating: boolean;
 }
 
 

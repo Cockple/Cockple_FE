@@ -1,24 +1,20 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { PageHeader } from "../../components/common/system/header/PageHeader";
-import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
+import GR400_L from "@/components/common/Btn_Static/Text/GR400_L";
 import Search from "@/assets/icons/search.svg?react";
-import type { Place } from "./LocationSearchPage";
-import { ProgressBar } from "../../components/common/ProgressBar";
+import type { Place } from "@/pages/location/LocationSearchPage";
+import { ProgressBar } from "@/components/common/ProgressBar";
 import Marker from "@/assets/icons/map_marker.svg?url";
-import { transformPlaceToPayload } from "../../utils/address";
-import { postMyProfileLocation } from "../../api/member/my";
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    kakao: any;
-  }
-}
+import { transformPlaceToPayload } from "@/utils/address";
+import { postMyProfileLocation } from "@/api/member/my";
+import { loadKakaoMap } from "@/utils/loadKakaoMap";
 
 export const LocationMapPage = () => {
   const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapInstanceRef = useRef<any>(null);
   const [searchParams] = useSearchParams();
 
   const x = searchParams.get("x");
@@ -45,40 +41,63 @@ export const LocationMapPage = () => {
       navigate(returnPath, {
         state: { selectedPlace: place },
       });
-      console.log(returnPath);
     }
   };
 
+  // 카카오맵 로드 + 지도 초기화
   useEffect(() => {
-    const kakao = window.kakao;
-    if (!mapRef.current || !kakao || !x || !y) return;
+    if (!x || !y || !mapRef.current) return;
 
-    kakao.maps.load(() => {
-      const lat = parseFloat(y);
-      const lng = parseFloat(x);
-      const centerPos = new kakao.maps.LatLng(lat, lng);
+    let cancelled = false;
 
-      const mapOption = {
-        center: centerPos,
-        level: 2,
-        draggable: true,
-        srcollwheel: true,
-      };
+    const initMap = async () => {
+      try {
+        await loadKakaoMap(import.meta.env.VITE_APP_KAKAO_MAP_KEY);
+        if (cancelled) return;
 
-      const map = new kakao.maps.Map(mapRef.current, mapOption);
+        window.kakao.maps.load(() => {
+          if (cancelled) return;
+          if (mapInstanceRef.current) return;
 
-      new kakao.maps.Marker({
-        position: centerPos,
-        map,
-        image: new kakao.maps.MarkerImage(Marker, new kakao.maps.Size(40, 40), {
-          offset: new kakao.maps.Point(20, 20),
-        }),
-      });
-    });
+          const lat = parseFloat(y);
+          const lng = parseFloat(x);
+          const centerPos = new window.kakao.maps.LatLng(lat, lng);
+
+          const map = new window.kakao.maps.Map(mapRef.current!, {
+            center: centerPos,
+            level: 2,
+            draggable: true,
+            scrollwheel: true,
+          });
+
+          mapInstanceRef.current = map;
+
+          new window.kakao.maps.Marker({
+            position: centerPos,
+            map,
+            image: new window.kakao.maps.MarkerImage(
+              Marker,
+              new window.kakao.maps.Size(40, 40),
+              {
+                offset: new window.kakao.maps.Point(20, 20),
+              },
+            ),
+          });
+        });
+      } catch (err) {
+        console.error("kaako map init failed: ", err);
+      }
+    };
+
+    initMap();
+
+    return () => {
+      cancelled = true;
+    };
   }, [x, y]);
 
   return (
-    <div className="flex flex-col h-dvh -mx-4 overflow-y-hidden relativ -mb-8 pt-14">
+    <div className="flex flex-col h-dvh -mx-4 overflow-y-hidden relative -mb-8 pt-14">
       <PageHeader
         title="주소 검색"
         className="px-4"

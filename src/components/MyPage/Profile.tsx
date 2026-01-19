@@ -18,6 +18,7 @@ export const Profile = ({
   birth,
   profileImage,
 }: ProfileProps) => {
+  
   //이미지 File로 받기 위한 처리부분
   const [imageUrl, setImageUrl] = useState<string>("");
   useEffect(() => {

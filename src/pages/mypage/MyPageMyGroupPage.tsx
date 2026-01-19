@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Sort from "../../components/common/Sort";
@@ -7,199 +7,131 @@ import { Group_M } from "../../components/common/contentcard/Group_M";
 import { MyGroupNone } from "../../components/MyPage/MyGroupNone";
 import CheckCircled from "../../assets/icons/check_circled.svg?react";
 import CheckCircledFilled from "../../assets/icons/check_circled_filled.svg?react";
-import { getMyGroups, type PartyData } from "../../api/party/my";
-import { useLikedGroupIds } from "../../hooks/useLikedItems";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
-import { getParties } from "../../api/member/profile";
+import { useLikedGroupIds } from "../../hooks/useLikedItems";
+import { useGroupPagination } from "../../hooks/useGroupPagination"; 
 
 export const MyPageMyGroupPage = () => {
-  const [groups, setGroups] = useState<PartyData[]>([]);
-  const [isChecked, setIsChecked] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const memberId = searchParams.get("memberId");
+
+  // 상태 관리
+  const [isChecked, setIsChecked] = useState(false); // 내가 만든 모임 필터
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState("최신순");
 
-  const location = useLocation();
-  const navigate = useNavigate();
+  // 좋아요 데이터 (React Query 캐시 활용)
+  const { data: likedGroupIds = [], isLoading: isLikeLoading } = useLikedGroupIds();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const pageSize = 50;
-
-  const { data: likedGroupIds = [], isLoading: isGroupLikedLoading } =
-    useLikedGroupIds();
-
-  const searchParams = new URLSearchParams(location.search);
-  const memberId = searchParams.get("memberId");
-  console.log(memberId);
-  const isMinePage = !memberId;
-
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const isLoadingRef = useRef(isLoading);
-  useEffect(() => {
-    isLoadingRef.current = isLoading;
-  }, [isLoading]);
-
-  const lastElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (observerRef.current) observerRef.current.disconnect();
-      if (!node || !hasMore) return;
-
-      observerRef.current = new IntersectionObserver(entries => {
-        const entry = entries[0];
-        if (entry.isIntersecting && hasMore && !isLoadingRef.current) {
-          setPage(prev => prev + 1);
-        }
-      });
-
-      observerRef.current.observe(node);
-    },
-    [isLoading, hasMore],
+  // 페이지네이션 Hook 사용
+  const { groups, isLoading, hasMore, observerRef } = useGroupPagination(
+    memberId,
+    isChecked,
+    sortOption
   );
 
-  // 그룹 데이터 fetch
-  useEffect(() => {
-    const fetchGroups = async () => {
-      if (!hasMore) return;
-      setIsLoading(true);
+  // 렌더링 헬퍼 변수
+  const isEmpty = !isLoading && groups.length === 0;
+  const showList = groups.length > 0;
 
-      try {
-        let result: PartyData[];
-
-        if (isMinePage) {
-          result = await getMyGroups({
-            created: isChecked,
-            sort: sortOption,
-            page,
-            size: pageSize,
-          });
-        } else {
-          result = await getParties(
-            Number(memberId),
-            page,
-            pageSize,
-            sortOption,
-          );
-        }
-
-        const resultWithLike = result.map(group => ({
-          ...group,
-          like: likedGroupIds.includes(group.partyId),
-        }));
-
-        setGroups(prev => {
-          const merged =
-            page === 0 ? resultWithLike : [...prev, ...resultWithLike];
-          const uniqueMap = new Map<number, PartyData>();
-          merged.forEach(group => uniqueMap.set(group.partyId, group));
-          return Array.from(uniqueMap.values());
-        });
-
-        setHasMore(resultWithLike.length === pageSize);
-      } catch (err) {
-        console.error("모임 데이터를 불러오는 데 실패했습니다.", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (!isGroupLikedLoading) fetchGroups();
-  }, [
-    isChecked,
-    sortOption,
-    page,
-    likedGroupIds,
-    isGroupLikedLoading,
-    hasMore,
-    memberId,
-    isMinePage,
-  ]);
-
-  // 필터/정렬 변경 시 초기화
-  useEffect(() => {
-    setPage(0);
-    setGroups([]);
-    setHasMore(true);
-  }, [isChecked, sortOption, memberId]);
-
-  // 뒤로가기
   const onBackClick = () => {
-    // const returnParam = searchParams.get("return");
-    // navigate(returnParam ?? "/mypage");
-     navigate(-1);
+    navigate(-1);
   };
 
-  const hasGroups = groups.length > 0;
+  if (isLikeLoading) return <LoadingSpinner />;
 
-
-  return (
+ return (
     <div className="flex flex-col min-h-screen w-full max-w-[23.4375rem] bg-white mx-auto">
-      <div className="sticky top-0 z-20">
+      <div className="sticky top-0 z-20 bg-white">
         <PageHeader title="내 모임" onBackClick={onBackClick} />
       </div>
+      <div className="flex-1 flex flex-col mt-4 pb-6"> 
+        
+        {showList && (
+          <div className="mb-8 flex justify-between items-start">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setIsChecked(!isChecked)}
+                className="flex items-center justify-center"
+              >
+                {isChecked ? (
+                  <CheckCircledFilled className="w-4 h-4" />
+                ) : (
+                  <CheckCircled className="w-4 h-4" />
+                )}
+              </button>
+              <label 
+                className="body-rg-500 cursor-pointer" 
+                onClick={() => setIsChecked(!isChecked)}
+              >
+                내가 만든 모임
+              </label>
+            </div>
+            <Sort
+              label={sortOption}
+              isOpen={isSortOpen}
+              onClick={() => setIsSortOpen(!isSortOpen)}
+            />
+          </div>
+        )}
 
-      <div className="flex-1 flex flex-col mt-4">
-        {groups.length === 0 && isLoading ? (
-          <div className="flex flex-1 items-center justify-center py-20">
+        {/* 리스트 영역 */}
+        {showList && (
+          <div className="flex flex-col gap-4">
+            {groups.map((group, index) => (
+              <div key={`${group.partyId}-${index}`}>
+                <Group_M
+                  id={group.partyId}
+                  groupName={group.partyName}
+                  groupImage={group.partyImgUrl ?? DefaultGroupImg}
+                  location={`${group.addr1} / ${group.addr2}`}
+                  femaleLevel={group.femaleLevel}
+                  maleLevel={group.maleLevel}
+                  nextActivitDate={group.nextExerciseInfo}
+                  upcomingCount={group.totalExerciseCount}
+                  like={likedGroupIds.includes(group.partyId)}
+                  isMine={group.isMine ?? false}
+                  onClick={() =>
+                    navigate(
+                      `/group/${group.partyId}?return=${encodeURIComponent(
+                        location.pathname + location.search
+                      )}`
+                    )
+                  }
+                />
+                {index < groups.length - 1 && (
+                  <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                )}
+              </div>
+            ))}
+
+            {/* 무한 스크롤 감지 트리거 */}
+            <div ref={observerRef} className="h-4" />
+
+            {/* 추가 로딩 스피너 */}
+            {isLoading && hasMore && (
+              <div className="flex justify-center py-4">
+                <LoadingSpinner />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 초기 로딩 중 */}
+        {isLoading && !showList && (
+          <div className="flex flex-col items-center justify-center h-[60vh]">
             <LoadingSpinner />
           </div>
-        ) : hasGroups ? (
-          <>
-            <div className="mb-8 flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <button onClick={() => setIsChecked(!isChecked)}>
-                  {isChecked ? (
-                    <CheckCircledFilled className="w-4 h-4" />
-                  ) : (
-                    <CheckCircled className="w-4 h-4" />
-                  )}
-                </button>
-                <label className="body-rg-500">내가 만든 모임</label>
-              </div>
-              <Sort
-                label={sortOption}
-                isOpen={isSortOpen}
-                onClick={() => setIsSortOpen(!isSortOpen)}
-              />
-            </div>
+        )}
 
-            <div className="flex-1 flex flex-col gap-4">
-              {groups.map((group, index) => {
-                const isLast = index === groups.length - 1;
-                return (
-                  <div key={group.partyId} ref={isLast ? lastElementRef : null}>
-                    <Group_M
-                      id={group.partyId}
-                      groupName={group.partyName}
-                      groupImage={group.partyImgUrl ?? DefaultGroupImg}
-                      location={`${group.addr1} / ${group.addr2}`}
-                      femaleLevel={group.femaleLevel}
-                      maleLevel={group.maleLevel}
-                      nextActivitDate={group.nextExerciseInfo}
-                      upcomingCount={group.totalExerciseCount}
-                      like={group.isBookmarked}
-                      isMine={group.isMine ?? false}
-                      onClick={() =>
-                        navigate(
-                          `/group/${group.partyId}?return=${encodeURIComponent(location.pathname + location.search)}`,
-                        )
-                      }
-                    />
-                    <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-                  </div>
-                );
-              })}
-
-              {isLoading && hasMore && (
-                <div className="flex justify-center items-center py-4">
-                  <LoadingSpinner />
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <MyGroupNone />
+        {/* 데이터 없음 */}
+        {isEmpty && (
+          <div className="flex flex-col items-center justify-center mt-20">
+            <MyGroupNone />
+          </div>
         )}
       </div>
 
@@ -207,7 +139,7 @@ export const MyPageMyGroupPage = () => {
         isOpen={isSortOpen}
         onClose={() => setIsSortOpen(false)}
         selected={sortOption}
-        onSelect={option => setSortOption(option)}
+        onSelect={(option) => setSortOption(option)}
         options={["최신순", "오래된 순", "운동 많은 순"]}
       />
     </div>

@@ -6,7 +6,7 @@ import Star from "../../../assets/icons/star.svg?react";
 import Female from "../../../assets/icons/female.svg?react";
 import Male from "../../../assets/icons/male.svg?react";
 import Message from "../../../assets/icons/message.svg?react";
-import { Modal_Invite } from "../../group/Modal_Invite";
+import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import { Modal_Subtract } from "../../group/Modal_Subtract";
 import { useState } from "react";
 import type { ModalConfig } from "../../group/modalConfig";
@@ -252,11 +252,11 @@ export const Member = ({
               }}
             />
             {isApplyModalOpen && (
-              <Modal_Invite
-                onConfirm={() => {
+              <InviteModal
+                onInvite={() => {
                   setIsApplyModalOpen(false);
                 }}
-                onCancel={() => {
+                onClose={() => {
                   setIsApplyModalOpen(false);
                 }}
               />
