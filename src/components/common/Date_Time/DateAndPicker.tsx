@@ -17,7 +17,7 @@ const DateAndTimePicker = forwardRef<
   const [selectedMonth, setSelectedMonth] = useState("01");
   const [selectedDay, setSelectedDay] = useState("01");
   const [selectedHours, setSelectedHours] = useState("01");
-  const [selectedMinutes, setSelectedMinutes] = useState("01");
+  const [selectedMinutes, setSelectedMinutes] = useState("00");
   const [selectedPeriods, setSelectedPeriods] = useState("am");
 
   const getDueString = () => {
@@ -50,7 +50,7 @@ const DateAndTimePicker = forwardRef<
   // console.log(hours);
 
   const minutes = Array.from({ length: 60 }, (_, i) =>
-    String(i + 1).padStart(2, "0"),
+    String(i).padStart(2, "0"),
   );
 
   const periods = ["am", "pm"];
