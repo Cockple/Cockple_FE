@@ -22,7 +22,7 @@ const DateAndTimePicker = forwardRef<
 
   const getDueString = () => {
     if (showTime) {
-      return `${selectedHours}시 ${selectedMinutes}분 ${selectedPeriods}`; //이 부분은 임시로 작성한 것이라..추후 사용되는 부분에 따라서 추가 수정해야할 거 같습니다
+      return `${selectedHours}시 ${selectedMinutes}분 ${selectedPeriods}`;
     } else {
       return `${selectedYear}.${selectedMonth}.${selectedDay}`;
     }
