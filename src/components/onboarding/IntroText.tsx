@@ -15,7 +15,7 @@ export default function IntroText({
 }: IntroTextProps) {
   return (
     <div
-      className={`flex flex-col gap-2   ${isBar ? "pt-8" : "items-stretch text-left  w-full pt-23"} ${className}`}
+      className={`flex flex-col gap-2   ${isBar ? "pt-15" : "items-stretch text-left  w-full pt-30"} ${className}`}
     >
       <p className="header-h4">{title}</p>
       <div className="body-md-500">
