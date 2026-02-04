@@ -11,6 +11,7 @@ interface CustomhomeWeeklyProps {
   onClick?: (date: string) => void;
   onSlideChange?: (swiper: SwiperClass) => void;
   initialSlide?: number;
+  onSwiper?: (swiper: SwiperClass) => void;
 }
 
 const getKoreanDay = (day: DayOfWeek): string => {
@@ -33,6 +34,7 @@ export default function CustomhomeWeekly({
   exerciseDays = [],
   onSlideChange,
   initialSlide,
+  onSwiper,
 }: CustomhomeWeeklyProps) {
   const swiperRef = useRef<{ swiper: SwiperClass } | null>(null);
   const [internalSelected, setInternalSelected] = useState(selectedDate);
@@ -46,17 +48,14 @@ export default function CustomhomeWeekly({
     onClick?.(date);
   };
 
-  // 🔥 핵심: Swiper 컴포넌트에 `key` prop을 추가합니다.
-  // `initialSlide` 값이 바뀔 때마다 Swiper가 강제로 리마운트되면서
-  // `initialSlide` prop을 확실하게 반영하게 됩니다.
   return (
     <Swiper
-      key={initialSlide} // ✨ 이 key가 타이밍 문제를 해결합니다.
       initialSlide={initialSlide} // ✨ 초기 슬라이드 위치 설정
       ref={swiperRef}
       onSlideChange={onSlideChange}
       onSwiper={swiper => {
         swiperRef.current = { swiper };
+        if (onSwiper) onSwiper(swiper);
       }}
       spaceBetween={4}
       slidesPerView={1}
