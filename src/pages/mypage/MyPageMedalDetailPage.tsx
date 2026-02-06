@@ -13,10 +13,10 @@ import { getMemberContestDetail } from "../../api/contest/member";
 import type { ContestDetailResponse } from "../../api/contest/member";
 import type { ContestRecordDetailResponse } from "../../api/contest/contestmy";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner"; 
-import Medal_1 from "../../assets/icons/Medal_1.svg?react";
-import Medal_2 from "../../assets/icons/Medal_2.svg?react";
-import Medal_3 from "../../assets/icons/Medal_3.svg?react";
-import Medal_4 from "../../assets/icons/Medal_4.svg?react";
+import Transparent_Medal_1 from "@/assets/icons/Transparent_Medal_1.svg?react";
+import Transparent_Medal_2 from "@/assets/icons/Transparent_Medal_2.svg?react";
+import Transparent_Medal_3 from "@/assets/icons/Transparent_Medal_3.svg?react";
+import Transparent_Medal_4 from "@/assets/icons/Transparent_Medal_4.svg?react";
 
 interface MedalDetail {
   photo?: string[];
@@ -183,15 +183,15 @@ export const MyPageMedalDetailPage = () => {
 
         {/* 오버레이 영역 */}
         <div className="absolute -bottom-8 left-4 right-4 flex items-start justify-between gap-4 z-10">
-          <div className="bg-white overflow-hidden">
+          <div className="overflow-hidden">
             {medalDetail.medalType === "GOLD" ? (
-              <Medal_1 className="w-full h-full" />
+              <Transparent_Medal_1 className="w-full h-full" />
             ) : medalDetail.medalType === "SILVER" ? (
-              <Medal_2 className="w-full h-full" />
+              <Transparent_Medal_2 className="w-full h-full" />
             ) : medalDetail.medalType === "BRONZE" ? (
-              <Medal_3 className="w-full h-full" />
+              <Transparent_Medal_3 className="w-full h-full" />
             ) : medalDetail.medalType === "NONE" ? (
-              <Medal_4 className="w-full h-full" />
+              <Transparent_Medal_4 className="w-full h-full" />
             ):
             null}
           </div>
