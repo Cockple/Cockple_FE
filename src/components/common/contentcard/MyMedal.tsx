@@ -42,12 +42,8 @@ export const MyMedal = ({
   
   const handlePressEnd = () => setIsPressing(false);
 
-  // w-full로 변경하여 부모 컨테이너 너비에 맞추거나, 기존 고정 너비 유지
-  // flex items-center justify-between 등을 활용하기 위해 flex 구조 최적화
   const baseClasses =
     "p-[0.5rem] w-full h-[4.75rem] rounded-[0.75rem] flex items-center gap-[0.75rem] transition-colors duration-150";
-    // 만약 카드의 고정 너비를 유지해야 한다면 w-[21.4375rem] 그대로 두셔도 됩니다.
-    // 하지만 리스트 형태라면 w-full이 더 자연스럽습니다.
 
   let bgColor = "bg-white";
   let textColor = "text-black";
