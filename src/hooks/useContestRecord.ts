@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { 
   postMyContestRecord, 
   getContestRecordDetail, 
-  patchMyContestRecord 
+  patchMyContestRecord,
+  type AddContestImgRequest,
+  type AddContestVideoRequest,
+  type PostContestRecordRequest,
+  type PatchContestRecordRequest
 } from "../api/contest/contestmy";
 import { uploadImages } from "../api/image/imageUpload";
 import { 
@@ -14,7 +18,6 @@ import {
   extractKeyFromUrl, 
   FORM_OPTIONS 
 } from "../utils/MyPageConstants";
-import type { PostContestRecordRequest } from "../api/contest/contestmy";
 
 export const useContestRecord = () => {
   const navigate = useNavigate();
@@ -26,16 +29,21 @@ export const useContestRecord = () => {
   const medalData = location.state?.medalData ?? null;
   const isEditMode = mode === "edit";
 
+  // UI 상태
   const [photos, setPhotos] = useState<string[]>([]);
-  const [tournamentName, setTournamentName] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [videoLinks, setVideoLinks] = useState<string[]>([]);
   
+  // ID 족보 (URL -> ID 매핑)
+  const videoIdMap = useRef<Map<string, number>>(new Map());
+  const imgIdMap = useRef<Map<string, number>>(new Map());
+  
+  // 초기 데이터
   const [initialData, setInitialData] = useState<{ photos: string[], videos: string[] }>({ 
-    photos: [], 
-    videos: [] 
+    photos: [], videos: [] 
   });
 
+  const [tournamentName, setTournamentName] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectedForm, setSelectedForm] = useState<typeof FORM_OPTIONS[number] | null>(null);
   const [recordText, setRecordText] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
@@ -43,7 +51,7 @@ export const useContestRecord = () => {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 1. 초기 데이터 로드
+  // 1. 초기 데이터 로드 (변경 없음)
   useEffect(() => {
     const initializeData = async () => {
       let dataToSet: any = null;
@@ -51,22 +59,55 @@ export const useContestRecord = () => {
       if (isEditMode && contestId) {
         try {
           const data: any = await getContestRecordDetail(Number(contestId));
+          console.log("서버 원본 데이터:", data);
+
+          // 1. 영상 데이터 처리
+          const videoUrlSet = new Set<string>();
+          videoIdMap.current.clear(); 
           
-          let mappedVideoUrls: string[] = [];
-          if (data.contestVideoUrls) {
-             if (data.contestVideoUrls.length > 0 && typeof data.contestVideoUrls[0] === 'object') {
-                mappedVideoUrls = data.contestVideoUrls.map((v: any) => v.videoUrl || v.url);
-             } else {
-                mappedVideoUrls = data.contestVideoUrls;
-             }
+          if (Array.isArray(data.contestVideos)) {
+             data.contestVideos.forEach((v: any) => {
+                const rawUrl = v.videoUrl || v.videoKey || v.url || (typeof v === 'string' ? v : "");
+                if (rawUrl) {
+                   videoUrlSet.add(rawUrl);
+                   if (v.id) {
+                       videoIdMap.current.set(rawUrl, v.id);
+                   }
+                }
+             });
           }
+          if (Array.isArray(data.contestVideoUrls)) {
+             data.contestVideoUrls.forEach((url: string) => { 
+                 if(url && !videoUrlSet.has(url)) videoUrlSet.add(url);
+             });
+          }
+          const videoUrls = Array.from(videoUrlSet);
 
-          const sanitizedPhotos = data.contestImgUrls.map(sanitizeUrl);
+          // 2. 이미지 데이터 처리
+          const photoUrlSet = new Set<string>();
+          imgIdMap.current.clear(); 
 
-          setInitialData({
-            photos: sanitizedPhotos,
-            videos: mappedVideoUrls 
-          });
+          if (Array.isArray(data.contestImgs)) {
+             data.contestImgs.forEach((img: any) => {
+                const rawUrl = img.imgUrl || img.imgKey || (typeof img === 'string' ? img : "");
+                const url = sanitizeUrl(rawUrl);
+                if (url) {
+                   photoUrlSet.add(url);
+                   if (img.id) imgIdMap.current.set(url, img.id);
+                }
+             });
+          }
+          if (Array.isArray(data.contestImgUrls)) {
+             data.contestImgUrls.forEach((rawUrl: string) => {
+                const url = sanitizeUrl(rawUrl);
+                if(url && !photoUrlSet.has(url)) photoUrlSet.add(url);
+             });
+          }
+          const photoUrls = Array.from(photoUrlSet);
+
+          setInitialData({ photos: photoUrls, videos: videoUrls });
+          setPhotos(photoUrls);
+          setVideoLinks(videoUrls);
 
           dataToSet = {
             title: data.contestName,
@@ -74,8 +115,6 @@ export const useContestRecord = () => {
             type: data.type,
             level: data.level,
             record: data.content,
-            photo: sanitizedPhotos,
-            videoUrl: mappedVideoUrls,
             medalType: data.medalType,
             contentIsOpen: data.contentIsOpen,
           };
@@ -84,30 +123,29 @@ export const useContestRecord = () => {
         }
       } else if (isEditMode && medalData) {
         dataToSet = medalData;
+        if (medalData.photo) setPhotos(medalData.photo);
+        if (medalData.videoUrl) setVideoLinks(medalData.videoUrl);
       }
 
       if (dataToSet) {
         setTournamentName(dataToSet.title || "");
         setValue("tournamentName", dataToSet.title || "");
         setSelectedDate(dataToSet.date || "");
-        
         if (dataToSet.medalType) {
-            if (dataToSet.medalType === "GOLD") setSelectedIndex(0);
-            else if (dataToSet.medalType === "SILVER") setSelectedIndex(1);
-            else if (dataToSet.medalType === "BRONZE") setSelectedIndex(2);
-            else setSelectedIndex(null);
+           const mType = dataToSet.medalType.toUpperCase();
+           if (mType === "GOLD") setSelectedIndex(0);
+           else if (mType === "SILVER") setSelectedIndex(1);
+           else if (mType === "BRONZE") setSelectedIndex(2);
+           else setSelectedIndex(null);
         }
-        
         const typeMapReverse: any = { "SINGLE": "단식", "MEN_DOUBLES": "남복", "WOMEN_DOUBLES": "여복", "MIX_DOUBLES": "혼복", "MIXED": "혼복" };
         if (dataToSet.type && typeMapReverse[dataToSet.type]) setSelectedForm(typeMapReverse[dataToSet.type]);
+        else if (Object.values(typeMapReverse).includes(dataToSet.type)) setSelectedForm(dataToSet.type);
 
-        const levelMapReverse: any = { "NOVICE": "왕초심", "BEGINNER": "초심", "D": "D조", "C": "C조", "B": "B조", "A": "A조", "SEMI_EXPERT": "준자강", "EXPERT": "자강", "NONE": "급수 없음", "INTERMEDIATE": "C조", "ADVANCED": "A조" };
-        setSelectedLevel(dataToSet.level ? levelMapReverse[dataToSet.level] ?? "" : "");
-
+        const levelMapReverse: any = { "NOVICE": "왕초심", "BEGINNER": "초심", "D": "D조", "C": "C조", "B": "B조", "A": "A조", "SEMI_EXPERT": "준자강", "EXPERT": "자강" };
+        setSelectedLevel(levelMapReverse[dataToSet.level] ?? dataToSet.level);
         setRecordText(dataToSet.record || "");
         setIsPrivate(!dataToSet.contentIsOpen);
-        setVideoLinks(dataToSet.videoUrl || []); 
-        setPhotos(dataToSet.photo || []);
       }
     };
     initializeData();
@@ -116,11 +154,8 @@ export const useContestRecord = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    const availableSlots = 3 - photos.length;
-    const fileArray = Array.from(files).slice(0, availableSlots);
-    if (fileArray.length === 0) return;
     try {
-      const { images } = await uploadImages("CONTEST", fileArray);
+      const { images } = await uploadImages("CONTEST", Array.from(files));
       setPhotos(prev => [...prev, ...images.map(img => img.imgUrl)].slice(0, 3));
     } catch (err) {
       console.error(err);
@@ -136,20 +171,18 @@ export const useContestRecord = () => {
 
   const isSaveEnabled = tournamentName.trim() !== "" && selectedDate !== "" && selectedForm !== null && selectedLevel !== "";
 
-  // 3. 저장 로직 (PATCH)
-  // 3. 저장 로직 (PATCH 사용)
+  // 3. 저장 로직
   const handleSaveClick = async () => {
     if (!isSaveEnabled) return;
 
     try {
       const mappedType = selectedForm ? TYPE_MAP[selectedForm] : "SINGLE";
       const mappedLevel = selectedLevel ? LEVEL_MAP[selectedLevel] : "EXPERT";
-      
       const currentMedalType = (
         selectedIndex === 0 ? "GOLD" : 
         selectedIndex === 1 ? "SILVER" : 
         selectedIndex === 2 ? "BRONZE" : "NONE"
-      ) as PostContestRecordRequest["medalType"];
+      );
 
       const commonBody = {
         contestName: tournamentName,
@@ -165,67 +198,69 @@ export const useContestRecord = () => {
       let response;
 
       if (isEditMode && contestId) {
-        // [수정 모드: PATCH]
+        // [수정 모드] PATCH
+        const newImgsRequest: AddContestImgRequest[] = photos
+          .filter(url => !initialData.photos.includes(url))
+          .map((url, index) => ({ imgKey: extractKeyFromUrl(url), imgOrder: index + 1 }));
 
-        // 1. 이미지 Diff
-        const newImgKeys = photos
-            .filter(url => !initialData.photos.includes(url))
-            .map(extractKeyFromUrl);
-        const deletedImgKeys = initialData.photos
-            .filter(url => !photos.includes(url))
-            .map(extractKeyFromUrl);
+        const newVideosRequest: AddContestVideoRequest[] = videoLinks
+          .filter(url => url.trim() !== "" && !initialData.videos.includes(url))
+          .map((url, index) => ({ videoKey: url, videoOrder: index + 1 }));
 
-        // 2. 영상 Diff
-        const initialVideoKeys = initialData.videos.map(extractKeyFromUrl);
-        const currentVideoKeys = videoLinks.filter(v => v.trim() !== "").map(extractKeyFromUrl);
+        const deletedImgIds: number[] = initialData.photos
+          .filter(url => !photos.includes(url))
+          .map(url => imgIdMap.current.get(url))
+          .filter((id): id is number => id !== undefined);
 
-        // 추가된 영상
-        const newVideoKeys = currentVideoKeys.filter(v => !initialVideoKeys.includes(v));
-        // 삭제된 영상 (Key)
-        const deletedVideoKeys = initialVideoKeys.filter(v => !currentVideoKeys.includes(v));
+        const deletedVideoIds: number[] = initialData.videos
+          .filter(url => !videoLinks.includes(url))
+          .map(url => videoIdMap.current.get(url))
+          .filter((id): id is number => id !== undefined);
 
-        console.log("삭제할 영상 Key:", deletedVideoKeys);
-
-        // 3. PATCH 요청
-        const patchBody: any = { 
-            ...commonBody,
-            
-            // 추가할 영상
-            contestVideos: newVideoKeys,
-            
-            // [핵심 수정] 
-            // 1. 숫자 필드(Ids)에는 절대 문자열을 넣으면 안 됨 -> 빈 배열 전송
-            contestVideoIdsToDelete: [], 
-            
-            // 2. 문자열 필드(Videos)에 Key 값을 넣어서 전송 (서버가 이걸 받아주길 기대)
-            contestVideosToDelete: deletedVideoKeys, 
-            
-            // 이미지
-            contestImgs: newImgKeys,              
-            contestImgsToDelete: deletedImgKeys   
+        const patchBody: PatchContestRecordRequest = {
+          ...commonBody,
+          contestVideos: newVideosRequest.length > 0 ? newVideosRequest : undefined,
+          contestImgs: newImgsRequest.length > 0 ? newImgsRequest : undefined,
+          contestVideoIdsToDelete: deletedVideoIds.length > 0 ? deletedVideoIds : undefined,
+          contestImgsToDelete: deletedImgIds.length > 0 ? deletedImgIds : undefined
         };
-
-        console.log("최종 전송 Body:", patchBody);
 
         response = await patchMyContestRecord(Number(contestId), patchBody);
 
       } else {
-        // [생성 모드: POST]
-        const photoKeys = photos.map(url => extractKeyFromUrl(url));
-        const videoKeys = videoLinks.filter(v => v.trim() !== "").map(url => extractKeyFromUrl(url));
+        // ===============================================
+        // [등록 모드] POST - [수정됨] 객체 배열로 변경
+        // ===============================================
         
+        // 1. 영상 객체 생성 ({ videoKey, videoOrder })
+        const postVideos: AddContestVideoRequest[] = videoLinks
+          .filter(v => v.trim() !== "")
+          .map((url, index) => ({
+             videoKey: url,
+             videoOrder: index + 1
+          }));
+
+        // 2. 이미지 객체 생성 ({ imgKey, imgOrder })
+        const postImgs: AddContestImgRequest[] = photos
+          .map((url, index) => ({
+             imgKey: extractKeyFromUrl(url),
+             imgOrder: index + 1
+          }));
+
         const postBody: PostContestRecordRequest = {
           ...commonBody,
-          contestVideos: videoKeys,
-          contestImgs: photoKeys, 
+          // 빈 배열이면 undefined 전송 (선택 사항)
+          contestVideos: postVideos.length > 0 ? postVideos : undefined,
+          contestImgs: postImgs.length > 0 ? postImgs : undefined
         };
         
+        console.log("POST Body:", postBody);
         response = await postMyContestRecord(postBody);
       }
 
       if (response.success) {
         const resData = response.data as any;
-        const newId = isEditMode ? contestId : (Array.isArray(resData) ? resData[0].contestId : resData.contestId);
+        const newId = isEditMode ? contestId : (resData.contestId || resData.data?.contestId);
         navigate(`/mypage/mymedal/${newId}`, { replace: true });
       } else {
         alert("저장에 실패했습니다: " + response.message);
@@ -237,41 +272,19 @@ export const useContestRecord = () => {
     }
   };
 
-  const onBackClick = () => {
-    navigate("/mypage/mymedal"); 
-  };
+  const onBackClick = () => navigate("/mypage/mymedal");
 
   return {
     state: {
-      isEditMode,
-      photos,
-      tournamentName,
-      selectedIndex,
-      videoLinks,
-      selectedForm,
-      recordText,
-      isPrivate,
-      selectedDate,
-      selectedLevel,
-      isModalOpen,
-      isSaveEnabled,
+      isEditMode, photos, tournamentName, selectedIndex, videoLinks,
+      selectedForm, recordText, isPrivate, selectedDate, selectedLevel,
+      isModalOpen, isSaveEnabled,
     },
     actions: {
-      setTournamentName,
-      setSelectedIndex,
-      setVideoLinks,
-      setSelectedForm,
-      setRecordText,
-      setIsPrivate,
-      setSelectedDate,
-      setSelectedLevel,
-      setIsModalOpen,
-      handleFileChange,
-      handleRemovePhoto,
-      handleSaveClick,
-      onBackClick,
-      register, 
-      setValue, 
+      setTournamentName, setSelectedIndex, setVideoLinks, setSelectedForm,
+      setRecordText, setIsPrivate, setSelectedDate, setSelectedLevel,
+      setIsModalOpen, handleFileChange, handleRemovePhoto, handleSaveClick,
+      onBackClick, register, setValue, 
     }
   };
 };

@@ -1,7 +1,7 @@
 import api from "../api";
 
 // ==========================================
-// 공통 응답 타입
+// 1. 공통 응답 타입 (메달, 리스트)
 // ==========================================
 
 export interface ApiMedalItem {
@@ -50,23 +50,60 @@ export interface MyContestRecord {
 }
 
 // ==========================================
-// 상세 조회 (GET)
+// 2. 공통 DTO (등록/수정 시 영상/이미지 추가용)
+// [명세서 기준: 객체 배열 {key, order}]
 // ==========================================
 
+export interface AddContestImgRequest {
+  imgKey: string;
+  imgOrder: number;
+}
+
+export interface AddContestVideoRequest {
+  videoKey: string;
+  videoOrder: number;
+}
+
+// ==========================================
+// 3. 상세 조회 (GET)
+// ==========================================
+
+// 조회 응답 - 영상 객체 (ID 포함 - 백엔드 수정 시 사용)
+export interface ContestVideoResponse {
+  id: number;        
+  videoKey?: string;
+  videoUrl?: string; // 서버가 url 또는 key로 줄 수 있음
+  videoOrder?: number;
+}
+
+// 조회 응답 - 이미지 객체 (ID 포함 - 백엔드 수정 시 사용)
+export interface ContestImgResponse {
+  id: number;        
+  imgKey?: string;
+  imgUrl?: string;
+  imgOrder?: number;
+}
+
 export interface ContestRecordDetailResponse {
-  contestName: string;
-  date: string;  
-  medalType: string; 
-  type: string;  
-  level: string; 
-  content: string; 
-  contentIsOpen: boolean;
-  videoIsOpen: boolean;
-  // 영상은 { contestVideoId, videoUrl } 객체 혹은 string으로 올 수 있음
-  contestVideoUrls: any[];  
-  contestImgUrls: string[];    
-  contestImgsToDelete?: string[];
-  contestVideoIdsToDelete?: string[];
+  contestId: number;
+  contestName: string; 
+  title?: string;      
+  date: string;
+  medalType: string;
+  type: string;
+  level: string;
+  content: string;
+  
+  // [현재 명세서] 단순 문자열 배열 (ID 없음 -> 삭제 불가 원인)
+  contestImgUrls: string[];   
+  contestVideoUrls: string[]; 
+  
+  // [미래 대비] 백엔드가 수정해주면 채워질 ID 포함 객체 배열
+  contestVideos?: ContestVideoResponse[];
+  contestImgs?: ContestImgResponse[];
+  
+  contentIsOpen?: boolean;
+  videoIsOpen?: boolean;
 }
 
 // 내 대회 기록 상세 조회
@@ -88,18 +125,24 @@ export const getContestRecordDetail = async (
     }
 
     return {
-      contestName: detail.contestName ?? "",
-      date: detail.date ?? "",
-      medalType: detail.medalType ?? "NONE",
-      type: detail.type ?? "SINGLE",
-      level: detail.level ?? "NONE",
-      content: detail.content ?? "",
-      contentIsOpen: detail.contentIsOpen ?? false,
-      videoIsOpen: detail.videoIsOpen ?? false,
-      contestVideoUrls: Array.isArray(detail.contestVideoUrls) ? detail.contestVideoUrls : [],
+      contestId: detail.contestId,
+      contestName: detail.contestName || detail.title || "",
+      date: detail.date || "",
+      medalType: detail.medalType || "NONE",
+      type: detail.type || "SINGLE",
+      level: detail.level || "NONE",
+      content: detail.content || "",
+      
+      // 현재 명세서 (문자열)
       contestImgUrls: Array.isArray(detail.contestImgUrls) ? detail.contestImgUrls : [],
-      contestImgsToDelete: [],
-      contestVideoIdsToDelete: [],
+      contestVideoUrls: Array.isArray(detail.contestVideoUrls) ? detail.contestVideoUrls : [],
+      
+      // 백엔드 수정 대비 (객체)
+      contestVideos: Array.isArray(detail.contestVideos) ? detail.contestVideos : [],
+      contestImgs: Array.isArray(detail.contestImgs) ? detail.contestImgs : [],
+
+      contentIsOpen: detail.contentIsOpen ?? true,
+      videoIsOpen: detail.videoIsOpen ?? true,
     };
   } catch (error) {
     console.error("대회 기록 상세 조회 오류", error);
@@ -108,23 +151,23 @@ export const getContestRecordDetail = async (
 };
 
 // ==========================================
-// 생성 (POST)
+// 4. 등록 (POST) 요청 타입
+// [명세서 반영: 객체 배열 사용]
 // ==========================================
 
 export interface PostContestRecordRequest {
   contestName: string;
   date?: string;             
-  medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
-  type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES"; 
-  level: "EXPERT" | "BEGINNER" | "NOVICE" | "SEMI_EXPERT" | "A" | "B" | "C" | "D" | "NONE";
+  medalType?: string; 
+  type: string;       
+  level: string;      
   content?: string;
   contentIsOpen?: boolean;   
   videoIsOpen?: boolean;    
-  contestVideos?: string[];        
-  contestImgs?: string[];          
   
-  contestImgsToDelete?: string[];     // 삭제할 이미지 
-  contestVideoIdsToDelete?: string[]; // 삭제할 영상 ID
+  // [POST] 객체 배열 ({key, order})
+  contestVideos?: AddContestVideoRequest[]; 
+  contestImgs?: AddContestImgRequest[];          
 }
 
 interface PostContestRecordResponse {
@@ -132,16 +175,11 @@ interface PostContestRecordResponse {
   message: string;
   data: {
     contestId: number;
-    contestName: string;
-    type: string;
-    level: string;
-    date: string;
-    medalImgUrl: string;
   }; 
   success: boolean;
 }
 
-// 내 대회 기록 등록
+// 내 대회 기록 등록 (POST)
 export const postMyContestRecord = async (
   body: PostContestRecordRequest
 ): Promise<PostContestRecordResponse> => {
@@ -150,43 +188,36 @@ export const postMyContestRecord = async (
 };
 
 // ==========================================
-// 수정 (PATCH) - [핵심 수정 부분]
+// 5. 수정 (PATCH) 요청 타입
+// [명세서 반영: 추가는 객체 배열, 삭제는 ID 배열]
 // ==========================================
 
 export interface PatchContestRecordRequest {
   contestName: string;
   date?: string;
-  medalType?: "GOLD" | "SILVER" | "BRONZE" | "NONE";
-  type: "SINGLE" | "MEN_DOUBLES" | "WOMEN_DOUBLES" | "MIX_DOUBLES";
-  level: "EXPERT" | "BEGINNER" | "NOVICE" | "SEMI_EXPERT" | "A" | "B" | "C" | "D" | "NONE";
+  medalType?: string;
+  type: string;
+  level: string;
   content?: string;
   contentIsOpen?: boolean;
   videoIsOpen?: boolean;
+
+  // [PATCH] 추가 (객체 배열)
+  contestVideos?: AddContestVideoRequest[]; 
+  contestImgs?: AddContestImgRequest[];          
   
-  // [추가/유지]
-  contestVideos?: string[];   // 새로 추가할 영상 URL
-  contestImgs?: string[];     // 새로 추가할 이미지 Key
-  
-  // [새로 추가된 필드] 삭제를 위한 필드
-  contestImgsToDelete?: string[];     // 삭제할 이미지 Key
-  contestVideoIdsToDelete?: string[]; // 삭제할 영상 ID
+  // [PATCH] 삭제 (ID 숫자 배열 - 명세서: long[])
+  contestImgsToDelete?: number[];     
+  contestVideoIdsToDelete?: number[]; 
 }
 
-export interface PatchContestRecordResponse {
-  code: string;
-  message: string;
-  // Hook에서 data.contestId를 참조하므로 유연하게 처리
-  data: any; 
-  success: boolean;
-}
-
-// 내 대회 기록 수정
+// 내 대회 기록 수정 (PATCH)
 export const patchMyContestRecord = async (
   contestId: number,
   body: PatchContestRecordRequest
-): Promise<PatchContestRecordResponse> => {
+): Promise<PostContestRecordResponse> => {
   try {
-    const response = await api.patch<PatchContestRecordResponse>(
+    const response = await api.patch<PostContestRecordResponse>(
       `/api/contests/my/${contestId}`,
       body
     );
@@ -203,7 +234,7 @@ export const patchMyContestRecord = async (
 };
 
 // ==========================================
-// 기타 (조회, 삭제)
+// 6. 기타 (메달 조회, 리스트 조회, 삭제)
 // ==========================================
 
 // 내 메달 조회 
@@ -247,7 +278,7 @@ export const getMyContestList = async (medalType?: "NONE"): Promise<MyContestRec
   return raw.data || [];
 };
 
-// 내 대회 기록 삭제
+// 내 대회 기록 삭제 (게시글 자체 삭제)
 export const deleteContestRecord = async (contestId: number): Promise<void> => {
   try {
     await api.delete(`/api/contests/my/${contestId}`);
