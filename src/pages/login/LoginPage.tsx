@@ -15,21 +15,21 @@ export const LoginPage = () => {
 
   return (
     <div
-      className="flex flex-col  w-full -mb-8"
+      className="flex flex-col justify-center w-full -mb-8 "
       style={{ minHeight: "100dvh" }}
     >
       {/* 스와이퍼 */}
-      <section className="flex-1">
+      <section className="flex-1 ">
         <Swiper
           modules={[Pagination]}
           spaceBetween={50}
           speed={500}
           slidesPerView={1}
           pagination={{ clickable: true }}
-          className="flex-1"
+          className="h-full"
         >
           {TEXT_MAP.map((item, index) => (
-            <SwiperSlide key={index} className="pb-6">
+            <SwiperSlide key={index} className="pb-6 ">
               <LoginSwiping
                 title={item.title}
                 title2={item.title2}

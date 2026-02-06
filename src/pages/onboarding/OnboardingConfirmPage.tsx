@@ -2,7 +2,7 @@ import { useLocation, useParams } from "react-router-dom";
 import TagBtn from "@/components/common/DynamicBtn/TagBtn";
 import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
 import IntroText from "@/components/onboarding/IntroText";
-import Onboarding4 from "@/assets/images/onboarding3.png?url";
+import Onboarding4 from "@/assets/images/onboarding4.png?url";
 import { TAGMAP } from "@/constants/options";
 import { keywordMap } from "@/constants/onboarding";
 import { useKeywordSelect } from "@/hooks/useKeywordSelect";
@@ -41,7 +41,7 @@ export const ConfirmPage = () => {
         <div>
           <img src={Onboarding4} alt="가입완료 이미지" className="size-40" />
         </div>
-        <div className="flex flex-wrap gap-[0.625rem] items-center justify-center">
+        <div className="flex flex-wrap gap-3 items-center justify-center">
           {TAGMAP.map(item => {
             return (
               <TagBtn

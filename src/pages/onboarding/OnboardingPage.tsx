@@ -13,7 +13,7 @@ export const OnboardingPage = () => {
         <section className="flex items-center flex-col gap-25 flex-1">
           <IntroText
             title="환영합니다!"
-            text1="카카오 계정으로 가입되었어요"
+            text1="카카오 계정으로 가입되었어요."
             text2="회원 정보를 입력하고 콕플을 즐겨볼까요?"
             isBar={false}
           />
