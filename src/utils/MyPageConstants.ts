@@ -1,18 +1,18 @@
-import type { PostContestRecordRequest } from "@/api/contest/contestmy";
+import type { ContestRecordRequest } from "@/api/contest/contestmy";
 
 // 옵션 상수
 export const FORM_OPTIONS = ["혼복", "여복", "남복", "단식"] as const;
 export const LEVEL_OPTIONS = ["왕초심", "초심", "D조", "C조", "B조", "A조", "준자강", "자강"];
 
 // 매핑 테이블
-export const TYPE_MAP: Record<typeof FORM_OPTIONS[number], PostContestRecordRequest["type"]> = {
+export const TYPE_MAP: Record<typeof FORM_OPTIONS[number], ContestRecordRequest["type"]> = {
   "단식": "SINGLE",
   "남복": "MEN_DOUBLES",
   "여복": "WOMEN_DOUBLES",
   "혼복": "MIX_DOUBLES",
 };
 
-export const LEVEL_MAP: Record<string, PostContestRecordRequest["level"]> = {
+export const LEVEL_MAP: Record<string, ContestRecordRequest["level"]> = {
   "왕초심": "NOVICE",
   "초심": "BEGINNER",
   "D조": "D",
