@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { 
@@ -7,8 +7,7 @@ import {
   patchMyContestRecord,
   type AddContestImgRequest,
   type AddContestVideoRequest,
-  type PostContestRecordRequest,
-  type PatchContestRecordRequest
+  type ContestRecordRequest 
 } from "../api/contest/contestmy";
 import { uploadImages } from "../api/image/imageUpload";
 import { 
@@ -29,18 +28,8 @@ export const useContestRecord = () => {
   const medalData = location.state?.medalData ?? null;
   const isEditMode = mode === "edit";
 
-  // UI 상태
   const [photos, setPhotos] = useState<string[]>([]);
   const [videoLinks, setVideoLinks] = useState<string[]>([]);
-  
-  // ID 족보 (URL -> ID 매핑)
-  const videoIdMap = useRef<Map<string, number>>(new Map());
-  const imgIdMap = useRef<Map<string, number>>(new Map());
-  
-  // 초기 데이터
-  const [initialData, setInitialData] = useState<{ photos: string[], videos: string[] }>({ 
-    photos: [], videos: [] 
-  });
 
   const [tournamentName, setTournamentName] = useState("");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -51,7 +40,7 @@ export const useContestRecord = () => {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 1. 초기 데이터 로드 (변경 없음)
+  // 1. 초기 데이터 로드 
   useEffect(() => {
     const initializeData = async () => {
       let dataToSet: any = null;
@@ -59,53 +48,36 @@ export const useContestRecord = () => {
       if (isEditMode && contestId) {
         try {
           const data: any = await getContestRecordDetail(Number(contestId));
-          console.log("서버 원본 데이터:", data);
+          const videoUrls: string[] = [];
 
-          // 1. 영상 데이터 처리
-          const videoUrlSet = new Set<string>();
-          videoIdMap.current.clear(); 
-          
           if (Array.isArray(data.contestVideos)) {
              data.contestVideos.forEach((v: any) => {
                 const rawUrl = v.videoUrl || v.videoKey || v.url || (typeof v === 'string' ? v : "");
-                if (rawUrl) {
-                   videoUrlSet.add(rawUrl);
-                   if (v.id) {
-                       videoIdMap.current.set(rawUrl, v.id);
-                   }
-                }
+                if (rawUrl) videoUrls.push(rawUrl);
              });
           }
           if (Array.isArray(data.contestVideoUrls)) {
              data.contestVideoUrls.forEach((url: string) => { 
-                 if(url && !videoUrlSet.has(url)) videoUrlSet.add(url);
+                 if(url && !videoUrls.includes(url)) videoUrls.push(url);
              });
           }
-          const videoUrls = Array.from(videoUrlSet);
 
-          // 2. 이미지 데이터 처리
-          const photoUrlSet = new Set<string>();
-          imgIdMap.current.clear(); 
-
+          const photoUrls: string[] = [];
+          
           if (Array.isArray(data.contestImgs)) {
              data.contestImgs.forEach((img: any) => {
                 const rawUrl = img.imgUrl || img.imgKey || (typeof img === 'string' ? img : "");
                 const url = sanitizeUrl(rawUrl);
-                if (url) {
-                   photoUrlSet.add(url);
-                   if (img.id) imgIdMap.current.set(url, img.id);
-                }
+                if (url) photoUrls.push(url);
              });
           }
           if (Array.isArray(data.contestImgUrls)) {
              data.contestImgUrls.forEach((rawUrl: string) => {
                 const url = sanitizeUrl(rawUrl);
-                if(url && !photoUrlSet.has(url)) photoUrlSet.add(url);
+                if(url && !photoUrls.includes(url)) photoUrls.push(url);
              });
           }
-          const photoUrls = Array.from(photoUrlSet);
 
-          setInitialData({ photos: photoUrls, videos: videoUrls });
           setPhotos(photoUrls);
           setVideoLinks(videoUrls);
 
@@ -131,6 +103,7 @@ export const useContestRecord = () => {
         setTournamentName(dataToSet.title || "");
         setValue("tournamentName", dataToSet.title || "");
         setSelectedDate(dataToSet.date || "");
+        
         if (dataToSet.medalType) {
            const mType = dataToSet.medalType.toUpperCase();
            if (mType === "GOLD") setSelectedIndex(0);
@@ -138,6 +111,7 @@ export const useContestRecord = () => {
            else if (mType === "BRONZE") setSelectedIndex(2);
            else setSelectedIndex(null);
         }
+        
         const typeMapReverse: any = { "SINGLE": "단식", "MEN_DOUBLES": "남복", "WOMEN_DOUBLES": "여복", "MIX_DOUBLES": "혼복", "MIXED": "혼복" };
         if (dataToSet.type && typeMapReverse[dataToSet.type]) setSelectedForm(typeMapReverse[dataToSet.type]);
         else if (Object.values(typeMapReverse).includes(dataToSet.type)) setSelectedForm(dataToSet.type);
@@ -171,7 +145,6 @@ export const useContestRecord = () => {
 
   const isSaveEnabled = tournamentName.trim() !== "" && selectedDate !== "" && selectedForm !== null && selectedLevel !== "";
 
-  // 3. 저장 로직
   const handleSaveClick = async () => {
     if (!isSaveEnabled) return;
 
@@ -183,8 +156,21 @@ export const useContestRecord = () => {
         selectedIndex === 1 ? "SILVER" : 
         selectedIndex === 2 ? "BRONZE" : "NONE"
       );
+      
+      const finalVideos: AddContestVideoRequest[] = videoLinks
+        .filter(v => v.trim() !== "")
+        .map((url, index) => ({
+            videoKey: url, 
+            videoOrder: index + 1
+        }));
 
-      const commonBody = {
+      const finalImgs: AddContestImgRequest[] = photos
+        .map((url, index) => ({
+            imgKey: extractKeyFromUrl(url),
+            imgOrder: index + 1
+        }));
+
+      const body: ContestRecordRequest = {
         contestName: tournamentName,
         date: selectedDate ? selectedDate.replace(/\./g, '-') : undefined,
         medalType: currentMedalType,
@@ -193,69 +179,20 @@ export const useContestRecord = () => {
         content: recordText || undefined,
         contentIsOpen: !isPrivate,
         videoIsOpen: true,
+        
+        contestVideos: finalVideos.length > 0 ? finalVideos : undefined,
+        contestImgs: finalImgs.length > 0 ? finalImgs : undefined
       };
 
+      console.log("전송할 Body:", body);
+
       let response;
-
       if (isEditMode && contestId) {
-        // [수정 모드] PATCH
-        const newImgsRequest: AddContestImgRequest[] = photos
-          .filter(url => !initialData.photos.includes(url))
-          .map((url, index) => ({ imgKey: extractKeyFromUrl(url), imgOrder: index + 1 }));
-
-        const newVideosRequest: AddContestVideoRequest[] = videoLinks
-          .filter(url => url.trim() !== "" && !initialData.videos.includes(url))
-          .map((url, index) => ({ videoKey: url, videoOrder: index + 1 }));
-
-        const deletedImgIds: number[] = initialData.photos
-          .filter(url => !photos.includes(url))
-          .map(url => imgIdMap.current.get(url))
-          .filter((id): id is number => id !== undefined);
-
-        const deletedVideoIds: number[] = initialData.videos
-          .filter(url => !videoLinks.includes(url))
-          .map(url => videoIdMap.current.get(url))
-          .filter((id): id is number => id !== undefined);
-
-        const patchBody: PatchContestRecordRequest = {
-          ...commonBody,
-          contestVideos: newVideosRequest.length > 0 ? newVideosRequest : undefined,
-          contestImgs: newImgsRequest.length > 0 ? newImgsRequest : undefined,
-          contestVideoIdsToDelete: deletedVideoIds.length > 0 ? deletedVideoIds : undefined,
-          contestImgsToDelete: deletedImgIds.length > 0 ? deletedImgIds : undefined
-        };
-
-        response = await patchMyContestRecord(Number(contestId), patchBody);
-
+        // [수정 PATCH]
+        response = await patchMyContestRecord(Number(contestId), body);
       } else {
-        // ===============================================
-        // [등록 모드] POST - [수정됨] 객체 배열로 변경
-        // ===============================================
-        
-        // 1. 영상 객체 생성 ({ videoKey, videoOrder })
-        const postVideos: AddContestVideoRequest[] = videoLinks
-          .filter(v => v.trim() !== "")
-          .map((url, index) => ({
-             videoKey: url,
-             videoOrder: index + 1
-          }));
-
-        // 2. 이미지 객체 생성 ({ imgKey, imgOrder })
-        const postImgs: AddContestImgRequest[] = photos
-          .map((url, index) => ({
-             imgKey: extractKeyFromUrl(url),
-             imgOrder: index + 1
-          }));
-
-        const postBody: PostContestRecordRequest = {
-          ...commonBody,
-          // 빈 배열이면 undefined 전송 (선택 사항)
-          contestVideos: postVideos.length > 0 ? postVideos : undefined,
-          contestImgs: postImgs.length > 0 ? postImgs : undefined
-        };
-        
-        console.log("POST Body:", postBody);
-        response = await postMyContestRecord(postBody);
+        // [등록 POST]
+        response = await postMyContestRecord(body);
       }
 
       if (response.success) {

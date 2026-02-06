@@ -26,21 +26,28 @@ export const MyMedal = ({
 }: MyMedalProps) => {
   const navigate = useNavigate();
   const [isPressing, setIsPressing] = useState(false);
+  
   const handlePressStart = () => {
     if (!disabled) setIsPressing(true);
   };
+  
   const handleClick = () => {
-    const idStr = contentId.toString(); 
+    const idStr = contentId.toString();
     if (memberId) {
       navigate(`/mypage/profile/medal/${memberId}/contest/${contentId}`);
     } else {
       navigate(`/mypage/mymedal/${idStr}`);
     }
   };
+  
   const handlePressEnd = () => setIsPressing(false);
 
+  // w-full로 변경하여 부모 컨테이너 너비에 맞추거나, 기존 고정 너비 유지
+  // flex items-center justify-between 등을 활용하기 위해 flex 구조 최적화
   const baseClasses =
-    "p-[0.5rem] w-[21.4375rem] h-[4.75rem] rounded-[0.75rem] flex items-center gap-[0.75rem] transition-colors duration-150";
+    "p-[0.5rem] w-full h-[4.75rem] rounded-[0.75rem] flex items-center gap-[0.75rem] transition-colors duration-150";
+    // 만약 카드의 고정 너비를 유지해야 한다면 w-[21.4375rem] 그대로 두셔도 됩니다.
+    // 하지만 리스트 형태라면 w-full이 더 자연스럽습니다.
 
   let bgColor = "bg-white";
   let textColor = "text-black";
@@ -55,6 +62,7 @@ export const MyMedal = ({
   } else if (isPressing) {
     bgColor = "bg-[#F4F5F6]";
   }
+
   const getMedalComponent = (medalImageSrc?: string) => {
     if (!medalImageSrc || medalImageSrc.trim() === "") return <CockMedal />;
     if (medalImageSrc.includes("b0ac9ac7-169a-40de-aeb3-a8572bc91506")) return <Medal_1 />;
@@ -63,7 +71,6 @@ export const MyMedal = ({
     if (medalImageSrc.includes("84e4dd20-7989-4871-954b-7363213b941e")) return <CockMedal />;
     return <img src={medalImageSrc} alt="메달 이미지" className="w-full h-full object-contain" />;
   };
-
 
   return (
     <div
@@ -74,14 +81,14 @@ export const MyMedal = ({
       onTouchEnd={handlePressEnd}
       className={`${baseClasses} ${bgColor} ${cursorStyle}`}
     >
-      <div className="relative w-[3.75rem] h-[3.75rem] rounded-[0.375rem] object-cover" >
-          {getMedalComponent(medalImageSrc)}
+      <div className="relative w-[3.75rem] h-[3.75rem] rounded-[0.375rem] object-cover flex justify-center items-center shrink-0 [&>svg]:w-full [&>svg]:h-full">
+        {getMedalComponent(medalImageSrc)}
       </div>
 
-      <div className="w-[13.9375rem] h-[3.25rem] flex flex-col items-start">
-        <div className="w-[13.9375rem] h-[3.25rem] flex flex-col gap-[0.25rem]">
+      <div className="flex-1 min-w-0 flex flex-col items-start justify-center h-full">
+        <div className="flex flex-col gap-[0.25rem] w-full">
           <div className={`flex items-center gap-[0.25rem] header-h4 ${textColor}`}>
-            <span className="truncate overflow-hidden whitespace-nowrap">
+            <span className="truncate w-full text-left">
               {title}
             </span>
           </div>
@@ -91,8 +98,8 @@ export const MyMedal = ({
         </div>
       </div>
 
-     <RightAngle
-        className={`w-[1.25rem] h-[1.25rem] ${iconColor}`}
+      <RightAngle
+        className={`w-[1.25rem] h-[1.25rem] shrink-0 ${iconColor}`}
         onClick={handleClick}
       />
     </div>

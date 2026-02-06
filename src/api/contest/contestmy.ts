@@ -1,8 +1,5 @@
 import api from "../api";
 
-// ==========================================
-// 1. 공통 응답 타입 (메달, 리스트)
-// ==========================================
 
 export interface ApiMedalItem {
   title: string;
@@ -50,8 +47,7 @@ export interface MyContestRecord {
 }
 
 // ==========================================
-// 2. 공통 DTO (등록/수정 시 영상/이미지 추가용)
-// [명세서 기준: 객체 배열 {key, order}]
+// 2. 공통 DTO
 // ==========================================
 
 export interface AddContestImgRequest {
@@ -68,15 +64,15 @@ export interface AddContestVideoRequest {
 // 3. 상세 조회 (GET)
 // ==========================================
 
-// 조회 응답 - 영상 객체 (ID 포함 - 백엔드 수정 시 사용)
+// 조회 응답 - 영상 객체 
 export interface ContestVideoResponse {
   id: number;        
   videoKey?: string;
-  videoUrl?: string; // 서버가 url 또는 key로 줄 수 있음
+  videoUrl?: string;
   videoOrder?: number;
 }
 
-// 조회 응답 - 이미지 객체 (ID 포함 - 백엔드 수정 시 사용)
+// 조회 응답 - 이미지 객체 
 export interface ContestImgResponse {
   id: number;        
   imgKey?: string;
@@ -94,35 +90,24 @@ export interface ContestRecordDetailResponse {
   level: string;
   content: string;
   
-  // [현재 명세서] 단순 문자열 배열 (ID 없음 -> 삭제 불가 원인)
+  contestImgIds: number[];    
   contestImgUrls: string[];   
-  contestVideoUrls: string[]; 
   
-  // [미래 대비] 백엔드가 수정해주면 채워질 ID 포함 객체 배열
-  contestVideos?: ContestVideoResponse[];
-  contestImgs?: ContestImgResponse[];
+  contestVideoIds: number[];  
+  contestVideoUrls: string[]; 
   
   contentIsOpen?: boolean;
   videoIsOpen?: boolean;
+  
+  contestVideos?: any[];
+  contestImgs?: any[];
 }
 
 // 내 대회 기록 상세 조회
-export const getContestRecordDetail = async (
-  contestId: number
-): Promise<ContestRecordDetailResponse> => {
+export const getContestRecordDetail = async (contestId: number): Promise<ContestRecordDetailResponse> => {
   try {
-    const response = await api.get<{
-      code: string;
-      message: string;
-      data: ContestRecordDetailResponse;
-      success: boolean;
-    }>(`/api/contests/my/${contestId}`);
-
+    const response = await api.get<{ code: string; message: string; data: ContestRecordDetailResponse; success: boolean; }>(`/api/contests/my/${contestId}`);
     const detail = response.data.data;
-
-    if (!detail) {
-      throw new Error("대회 기록 상세 정보가 없습니다.");
-    }
 
     return {
       contestId: detail.contestId,
@@ -133,14 +118,12 @@ export const getContestRecordDetail = async (
       level: detail.level || "NONE",
       content: detail.content || "",
       
-      // 현재 명세서 (문자열)
+      contestImgIds: Array.isArray(detail.contestImgIds) ? detail.contestImgIds : [],
       contestImgUrls: Array.isArray(detail.contestImgUrls) ? detail.contestImgUrls : [],
+      
+      contestVideoIds: Array.isArray(detail.contestVideoIds) ? detail.contestVideoIds : [],
       contestVideoUrls: Array.isArray(detail.contestVideoUrls) ? detail.contestVideoUrls : [],
       
-      // 백엔드 수정 대비 (객체)
-      contestVideos: Array.isArray(detail.contestVideos) ? detail.contestVideos : [],
-      contestImgs: Array.isArray(detail.contestImgs) ? detail.contestImgs : [],
-
       contentIsOpen: detail.contentIsOpen ?? true,
       videoIsOpen: detail.videoIsOpen ?? true,
     };
@@ -152,10 +135,9 @@ export const getContestRecordDetail = async (
 
 // ==========================================
 // 4. 등록 (POST) 요청 타입
-// [명세서 반영: 객체 배열 사용]
 // ==========================================
 
-export interface PostContestRecordRequest {
+export interface ContestRecordRequest {
   contestName: string;
   date?: string;             
   medalType?: string; 
@@ -165,12 +147,11 @@ export interface PostContestRecordRequest {
   contentIsOpen?: boolean;   
   videoIsOpen?: boolean;    
   
-  // [POST] 객체 배열 ({key, order})
   contestVideos?: AddContestVideoRequest[]; 
   contestImgs?: AddContestImgRequest[];          
 }
 
-interface PostContestRecordResponse {
+interface CommonResponse {
   code: string;
   message: string;
   data: {
@@ -181,15 +162,14 @@ interface PostContestRecordResponse {
 
 // 내 대회 기록 등록 (POST)
 export const postMyContestRecord = async (
-  body: PostContestRecordRequest
-): Promise<PostContestRecordResponse> => {
-  const response = await api.post<PostContestRecordResponse>("/api/contests/my", body);
+  body: ContestRecordRequest
+): Promise<CommonResponse> => {
+  const response = await api.post<CommonResponse>("/api/contests/my", body);
   return response.data;
 };
 
 // ==========================================
 // 5. 수정 (PATCH) 요청 타입
-// [명세서 반영: 추가는 객체 배열, 삭제는 ID 배열]
 // ==========================================
 
 export interface PatchContestRecordRequest {
@@ -202,11 +182,9 @@ export interface PatchContestRecordRequest {
   contentIsOpen?: boolean;
   videoIsOpen?: boolean;
 
-  // [PATCH] 추가 (객체 배열)
   contestVideos?: AddContestVideoRequest[]; 
   contestImgs?: AddContestImgRequest[];          
   
-  // [PATCH] 삭제 (ID 숫자 배열 - 명세서: long[])
   contestImgsToDelete?: number[];     
   contestVideoIdsToDelete?: number[]; 
 }
@@ -214,10 +192,10 @@ export interface PatchContestRecordRequest {
 // 내 대회 기록 수정 (PATCH)
 export const patchMyContestRecord = async (
   contestId: number,
-  body: PatchContestRecordRequest
-): Promise<PostContestRecordResponse> => {
+  body: ContestRecordRequest
+): Promise<CommonResponse> => {
   try {
-    const response = await api.patch<PostContestRecordResponse>(
+    const response = await api.patch<CommonResponse>(
       `/api/contests/my/${contestId}`,
       body
     );
