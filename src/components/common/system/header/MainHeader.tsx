@@ -62,12 +62,13 @@ export const MainHeader = ({
 
         <button
           type="button"
-          className="p-1"
+          aria-label="알림"
+          className="h-8 w-8 p-1 leading-none active:bg-gy-100 border-hard"
           onClick={() => navigate("/alert")}
         >
           <img
             src={alertIcon}
-            className="w-6 cursor-pointer"
+            className="w-6 h-6 cursor-pointer"
             alt="alert icon"
           />
         </button>

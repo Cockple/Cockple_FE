@@ -36,7 +36,7 @@ export default function DropDownBtn({
 
   return (
     <button
-      className={`inline-flex pr-[0.625rem] py-1 pl-4 gap-1 rounded-lg items-center header-h4  ${bg} ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+      className={`inline-flex pr-2.5 py-1 pl-3 gap-1 rounded-lg items-center header-h4 active:bg-gy-100  ${bg} ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseLeave}
