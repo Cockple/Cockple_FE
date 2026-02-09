@@ -55,7 +55,7 @@ const Clear_XS = ({
   return (
     <button
       className={`
-        inline-flex p-1 items-center gap-3 border-hard
+        inline-flex p-1 items-center gap-3 border-hard active:bg-gy-100
         ${getBg()} 
         ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       disabled={status === "disabled"}

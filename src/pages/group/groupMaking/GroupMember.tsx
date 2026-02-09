@@ -74,7 +74,9 @@ export const GroupMember = () => {
     },
   });
 
-  const members: ApiMember[] = page?.content?.length ? page.content : MOCK_MEMBERS;
+  const members: ApiMember[] = page?.content?.length
+    ? page.content
+    : MOCK_MEMBERS;
 
   const memberList = useMemo(
     () =>
@@ -89,9 +91,7 @@ export const GroupMember = () => {
     [members],
   );
   if (!isLoading) {
-
     console.log(page);
-
   }
   const filteredMembers = useMemo(() => {
     const filterText = debouncedSearch.trim().toLowerCase();
@@ -122,10 +122,8 @@ export const GroupMember = () => {
     <>
       <div className="flex flex-col -mb-8 pt-14 min-h-dvh relative">
         <PageHeader title="신규 멤버 추천" />
-        
-        {/* 🌟 1. 리스트 영역에 하단 패딩(pb-24) 추가 
-             버튼이 Fixed로 뜨기 때문에 리스트 끝부분이 가려지지 않게 여백 확보 */}
-        <section className="text-left flex flex-col gap-5 w-full mb-6 flex-1 pb-24">
+
+        <section className="text-left flex flex-col gap-5 w-full mb-6 flex-1 pb-24 ">
           {/* 첫번째 */}
           <div className="mt-4">
             <SearchInput
@@ -144,9 +142,8 @@ export const GroupMember = () => {
           ))}
         </section>
 
-        {/* 🌟 2. 버튼 Fixed 적용 */}
         <div
-          className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[444px] px-4 pb-8 pt-4 z-10"
+          className="fixed bottom-0 bg-white left-0 right-0 mx-auto w-full max-w-[444px] px-4 pb-8 pt-4 z-10"
           onClick={handleNext}
         >
           <Btn_Static

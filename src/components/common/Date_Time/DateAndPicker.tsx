@@ -17,12 +17,12 @@ const DateAndTimePicker = forwardRef<
   const [selectedMonth, setSelectedMonth] = useState("01");
   const [selectedDay, setSelectedDay] = useState("01");
   const [selectedHours, setSelectedHours] = useState("01");
-  const [selectedMinutes, setSelectedMinutes] = useState("01");
+  const [selectedMinutes, setSelectedMinutes] = useState("00");
   const [selectedPeriods, setSelectedPeriods] = useState("am");
 
   const getDueString = () => {
     if (showTime) {
-      return `${selectedHours}시 ${selectedMinutes}분 ${selectedPeriods}`; //이 부분은 임시로 작성한 것이라..추후 사용되는 부분에 따라서 추가 수정해야할 거 같습니다
+      return `${selectedHours}시 ${selectedMinutes}분 ${selectedPeriods}`;
     } else {
       return `${selectedYear}.${selectedMonth}.${selectedDay}`;
     }
@@ -50,7 +50,7 @@ const DateAndTimePicker = forwardRef<
   // console.log(hours);
 
   const minutes = Array.from({ length: 60 }, (_, i) =>
-    String(i + 1).padStart(2, "0"),
+    String(i).padStart(2, "0"),
   );
 
   const periods = ["am", "pm"];
