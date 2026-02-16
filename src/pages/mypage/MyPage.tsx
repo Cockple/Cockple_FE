@@ -1,15 +1,16 @@
 // 내 마이페이지
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MainHeader } from "../../components/common/system/header/MainHeader";
 import { MyPage_Text } from "../../components/common/contentcard/MyPage_Text";
 import { Profile } from "../../components/MyPage/Profile";
 import { MyPage as MyPageContentcard } from "../../components/common/contentcard/MyPage";
 
-import { useMyPageStore } from "../../store/useMyPageStore"; 
+import { useMyPageStore } from "../../store/useMyPageStore";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import White_L from "../../components/common/Btn_Static/Text/White_L";
+import { ModalLeave } from "@/components/MyPage/Modal_Leave";
 
 interface MyPageProps {
   disabled?: boolean;
@@ -21,7 +22,9 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
 
   useEffect(() => {
     fetchMyProfile();
-  }, []); 
+  }, []);
+
+  const [modal, setModal] = useState(false);
 
   //로딩 화면
   if (isLoading || !profile) {
@@ -31,7 +34,7 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
           <MainHeader />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center pb-20">
-           <LoadingSpinner />
+          <LoadingSpinner />
         </div>
       </div>
     );
@@ -41,7 +44,6 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
   const gold = profile.goldCount || 0;
   const silver = profile.silverCount || 0;
   const bronze = profile.bronzeCount || 0;
-
 
   return (
     <div className="flex flex-col overflow-hidden w-full">
@@ -129,6 +131,17 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
               label=" 설정"
               onClick={() => alert("설정 클릭")}
             />
+            <White_L
+              initialStatus="clicked"
+              label="회원탈퇴"
+              onClick={() => setModal(true)}
+            />
+            {/* <CautionModal /> */}
+            {modal && (
+              <div className="-ml-[11px]">
+                <ModalLeave onClose={() => setModal(false)} />
+              </div>
+            )}
           </div>
         </div>
       </div>
