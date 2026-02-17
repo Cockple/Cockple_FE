@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../api";
 // 메인 >> 건물명
 // 서브 >> 도로명
 
-// 사용자 마이페이지 
+// 사용자 마이페이지
 export interface MyPageProps {
   name?: string;
   gender?: "FEMALE" | "MALE";
@@ -81,7 +81,7 @@ export const useMyProfile = () =>
     queryKey: ["user"],
     queryFn: getMyProfile,
   });
-  
+
 // 프로필 수정
 export const patchMyProfile = async (payload: ProfileUpdatePayload) => {
   const response = await api.patch("/api/my/profile", payload);
@@ -130,4 +130,19 @@ export const setMainAddress = async (memberAddrId: number) => {
   } catch (err) {
     console.error("대표 주소 변경 에러", err);
   }
+};
+
+//회원탈퇴
+export const deleteAccount = async () => {
+  const { data } = await api.patch("/api/member");
+  return data;
+};
+
+export const useDeleteAccount = (onSuccess?: () => void) => {
+  // const navigate = useNavigate();
+  return useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => onSuccess?.(),
+    onError: err => console.log(err),
+  });
 };
