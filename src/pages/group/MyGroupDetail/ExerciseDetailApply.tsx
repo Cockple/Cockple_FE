@@ -38,36 +38,39 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
     participantGenderCount = { male: 2, female: 1 },
 
     participantMembers = [
- {
-          requestId: 1,
-          status: "Participating",
-          name: "홍길동",
-          gender: "MALE", 
-          level: "A조",
-          isMe: false,
-          isLeader: true,
-          position: "leader",
-        },
-        {
-          requestId: 2,
-          status: "Participating",
-          name: "김민수",
-          gender: "MALE",
-          level: "B조",
-          isMe: true,
-          isLeader: false,
-          position: "sub_leader",
-        },
-        {
-          requestId: 3,
-          status: "Participating",
-          name: "이지은",
-          gender: "FEMALE",
-          level: "C조",
-          isMe: false,
-          isLeader: false,
-          position: null,
-        },
+      {
+        requestId: 1,
+        status: "Participating",
+        name: "홍길동",
+        gender: "MALE",
+        level: "A조",
+        isMe: false,
+        isLeader: true,
+        position: "leader",
+        memberId: 1,
+      },
+      {
+        requestId: 2,
+        status: "Participating",
+        name: "김민수",
+        gender: "MALE",
+        level: "B조",
+        isMe: true,
+        isLeader: false,
+        position: "sub_leader",
+        memberId: 2,
+      },
+      {
+        requestId: 3,
+        status: "Participating",
+        name: "이지은",
+        gender: "FEMALE",
+        level: "C조",
+        isMe: false,
+        isLeader: false,
+        position: null,
+        memberId: 3,
+      },
     ],
     waitingCount = 2,
     waitingGenderCount = { male: 1, female: 1 },
@@ -82,6 +85,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
         isMe: false,
         isLeader: false,
         position: null,
+        memberId: 4,
       },
       {
         requestId: 102,
@@ -92,6 +96,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
         isMe: false,
         isLeader: false,
         position: null,
+        memberId: 5,
       },
     ],
   } = props;
@@ -176,7 +181,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
               {...member}
               number={idx + 1}
               position={member.position}
-              onClick={() => navigate("/mypage/profile")}
+              onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
               onDelete={() => handleDeleteMember(idx)}
               showDeleteButton={
                 !!isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
@@ -217,7 +222,7 @@ export const ExerciseDetailApply = (props: MyPageExerciseDetailPageProps) => {
                   {...member}
                   number={idx + 1}
                   position={member.position}
-                  onClick={() => navigate("/mypage/profile")}
+                  onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
                   onDelete={() => {
                     const updated = waitingMembersState.filter(
                       (_, i) => i !== idx,
