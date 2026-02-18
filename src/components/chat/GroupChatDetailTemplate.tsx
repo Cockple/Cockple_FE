@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-//import { useNavigate } from "react-router-dom";
 
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
@@ -66,8 +65,6 @@ interface GroupChatDetailTemplateProps {
 export const GroupChatDetailTemplate: React.FC<
   GroupChatDetailTemplateProps
 > = ({ roomId }) => {
-  //const navigate = useNavigate();
-
   // 실제 로그인 사용자 정보
   const storeUser = useUserStore(s => s.user);
   const currentUserId = storeUser?.memberId ?? resolveMemberId() ?? 0;

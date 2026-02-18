@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   connectRawWs,
+  disconnectRawWs,
   sendFilesWS,
   sendImagesWS,
   sendMixedWS,
@@ -41,6 +42,7 @@ export const useRawWsConnect = (opts: {
     // 토큰 없거나 memberId 무효면 연결 시도하지 않음
     if (!token || !opts.memberId) {
       setOpen(false);
+      disconnectRawWs(); // 🌟 토큰이 없으면(로그아웃/로그인화면) 즉시 연결 종료
       // console.log("토큰 없음: ");
       return () => {
         mounted.current = false;

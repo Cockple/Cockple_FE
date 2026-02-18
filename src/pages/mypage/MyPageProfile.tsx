@@ -88,7 +88,9 @@ export const MyPageProfile = () => {
     try {
       const res = await createDirectChat(numericMemberId);
       if (res.success && res.data?.chatRoomId) {
-        navigate(`/chat/personal/${res.data.chatRoomId}`);
+        navigate(`/chat/personal/${res.data.chatRoomId}`, {
+          state: { chatName: profileData?.memberName },
+        });
       } else {
         console.error("채팅방 생성 실패", res);
       }
