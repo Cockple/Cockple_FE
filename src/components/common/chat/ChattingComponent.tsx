@@ -1,6 +1,7 @@
 //채팅창 말풍선 컴포넌트
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import type { ChatMessageResponse, ImageInfo } from "../../../types/chat";
 
 import BaseProfileImage from "@/assets/images/base_profile_img.png";
@@ -28,6 +29,7 @@ const ChattingComponent = ({
   time,
 }: ChattingComponentProps) => {
   //chatNick 상태 변수와 setChatNick 함수 정의
+  const navigate = useNavigate();
   const [chatNick, setChatNick] = useState("");
 
   //isMe와 nickname에 따라 chatNick을 설정
@@ -201,7 +203,8 @@ const ChattingComponent = ({
               //🌟src={message.senderProfileImageUrl}
               src={profileSrc}
               alt="profile"
-              className="w-10 h-10 aspect-square rounded-[2.75rem]"
+              className="w-10 h-10 aspect-square rounded-[2.75rem] cursor-pointer"
+              onClick={() => navigate(`/mypage/profile/${message.senderId}`)}
             />
           </div>
           <div className="flex flex-col items-start gap-1">

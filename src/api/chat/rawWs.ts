@@ -131,6 +131,7 @@ const currentRooms = new Set<number>();
 // 재연결 백오프
 let reconnectTimer: number | null = null;
 let reconnectAttempt = 0;
+let isManualClose = false; // 🌟 수동 종료 플래그 추가
 
 //🌟전역 리스너(Event Bus)
 type MsgListener = (data: IncomingMessage) => void;
@@ -242,6 +243,7 @@ export const connectRawWs = (
   // readyState가 OPEN이 되면 onopen 호출
   sock.onopen = () => {
     reconnectAttempt = 0;
+    isManualClose = false; // 연결 성공 시 플래그 초기화
     console.log("[WS open]");
     handlers.onOpen?.();
 
@@ -285,6 +287,12 @@ export const connectRawWs = (
     handlers.onClose?.(ev);
     ws = null;
 
+    // 🌟 수동으로 끊은 경우 재연결 시도 안 함
+    if (isManualClose) {
+      console.log("[WS] Manual disconnect. No reconnect.");
+      return;
+    }
+
     // 토큰 없으면 재시도 안 함
     if (!hasToken()) return;
 
@@ -308,6 +316,7 @@ export const disconnectRawWs = () => {
     ws &&
     (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)
   ) {
+    isManualClose = true; // 🌟 수동 종료임을 명시
     ws.close();
   }
   ws = null;
