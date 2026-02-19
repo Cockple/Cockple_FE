@@ -27,6 +27,7 @@ interface MemberProps {
   name: string;
   gender: "MALE" | "FEMALE";
   level: string;
+  lastExDay: Date; // 명세서 나오면 수정
   birth?: string;
   showStar?: boolean;
   isGuest?: boolean;
@@ -64,6 +65,7 @@ const MemberInfo = ({
   name,
   gender,
   level,
+  lastExDay,
   isGuest,
   guestName,
   // showStar,
@@ -73,12 +75,19 @@ const MemberInfo = ({
   name: string;
   gender: "MALE" | "FEMALE";
   level: string;
+  lastExDay: Date;
   isGuest?: boolean;
   guestName?: string;
   showStar?: boolean;
   isLeader?: boolean;
   position?: string | null;
 }) => {
+  {/* 마지막 운동일 추가 */}
+  const year = lastExDay.getFullYear();
+  const month = String(lastExDay.getMonth() + 1).padStart(2, '0'); 
+  const day = String(lastExDay.getDate()).padStart(2, '0');
+  const formattedDate = `${year}.${month}.${day}`;
+
   return (
     <div className="flex flex-col justify-center gap-[0.25rem] w-[9.75rem] h-[2.75rem]">
       <div className="flex items-center gap-1">
@@ -95,6 +104,13 @@ const MemberInfo = ({
           <Male className="w-[1rem] h-[1rem]" />
         )}
         <p className="whitespace-nowrap">{level}</p>
+        
+        <span className="text-[#D6DAE0]">|</span>
+        {/* 마지막 운동일 추가 */}
+        <p className="whitespace-nowrap text-[#D6DAE0] tracking-tight">
+          {formattedDate}
+        </p>
+
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
@@ -113,6 +129,7 @@ export const Member = ({
   name,
   gender,
   level,
+  lastExDay,
   birth,
   showStar,
   isGuest,
@@ -204,6 +221,7 @@ export const Member = ({
                 name={name}
                 gender={gender}
                 level={level}
+                lastExDay={lastExDay}
                 isGuest={isGuest}
                 guestName={guestName}
                 showStar={showStar}
@@ -242,7 +260,7 @@ export const Member = ({
             ) : (
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
             )}
-            <MemberInfo {...{ name, gender, level }} />
+            <MemberInfo {...{ name, gender, level, lastExDay }} />
             <Message
               className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
               onClick={e => {
