@@ -8,6 +8,7 @@ export interface Member {
   gender: "MALE" | "FEMALE";
   level: string;
   isMe: boolean;
+  lastExerciseDate:string;
 }
 
 export interface PartyMembersResponse {
@@ -22,7 +23,7 @@ export interface PartyMembersResponse {
     members: Member[]; 
   };
 }
-// 모임 멤버 조회
+// 모임 멤버 조회 -> 마지막 운동일 추가
 export const getPartyMembers = async (partyId: number) => {
   const response = await api.get<PartyMembersResponse>(
     `/api/parties/${partyId}/members`

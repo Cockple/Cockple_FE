@@ -1,11 +1,11 @@
-import ProfileImage from "../../../assets/icons/ProfileImage.svg?react";
-import Prohibition from "../../../assets/icons/prohibition.svg?react";
-import StarIcon from "../../../assets/icons/star_filled_GR.svg?react";
-import YEStarIcon from "../../../assets/icons/star_filled_YE.svg?react";
-import Star from "../../../assets/icons/star.svg?react";
-import Female from "../../../assets/icons/female.svg?react";
-import Male from "../../../assets/icons/male.svg?react";
-import Message from "../../../assets/icons/message.svg?react";
+import ProfileImage from "@/assets/icons/ProfileImage.svg?react";
+import Prohibition from "@/assets/icons/prohibition.svg?react";
+import StarIcon from "@/assets/icons/star_filled_GR.svg?react";
+import YEStarIcon from "@/assets/icons/star_filled_YE.svg?react";
+import Star from "@/assets/icons/star.svg?react";
+import Female from "@/assets/icons/female.svg?react";
+import Male from "@/assets/icons/male.svg?react";
+import Message from "@/assets/icons/message.svg?react";
 import InviteModal from "../../../components/group/groupMaking/InviteModal";
 import { Modal_Subtract } from "../../group/Modal_Subtract";
 import { useState } from "react";
@@ -27,6 +27,7 @@ interface MemberProps {
   name: string;
   gender: "MALE" | "FEMALE";
   level: string;
+  lastExerciseDate?: string;
   birth?: string;
   showStar?: boolean;
   isGuest?: boolean;
@@ -35,7 +36,7 @@ interface MemberProps {
   number?: number | string;
   isMe?: boolean;
   isLeader?: boolean;
-  isMangaer?: boolean;
+  isManager?: boolean;
   inviterName?: string;
   onAccept?: () => void;
   onReject?: () => void;
@@ -56,6 +57,7 @@ interface MemberProps {
   onAppointClick?: () => void;
   selectMode?: boolean;
   useDeleteModal?: boolean;
+  hideNumber?: boolean;
 }
 
 export type { MemberProps };
@@ -64,6 +66,7 @@ const MemberInfo = ({
   name,
   gender,
   level,
+  lastExerciseDate,
   isGuest,
   guestName,
   // showStar,
@@ -73,14 +76,18 @@ const MemberInfo = ({
   name: string;
   gender: "MALE" | "FEMALE";
   level: string;
+  lastExerciseDate?: string;
   isGuest?: boolean;
   guestName?: string;
   showStar?: boolean;
   isLeader?: boolean;
   position?: string | null;
 }) => {
+  {/* 마지막 운동일 추가 */}
+  const formattedDate = lastExerciseDate ? lastExerciseDate.replace(/-/g, ".") : null;
+
   return (
-    <div className="flex flex-col justify-center gap-[0.25rem] w-[9.75rem] h-[2.75rem]">
+    <div className="flex flex-col justify-center gap-[0.25rem] h-[2.75rem]">
       <div className="flex items-center gap-1">
         <p className="header-h5 text-black">{name}</p>
         {isLeader && <StarIcon className="w-[1rem] h-[1rem]" />}
@@ -95,10 +102,22 @@ const MemberInfo = ({
           <Male className="w-[1rem] h-[1rem]" />
         )}
         <p className="whitespace-nowrap">{level}</p>
+
+        {/* 마지막 운동일 추가 */}
+        {formattedDate && (
+          <>
+            <span className="text-[#D6DAE0]">|</span>
+            <p className="text-[#767B89] whitespace-nowrap">
+              마지막 운동일 {formattedDate}
+            </p>
+          </>
+        )}
+
+        {/* 게스트 경우 */}
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
-            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
+            <p className="text-[#D6DAE0] whitespace-nowrap">
               {guestName} 게스트
             </p>
           </>
@@ -113,6 +132,7 @@ export const Member = ({
   name,
   gender,
   level,
+  lastExerciseDate,
   birth,
   showStar,
   isGuest,
@@ -133,6 +153,7 @@ export const Member = ({
   //부모임장 선택시
   selectMode,
   onAppointClick,
+  hideNumber = false, 
 }: MemberProps & { modalConfig?: ModalConfig }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
@@ -180,16 +201,19 @@ export const Member = ({
               className="w-full h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
               onClick={onClick}
             >
-              {guestNumber ? (
-                <p className="body-md-500">
-                  {status === "Participating" && number}
-                  {status === "waiting" && number}
-                </p>
-              ) : (
-                <p className="body-md-500">
-                  {status === "Participating" && `No.${number}`}
-                  {status === "waiting" && `대기.${number}`}
-                </p>
+              {/* hideNumber=false*/}
+              {!hideNumber && (
+                guestNumber ? (
+                  <p className="body-md-500">
+                    {status === "Participating" && number}
+                    {status === "waiting" && number}
+                  </p>
+                ) : (
+                  <p className="body-md-500 whitespace-nowrap">
+                    {status === "Participating" && `No.${number}`}
+                    {status === "waiting" && `대기.${number}`}
+                  </p>
+                )
               )}
               {imgUrl ? (
                 <img
@@ -204,6 +228,7 @@ export const Member = ({
                 name={name}
                 gender={gender}
                 level={level}
+                lastExerciseDate={lastExerciseDate}
                 isGuest={isGuest}
                 guestName={guestName}
                 showStar={showStar}
@@ -213,7 +238,7 @@ export const Member = ({
               {selectMode && !isLeader && (
                 <Star
                   className="w-6 h-6 ml-auto cursor-pointer"
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     onAppointClick?.();
                   }}
@@ -242,10 +267,10 @@ export const Member = ({
             ) : (
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
             )}
-            <MemberInfo {...{ name, gender, level }} />
+            <MemberInfo {...{ name, gender, level, lastExerciseDate }} />
             <Message
               className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 setIsApplyModalOpen(true);
                 console.log("삭제 버튼 클릭됨, 모달 상태:", true);
