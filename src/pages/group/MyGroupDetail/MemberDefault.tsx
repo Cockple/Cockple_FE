@@ -41,6 +41,7 @@ export const MemberDefault = () => {
       : null,
     gender: m.gender,
     level: m.level,
+    lastExerciseDate: m.lastExerciseDate,
     isMe: !!m.isMe,
     isLeader:
       m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER",
@@ -186,8 +187,8 @@ export const MemberDefault = () => {
               imgUrl={member.imgUrl}
               showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}
+              lastExerciseDate={member.lastExerciseDate}
               onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
-
             />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>

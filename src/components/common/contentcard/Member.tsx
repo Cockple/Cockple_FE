@@ -27,7 +27,7 @@ interface MemberProps {
   name: string;
   gender: "MALE" | "FEMALE";
   level: string;
-  lastExDay: Date; // 명세서 나오면 수정
+  lastExerciseDate?: string;
   birth?: string;
   showStar?: boolean;
   isGuest?: boolean;
@@ -36,7 +36,7 @@ interface MemberProps {
   number?: number | string;
   isMe?: boolean;
   isLeader?: boolean;
-  isMangaer?: boolean;
+  isManager?: boolean;
   inviterName?: string;
   onAccept?: () => void;
   onReject?: () => void;
@@ -65,7 +65,7 @@ const MemberInfo = ({
   name,
   gender,
   level,
-  lastExDay,
+  lastExerciseDate,
   isGuest,
   guestName,
   // showStar,
@@ -75,7 +75,7 @@ const MemberInfo = ({
   name: string;
   gender: "MALE" | "FEMALE";
   level: string;
-  lastExDay: Date;
+  lastExerciseDate?:string;
   isGuest?: boolean;
   guestName?: string;
   showStar?: boolean;
@@ -83,10 +83,7 @@ const MemberInfo = ({
   position?: string | null;
 }) => {
   {/* 마지막 운동일 추가 */}
-  const year = lastExDay.getFullYear();
-  const month = String(lastExDay.getMonth() + 1).padStart(2, '0'); 
-  const day = String(lastExDay.getDate()).padStart(2, '0');
-  const formattedDate = `${year}.${month}.${day}`;
+  const formattedDate = lastExerciseDate ? lastExerciseDate.replace(/-/g, ".") : "기록없음";
 
   return (
     <div className="flex flex-col justify-center gap-[0.25rem] w-[9.75rem] h-[2.75rem]">
@@ -105,16 +102,21 @@ const MemberInfo = ({
         )}
         <p className="whitespace-nowrap">{level}</p>
         
-        <span className="text-[#D6DAE0]">|</span>
         {/* 마지막 운동일 추가 */}
-        <p className="whitespace-nowrap text-[#D6DAE0] tracking-tight">
-          {formattedDate}
-        </p>
-
+        {formattedDate && (
+          <>
+            <span className="text-[#D6DAE0]">|</span>
+            <p className="text-[#D6DAE0] truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
+              {formattedDate} 
+            </p>
+          </>
+        )}
+        
+        {/* 게스트 경우 */}
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
-            <p className="truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
+            <p className="text-[#D6DAE0] truncate overflow-hidden whitespace-nowrap max-w-[5rem]">
               {guestName} 게스트
             </p>
           </>
@@ -129,7 +131,7 @@ export const Member = ({
   name,
   gender,
   level,
-  lastExDay,
+  lastExerciseDate,
   birth,
   showStar,
   isGuest,
@@ -221,7 +223,7 @@ export const Member = ({
                 name={name}
                 gender={gender}
                 level={level}
-                lastExDay={lastExDay}
+                lastExerciseDate={lastExerciseDate}
                 isGuest={isGuest}
                 guestName={guestName}
                 showStar={showStar}
@@ -260,7 +262,7 @@ export const Member = ({
             ) : (
               <ProfileImage className="w-[2.5rem] h-[2.5rem]" />
             )}
-            <MemberInfo {...{ name, gender, level, lastExDay }} />
+            <MemberInfo {...{ name, gender, level, lastExerciseDate }} />
             <Message
               className="w-[2rem] h-[2rem] ml-auto cursor-pointer"
               onClick={e => {
