@@ -70,7 +70,6 @@ const Avatar = ({ imgUrl, name }: { imgUrl?: string | null; name: string }) => {
   return <ProfileImage className="w-[2.5rem] h-[2.5rem]" />;
 };
 
-// 기존 MemberInfo 유지 (가독성을 위해 약간 정리)
 const MemberInfo = ({ name, gender, level, lastExerciseDate, isGuest, guestName, isLeader, position }: Partial<MemberProps>) => {
   const formattedDate = lastExerciseDate?.replace(/-/g, ".");
 
