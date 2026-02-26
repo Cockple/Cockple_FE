@@ -9,9 +9,9 @@ import {
 import { leaveParty } from "../../../api/party/my";
 import type { ModalConfig } from "../../../components/group/modalConfig";
 import { Member } from "../../../components/common/contentcard/Member";
-import Search from "../../../assets/icons/search.svg?react";
-import Female from "../../../assets/icons/female.svg?react";
-import Male from "../../../assets/icons/male.svg?react";
+import Search from "@/assets/icons/search.svg?react";
+import Female from "@/assets/icons/female.svg?react";
+import Male from "@/assets/icons/male.svg?react";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +41,7 @@ export const MemberDefault = () => {
       : null,
     gender: m.gender,
     level: m.level,
+    lastExerciseDate: m.lastExerciseDate,
     isMe: !!m.isMe,
     isLeader:
       m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER",
@@ -186,8 +187,9 @@ export const MemberDefault = () => {
               imgUrl={member.imgUrl}
               showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}
+              lastExerciseDate={member.lastExerciseDate}
               onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
-
+              hideNumber={true}
             />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>
