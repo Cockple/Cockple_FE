@@ -43,7 +43,7 @@ export const ViceLeaderDefault = () => {
     memberId: m.memberId,
     name: m.nickname,
     imgUrl: m.profileImageUrl
-      ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${m.profileImageUrl}`
+      ? `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}`
       : null,
     gender: m.gender,
     level: m.level,
