@@ -12,7 +12,7 @@ import {
   MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
-  // ViceLeaderDefault,
+  ViceLeaderDefault,
   EditGroupInfoDefault,
   // InviteDefault,
 } from "./pages/group";
@@ -164,6 +164,8 @@ const router = createBrowserRouter([
       { path: "/group/Mygroup/ExerciseDetail", element: <ExerciseDetail /> },
 
       // { path: "/group/admin/vice-leader", element: <ViceLeaderDefault /> },
+      { path: "/group/admin/vice-leader/:groupId", element: <ViceLeaderDefault /> },
+
       {
         path: "/group/admin/edit-info/:partyId",
         element: <EditGroupInfoDefault />,

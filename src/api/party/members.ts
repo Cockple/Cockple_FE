@@ -35,3 +35,21 @@ export const getPartyMembers = async (partyId: number) => {
 export const removeMemberFromParty = async (partyId: number, memberId: number) => {
   return await api.delete(`/api/parties/${partyId}/members/${memberId}`);
 };
+
+//부모임장 지정 및 해제 API
+export const updateMemberRole = async (
+  partyId: number,
+  memberId: number,
+  role: "party_SUBMANAGER" | "party_MEMBER"
+) => {
+  try {
+    const response = await api.patch(
+      `/api/parties/${partyId}/members/${memberId}/role`,
+      { role }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("멤버 역할 변경 실패:", error);
+    throw error;
+  }
+};

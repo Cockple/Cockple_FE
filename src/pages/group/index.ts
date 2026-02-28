@@ -4,7 +4,7 @@ export { GroupPage } from "./GroupPage";
 // export { GroupDetailMemberDefault } from "./JoinableGroup/GroupDetailMemberDefault";
 export { MemberDefault } from "./MyGroupDetail/MemberDefault";
 export { ExerciseDetailApply } from "./MyGroupDetail/ExerciseDetailApply";
-// export { ViceLeaderDefault } from "./AdminMenu/ViceLeaderDefault";
+export { ViceLeaderDefault } from "./AdminMenu/ViceLeaderDefault";
 export { EditGroupInfoDefault } from "./AdminMenu/EditGroupInfoDefault";
 // export { InviteDefault } from "./AdminMenu/InviteDefault";
 export { ExerciseDetail } from "./MyGroupDetail/ExerciseDetail"; // 대기 신청하는 화면
