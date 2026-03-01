@@ -1,6 +1,7 @@
 // TabBtn을 사용하는 컴포넌트
 // 채팅 페이지에서는 "모임채팅" "개인채팅"
 // 찜 페이지에서는 "모임" "운동"
+import clsx from "clsx";
 import TabBtn from "./DynamicBtn/TabBtn";
 
 interface TabOption {
@@ -12,16 +13,23 @@ interface TabSelectorProps<T extends string> {
   options: TabOption[];
   selected: T;
   onChange: (value: T) => void;
+  type?: string;
 }
 
 const TabSelector = <T extends string>({
   options,
   selected,
   onChange,
+  type,
 }: TabSelectorProps<T>) => {
   return (
     <div className="w-full -ml-4 px-4 max-w-[444px] flex flex-col mb-4 fixed top-14 z-20 bg-white">
-      <div className="flex text-black items-center justify-between">
+      <div
+        className={clsx(
+          "flex text-black items-center gap-3",
+          type === "group" && "justify-between",
+        )}
+      >
         {options.map(option => (
           <TabBtn
             key={option.value}
