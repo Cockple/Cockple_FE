@@ -53,7 +53,7 @@ export const GroupLayout = () => {
 
   const handleSetSubLeader = () => {
     setIsMoreOpen(false);
-    navigate(`/group/admin/vice-leader`);
+    navigate(`/group/admin/vice-leader/${groupId}`);
   };
 
   const handleEditGroup = () => {
@@ -180,13 +180,13 @@ export const GroupLayout = () => {
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         selected=""
-        options={["모임 삭제하기", "모임 정보 수정하기"]}
+        options={["모임 삭제하기","부모임장 설정하기", "모임 정보 수정하기"]}
         onSelect={label => {
           if (label === "모임 삭제하기") {
             setIsMoreOpen(false);
             setIsDelModalOpen(true);
           }
-          if (label === "부모임 설정하기") handleSetSubLeader();
+          if (label === "부모임장 설정하기") handleSetSubLeader();
           if (label === "모임 정보 수정하기") handleEditGroup();
         }}
       />

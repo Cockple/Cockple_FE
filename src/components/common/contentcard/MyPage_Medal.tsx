@@ -29,7 +29,7 @@ export const MyPage_Medal = ({
   return (
     <div className="flex flex-col gap-[1rem]">
       <div
-        className={`w-[21.4375rem] h-[13.5rem] px-[1rem] py-[0.75rem] shadow-ds100 rounded-[1rem] flex flex-col justify-between gap-[1rem]
+        className={`w-full h-[13.5rem] px-[1rem] py-[0.75rem] shadow-ds100 rounded-[1rem] flex flex-col justify-between gap-[1rem]
           ${disabled ? "cursor-default" : "cursor-pointer"}`}
         onClick={() => {
           if (!disabled && onClick) onClick();
