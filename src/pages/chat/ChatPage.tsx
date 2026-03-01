@@ -58,7 +58,7 @@ export const ChatPage = () => {
   const memberId = resolveMemberId() ?? 0;
   const { isOpen } = useRawWsConnect({
     memberId,
-    origin: "https://cockple.store",
+    origin: import.meta.env.VITE_WS_ORIGIN,
   });
 
   // 🌟전역 스토어
