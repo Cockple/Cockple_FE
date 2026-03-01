@@ -8,7 +8,7 @@ import Male from "../../../assets/icons/male.svg?react";
 import { Member } from "../../../components/common/contentcard/Member";
 import type { MemberProps } from "../../../components/common/contentcard/Member";
 import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
-import { Modal_Appoint } from "../../../components/group/Modal_Appoint";
+import { Modal_Appoint, type AppointModalType } from "../../../components/group/Modal_Appoint";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 import {
   getPartyMembers,
@@ -34,7 +34,6 @@ export const ViceLeaderDefault = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   
-  // 선택된 멤버의 고유 ID (검색 결과 순서가 바뀌어도 안전하게 처리하기 위함)
   const [targetMemberId, setTargetMemberId] = useState<number | null>(null);
 
   // API 멤버 -> 프론트 MemberProps 매핑
@@ -139,10 +138,22 @@ export const ViceLeaderDefault = () => {
     }
   };
 
-  return (
-    <>
+  const getModalType = (): AppointModalType => {
+    const targetMember = members.find((m) => m.memberId === targetMemberId);
+    const isTargetSubLeader = targetMember?.position === "sub_leader";
+    
+    if (!hasSubLeader) return "appoint"; // 모임에 부모임장이 0명일 때
+    if (isTargetSubLeader) return "cancel"; // 기존 부모임장을 해제할 때
+    return "change"; 
+  };
+return (
+    <div 
+      className="flex flex-col min-h-screen relative pb-24" 
+      onClick={() => setSelectMode(false)}
+    >
       <PageHeader title="부모임장 설정" />
-      <div className="flex flex-col ">
+      
+      <div className="flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="mb-8 mt-5">
           <div className="relative">
             <input
@@ -174,7 +185,7 @@ export const ViceLeaderDefault = () => {
           </div>
         </div>
 
-        {/* 멤버 리스트 렌더링 */}
+        {/* 멤버 리스트 */}
         {filteredMembers.map((member, idx) => (
           <div key={`participant-${member.memberId || idx}`}>
             <Member
@@ -198,33 +209,30 @@ export const ViceLeaderDefault = () => {
         ))}
       </div>
 
-      {/* 하단 버튼 */}
-      <div className="mt-8 relative">
-        <Grad_GR400_L
-          label={
-            selectMode 
-              ? "취소" 
-              : hasSubLeader 
-                ? "수정하기" 
-                : "부모임장 지정하기"
-          }
-          onClick={() => setSelectMode(!selectMode)}
-        />
-      </div>
+      {/* 하단버튼 */}
+      {!selectMode && (
+        <div 
+          className="fixed bottom-5 left-0 w-full px-5 z-10"
+          onClick={(e) => e.stopPropagation()} 
+        >
+          <Grad_GR400_L
+            label={hasSubLeader ? "수정하기" : "부모임장 지정하기"}
+            onClick={() => setSelectMode(true)} 
+          />
+        </div>
+      )}
 
       {/* 지정 모달 */}
       {isModalOpen && (
         <Modal_Appoint
-          isDismiss={
-            members.find((m) => m.memberId === targetMemberId)?.position === "sub_leader"
-          }
+          modalType={getModalType()}
           onConfirm={handleAppointConfirm}
           onCancel={() => {
-            setIsModalOpen(false); 
+            setIsModalOpen(false);
             setTargetMemberId(null);
           }}
         />
       )}
-    </>
+    </div>
   );
 };
