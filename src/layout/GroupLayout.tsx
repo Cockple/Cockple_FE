@@ -168,6 +168,7 @@ export const GroupLayout = () => {
         options={options}
         selected={select}
         onChange={handleChange}
+        type="group"
       />
 
       <div className="pt-14">
