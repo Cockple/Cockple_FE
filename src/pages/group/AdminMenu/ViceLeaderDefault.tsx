@@ -40,11 +40,7 @@ export const ViceLeaderDefault = () => {
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
-    // imgUrl: m.profileImageUrl || null,
-    //임시로 수정
-    imgUrl: m.profileImageUrl
-      ? `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}`
-      : null,
+    imgUrl: m.profileImageUrl || null,
     gender: m.gender,
     level: m.level,
     lastExerciseDate: m.lastExerciseDate,
@@ -212,7 +208,7 @@ return (
       {/* 하단버튼 */}
       {!selectMode && (
         <div 
-          className="fixed bottom-5 left-0 w-full px-5 z-10"
+          className="fixed bottom-0"
           onClick={(e) => e.stopPropagation()} 
         >
           <Grad_GR400_L
