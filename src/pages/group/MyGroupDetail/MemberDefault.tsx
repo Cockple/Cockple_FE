@@ -33,10 +33,13 @@ export const MemberDefault = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // API 멤버 -> 프론트 MemberProps 매핑
+
+  
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
     // imgUrl: m.profileImageUrl || null,
+    //임시로 수정
     imgUrl: m.profileImageUrl
       ? `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}`
       : null,
@@ -54,6 +57,7 @@ export const MemberDefault = () => {
         : null,
     status: m.role === "WAITING" ? "waiting" : "Participating",
     inviterName: "", 
+    
   });
 
   useEffect(() => {

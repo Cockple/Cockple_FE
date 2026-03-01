@@ -94,7 +94,7 @@ const MemberInfo = ({ name, gender, level, lastExerciseDate, isGuest, guestName,
         {isGuest && (
           <>
             <span className="text-[#D6DAE0]">|</span>
-            <p className="text-[#D6DAE0] whitespace-nowrap">{guestName} 게스트</p>
+            <p className="text-black whitespace-nowrap">{guestName} 게스트</p>
           </>
         )}
       </div>
