@@ -165,9 +165,10 @@ export const MemberDefault = () => {
       {/* 멤버 리스트 */}
         {filteredMembers.map((member, idx) => {
           const isCurrentUser = member.isMe ?? false;
+
           const isLeaderUser =
             myRole === "OWNER" || myRole === "MANAGER" || myRole === "party_MANAGER"; 
-          const showDeleteButton = isCurrentUser || (isLeaderUser && !isCurrentUser);
+          const showDeleteButton = (isCurrentUser && !isLeaderUser) || (!isCurrentUser && isLeaderUser);
  
           const modalConfig: ModalConfig | undefined = showDeleteButton
             ? {
@@ -195,6 +196,7 @@ export const MemberDefault = () => {
               lastExerciseDate={member.lastExerciseDate}
               onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
               hideNumber={true}
+              useDeleteModal={true}
             />
             <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
           </div>

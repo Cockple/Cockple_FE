@@ -29,7 +29,6 @@ export const ViceLeaderDefault = () => {
     male: 0,
     female: 0,
   });
-  const [myRole, setMyRole] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,9 +76,6 @@ export const ViceLeaderDefault = () => {
             male: summary.maleCount,
             female: summary.femaleCount,
           });
-
-          const me = members.find((m: ApiMember) => m.isMe);
-          setMyRole(me?.role || null);
         }
       } catch (err) {
         console.error("멤버 조회 실패", err);
