@@ -9,7 +9,7 @@ export type BtnKind =
   | "White"
   | "GY100_RD500_S"
   | "GY100_GR600_S";
-export type BtnSize = "L" | "L_Thin" | "M" | "S" | "XS";
+export type BtnSize = "L" | "L_Thin" | "M" | "S" | "XS" | "ThinL";
 
 export interface BtnPreset {
   bgColor: Record<BtnStatus, string>;

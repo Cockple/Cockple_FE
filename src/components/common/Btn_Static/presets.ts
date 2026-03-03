@@ -177,4 +177,11 @@ export const sizePresets: Record<string, SizePreset> = {
     rounded: "border-hard",
     padding: "px-4 py-2",
   },
+  ThinL: {
+    width: "w-full",
+    textSize: "body-rg-500",
+    iconSize: "w-[0.875rem] h-[0.875rem]",
+    rounded: "border-hard",
+    padding: "px-4 py-2",
+  },
 };

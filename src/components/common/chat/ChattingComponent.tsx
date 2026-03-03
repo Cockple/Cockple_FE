@@ -7,6 +7,7 @@ import type { ChatMessageResponse, ImageInfo } from "../../../types/chat";
 import BaseProfileImage from "@/assets/images/base_profile_img.png";
 
 import clsx from "clsx"; // 상단에 추가
+import { ChatWithDrawnModal } from "@/components/chat/ChatWithDrawnModal";
 
 interface ChattingComponentProps {
   message: ChatMessageResponse;
@@ -33,7 +34,19 @@ const ChattingComponent = ({
   //chatNick 상태 변수와 setChatNick 함수 정의
   const navigate = useNavigate();
   const [chatNick, setChatNick] = useState("");
+  //탈퇴시 modal처리 ,
+  const [modal, setModal] = useState(false);
   console.log(message, "채팅ㅇㅇ");
+
+  const handleIsUser = () => {
+    if (message) {
+      //탈퇴한 사용자가 아니면,
+      navigate(`/mypage/profile/${message.senderId}`);
+    } else {
+      setModal(true);
+    }
+  };
+
   //isMe와 nickname에 따라 chatNick을 설정
   useEffect(() => {
     setChatNick(isMe ? "나" : message.senderName);
@@ -209,7 +222,7 @@ const ChattingComponent = ({
                 "w-10 h-10 aspect-square rounded-[2.75rem] cursor-pointer",
                 isAloneWithdrawn && "opacity-20",
               )}
-              onClick={() => navigate(`/mypage/profile/${message.senderId}`)}
+              onClick={handleIsUser}
             />
           </div>
           <div className="flex flex-col items-start gap-1">
@@ -253,6 +266,7 @@ const ChattingComponent = ({
           </div>
         </div>
       )}
+      {modal && <ChatWithDrawnModal onClose={() => setModal(false)} />}
     </div>
   );
 };
