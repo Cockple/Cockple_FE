@@ -263,7 +263,7 @@ export const ChatDetailTemplate = ({
   //const { sendText, sendImages, lastMessage } = useRawWsConnect({
   const { sendText, sendImages } = useRawWsConnect({
     memberId: currentUserId,
-    origin: "https://cockple.store",
+    origin: import.meta.env.VITE_WS_ORIGIN,
   });
 
   // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
