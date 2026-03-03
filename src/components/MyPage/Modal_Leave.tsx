@@ -5,24 +5,39 @@ import { ModalBar } from "../../components/common/system/ModalBar";
 import Emoji from "@/assets/icons/emoji_surprise.svg";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "@/store/useUserStore";
+import type { AxiosError } from "axios";
 
 interface ModalLeaveProps {
   onClose: () => void;
+  onOwnerError: (owenerName: string) => void;
 }
 
-export const ModalLeave = ({ onClose }: ModalLeaveProps) => {
+export const ModalLeave = ({ onClose, onOwnerError }: ModalLeaveProps) => {
   const navigate = useNavigate();
   const { resetUser } = useUserStore();
+
   const onSucess = () => {
     navigate("/login");
     resetUser();
     localStorage.removeItem("accessToken");
   };
-  const { mutate: handleDeleteAccount } = useDeleteAccount(onSucess);
+
+  const onError = (err: AxiosError) => {
+    console.log(err.response?.data);
+    const owner = err.response?.data.message.split(" ")[0];
+    console.log(owner);
+    if (err.response?.data.code === "MEMBER401") {
+      // setWithdrawnModal(true);
+      // setName(owner);
+      onOwnerError(owner);
+      // onClose?.();
+    }
+  };
+  const { mutate: handleDeleteAccount } = useDeleteAccount(onSucess, onError);
 
   return (
     <div className="flex justify-center items-center fixed bottom-0 bg-black/20 -mx-4 w-full max-w-[444px] h-full z-50">
-      <div className="w-86 h-63 p-3 bg-white shadow-ds200 border-round">
+      <div className="w-86 h-58 p-3 bg-white shadow-ds200 border-round flex flex-col justify-end">
         <ModalBar onClick={onClose} />
         <div className="flex flex-col gap-vertical-section-s">
           <div className="flex flex-col justify-center items-center gap-2">

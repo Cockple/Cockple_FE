@@ -10,7 +10,7 @@ import { useMyPageStore } from "../../store/useMyPageStore";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import White_L_Thin from "../../components/common/Btn_Static/Text/White_L_Thin";
 import White_L from "../../components/common/Btn_Static/Text/White_L";
-import { ModalLeave } from "@/components/MyPage/Modal_Leave";
+import { ModalContainer } from "@/components/MyPage/ModalContainer";
 
 interface MyPageProps {
   disabled?: boolean;
@@ -138,12 +138,8 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
               label="회원탈퇴"
               onClick={() => setModal(true)}
             />
-            {/* <CautionModal /> */}
-            {modal && (
-              <div className="-ml-[11px]">
-                <ModalLeave onClose={() => setModal(false)} />
-              </div>
-            )}
+
+            {modal && <ModalContainer onClose={() => setModal(false)} />}
           </div>
         </div>
       </div>

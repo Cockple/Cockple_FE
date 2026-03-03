@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../api";
+import type { AxiosError } from "axios";
 // 메인 >> 건물명
 // 서브 >> 도로명
 
@@ -138,11 +139,14 @@ export const deleteAccount = async () => {
   return data;
 };
 
-export const useDeleteAccount = (onSuccess?: () => void) => {
+export const useDeleteAccount = (
+  onSuccess?: () => void,
+  onError?: (err: AxiosError) => void,
+) => {
   // const navigate = useNavigate();
   return useMutation({
     mutationFn: deleteAccount,
     onSuccess: () => onSuccess?.(),
-    onError: err => console.log(err),
+    onError: (err: AxiosError) => onError?.(err),
   });
 };
