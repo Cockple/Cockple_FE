@@ -38,6 +38,7 @@ export interface ChatRoomInfo {
   profileImageUrl: string | null;
   memberCount: number;
   lastReadMessageId: number;
+  isCounterPartWithdrawn: boolean;
 }
 
 // 🌟새 이미지 타입 (REST/WS 공통)
