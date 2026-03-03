@@ -31,7 +31,7 @@ const ChattingComponent = ({
   //chatNick 상태 변수와 setChatNick 함수 정의
   const navigate = useNavigate();
   const [chatNick, setChatNick] = useState("");
-
+  console.log(message, "채팅ㅇㅇ");
   //isMe와 nickname에 따라 chatNick을 설정
   useEffect(() => {
     setChatNick(isMe ? "나" : message.senderName);

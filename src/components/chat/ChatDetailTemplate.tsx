@@ -110,6 +110,8 @@ export const ChatDetailTemplate = ({
     refetchInitial,
   } = useChatInfinite(chatId);
 
+  console.log(messages, "채팅메세지");
+
   // ===== 읽음 처리 =====
   // const { markReadNow } = useChatRead({
   //   roomId: Number(chatId),
