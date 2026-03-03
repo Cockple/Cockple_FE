@@ -12,7 +12,7 @@ interface ChattingComponentProps {
   message: ChatMessageResponse;
   isMe: boolean;
   unreadCount?: number;
-  isAlonedraw?: boolean;
+  isAloneWithdrawn?: boolean;
   //🌟onImageClick?: (src: string) => void;
   onImageClick?: (p: { url: string; isEmoji: boolean }) => void;
   time: string;
@@ -25,7 +25,7 @@ interface ChattingComponentProps {
 const ChattingComponent = ({
   message,
   isMe,
-  isAlonedraw,
+  isAloneWithdrawn,
   unreadCount,
   onImageClick,
   time,
@@ -207,7 +207,7 @@ const ChattingComponent = ({
               alt="profile"
               className={clsx(
                 "w-10 h-10 aspect-square rounded-[2.75rem] cursor-pointer",
-                isAlonedraw && "opacity-20",
+                isAloneWithdrawn && "opacity-20",
               )}
               onClick={() => navigate(`/mypage/profile/${message.senderId}`)}
             />

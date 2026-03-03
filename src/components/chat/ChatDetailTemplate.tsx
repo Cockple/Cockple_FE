@@ -115,10 +115,10 @@ export const ChatDetailTemplate = ({
   console.log(messages, "채팅메세지");
 
   //개인채팅방 탈퇴
-  const aloneDraw =
+  const aloneWithdrawn =
     initial?.participants.length == 2 &&
     initial.chatRoomInfo.isCounterPartWithdrawn == true;
-  //const aloneDraw = true;
+  //const aloneWithdrawn = true;
 
   // ===== 읽음 처리 =====
   // const { markReadNow } = useChatRead({
@@ -704,8 +704,7 @@ export const ChatDetailTemplate = ({
                     <ChattingComponent
                       message={chat}
                       isMe={chat.senderId === currentUserId}
-                      isAlonedraw={aloneDraw}
-                      //isAlonedraw={true}
+                      isAloneWithdrawn={aloneWithdrawn}
                       // onImageClick={setPreviewImage}
                       onImageClick={handleImageClick}
                       time={formatEnLowerAmPm(chat.timestamp)}
@@ -733,7 +732,7 @@ export const ChatDetailTemplate = ({
         )}
       </div>
       {/* 입력창 */}
-      {aloneDraw ? (
+      {aloneWithdrawn ? (
         <p className="header-h4 bg-gr-200 pb-4">대화가 불가능한 멤버입니다.</p>
       ) : (
         <div className="sticky bottom-0">
