@@ -22,6 +22,8 @@ export interface PersonalChatRoom {
   displayName: string;
   profileImgUrl: string;
   unreadCount: number;
+  isWithdrawn: boolean;
+
   // lastMessage?: {
   //   messageId: number;
   //   content: string;

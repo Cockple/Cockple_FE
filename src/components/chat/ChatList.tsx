@@ -52,6 +52,8 @@ const ChatList = ({
     );
   }
 
+  console.log(personalChats, "챗리스트 개인채팅방");
+
   return (
     <div className="flex flex-col gap-[0.625rem] w-full">
       {tab === "group"
@@ -101,6 +103,7 @@ const ChatList = ({
               ? formatEnLowerAmPm(lm.timestamp)
               : "";
 
+            console.log(chat);
             return (
               <div
                 key={chat.chatRoomId}
@@ -117,6 +120,8 @@ const ChatList = ({
                   lastMessage={lastText} // 안전
                   lastMessageTime={lastTime} // 안전
                   unreadCount={chat.unreadCount}
+                  isAloneWithdraw={chat.isWithdrawn}
+                  //isAloneWithdraw={true}
                 />
               </div>
             );

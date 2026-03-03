@@ -3,6 +3,7 @@ import { Num_Noti } from "./Num_Noti";
 
 // 이미지
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
+import clsx from "clsx";
 
 export interface PersonalChatProps {
   imageSrc: string;
@@ -10,6 +11,7 @@ export interface PersonalChatProps {
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
+  isAloneWithdraw?: boolean;
 }
 
 export const PersonalChat = ({
@@ -18,6 +20,7 @@ export const PersonalChat = ({
   lastMessage,
   lastMessageTime,
   unreadCount,
+  isAloneWithdraw,
 }: PersonalChatProps) => {
   const [pressing, setPressing] = useState(false);
 
@@ -34,7 +37,10 @@ export const PersonalChat = ({
       <img
         src={imageSrc ? imageSrc : DefaultGroupImg}
         alt={userName}
-        className="w-[4rem] h-[4rem] rounded-[0.5rem]"
+        className={clsx(
+          "w-[4rem] h-[4rem] rounded-[0.5rem]",
+          isAloneWithdraw && "opacity-20",
+        )}
       />
       {/* {imageSrc ? (
         <img
