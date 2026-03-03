@@ -6,6 +6,7 @@ import Emoji from "@/assets/icons/emoji_surprise.svg";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "@/store/useUserStore";
 import type { AxiosError } from "axios";
+import type { ErrorReasonDTO } from "@/types/common";
 
 interface ModalLeaveProps {
   onClose: () => void;
@@ -22,15 +23,15 @@ export const ModalLeave = ({ onClose, onOwnerError }: ModalLeaveProps) => {
     localStorage.removeItem("accessToken");
   };
 
-  const onError = (err: AxiosError) => {
-    console.log(err.response?.data);
-    const owner = err.response?.data.message.split(" ")[0];
-    console.log(owner);
-    if (err.response?.data.code === "MEMBER401") {
-      // setWithdrawnModal(true);
-      // setName(owner);
-      onOwnerError(owner);
-      // onClose?.();
+  const onError = (err: AxiosError<ErrorReasonDTO>) => {
+    const errorData = err.response?.data;
+    if (errorData) {
+      const owner = errorData.message.split(" ")[0];
+      console.log(owner);
+
+      if (errorData.code === "MEMBER401") {
+        onOwnerError(owner);
+      }
     }
   };
   const { mutate: handleDeleteAccount } = useDeleteAccount(onSucess, onError);
