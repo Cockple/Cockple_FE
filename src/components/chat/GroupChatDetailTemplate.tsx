@@ -215,7 +215,7 @@ export const GroupChatDetailTemplate: React.FC<
   // ChatDetailTemplate와 동일 인터페이스 사용(sendImages)
   const { sendText, sendImages, lastMessage } = useRawWsConnect({
     memberId: currentUserId,
-    origin: "https://cockple.store",
+    origin: import.meta.env.VITE_WS_ORIGIN,
   });
 
   // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)

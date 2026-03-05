@@ -13,7 +13,7 @@ import type {
   MemberJoinRequestResponse,
 } from "../../types/memberJoinRequest";
 import api from "../../api/api";
-import { formatDate } from "../../utils/time";
+// import { formatDate } from "../../utils/time";
 
 import { mapLevels } from "../../utils/gradeMapper";
 
@@ -27,11 +27,18 @@ const MemberRequestPage = () => {
   const [requests, setRequests] = useState<MemberJoinRequest[]>([]);
   const [approved, setApproved] = useState<MemberJoinRequest[]>([]);
 
+  const formatDotDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const offset = date.getTimezoneOffset() * 60000;
+    const localTime = new Date(date.getTime() - offset);
+    return localTime.toISOString().split("T")[0].replace(/-/g, ".");
+  };
+
   // 모달 상태
   const [selectedMember, setSelectedMember] =
     useState<MemberJoinRequest | null>(null);
   const [modalType, setModalType] = useState<"approve" | "reject" | null>(null);
-  //🌟
+
   const [submitting, setSubmitting] = useState(false);
   // 멤버 신청 목록 요청 (PENDING)
   const fetchPendingMembers = async () => {
@@ -153,7 +160,7 @@ const MemberRequestPage = () => {
                     gender={req.gender}
                     // level={req.level}
                     level={mapLevels([req.level])[0] ?? "급수 없음"}
-                    birth={formatDate(req.createdAt)}
+                    birth={formatDotDate(req.createdAt)}
                     //imgUrl={req.profileImageUrl}
                     imgUrl={
                       req.profileImageUrl
@@ -189,7 +196,7 @@ const MemberRequestPage = () => {
                   gender={req.gender}
                   // level={req.level}
                   level={mapLevels([req.level])[0] ?? "급수 없음"}
-                  birth={formatDate(req.updatedAt ?? req.createdAt)}
+                  birth={formatDotDate(req.updatedAt ?? req.createdAt)}
                   //imgUrl={req.profileImageUrl}
                   imgUrl={
                     req.profileImageUrl
@@ -228,12 +235,5 @@ const MemberRequestPage = () => {
   );
 };
 
-// 오늘 날짜 yyyy.mm.dd 형식
-// const getToday = () => {
-//   const now = new Date();
-//   const offset = now.getTimezoneOffset() * 60000;
-//   const localTime = new Date(now.getTime() - offset);
-//   return localTime.toISOString().split("T")[0].replace(/-/g, ".");
-// };
 
 export default MemberRequestPage;

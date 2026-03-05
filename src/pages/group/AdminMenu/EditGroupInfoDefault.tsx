@@ -1,3 +1,4 @@
+// 모임 정보 수정 화면
 import { MultiSelectButtonGroup } from "../../../components/common/MultiSelectButtonGroup";
 import { useState, useEffect, useRef } from "react";
 import CicleSRED from "../../../assets/icons/cicle_s_red.svg?react";
@@ -73,9 +74,6 @@ export const EditGroupInfoDefault = () => {
     fetchParty();
   }, [numericPartyId]);
 
-  // =====================
-  // 변경 체크
-  // =====================
   useEffect(() => {
     if (
       selectedDays.length > 0 ||
