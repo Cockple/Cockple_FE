@@ -40,7 +40,14 @@ export const ViceLeaderDefault = () => {
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
-    imgUrl: m.profileImageUrl || null,
+    // imgUrl: m.profileImageUrl || null,
+
+    imgUrl: m.profileImageUrl
+      ? m.profileImageUrl.startsWith("http")
+        ? m.profileImageUrl 
+        : `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}` 
+      : null,
+      
     gender: m.gender,
     level: m.level,
     lastExerciseDate: m.lastExerciseDate,
