@@ -38,7 +38,7 @@ export const MemberDefault = () => {
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
-    imgUrl: m.profileImageUrl || null,
+    // imgUrl: m.profileImageUrl || null,
     //임시로 수정
     imgUrl: m.profileImageUrl
       ? m.profileImageUrl.startsWith("http")

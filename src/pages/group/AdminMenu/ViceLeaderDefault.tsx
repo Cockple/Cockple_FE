@@ -41,13 +41,9 @@ export const ViceLeaderDefault = () => {
     memberId: m.memberId,
     name: m.nickname,
     // imgUrl: m.profileImageUrl || null,
-
     imgUrl: m.profileImageUrl
-      ? m.profileImageUrl.startsWith("http")
-        ? m.profileImageUrl 
-        : `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}` 
+      ? `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}`
       : null,
-      
     gender: m.gender,
     level: m.level,
     lastExerciseDate: m.lastExerciseDate,
@@ -215,7 +211,7 @@ return (
       {/* 하단버튼 */}
       {!selectMode && (
         <div 
-          className="fixed bottom-0"
+          className="fixed bottom-0 left-0 w-full flex justify-center z-50"
           onClick={(e) => e.stopPropagation()} 
         >
           <Grad_GR400_L
@@ -224,7 +220,6 @@ return (
           />
         </div>
       )}
-
       {/* 지정 모달 */}
       {isModalOpen && (
         <Modal_Appoint
