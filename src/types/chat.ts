@@ -66,6 +66,7 @@ export interface ChatMessageResponse {
   //imageUrls?: string[]; // UI 호환(기존 컴포넌트 쓰면 사용)
   timestamp: string;
   isMyMessage: boolean;
+  isSenderWithdrawn: boolean;
 }
 
 export interface FileInfo {

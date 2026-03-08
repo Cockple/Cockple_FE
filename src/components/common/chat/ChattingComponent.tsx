@@ -39,8 +39,7 @@ const ChattingComponent = ({
   console.log(message, "채팅ㅇㅇ");
 
   const handleIsUser = () => {
-    if (message) {
-      //탈퇴한 사용자가 아니면,
+    if (!message.isSenderWithdrawn) {
       navigate(`/mypage/profile/${message.senderId}`);
     } else {
       setModal(true);
