@@ -7,11 +7,13 @@ import type { ChatMessageResponse, ImageInfo } from "../../../types/chat";
 import BaseProfileImage from "@/assets/images/base_profile_img.png";
 
 import clsx from "clsx"; // 상단에 추가
+import { ChatWithDrawnModal } from "@/components/chat/ChatWithDrawnModal";
 
 interface ChattingComponentProps {
   message: ChatMessageResponse;
   isMe: boolean;
   unreadCount?: number;
+  isAloneWithdrawn?: boolean;
   //🌟onImageClick?: (src: string) => void;
   onImageClick?: (p: { url: string; isEmoji: boolean }) => void;
   time: string;
@@ -24,6 +26,7 @@ interface ChattingComponentProps {
 const ChattingComponent = ({
   message,
   isMe,
+  isAloneWithdrawn,
   unreadCount,
   onImageClick,
   time,
@@ -31,6 +34,19 @@ const ChattingComponent = ({
   //chatNick 상태 변수와 setChatNick 함수 정의
   const navigate = useNavigate();
   const [chatNick, setChatNick] = useState("");
+  //탈퇴시 modal처리 ,
+  const [modal, setModal] = useState(false);
+  console.log(message, "채팅ㅇㅇ");
+
+  //회원탈퇴여부
+  const isWithdrawn = message.isSenderWithdrawn;
+  const handleIsUser = () => {
+    if (!isWithdrawn) {
+      navigate(`/mypage/profile/${message.senderId}`);
+    } else {
+      setModal(true);
+    }
+  };
 
   //isMe와 nickname에 따라 chatNick을 설정
   useEffect(() => {
@@ -203,8 +219,11 @@ const ChattingComponent = ({
               //🌟src={message.senderProfileImageUrl}
               src={profileSrc}
               alt="profile"
-              className="w-10 h-10 aspect-square rounded-[2.75rem] cursor-pointer"
-              onClick={() => navigate(`/mypage/profile/${message.senderId}`)}
+              className={clsx(
+                "w-10 h-10 aspect-square rounded-[2.75rem] cursor-pointer",
+                (isAloneWithdrawn || isWithdrawn) && "opacity-20",
+              )}
+              onClick={handleIsUser}
             />
           </div>
           <div className="flex flex-col items-start gap-1">
@@ -248,6 +267,7 @@ const ChattingComponent = ({
           </div>
         </div>
       )}
+      {modal && <ChatWithDrawnModal onClose={() => setModal(false)} />}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 //운동 상세 조회 및 삭제 /api/exercises/{exerciseId}
+import { isWithinInterval } from "date-fns";
 import api from "../api";
 
 // 타입 정의 (API 응답에 맞게)
@@ -52,7 +53,7 @@ export interface MemberProps {
   canCancel: boolean;
   guest: string | null;
   inviterName: string;
-
+  isWithdrawn: boolean;
 }
 
 // 최종 변환 타입
@@ -68,10 +69,12 @@ export interface ExerciseDetailResponse {
   waitingGenderCount: { male: number; female: number };
   waitingMembers: MemberProps[];
   isManager: boolean;
+  isWithdrawn: boolean;
 }
 
 interface RawExerciseResponse {
   isManager: boolean;
+  isWithdrawn?: boolean;
   info: {
     notice: string;
     buildingName: string;
@@ -166,8 +169,9 @@ export const getExerciseDetail = async (
     imgUrl: p.profileImageUrl ?? null,
     canCancel: currentUserId === p.participantId || p.canCancel,
     guest: p.inviterName ?? null,
-    inviterName: p.inviterName ?? "",   
+    inviterName: p.inviterName ?? "",
     isManager: p.isManager,
+    isWithdrawn: p.isWithdrawn,
   });
 
   return {
@@ -186,8 +190,9 @@ export const getExerciseDetail = async (
       male: raw.waiting.manCount,
       female: raw.waiting.womenCount,
     },
-    
+
     isManager: raw.isManager,
+    isWithdrawn: raw.isWithdrawn,
     waitingMembers: raw.waiting.list.map(transformMember),
   };
 };
@@ -217,4 +222,3 @@ export const deleteExercise = async (exerciseId: number) => {
     throw error.response?.data || error;
   }
 };
-

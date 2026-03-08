@@ -25,6 +25,7 @@ import useUserStore from "../../../store/useUserStore";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { ChatWithDrawnModal } from "@/components/chat/ChatWithDrawnModal";
 
 export const MyExerciseDetail = () => {
   const navigate = useNavigate();
@@ -49,6 +50,8 @@ export const MyExerciseDetail = () => {
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get("returnPath") ?? -1;
 
+  const [isWithdrawnModal, setIsWithdrawnModal] = useState(false);
+
   // 운동 상세 조회
   useEffect(() => {
     if (exerciseIdNumber) {
@@ -71,10 +74,11 @@ export const MyExerciseDetail = () => {
           imgUrl: p.imgUrl ?? null,
           canCancel: p.canCancel,
           isGuest: !!p.guest,
-          inviterName: p.inviterName ?? "", 
-
+          inviterName: p.inviterName ?? "",
+          isWithdrawn: p.isWithdrawn,
         }));
         setMembers(participants);
+        console.log(participants);
         // setParticipantsCount(participants.length);
 
         const waitingList: MemberProps[] = res.waitingMembers.map(w => ({
@@ -86,8 +90,8 @@ export const MyExerciseDetail = () => {
           isMe: w.id === user?.memberId,
           position: w.position,
           isGuest: !!w.guest,
-          inviterName: w.inviterName ?? "", 
-
+          inviterName: w.inviterName ?? "",
+          isWithdrawn: w.isWithdrawn,
         }));
         setWaitingMembers(waitingList);
         setWaitingCount(waitingList.length);
@@ -96,9 +100,9 @@ export const MyExerciseDetail = () => {
   }, [exerciseIdNumber, user?.memberId]);
 
   // 운동 취소 / 멤버 삭제 -> 새로고침 문제 ( 확인 필요 )
-   const handleDeleteMember = async (
+  const handleDeleteMember = async (
     participantId: number,
-    options?: { isGuest?: boolean; isLeaderAction?: boolean }
+    options?: { isGuest?: boolean; isLeaderAction?: boolean },
   ) => {
     if (!exerciseIdNumber) return;
 
@@ -108,7 +112,7 @@ export const MyExerciseDetail = () => {
         res = await cancelByLeader(
           exerciseIdNumber,
           participantId,
-          options.isGuest ?? false
+          options.isGuest ?? false,
         );
       } else {
         res = await cancelSelf(exerciseIdNumber);
@@ -117,12 +121,14 @@ export const MyExerciseDetail = () => {
       if (res.success) {
         alert("참여 취소 완료");
         setMembers(prev => prev.filter(m => m.participantId !== participantId));
-        setWaitingMembers(prev => prev.filter(m => m.participantId !== participantId));
+        setWaitingMembers(prev =>
+          prev.filter(m => m.participantId !== participantId),
+        );
         // setParticipantsCount(prev => prev - 1);
         setWaitingCount(prev => prev - 1);
 
         queryClient.invalidateQueries({
-          queryKey: ["exerciseDetail"], 
+          queryKey: ["exerciseDetail"],
           exact: false,
         });
       }
@@ -208,28 +214,40 @@ export const MyExerciseDetail = () => {
             <div className="flex items-center gap-2">
               <label className="text-left header-h5">참여 인원</label>
               <span>
-                {detail.participantGenderCount.male + detail.participantGenderCount.female} / {detail.participantsCount}
+                {detail.participantGenderCount.male +
+                  detail.participantGenderCount.female}{" "}
+                / {detail.participantsCount}
               </span>
-
             </div>
             <div className="flex items-center gap-2">
               <Female className="w-4 h-4" />
-              <p className="body-rg-500">{detail.participantGenderCount.female}</p>
+              <p className="body-rg-500">
+                {detail.participantGenderCount.female}
+              </p>
               <Male className="w-4 h-4" />
-              <p className="body-rg-500">{detail.participantGenderCount.male}</p>
+              <p className="body-rg-500">
+                {detail.participantGenderCount.male}
+              </p>
             </div>
           </div>
         </div>
 
         {/* 참여 멤버 리스트 */}
         {members.map((member, idx) => {
+          console.log(members, "참여멤버리스트");
           const modalConfig = getModalConfig(
             member.status,
             isCurrentUserLeader,
             member.isMe ?? false,
             member.name,
           );
-
+          const handleIsUSer = () => {
+            if (member.isWithdrawn) {
+              setIsWithdrawnModal(true);
+            } else {
+              navigate(`/mypage/profile/${member.memberId}`);
+            }
+          };
           return (
             <div key={`participant-${idx}`}>
               <Member
@@ -237,15 +255,14 @@ export const MyExerciseDetail = () => {
                 number={idx + 1}
                 position={member.position}
                 memberId={member.memberId}
-                guestName={member.inviterName} 
+                guestName={member.inviterName}
                 imgUrl={member.imgUrl}
-                onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
-
+                onClick={handleIsUSer}
                 onDelete={() => {
                   if (member.participantId !== undefined) {
                     handleDeleteMember(member.participantId, {
                       isLeaderAction: isCurrentUserLeader && !member.isMe,
-                      isGuest: member.isGuest, 
+                      isGuest: member.isGuest,
                     });
                   }
                 }}
@@ -255,6 +272,11 @@ export const MyExerciseDetail = () => {
                 modalConfig={modalConfig ?? undefined}
               />
               <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+              {isWithdrawnModal && (
+                <ChatWithDrawnModal
+                  onClose={() => setIsWithdrawnModal(false)}
+                />
+              )}
             </div>
           );
         })}
@@ -269,19 +291,33 @@ export const MyExerciseDetail = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Female className="w-4 h-4" />
-                <p className="body-rg-500">{detail.waitingGenderCount?.female ?? 0}</p>
+                <p className="body-rg-500">
+                  {detail.waitingGenderCount?.female ?? 0}
+                </p>
                 <Male className="w-4 h-4" />
-                <p className="body-rg-500">{detail.waitingGenderCount?.male ?? 0}</p>
+                <p className="body-rg-500">
+                  {detail.waitingGenderCount?.male ?? 0}
+                </p>
               </div>
             </div>
 
             {waitingMembers.map((member, idx) => {
+              // console.log("대기인원리스트", member);
               const modalConfig = getModalConfig(
                 member.status,
                 isCurrentUserLeader,
                 member.isMe ?? false,
                 member.name,
               );
+
+              const handleIsUSer = () => {
+                if (member.isWithdrawn) {
+                  setIsWithdrawnModal(true);
+                } else {
+                  navigate(`/mypage/profile/${member.memberId}`);
+                }
+              };
+
               return (
                 <div key={`waiting-${idx}`}>
                   <Member
@@ -289,19 +325,20 @@ export const MyExerciseDetail = () => {
                     number={idx + 1}
                     position={member.position}
                     memberId={member.memberId}
-                    guestName={member.inviterName} 
+                    guestName={member.inviterName}
                     imgUrl={member.imgUrl}
-                    onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
+                    onClick={handleIsUSer}
                     onDelete={() => {
                       if (member.participantId !== undefined) {
                         handleDeleteMember(member.participantId, {
                           isLeaderAction: isCurrentUserLeader && !member.isMe,
-                          isGuest: member.isGuest, 
+                          isGuest: member.isGuest,
                         });
                       }
                     }}
                     showDeleteButton={
-                      isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
+                      isCurrentUserLeader ||
+                      (member.isMe && !isCurrentUserLeader)
                     }
                     modalConfig={modalConfig ?? undefined}
                   />
