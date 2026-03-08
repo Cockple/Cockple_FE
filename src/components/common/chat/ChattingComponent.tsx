@@ -38,8 +38,10 @@ const ChattingComponent = ({
   const [modal, setModal] = useState(false);
   console.log(message, "채팅ㅇㅇ");
 
+  //회원탈퇴여부
+  const isWithdrawn = message.isSenderWithdrawn;
   const handleIsUser = () => {
-    if (!message.isSenderWithdrawn) {
+    if (!isWithdrawn) {
       navigate(`/mypage/profile/${message.senderId}`);
     } else {
       setModal(true);
@@ -219,7 +221,7 @@ const ChattingComponent = ({
               alt="profile"
               className={clsx(
                 "w-10 h-10 aspect-square rounded-[2.75rem] cursor-pointer",
-                isAloneWithdrawn && "opacity-20",
+                (isAloneWithdrawn || isWithdrawn) && "opacity-20",
               )}
               onClick={handleIsUser}
             />

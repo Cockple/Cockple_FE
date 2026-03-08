@@ -120,8 +120,8 @@ const ChatList = ({
                   lastMessage={lastText} // 안전
                   lastMessageTime={lastTime} // 안전
                   unreadCount={chat.unreadCount}
-                  isAloneWithdraw={chat.isWithdrawn}
-                  //isAloneWithdraw={true}
+                  isAloneWithdrawn={chat.isWithdrawn}
+                  // isAloneWithdrawn={true}
                 />
               </div>
             );

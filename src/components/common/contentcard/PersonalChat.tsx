@@ -11,7 +11,7 @@ export interface PersonalChatProps {
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
-  isAloneWithdraw?: boolean;
+  isAloneWithdrawn?: boolean;
 }
 
 export const PersonalChat = ({
@@ -20,7 +20,7 @@ export const PersonalChat = ({
   lastMessage,
   lastMessageTime,
   unreadCount,
-  isAloneWithdraw,
+  isAloneWithdrawn,
 }: PersonalChatProps) => {
   const [pressing, setPressing] = useState(false);
 
@@ -39,7 +39,7 @@ export const PersonalChat = ({
         alt={userName}
         className={clsx(
           "w-[4rem] h-[4rem] rounded-[0.5rem]",
-          isAloneWithdraw && "opacity-20",
+          isAloneWithdrawn && "opacity-20",
         )}
       />
       {/* {imageSrc ? (
