@@ -240,6 +240,7 @@ export const GroupChatDetailTemplate: React.FC<
       images: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
+      isSenderWithdrawn: false,
     };
 
     setLiveMsgs(prev => [...prev, optimistic]);
@@ -314,6 +315,7 @@ export const GroupChatDetailTemplate: React.FC<
         ],
         timestamp: now,
         isMyMessage: true,
+        isSenderWithdrawn: false,
       }));
 
       setLiveMsgs(prev => [...prev, ...optimistic]);
@@ -379,6 +381,7 @@ export const GroupChatDetailTemplate: React.FC<
         ],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
+        isSenderWithdrawn: false,
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
@@ -430,6 +433,7 @@ export const GroupChatDetailTemplate: React.FC<
       images,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
+      isSenderWithdrawn: (msg as any).isSenderWithdrawn ?? false,
     };
   }
 
