@@ -298,6 +298,7 @@ export const ChatDetailTemplate = ({
       //imageUrls: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
+      isSenderWithdrawn: false,
     };
 
     // 1) 즉시 화면 반영
@@ -381,6 +382,7 @@ export const ChatDetailTemplate = ({
         ],
         timestamp: now,
         isMyMessage: true,
+        isSenderWithdrawn: false,
       }));
 
       setLiveMsgs((prev: ChatMessageResponse[]) => [...prev, ...optimistic]);
@@ -459,6 +461,7 @@ export const ChatDetailTemplate = ({
         //imageUrls: [imgUrl],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
+        isSenderWithdrawn: false,
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
@@ -514,6 +517,7 @@ export const ChatDetailTemplate = ({
       images,
       timestamp: msg.timestamp,
       isMyMessage: msg.senderId === meId,
+      isSenderWithdrawn: (msg as any).isSenderWithdrawn ?? false,
     };
   }
 

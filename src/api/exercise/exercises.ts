@@ -1,5 +1,4 @@
 //운동 상세 조회 및 삭제 /api/exercises/{exerciseId}
-import { isWithinInterval } from "date-fns";
 import api from "../api";
 
 // 타입 정의 (API 응답에 맞게)
@@ -192,7 +191,7 @@ export const getExerciseDetail = async (
     },
 
     isManager: raw.isManager,
-    isWithdrawn: raw.isWithdrawn,
+    isWithdrawn: raw.isWithdrawn ?? false,
     waitingMembers: raw.waiting.list.map(transformMember),
   };
 };
