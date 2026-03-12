@@ -22,6 +22,8 @@ export interface PersonalChatRoom {
   displayName: string;
   profileImgUrl: string;
   unreadCount: number;
+  isWithdrawn: boolean;
+
   // lastMessage?: {
   //   messageId: number;
   //   content: string;
@@ -38,6 +40,7 @@ export interface ChatRoomInfo {
   profileImageUrl: string | null;
   memberCount: number;
   lastReadMessageId: number;
+  isCounterPartWithdrawn: boolean;
 }
 
 // 🌟새 이미지 타입 (REST/WS 공통)
@@ -63,6 +66,7 @@ export interface ChatMessageResponse {
   //imageUrls?: string[]; // UI 호환(기존 컴포넌트 쓰면 사용)
   timestamp: string;
   isMyMessage: boolean;
+  isSenderWithdrawn: boolean;
 }
 
 export interface FileInfo {
