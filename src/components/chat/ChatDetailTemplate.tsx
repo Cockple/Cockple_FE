@@ -515,7 +515,7 @@ export const ChatDetailTemplate = ({
       content: images.length ? "" : (msg.content ?? ""),
       messageType: "TEXT",
       images,
-      timestamp: msg.timestamp,
+      timestamp: msg.timestamp ?? new Date().toISOString(),
       isMyMessage: msg.senderId === meId,
       isSenderWithdrawn: (msg as any).isSenderWithdrawn ?? false,
     };
@@ -590,7 +590,9 @@ export const ChatDetailTemplate = ({
                       (oi.fileSize && oi.fileSize === ii.fileSize),
                   ),
                 ))) &&
-            Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
+            Math.abs(
+              +new Date(m.timestamp ?? 0) - +new Date(incoming.timestamp ?? 0),
+            ) <
               5000,
         );
         if (idx >= 0) {
@@ -694,16 +696,17 @@ export const ChatDetailTemplate = ({
 
               {rendered.map((chat, idx) => {
                 const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                const currentDateLabel = formatDateWithDay(chat.timestamp);
+                const prevDateLabel = prev
+                  ? formatDateWithDay(prev.timestamp)
+                  : "";
                 const showDate =
-                  !prev ||
-                  formatDateWithDay(chat.timestamp) !==
-                    formatDateWithDay(prev.timestamp);
+                  !!currentDateLabel &&
+                  (!prev || currentDateLabel !== prevDateLabel);
                 return (
                   <React.Fragment key={chat.messageId}>
                     {showDate && (
-                      <ChatDateSeparator
-                        date={formatDateWithDay(chat.timestamp)}
-                      />
+                      <ChatDateSeparator date={currentDateLabel} />
                     )}
                     <ChattingComponent
                       message={chat}
