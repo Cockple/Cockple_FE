@@ -112,7 +112,7 @@ export type BroadcastMessage = {
   senderId: number;
   senderName: string;
   senderProfileImageUrl: string;
-  timestamp: string;
+  timestamp: string | null;
   unreadCount?: number;
 };
 

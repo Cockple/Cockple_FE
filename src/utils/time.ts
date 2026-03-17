@@ -30,19 +30,25 @@
 //   return `${ampm} ${String(hours).padStart(2, "0")}:${minutes}`;
 // }
 // 무조건 UTC로 파싱(없으면 Z 붙이기, 마이크로초 정리)
-function normalizeUtc(input: string): string {
+function normalizeUtc(input: string | null | undefined): string | null {
+  if (typeof input !== "string") return null;
   let s = input.trim();
+  if (!s) return null;
   s = s.replace(/(\.\d{3})\d+$/, "$1"); // .ssssss → .sss
   if (!/(Z|[+-]\d{2}:\d{2})$/.test(s)) s += "Z";
   return s;
 }
 
-function toDateFromUTC(utcString: string): Date {
-  return new Date(normalizeUtc(utcString)); // +9h 안 함
+function toDateFromUTC(utcString: string | null | undefined): Date | null {
+  const normalized = normalizeUtc(utcString);
+  if (!normalized) return null;
+  const parsed = new Date(normalized); // +9h 안 함
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-export function formatDate(utcString: string): string {
+export function formatDate(utcString: string | null | undefined): string {
   const d = toDateFromUTC(utcString);
+  if (!d) return "";
   const y = new Intl.DateTimeFormat("ko-KR", {
     timeZone: "Asia/Seoul",
     year: "numeric",
@@ -58,8 +64,11 @@ export function formatDate(utcString: string): string {
   return `${y}.${m}.${day}`;
 }
 
-export function formatDateWithDay(utcString: string): string {
+export function formatDateWithDay(
+  utcString: string | null | undefined,
+): string {
   const d = toDateFromUTC(utcString);
+  if (!d) return "";
   const y = new Intl.DateTimeFormat("ko-KR", {
     timeZone: "Asia/Seoul",
     year: "numeric",
@@ -79,8 +88,11 @@ export function formatDateWithDay(utcString: string): string {
   return `${y}.${m}.${day} (${w})`;
 }
 
-export function formatEnLowerAmPm(utcString: string): string {
+export function formatEnLowerAmPm(
+  utcString: string | null | undefined,
+): string {
   const d = toDateFromUTC(utcString);
+  if (!d) return "";
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
     hour: "numeric", // 1~12 (앞에 0 없음)
@@ -97,8 +109,9 @@ export function formatEnLowerAmPm(utcString: string): string {
   return `${hour}:${minute} ${period}`;
 }
 
-export function formatAmPmTime(utcString: string): string {
+export function formatAmPmTime(utcString: string | null | undefined): string {
   const d = toDateFromUTC(utcString);
+  if (!d) return "";
   return new Intl.DateTimeFormat("ko-KR", {
     timeZone: "Asia/Seoul",
     hour: "2-digit",
