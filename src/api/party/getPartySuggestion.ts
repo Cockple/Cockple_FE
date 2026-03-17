@@ -87,7 +87,9 @@ const buildSuggestionParams = (
   return params;
 };
 
-const fetchPartySuggestionPage = async (params: Record<string, unknown>) => {
+export const fetchPartySuggestionPage = async (
+  params: Record<string, unknown>,
+) => {
   const { data } = await api.get<{
     success: boolean;
     message: string;
