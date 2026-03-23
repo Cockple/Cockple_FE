@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import api from "./api/api";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,13 +13,34 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
+const FCM_TOKEN_STORAGE_KEY = "fcmToken";
+
+async function sendTokenToServer(token: string) {
+  try {
+    await api.patch("/api/notifications/fcm-token", { fcmToken: token });
+  } catch (error) {
+    console.error("FCM 토큰 서버 전송 실패", error);
+  }
+}
 
 export async function requestFcmToken(): Promise<string | null> {
   try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") return null;
+    if (Notification.permission === "denied") {
+      return null;
+    }
 
-    const swReg = await navigator.serviceWorker.getRegistration(
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return null;
+    }
+
+    const existingToken = localStorage.getItem(FCM_TOKEN_STORAGE_KEY);
+    if (existingToken) {
+      await sendTokenToServer(existingToken);
+      return existingToken;
+    }
+
+    const swReg = await navigator.serviceWorker.register(
       "/firebase-messaging-sw.js",
     );
 
@@ -26,6 +48,11 @@ export async function requestFcmToken(): Promise<string | null> {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: swReg,
     });
+
+    if (token) {
+      localStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
+      await sendTokenToServer(token);
+    }
 
     return token ?? null;
   } catch (e) {
