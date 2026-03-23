@@ -19,9 +19,12 @@ const messaging = firebase.messaging();
 console.log("[FCM-SW] firebase-messaging-sw loaded");
 
 // 백그라운드 알림 수신
+// notification 필드가 있으면 Firebase가 자동 표시하므로 직접 showNotification 호출 불필요
+// data-only 메시지일 때만 직접 표시
 messaging.onBackgroundMessage(payload => {
   console.log("[FCM-SW] 백그라운드 알림 수신:", payload);
-  const { title, body } = payload.notification ?? {};
+  if (payload.notification) return;
+  const { title, body } = payload.data ?? {};
   self.registration.showNotification(title ?? "알림", {
     body,
     icon: "/icons/app_icon.png",
