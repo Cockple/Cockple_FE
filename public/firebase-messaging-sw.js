@@ -16,8 +16,11 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+console.log("[FCM-SW] firebase-messaging-sw loaded");
+
 // 백그라운드 알림 수신
 messaging.onBackgroundMessage(payload => {
+  console.log("[FCM-SW] 백그라운드 알림 수신:", payload);
   const { title, body } = payload.notification ?? {};
   self.registration.showNotification(title ?? "알림", {
     body,
