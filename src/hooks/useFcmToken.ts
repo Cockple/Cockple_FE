@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { messaging, onMessage, requestFcmToken } from "../firebase";
+import api from "../api/api";
 
 export function useFcmToken() {
   useEffect(() => {
     requestFcmToken().then((token) => {
       if (!token) return;
-      console.log("FCM Token:", token);
-      // TODO: 백엔드 토큰 전송 API 연동
-      // api.post("/notifications/token", { token });
+      api.patch("/api/notifications/fcm-token", { fcmToken: token });
     });
 
     // 포그라운드(앱이 열려있을 때) 알림 수신
