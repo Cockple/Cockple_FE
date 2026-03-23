@@ -7,6 +7,7 @@ export function useFcmToken() {
     requestFcmToken().then((token) => {
       if (!token) return;
       api.patch("/api/notifications/fcm-token", { fcmToken: token });
+      console.log("FCM 토큰 등록 완료:", token);
     });
 
     // 포그라운드(앱이 열려있을 때) 알림 수신
