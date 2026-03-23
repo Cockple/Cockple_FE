@@ -70,7 +70,6 @@ import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
-import { useFcmToken } from "./hooks/useFcmToken";
 import { resolveMemberId } from "./utils/auth";
 import { NoNavbarLayout } from "./layout/NoPtLayout";
 
@@ -214,15 +213,8 @@ const router = createBrowserRouter([
 function App() {
   const { isSplashShown, hasShownSplash, showSplash } = useSplashStore();
 
-  //🌟
-  // 전역으로 한 번만 웹소켓 연결
-  // const memberId = Number(localStorage.getItem("memberId") || 1);
-  // useRawWsConnect({ memberId, origin: "https://cockple.store" });
-  // 전역 WS 연결 (토큰/멤버아이디가 있을 때만)
-  // 항상 호출. memberId가 없으면 0(무효값)을 넘김
   const memberId = resolveMemberId() ?? 0;
   useRawWsConnect({ memberId, origin: import.meta.env.VITE_WS_ORIGIN });
-  useFcmToken();
   useEffect(() => {
     // 스플래시 화면이 한 번도 표시되지 않은 경우에만 실행
     if (!hasShownSplash) {
