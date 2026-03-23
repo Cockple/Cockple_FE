@@ -74,11 +74,14 @@ const Avatar = ({
   name: string;
   isWithdrawn?: boolean;
 }) => {
-  if (imgUrl) {
+  const [hasError, setHasError] = useState(false);
+
+  if (imgUrl && !hasError) {
     return (
       <img
         src={imgUrl}
         alt={`${name} 프로필`}
+        onError={() => setHasError(true)}
         className={clsx(
           "w-[2.5rem] h-[2.5rem] rounded-full object-cover",
           isWithdrawn && "opacity-20",
@@ -169,7 +172,6 @@ const ListMemberLayout = ({
     return status === "Participating" ? `No.${number}` : `대기.${number}`;
   };
 
-  // console.log(props, "프프픞로브");
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     useDeleteModal ? onShowDeleteModal() : onDelete?.();

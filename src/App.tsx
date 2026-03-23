@@ -70,6 +70,7 @@ import MemberRequestPage from "./pages/group/MemberRequest";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
+import { useFcmToken } from "./hooks/useFcmToken";
 import { resolveMemberId } from "./utils/auth";
 import { NoNavbarLayout } from "./layout/NoPtLayout";
 
@@ -221,6 +222,7 @@ function App() {
   // 항상 호출. memberId가 없으면 0(무효값)을 넘김
   const memberId = resolveMemberId() ?? 0;
   useRawWsConnect({ memberId, origin: import.meta.env.VITE_WS_ORIGIN });
+  useFcmToken();
   useEffect(() => {
     // 스플래시 화면이 한 번도 표시되지 않은 경우에만 실행
     if (!hasShownSplash) {

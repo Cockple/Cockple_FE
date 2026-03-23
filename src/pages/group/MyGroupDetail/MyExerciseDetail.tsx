@@ -313,8 +313,8 @@ export const MyExerciseDetail = () => {
               const handleIsUSer = () => {
                 if (member.isWithdrawn) {
                   setIsWithdrawnModal(true);
-                } else {
-                  navigate(`/mypage/profile/${member.memberId}`);
+                // } else {
+                //   navigate(`/mypage/profile/${member.memberId}`);
                 }
               };
 
