@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { ContentCardL } from "../../components/common/contentcard/ContentCardL";
-import { GroupInfoSection } from "../../components/group/home/GroupInfoSection";
-import { GroupOwnerActions } from "../../components/group/home/GroupOwnerActions";
-import CustomWeekly from "../../components/home/CustomWeekly";
-import {
-  usePartyDetail,
-} from "../../api/exercise/getpartyDetail";
-import { useGroupNameStore } from "../../store/useGroupNameStore";
-import { usePartyMembershipStore } from "../../store/usePartyMembershipStore";
-import api from "../../api/api";
-import type { MemberJoinRequestResponse } from "../../types/memberJoinRequest";
-import { useGroupCalendar } from "../../hooks/useGroupCalendar";
+import { ContentCardL } from "@/components/common/contentcard/ContentCardL";
+import { GroupInfoSection } from "@/components/group/home/GroupInfoSection";
+import { GroupOwnerActions } from "@/components/group/home/GroupOwnerActions";
+import CustomWeekly from "@/components/home/CustomWeekly";
+import { usePartyDetail } from "@/api/exercise/getpartyDetail";
+import { useGroupNameStore } from "@/store/useGroupNameStore";
+import { usePartyMembershipStore } from "@/store/usePartyMembershipStore";
+import api from "@/api/api";
+import type { MemberJoinRequestResponse } from "@/types/memberJoinRequest";
+import { useGroupCalendar } from "@/hooks/useGroupCalendar";
 import "swiper/css";
 
 export const GroupHomePage = () => {
