@@ -53,6 +53,7 @@ interface GroupInfoSectionProps {
 
 export const GroupInfoSection = ({ partyDetail }: GroupInfoSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const items = useMemo(
     () => [
@@ -93,8 +94,16 @@ export const GroupInfoSection = ({ partyDetail }: GroupInfoSectionProps) => {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex p-3 gap-3">
-        <div className="w-30 h-30 border-hard shrink-0 overflow-hidden flex items-center">
-          <img src={partyDetail.partyImgUrl ?? DefaultGroupImg} />
+        <div className="w-30 h-30 border-hard shrink-0 overflow-hidden flex items-center relative bg-gy-100">
+          {!imgLoaded && (
+            <div className="absolute inset-0 bg-gy-100 animate-pulse" />
+          )}
+          <img
+            src={partyDetail.partyImgUrl ?? DefaultGroupImg}
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+          />
         </div>
         <div className="flex flex-col flex-1">
           <div className="body-rg-500 text-left mb-2">
