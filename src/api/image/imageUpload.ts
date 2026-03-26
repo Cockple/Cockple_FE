@@ -17,10 +17,10 @@ import type {
 // 단일 이미지 업로드
 export const uploadImage = async (domainType: DomainType, imageFile: File) => {
   const formData = new FormData();
-  formData.append("image", imageFile);
+  formData.append("file", imageFile);
 
   const res = await api.post<SingleImageUploadResponse>(
-    `/api/s3/upload/img`,
+    `/api/gcs/upload/file`,
     formData,
     {
       params: { domainType }, // ?domainType=CHAT
@@ -29,13 +29,13 @@ export const uploadImage = async (domainType: DomainType, imageFile: File) => {
   );
 
   console.log(
-    `imageUrl: ${res.data.data.imgUrl}, imageKey: ${res.data.data.imgKey}`,
+    `imageUrl: ${res.data.data.fileUrl}, imageKey: ${res.data.data.fileKey}`,
   );
   //return response.data;
   // 사용하기 편하도록 평탄화해서 반환
   return {
-    imgUrl: res.data.data.imgUrl,
-    imgKey: res.data.data.imgKey,
+    imgUrl: res.data.data.fileUrl,
+    imgKey: res.data.data.fileKey,
     raw: res.data, //원본 응답값
   };
 };
@@ -55,10 +55,10 @@ export const uploadImages = async (
 }> => {
   const formData = new FormData();
   // 백엔드가 "image"를 반복 필드로 받도록 구현되어 있음
-  imageFiles.forEach(file => formData.append("image", file));
+  imageFiles.forEach(file => formData.append("file", file));
 
   const res = await api.post<MultiImageUploadResponse>(
-    "/api/s3/upload/imgs",
+    "/api/gcs/upload/files",
     formData,
     {
       params: { domainType }, // ?domainType=CHAT
