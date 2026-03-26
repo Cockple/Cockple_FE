@@ -16,10 +16,11 @@ export type DomainType = "PROFILE" | "PARTY" | "CONTEST" | "CHAT"; // Swagger에
 
 // 업로드된 단일 이미지 정보
 export type ImageUploadItem = {
-  /** S3 퍼블릭 접근 URL */
-  imgUrl: string;
-  /** DB 저장용 Key (API 요청 시 서버로 넘겨줄 값) */
-  imgKey: string;
+  fileKey: string;
+  fileUrl: string;
+  originalFileName: string;
+  fileSize: number;
+  fileType: string;
 };
 
 /** 단일 이미지 업로드 응답 (data: ImageUploadItem) */

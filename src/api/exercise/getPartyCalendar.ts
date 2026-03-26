@@ -66,7 +66,6 @@ export async function fetchPartyCalendar(params: {
       params: { startDate, endDate },
     },
   );
-  console.log(data.data);
   return data.data;
 }
 

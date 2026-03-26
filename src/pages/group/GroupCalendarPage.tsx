@@ -95,9 +95,11 @@ export const GroupCalendarPage = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0">
-        <Grad_GR400_L label="이 날 운동 공유하기" onClick={onClickShare} />
-      </div>
+      {calendarData?.isMember && (
+        <div className="fixed bottom-0">
+          <Grad_GR400_L label="이 날 운동 공유하기" onClick={onClickShare} />
+        </div>
+      )}
     </div>
   );
 };

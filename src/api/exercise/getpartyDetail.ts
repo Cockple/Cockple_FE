@@ -32,7 +32,6 @@ export const getPartyDetail = async (partyId: number) => {
   const response = await api.get<CommonResponse<PartyDetailResponse>>(
     `/api/parties/${partyId}`,
   );
-  console.log(response.data.data);
   return response.data.data;
 };
 

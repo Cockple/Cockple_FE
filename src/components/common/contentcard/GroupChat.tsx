@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Peopel from "../../../assets/icons/people.svg?react";
+import Peopel from "@/assets/icons/people.svg?react";
 import { Num_Noti } from "./Num_Noti";
 
 // 이미지
