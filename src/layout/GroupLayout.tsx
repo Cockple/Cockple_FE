@@ -83,7 +83,7 @@ export const GroupLayout = () => {
   };
 
   // 모입가입하기 버튼 관련
-  const { data: partyDetail } = usePartyDetail(Number(groupId));
+  const { data: partyDetail, isLoading: isPartyDetailLoading } = usePartyDetail(Number(groupId));
   const [hasPending, setHasPending] = useState(
     partyDetail?.hasPendingJoinRequest ?? false,
   );
@@ -191,7 +191,7 @@ export const GroupLayout = () => {
         }}
       />
 
-      {!isJoined && (
+      {!isPartyDetailLoading && !isJoined && (
         <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4 z-50">
           {joinErrorMessage && (
             <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
