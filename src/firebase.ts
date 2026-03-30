@@ -25,6 +25,11 @@ async function sendTokenToServer(token: string) {
 
 export async function requestFcmToken(): Promise<string | null> {
   try {
+    if (typeof Notification === "undefined") {
+      console.warn("[FCM] 이 환경은 Notification API를 지원하지 않습니다.");
+      return null;
+    }
+
     console.log("[FCM] 현재 권한 상태:", Notification.permission);
 
     if (Notification.permission === "denied") {

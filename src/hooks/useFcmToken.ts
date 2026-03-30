@@ -7,6 +7,11 @@ async function registerToken() {
 
 export function useFcmToken() {
   useEffect(() => {
+    if (typeof Notification === "undefined") {
+      console.warn("[FCM] 이 환경은 Notification API를 지원하지 않습니다.");
+      return;
+    }
+
     console.log("[FCM] useFcmToken mounted. permission:", Notification.permission);
 
     const unsubscribe = onMessage(messaging, (payload) => {
