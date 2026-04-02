@@ -153,8 +153,8 @@ export const GroupLayout = () => {
 
   const isJoined = partyDetail?.memberStatus === "MEMBER";
   const isOwner =
-    partyDetail?.memberRole === "party_MANAGER" ||
-    partyDetail?.memberRole === "party_SUBMANAGER";
+    partyDetail?.memberRole === "PARTY_MANAGER" ||
+    partyDetail?.memberRole === "PARTY_SUBMANAGER";
 
   return (
     <div className="flex flex-col">

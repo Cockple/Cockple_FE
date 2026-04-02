@@ -22,7 +22,9 @@ export const GroupHomePage = () => {
   const { setGroupName } = useGroupNameStore();
   const { data: partyDetail, status, error } = usePartyDetail(Number(groupId));
 
-  const isOwner = partyDetail?.memberRole === "party_MANAGER";
+  const isOwner =
+    partyDetail?.memberRole === "PARTY_MANAGER" ||
+    partyDetail?.memberRole === "PARTY_SUBMANAGER";
   const isJoined = partyDetail?.memberStatus === "MEMBER";
 
   useEffect(() => {
