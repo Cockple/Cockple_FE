@@ -162,7 +162,7 @@ export const getExerciseDetail = async (
     isMe: currentUserId === p.participantId,
     isLeader:
       currentUserId === p.participantId
-        ? p.partyPosition === "party_MANAGER"
+        ? p.partyPosition === "PARTY_MANAGER"
         : false,
     position: p.partyPosition,
     imgUrl: p.profileImageUrl ?? null,

@@ -51,9 +51,9 @@ export const MemberDefault = () => {
     lastExerciseDate: m.lastExerciseDate,
     isMe: !!m.isMe,
     isLeader:
-      m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER",
+      m.role === "OWNER" || m.role === "MANAGER" || m.role === "PARTY_MANAGER",
     position:
-      m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER"
+      m.role === "OWNER" || m.role === "MANAGER" || m.role === "PARTY_MANAGER"
         ? "leader"
         : m.role === "SUBOWNER"
         ? "sub_leader"
@@ -170,7 +170,7 @@ export const MemberDefault = () => {
           const isCurrentUser = member.isMe ?? false;
 
           const isLeaderUser =
-            myRole === "OWNER" || myRole === "MANAGER" || myRole === "party_MANAGER"; 
+            myRole === "OWNER" || myRole === "MANAGER" || myRole === "PARTY_MANAGER";
           const showDeleteButton = (isCurrentUser && !isLeaderUser) || (!isCurrentUser && isLeaderUser);
  
           const modalConfig: ModalConfig | undefined = showDeleteButton

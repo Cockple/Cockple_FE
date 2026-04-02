@@ -6,7 +6,7 @@ export interface PartyDetailResponse {
   partyId: number;
   partyName: string;
   memberStatus: "MEMBER" | "NOT_MEMBER"; // 필요 시 enum 확장
-  memberRole: "party_MEMBER" | "party_MANAGER" | "party_SUBMANAGER" | null;
+  memberRole: "PARTY_MEMBER" | "PARTY_MANAGER" | "PARTY_SUBMANAGER" | null;
   addr1: string;
   addr2: string;
   hasPendingJoinRequest: boolean;
