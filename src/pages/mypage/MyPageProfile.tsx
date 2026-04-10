@@ -151,9 +151,9 @@ return (
       </div>
 
       <div className="absolute bottom-[2rem] left-0 w-full flex justify-center z-50 pointer-events-none">
-        <div className="pointer-events-auto">
+        {/* <div className="pointer-events-auto">
           <Grad_GR400_L label="개인 채팅 보내기" onClick={handleChatClick} />
-        </div>
+        </div> */}
       </div>
     </div>
   );
