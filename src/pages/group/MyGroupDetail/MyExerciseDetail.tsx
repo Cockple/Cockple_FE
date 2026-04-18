@@ -69,8 +69,16 @@ export const MyExerciseDetail = () => {
           level: p.level,
           isMe: p.id === user?.memberId,
           memberId: p.id,
-          isLeader: p.position === "PARTY_MANAGER",
-          position: p.position,
+          isLeader:
+            p.position === "OWNER" || p.position === "MANAGER" || p.position === "PARTY_MANAGER",
+          position:
+            p.position === "OWNER" || p.position === "MANAGER" || p.position === "PARTY_MANAGER"
+              ? "leader"
+              : p.position === "SUBOWNER" || p.position === "PARTY_SUBMANAGER"
+              ? "sub_leader"
+              : null,
+          // isLeader: p.position === "PARTY_MANAGER",
+          // position: p.position,
           imgUrl: p.imgUrl ?? null,
           canCancel: p.canCancel,
           isGuest: !!p.guest,
