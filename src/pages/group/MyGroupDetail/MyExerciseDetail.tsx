@@ -1,4 +1,4 @@
-// 운동 상세 페이지 -> 신청하기
+// 운동 상세 페이지 -> 신청하기..
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import Caution from "../../../assets/icons/caution.svg?react";
@@ -69,8 +69,16 @@ export const MyExerciseDetail = () => {
           level: p.level,
           isMe: p.id === user?.memberId,
           memberId: p.id,
-          isLeader: p.position === "PARTY_MANAGER",
-          position: p.position,
+          isLeader:
+            p.position === "OWNER" || p.position === "MANAGER" || p.position === "PARTY_MANAGER",
+          position:
+            p.position === "OWNER" || p.position === "MANAGER" || p.position === "PARTY_MANAGER"
+              ? "leader"
+              : p.position === "SUBOWNER" || p.position === "PARTY_SUBMANAGER"
+              ? "sub_leader"
+              : null,
+          // isLeader: p.position === "PARTY_MANAGER",
+          // position: p.position,
           imgUrl: p.imgUrl ?? null,
           canCancel: p.canCancel,
           isGuest: !!p.guest,

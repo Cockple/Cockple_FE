@@ -55,7 +55,7 @@ export const MemberDefault = () => {
     position:
       m.role === "OWNER" || m.role === "MANAGER" || m.role === "PARTY_MANAGER"
         ? "leader"
-        : m.role === "SUBOWNER"
+        : m.role === "SUBOWNER" || m.role === "PARTY_SUBMANAGER"
         ? "sub_leader"
         : null,
     status: m.role === "WAITING" ? "waiting" : "Participating",
