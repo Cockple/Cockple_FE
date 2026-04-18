@@ -1,4 +1,4 @@
-// 운동 상세 페이지 -> 신청하기
+// 운동 상세 페이지 -> 신청하기..
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import Caution from "../../../assets/icons/caution.svg?react";
