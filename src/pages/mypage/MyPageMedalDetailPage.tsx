@@ -78,23 +78,6 @@ export const MyPageMedalDetailPage = () => {
     }
   };
 
-  // const sanitizeUrl = (url: string) => {
-  //   try {
-  //     let decoded = decodeURIComponent(url);
-
-  //     decoded = decoded.replace(
-  //       /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
-  //       "https://"
-  //     );
-
-  //     return decoded;
-  //   } catch (err) {
-  //     console.warn("URL 디코딩 실패:", url, err);
-  //     return url;
-  //   }
-  // };
-
-
   useEffect(() => {
     if (!contentId) return;
 
