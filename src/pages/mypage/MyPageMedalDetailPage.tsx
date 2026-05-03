@@ -56,14 +56,20 @@ export const MyPageMedalDetailPage = () => {
     "C": "C조",
     "D": "D조",
   };
+
   const sanitizeUrl = (url: string) => {
     try {
       let decoded = decodeURIComponent(url);
 
+      // 1. 기존 S3 중복 처리 로직
       decoded = decoded.replace(
         /^https:\/\/s3\.ap-northeast-2\.amazonaws\.com\/cockple-bucket\/https?:\/\//,
         "https://"
       );
+      const gcsBaseUrl = "https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/";
+      if (decoded.startsWith(gcsBaseUrl + "https://")) {
+        decoded = decoded.replace(gcsBaseUrl, "");
+      }
 
       return decoded;
     } catch (err) {
@@ -71,7 +77,6 @@ export const MyPageMedalDetailPage = () => {
       return url;
     }
   };
-
 
   useEffect(() => {
     if (!contentId) return;

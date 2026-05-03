@@ -129,12 +129,14 @@ import Dismiss from "../../assets/icons/dismiss.svg?react";
 
 interface MyMedalCheckBoxProps {
   title: string;
+  Label: string;
   value: string[];
   onChange: (newLinks: string[]) => void;
 }
 
 export const MyMedalCheckBox: React.FC<MyMedalCheckBoxProps> = ({
   title,
+  Label,
   value,
   onChange,
 }) => {
@@ -174,17 +176,23 @@ export const MyMedalCheckBox: React.FC<MyMedalCheckBoxProps> = ({
 
   return (
     <div className="w-full flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        <label className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}>
-          {title}
-        </label>
-        <button onClick={() => setIsPrivate((prev) => !prev)} type="button">
+       <div className="flex justify-between items-start">
+        <div className="flex items-center">
+          <label className={`header-h5 ${isPrivate ? "text-[#9195A1]" : "text-black"}`}>
+                  {title}
+          </label>
+          {/* {showIcon && <CicleSRED />} */}
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setIsPrivate((prev) => !prev)} type="button">
           {isPrivate ? (
             <CheckCircledFilled className="w-4 h-4" />
           ) : (
             <CheckCircled className="w-4 h-4" />
           )}
         </button>
+        <label className="body-rg-500 px-1">{Label}</label>
+        </div>
       </div>
 
       {recordTexts.map((text, idx) => {
