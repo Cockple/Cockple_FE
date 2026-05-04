@@ -1,7 +1,6 @@
 // 다른 사용자의 프로필 화면(memberId로 구분)
 import { MyPage_Text } from "../../components/common/contentcard/MyPage_Text";
 import { Profile } from "../../components/MyPage/Profile";
-import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import { MyPage_Profile_Medal } from "../../components/common/contentcard/MyPage_Profile_Medal";
@@ -9,7 +8,6 @@ import { getProfile } from "../../api/member/profile";
 import { getOtherUserMedals } from "../../api/contest/member";
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
-import { createDirectChat } from "../../api/chat/direct";
 
 export const MyPageProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -82,36 +80,35 @@ export const MyPageProfile = () => {
     };
     return level ? (levelMap[level.toUpperCase()] ?? "급수 없음") : "급수 없음";
   }
-  const handleChatClick = async () => {
-    if (!numericMemberId) return;
+  // const handleChatClick = async () => {
+  //   if (!numericMemberId) return;
 
-    try {
-      const res = await createDirectChat(numericMemberId);
-      if (res.success && res.data?.chatRoomId) {
-        navigate(`/chat/personal/${res.data.chatRoomId}`, {
-          state: { chatName: profileData?.memberName },
-        });
-      } else {
-        console.error("채팅방 생성 실패", res);
-      }
-    } catch (err: any) {
-      console.error(err);
-    }
-  };
+  //   try {
+  //     const res = await createDirectChat(numericMemberId);
+  //     if (res.success && res.data?.chatRoomId) {
+  //       navigate(`/chat/personal/${res.data.chatRoomId}`, {
+  //         state: { chatName: profileData?.memberName },
+  //       });
+  //     } else {
+  //       console.error("채팅방 생성 실패", res);
+  //     }
+  //   } catch (err: any) {
+  //     console.error(err);
+  //   }
+  // };
 
   if (loading) return <div className="text-center py-10">로딩 중...</div>;
   if (error)
     return <div className="text-center py-10 text-red-500">에러: {error}</div>;
 
-return (
+  return (
     <div className="flex flex-col overflow-hidden w-full h-screen relative">
       <div className="flex flex-col gap-[1.25rem] w-full">
-        
         {/* 1. 상단 헤더 영역 */}
         <div className="w-full">
           <PageHeader title={profileData?.memberName || "프로필"} />
         </div>
-        
+
         <div className="w-full flex flex-col items-center overflow-y-auto overflow-x-hidden px-4 pb-24">
           <Profile
             name={profileData?.memberName || ""}
@@ -120,7 +117,7 @@ return (
             birth={profileData?.birth || ""}
             profileImage={profileData?.profileImgUrl || ""}
           />
-          
+
           <div className="my-8 flex flex-col gap-4">
             <MyPage_Text
               textLabel="모임"
@@ -146,7 +143,6 @@ return (
               }
             />
           </div>
-
         </div>
       </div>
 
