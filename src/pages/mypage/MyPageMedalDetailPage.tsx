@@ -216,7 +216,8 @@ export const MyPageMedalDetailPage = () => {
             : "-"}
         </p>
       </div>
-
+      
+      {/* 대회 기록, 영상 링크 */}
       {record && record.trim() !== "" && (
         <div className="mt-5">
           <p className="header-h5 text-start mb-1">대회 기록</p>
