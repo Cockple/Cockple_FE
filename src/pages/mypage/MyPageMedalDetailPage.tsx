@@ -216,39 +216,43 @@ export const MyPageMedalDetailPage = () => {
             : "-"}
         </p>
       </div>
-
-      {/* 대회 기록 */}
-      <div className="mt-5">
-        <p className="header-h5 text-start mb-1">대회 기록</p>
-        <textarea
-          className="auto-resizing-css w-full border rounded-xl p-2 pr-14 body-md-500 border-[#E4E7EA] focus:outline-none resize-none overflow-hidden max-h-[188px]"
-          value={record ? record.slice(0, 100) : ""}
-          readOnly
-        />
-      </div>
-
-      {/* 영상 링크 */}
-      <div className="mt-5">
-        <p className="header-h5 text-start mb-1">영상 링크</p>
-        <div className="flex flex-col gap-1">
-          {urls.length > 0 ? (
-            urls.map((url, idx) => (
-              <a
-                key={idx}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full border rounded-xl p-2 pr-14 body-md-500 border-[#E4E7EA] focus:outline-none text-black truncate text-left"
-                title={url}
-              >
-                {url.length > 40 ? `${url.slice(0, 40)}...` : url}
-              </a>
-            ))
-          ) : (
-            <p className="body-md-500 text-[#E4E7EA]">등록된 영상 링크가 없습니다.</p>
-          )}
+      
+      {/* 대회 기록, 영상 링크 */}
+      {record && record.trim() !== "" && (
+        <div className="mt-5">
+          <p className="header-h5 text-start mb-1">대회 기록</p>
+          <textarea
+            className="auto-resizing-css w-full border rounded-xl p-2 pr-14 body-md-500 border-[#E4E7EA] focus:outline-none resize-none overflow-hidden max-h-[188px]"
+            value={record.slice(0, 100)}
+            readOnly
+          />
         </div>
-      </div>
+      )}
+
+      {urls && urls.length > 0 && urls.some(url => url.trim() !== "") && (
+        <div className="mt-5">
+          <p className="header-h5 text-start mb-1">영상 링크</p>
+          <div className="flex flex-col gap-1">
+            {urls.map((url, idx) => {
+              if (url.trim() === "") return null; 
+              
+              return (
+                <a
+                  key={idx}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full border rounded-xl p-2 pr-14 body-md-500 border-[#E4E7EA] focus:outline-none text-black truncate text-left"
+                  title={url}
+                >
+                  {url.length > 40 ? `${url.slice(0, 40)}...` : url}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    
 
       {/* 수정 버튼 */}
       <div className="mt-6 flex justify-between">
