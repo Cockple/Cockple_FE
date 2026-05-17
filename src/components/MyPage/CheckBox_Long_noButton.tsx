@@ -86,8 +86,9 @@ export const CheckBox_Long_noButton = ({
         </div>
       </div>
 
-      {Texts.map((text, idx) => (
-       <textarea
+    {Texts.map((text, idx) => (
+        <textarea
+          key={idx}
           ref={el => {
             textAreaRefs.current[idx] = el;  
           }}
@@ -95,11 +96,12 @@ export const CheckBox_Long_noButton = ({
           onChange={e => onChangeText(idx, e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          disabled={checked}
+          disabled={checked} 
           maxLength={maxLength}
           rows={1}
           style={{ resize: "none", overflow: "hidden" }}
           className="w-full rounded-xl border border-gy-200 py-[0.625rem] px-3 focus:outline-none overflow-hidden whitespace-nowrap text-ellipsis focus:border-active"
+          placeholder={checked ? "" : "대회 기록을 입력해주세요"}
         />
       ))}
     </div>
