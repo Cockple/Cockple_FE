@@ -8,6 +8,8 @@ import { getProfile } from "../../api/member/profile";
 import { getOtherUserMedals } from "../../api/contest/member";
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
+import Grad_GR400_L from "@/components/common/Btn_Static/Text/Grad_GR400_L";
+import { createDirectChat } from "@/api/chat/direct";
 
 export const MyPageProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -80,22 +82,22 @@ export const MyPageProfile = () => {
     };
     return level ? (levelMap[level.toUpperCase()] ?? "급수 없음") : "급수 없음";
   }
-  // const handleChatClick = async () => {
-  //   if (!numericMemberId) return;
+  const handleChatClick = async () => {
+    if (!numericMemberId) return;
 
-  //   try {
-  //     const res = await createDirectChat(numericMemberId);
-  //     if (res.success && res.data?.chatRoomId) {
-  //       navigate(`/chat/personal/${res.data.chatRoomId}`, {
-  //         state: { chatName: profileData?.memberName },
-  //       });
-  //     } else {
-  //       console.error("채팅방 생성 실패", res);
-  //     }
-  //   } catch (err: any) {
-  //     console.error(err);
-  //   }
-  // };
+    try {
+      const res = await createDirectChat(numericMemberId);
+      if (res.success && res.data?.chatRoomId) {
+        navigate(`/chat/personal/${res.data.chatRoomId}`, {
+          state: { chatName: profileData?.memberName },
+        });
+      } else {
+        console.error("채팅방 생성 실패", res);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
 
   if (loading) return <div className="text-center py-10">로딩 중...</div>;
   if (error)
@@ -147,9 +149,9 @@ export const MyPageProfile = () => {
       </div>
 
       <div className="absolute bottom-[2rem] left-0 w-full flex justify-center z-50 pointer-events-none">
-        {/* <div className="pointer-events-auto">
+        <div className="pointer-events-auto">
           <Grad_GR400_L label="개인 채팅 보내기" onClick={handleChatClick} />
-        </div> */}
+        </div>
       </div>
     </div>
   );
