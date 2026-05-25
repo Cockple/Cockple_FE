@@ -10,6 +10,7 @@ import { usePartyMembershipStore } from "@/store/usePartyMembershipStore";
 import api from "@/api/api";
 import type { MemberJoinRequestResponse } from "@/types/memberJoinRequest";
 import { useGroupCalendar } from "@/hooks/useGroupCalendar";
+import { GroupHomePageSkeleton, ExerciseListSkeleton } from "@/components/group/home/GroupHomePageSkeleton";
 import "swiper/css";
 
 export const GroupHomePage = () => {
@@ -64,7 +65,7 @@ export const GroupHomePage = () => {
   } = useGroupCalendar(groupId, partyDetail, initialDateParam);
 
   if (status === "pending") {
-    return <div className="p-4 text-gray-500">불러오는 중…</div>;
+    return <GroupHomePageSkeleton />;
   }
   if (status === "error") {
     return (
@@ -100,7 +101,7 @@ export const GroupHomePage = () => {
 
       <div className="flex flex-col">
         {loadingCal ? (
-          <div className="py-6 text-gray-500">운동을 불러오는 중…</div>
+          <ExerciseListSkeleton />
         ) : selectedDayExercises.length > 0 ? (
           selectedDayExercises.map(ex => {
             const exerciseEnd = new Date(`${selectedDate}T${ex.startTime}`);
