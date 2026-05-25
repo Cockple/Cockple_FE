@@ -158,10 +158,8 @@ const MemberRequestPage = () => {
                     requestId={req.joinRequestId}
                     name={req.nickname}
                     gender={req.gender}
-                    // level={req.level}
                     level={mapLevels([req.level])[0] ?? "급수 없음"}
                     birth={formatDotDate(req.createdAt)}
-                    //imgUrl={req.profileImageUrl}
                     imgUrl={
                       req.profileImageUrl
                         ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${req.profileImageUrl}`
@@ -234,6 +232,5 @@ const MemberRequestPage = () => {
     </div>
   );
 };
-
 
 export default MemberRequestPage;

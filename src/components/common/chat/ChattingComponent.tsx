@@ -41,6 +41,7 @@ const ChattingComponent = ({
   //회원탈퇴여부
   const isWithdrawn = message.isSenderWithdrawn;
   const handleIsUser = () => {
+    if (message.senderId == null) return;
     if (!isWithdrawn) {
       navigate(`/mypage/profile/${message.senderId}`);
     } else {
