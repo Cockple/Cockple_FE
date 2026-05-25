@@ -39,7 +39,7 @@ export interface ChatRoomInfo {
   displayName: string;
   profileImageUrl: string | null;
   memberCount: number;
-  lastReadMessageId: number;
+  lastReadMessageId: number | null;
   isCounterPartWithdrawn: boolean;
 }
 
@@ -56,11 +56,10 @@ export interface ImageInfo {
 
 export interface ChatMessageResponse {
   messageId: number;
-  senderId: number;
+  senderId: number | null;
   senderName: string;
-  // 🌟senderProfileImage: string;
-  senderProfileImageUrl: string;
-  content: string;
+  senderProfileImageUrl: string | null;
+  content: string | null;
   messageType: "TEXT" | "SYSTEM";
   images: ImageInfo[]; //🌟
   //imageUrls?: string[]; // UI 호환(기존 컴포넌트 쓰면 사용)

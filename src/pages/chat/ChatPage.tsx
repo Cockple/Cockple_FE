@@ -27,7 +27,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 // store
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId } from "../../utils/auth";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { ChatListSkeleton } from "../../components/chat/ChatListSkeleton";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
@@ -259,9 +259,9 @@ export const ChatPage = () => {
           />
 
           {/* 채팅 리스트 또는 결과 없음 */}
-          <div className="flex min-h-[60dvh] overflow-hidden">
-            {isLoading ? ( // 로딩 중일 때
-              <LoadingSpinner />
+          <div className="flex w-full min-h-[60dvh] overflow-hidden">
+            {isLoading ? (
+              <ChatListSkeleton type={activeTab} count={6} />
             ) : (
               <ChatList
                 tab={activeTab}

@@ -242,17 +242,17 @@ const RequestApprovalLayout = ({ props }: { props: MemberProps }) => {
   const isApproved = props.status === "approved";
 
   return (
-    <div className="w-[21.44rem] h-[7.5rem] rounded-[1rem] bg-white p-4 space-y-3">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col w-full p-4 gap-3">
+      <div className="flex gap-3">
         <Avatar imgUrl={props.imgUrl} name={props.name} />
-        <div className="flex flex-col justify-center gap-[0.25rem] w-[15.44rem] h-[2.75rem]">
+        <div className="flex flex-col items-start w-full gap-1">
           <p className="header-h5 text-black">{props.name}</p>
           <div className="flex justify-between items-center w-full body-sm-500 text-[#767B89]">
-            <div className="flex items-center gap-[0.25rem]">
+            <div className="flex items-center gap-1">
               {props.gender === "FEMALE" ? (
-                <Female className="w-[1rem] h-[1rem]" />
+                <Female className="w-4 h-4" />
               ) : (
-                <Male className="w-[1rem] h-[1rem]" />
+                <Male className="w-4 h-4" />
               )}
               <p className="whitespace-nowrap">{props.level}</p>
             </div>
@@ -261,19 +261,18 @@ const RequestApprovalLayout = ({ props }: { props: MemberProps }) => {
         </div>
       </div>
 
-      {/* 상태에 따라 버튼 스타일과 동작 분기 */}
-      <div className="flex items-center gap-2 body-sm-500">
+      <div className="flex justify-between items-center gap-2 body-sm-500">
         <button
-          className={`w-[9.47rem] h-[2rem] px-3 py-1 rounded-lg border ${isApproved ? "border-[#C0C4CD] text-[#C0C4CD]" : "border-[#F62D2D] text-[#F62D2D]"}`}
+          className={`w-[9.47rem] h-8 px-3 py-1 rounded-lg border ${isApproved ? "border-[#C0C4CD] text-[#C0C4CD]" : "border-[#F62D2D] text-[#F62D2D]"}`}
           onClick={!isApproved ? props.onReject : undefined}
         >
           거절
         </button>
         <button
-          className={`w-[9.47rem] h-[2rem] px-3 py-1 rounded-lg text-white ${isApproved ? "bg-[#C0C4CD]" : "bg-[#0B9A4E]"}`}
+          className={`w-[9.47rem] h-8 px-3 py-1 rounded-lg text-white ${isApproved ? "bg-[#C0C4CD]" : "bg-[#0B9A4E]"}`}
           onClick={!isApproved ? props.onAccept : undefined}
         >
-          {isApproved ? `${props.birth} 승인 완료` : "수락"}
+          {isApproved ? `${props.birth} 승인 완료` : "승인"}
         </button>
       </div>
     </div>

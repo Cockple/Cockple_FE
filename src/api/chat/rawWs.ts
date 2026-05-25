@@ -109,9 +109,10 @@ export type BroadcastMessage = {
   content: string | null;
   files: BcFile[] | null;
   images: BcImage[] | null;
-  senderId: number;
+  senderId: number | null;
   senderName: string;
-  senderProfileImageUrl: string;
+  senderProfileImageUrl: string | null;
+  messageType?: "TEXT" | "SYSTEM" | null;
   timestamp: string | null;
   unreadCount?: number;
 };

@@ -134,6 +134,15 @@ export const MemberDefault = () => {
       </div>
     );
   }
+  // 게스트인 경우 라우팅 막기
+  const handleProfileClick = (targetMemberId: number) => {
+    if (myRole === "WAITING" || myRole === "waiting") {
+      // alert("게스트는 프로필을 조회할 수 없습니다.");
+      return; 
+    }
+          
+    navigate(`/mypage/profile/${targetMemberId}`);
+  };
 
   return (
     <>
@@ -197,7 +206,7 @@ export const MemberDefault = () => {
               showDeleteButton={showDeleteButton}
               modalConfig={modalConfig}
               lastExerciseDate={member.lastExerciseDate}
-              onClick={() => navigate(`/mypage/profile/${member.memberId}`)}
+              onClick={() => handleProfileClick(member.memberId!)}
               hideNumber={true}
               useDeleteModal={true}
             />

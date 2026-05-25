@@ -26,51 +26,37 @@ export const PersonalChat = ({
 
   return (
     <div
-      className={`w-[21.4375rem] h-[5rem] p-[0.5rem] gap-[0.75rem] rounded-[0.75rem] flex items-center transition-colors 
-        ${pressing ? "bg-[#F4F5F6]" : "bg-white"}`}
+      className={clsx(
+        "w-full h-[5rem] px-[0.5rem] gap-[0.75rem] rounded-[0.75rem] flex items-center transition-colors",
+        pressing ? "bg-[#F4F5F6]" : "bg-white",
+      )}
       onMouseDown={() => setPressing(true)}
       onMouseUp={() => setPressing(false)}
       onMouseLeave={() => setPressing(false)}
       onTouchStart={() => setPressing(true)}
       onTouchEnd={() => setPressing(false)}
     >
+      {/* 프로필 이미지 - 개인채팅은 원형 */}
       <img
         src={imageSrc ? imageSrc : DefaultGroupImg}
         alt={userName}
         className={clsx(
-          "w-[4rem] h-[4rem] rounded-[0.5rem]",
+          "w-[4rem] h-[4rem] rounded-full flex-shrink-0 object-cover",
           isAloneWithdrawn && "opacity-20",
         )}
       />
-      {/* {imageSrc ? (
-        <img
-          src={imageSrc}
-          alt={userName}
-          className="w-[4rem] h-[4rem] rounded-[0.5rem] flex-shrink-0"
-        />
-      ) : (
-        <div
-          aria-label={`${userName} profile placeholder`}
-          className="w-[4rem] h-[4rem] rounded-[0.5rem] bg-[#F0F1F3] flex items-center justify-center flex-shrink-0"
-        >
-          <span className="body-md-500 text-[#9195A1]">
-            {userName?.[0] ?? "?"}
-          </span>
-        </div>
-      )} */}
 
-      <div className="flex flex-col w-[11.9375rem] h-[4rem]">
-        <div className="flex items-center gap-[0.25rem] max-w-full overflow-hidden">
-          <p className="body-md-500 truncate max-w-[12rem]" title={userName}>
-            {userName}
-          </p>
-        </div>
+      {/* 텍스트 영역 */}
+      <div className="flex flex-col flex-1 min-w-0 min-h-[4rem] gap-[0.25rem]">
+        <p className="body-md-500 truncate text-left" title={userName}>
+          {userName}
+        </p>
 
         <span
-          className="body-rg-400 block text-left"
+          className="body-rg-400 text-left"
           style={{
             display: "-webkit-box",
-            WebkitLineClamp: "2",
+            WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -81,10 +67,11 @@ export const PersonalChat = ({
         </span>
       </div>
 
-      <div className="flex flex-col justify-between w-[4rem] h-[4rem] items-center">
-        <p className="body-sm-400 text-[#9195A1]">{lastMessageTime}</p>
-
-        <div className="flex items-center justify-center w-full">
+      <div className="flex flex-col h-[4rem] items-center flex-shrink-0">
+        <p className="body-sm-400 text-[#9195A1] whitespace-nowrap">
+          {lastMessageTime}
+        </p>
+        <div className="flex flex-1 items-center justify-center">
           {unreadCount > 0 && <Num_Noti unreadCount={unreadCount} />}
         </div>
       </div>

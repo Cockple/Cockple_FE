@@ -31,7 +31,6 @@ export const GroupLayout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [joinErrorMessage, setJoinErrorMessage] = useState("");
-  //////////////////////////////////////////////////////////////////////////////
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
@@ -82,8 +81,9 @@ export const GroupLayout = () => {
     }
   };
 
-  // 모입가입하기 버튼 관련
-  const { data: partyDetail, isLoading: isPartyDetailLoading } = usePartyDetail(Number(groupId));
+  const { data: partyDetail, isLoading: isPartyDetailLoading } = usePartyDetail(
+    Number(groupId),
+  );
   const [hasPending, setHasPending] = useState(
     partyDetail?.hasPendingJoinRequest ?? false,
   );
@@ -180,7 +180,7 @@ export const GroupLayout = () => {
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         selected=""
-        options={["모임 삭제하기","부모임장 설정하기", "모임 정보 수정하기"]}
+        options={["모임 삭제하기", "부모임장 설정하기", "모임 정보 수정하기"]}
         onSelect={label => {
           if (label === "모임 삭제하기") {
             setIsMoreOpen(false);
