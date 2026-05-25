@@ -102,6 +102,7 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
     buildInitialCalendar(),
   );
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const swiperRef = useRef<SwiperClass | null>(null);
   const inFlightRef = useRef(false);
 
@@ -191,9 +192,11 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
           if (todayIndex !== -1) {
             setTimeout(() => swiperRef.current?.slideTo(todayIndex, 0), 0);
           }
+          setIsInitialLoading(false);
         }
       } catch (err) {
         console.log(err);
+        setIsInitialLoading(false);
       } finally {
         inFlightRef.current = false;
       }
@@ -260,8 +263,8 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
     return allDays.find(d => d.date === selectedDate)?.exercises ?? [];
   }, [selectedDate, calendarData]);
 
-  const handleExerciseClick = (partyId: number) => {
-    navigate(`/group/${partyId}?date=${selectedDate}`);
+  const handleExerciseClick = (exerciseId: number) => {
+    navigate(`/group/Mygroup/MyExerciseDetail/${exerciseId}`);
   };
 
   return (
@@ -280,6 +283,7 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
       <WorkoutDayEntry
         exerciseData={selectedDayExercises}
         onExerciseClick={handleExerciseClick}
+        isLoading={isInitialLoading}
       />
     </>
   );

@@ -22,7 +22,7 @@ import type {
   CancelSelfResponse,
 } from "../../../api/exercise/exercises";
 import useUserStore from "../../../store/useUserStore";
-import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
+import { MyExerciseDetailSkeleton } from "./MyExerciseDetailSkeleton";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { ChatWithDrawnModal } from "@/components/chat/ChatWithDrawnModal";
@@ -70,13 +70,17 @@ export const MyExerciseDetail = () => {
           isMe: p.id === user?.memberId,
           memberId: p.id,
           isLeader:
-            p.position === "OWNER" || p.position === "MANAGER" || p.position === "PARTY_MANAGER",
+            p.position === "OWNER" ||
+            p.position === "MANAGER" ||
+            p.position === "PARTY_MANAGER",
           position:
-            p.position === "OWNER" || p.position === "MANAGER" || p.position === "PARTY_MANAGER"
+            p.position === "OWNER" ||
+            p.position === "MANAGER" ||
+            p.position === "PARTY_MANAGER"
               ? "leader"
               : p.position === "SUBOWNER" || p.position === "PARTY_SUBMANAGER"
-              ? "sub_leader"
-              : null,
+                ? "sub_leader"
+                : null,
           // isLeader: p.position === "PARTY_MANAGER",
           // position: p.position,
           imgUrl: p.imgUrl ?? null,
@@ -132,7 +136,6 @@ export const MyExerciseDetail = () => {
         setWaitingMembers(prev =>
           prev.filter(m => m.participantId !== participantId),
         );
-        // setParticipantsCount(prev => prev - 1);
         setWaitingCount(prev => prev - 1);
 
         queryClient.invalidateQueries({
@@ -146,43 +149,8 @@ export const MyExerciseDetail = () => {
     }
   };
 
-  // const handleDeleteMember = async (
-  //   participantId: number,
-  //   options?: { isGuest?: boolean; isLeaderAction?: boolean },
-  // ) => {
-  //   if (!exerciseIdNumber) return;
-
-  //   try {
-  //     let res: CancelSelfResponse;
-  //     if (options?.isLeaderAction) {
-  //       // 모임장이 다른 참여자 또는 게스트 추방
-  //       res = await cancelByLeader(
-  //         exerciseIdNumber,
-  //         participantId,
-  //         options.isGuest ?? false,
-  //       );
-  //     } else {
-  //       // 나 자신 모임 취소
-  //       res = await cancelSelf(exerciseIdNumber);
-  //     }
-
-  //     if (res.success) {
-  //       setMembers(prev => prev.filter(m => m.participantId !== participantId));
-  //       setParticipantsCount(prev => prev - 1);
-  //       alert("참여 취소 완료");
-  //     }
-  //   } catch (error: any) {
-  //     console.error("멤버 삭제 실패:", error);
-  //     alert(error?.message || "참여 취소 실패");
-  //   }
-  // };
-
   if (!detail) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <LoadingSpinner />
-      </div>
-    );
+    return <MyExerciseDetailSkeleton />;
   }
 
   return (
@@ -201,10 +169,14 @@ export const MyExerciseDetail = () => {
       <div className="flex flex-col gap-8">
         {/* 장소 정보 */}
         <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
-          <div className="flex items-center gap-2">
-            <Caution className="w-5 h-5" />
-            <p className="body-rg-500 truncate">{detail.notice}</p>
-          </div>
+          {detail.notice && (
+            <>
+              <div className="flex items-center gap-2">
+                <Caution className="w-5 h-5" />
+                <p className="body-rg-500 truncate">{detail.notice}</p>
+              </div>
+            </>
+          )}
           <div className="flex items-start gap-2">
             <Vector className="w-5 h-5" />
             <div className="flex flex-col">
@@ -321,8 +293,8 @@ export const MyExerciseDetail = () => {
               const handleIsUSer = () => {
                 if (member.isWithdrawn) {
                   setIsWithdrawnModal(true);
-                // } else {
-                //   navigate(`/mypage/profile/${member.memberId}`);
+                  // } else {
+                  //   navigate(`/mypage/profile/${member.memberId}`);
                 }
               };
 

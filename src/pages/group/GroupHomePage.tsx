@@ -103,13 +103,14 @@ export const GroupHomePage = () => {
         {loadingCal ? (
           <ExerciseListSkeleton />
         ) : selectedDayExercises.length > 0 ? (
-          selectedDayExercises.map(ex => {
+          selectedDayExercises.map((ex, idx) => {
             const exerciseEnd = new Date(`${selectedDate}T${ex.startTime}`);
             const now = new Date();
             const isCompleted = exerciseEnd < now;
+            const isLast = idx === selectedDayExercises.length - 1;
             return (
               <div
-                className="border-b-1 border-gy-200 mb-3"
+                className={`mb-3 ${isLast ? "" : "border-b-1 border-gy-200"}`}
                 key={ex.exerciseId}
               >
                 <ContentCardL
