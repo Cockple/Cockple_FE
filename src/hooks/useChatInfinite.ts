@@ -9,6 +9,9 @@ import {
 } from "../api/chat/chattingMessage";
 import type { ChatMessageResponse } from "../types/chat";
 
+const isValidCursor = (value: number | null | undefined): value is number =>
+  Number.isFinite(value) && Number(value) > 0;
+
 // 메시지를 시간 오름차순으로 정렬
 const flattenAscending = (pages: ChatMessageResponse[][]) =>
   pages.flat().sort((a, b) => a.messageId - b.messageId);
@@ -36,7 +39,6 @@ export const useChatInfinite = (roomId: number) => {
     staleTime: 0,
   });
 
-  // 서버 스펙: cursor = 마지막으로 읽은 메시지 ID (과거를 더 가져오기 위한 기준)
   const lastRead = initial?.chatRoomInfo?.lastReadMessageId ?? null;
 
   // 초기 화면에 표시된 것들 중 가장 오래된 메시지 ID(안전하게 min으로 계산)
@@ -45,9 +47,13 @@ export const useChatInfinite = (roomId: number) => {
       ? Math.min(...initial.messages.map(m => m.messageId))
       : null;
 
-  // 최종 초기 커서
-  // 우선순위: lastRead -> oldestVisible -> undefined(비활성화)
-  const initialCursor = lastRead ?? oldestVisible ?? undefined;
+  // 이전 페이지 조회는 "지금 화면에 보이는 가장 오래된 메시지" 기준으로 여는 편이 안전하다.
+  // 빈 채팅방에서는 이전 페이지 API를 호출하지 않는다.
+  const initialCursor = isValidCursor(oldestVisible)
+    ? oldestVisible
+    : isValidCursor(lastRead)
+      ? lastRead
+      : undefined;
 
   // 2) 이전 페이지 무한 스크롤
   const {
@@ -58,7 +64,7 @@ export const useChatInfinite = (roomId: number) => {
     status,
   } = useInfiniteQuery({
     queryKey: ["chat", roomId, "previous"],
-    enabled: initialCursor !== undefined, // 커서 없으면 비활성화
+    enabled: roomId > 0 && initialCursor !== undefined,
     queryFn: ({ pageParam }) =>
       fetchPreviousMessages({
         roomId,
