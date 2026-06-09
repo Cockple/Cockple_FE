@@ -1,9 +1,12 @@
+import NewBadge from "../../NewBadge";
+
 interface AlertTest1Props {
   groupName: string;
   alertText: string;
   alertType: string;
   descriptionText?: string;
   imageSrc: string;
+  isRead?: boolean;
   onClick?: () => void;
 }
 
@@ -13,6 +16,7 @@ const AlertTest1 = ({
   imageSrc,
   alertType,
   descriptionText,
+  isRead = true,
   onClick,
 }: AlertTest1Props) => {
   return (
@@ -27,15 +31,12 @@ const AlertTest1 = ({
           alt="Group"
           className="h-10 w-10 border-hard object-cover"
         />
-        <div className="flex flex-col gap-1 text-left">
+        <div className="flex flex-1 flex-col gap-1 text-left">
           <span className="body-rg-400 text-black">{groupName}</span>
           <div>
             <span className="line-clamp-2 w-full self-stretch overflow-hidden body-rg-500 text-black">
               {alertText}
             </span>
-            {/* <span className="line-clamp-2 w-full self-stretch overflow-hidden body-sm-500 text-[#9195a1]">
-              {descriptionText}
-            </span> */}
             {descriptionText && (
               <span className="line-clamp-2 w-full self-stretch overflow-hidden body-sm-500 text-[#9195a1]">
                 {descriptionText}
@@ -43,6 +44,7 @@ const AlertTest1 = ({
             )}
           </div>
         </div>
+        {!isRead && <NewBadge />}
       </div>
     </div>
   );

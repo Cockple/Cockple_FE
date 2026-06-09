@@ -203,6 +203,7 @@ export const AlertPage = () => {
                 groupName={alert.title}
                 alertText={alert.content}
                 imageSrc={alert.imgKey ?? DefaultGroupImg}
+                isRead={alert.isRead}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -213,6 +214,7 @@ export const AlertPage = () => {
                 alertText={alert.content}
                 imageSrc={alert.imgKey ?? DefaultGroupImg}
                 alertType={alert.type}
+                isRead={alert.isRead}
                 descriptionText={getDescriptionText(alert.type)}
                 // onClick={
                 //   shouldMoveToDetail(alert.type)

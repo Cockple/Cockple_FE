@@ -1,3 +1,4 @@
+import NewBadge from "../../NewBadge";
 import RD500_XS from "../../Btn_Static/Text/RD500_XS";
 import GR600_XS from "../../Btn_Static/Text/GR600_XS";
 
@@ -5,6 +6,7 @@ interface AlertInviteProps {
   groupName: string;
   alertText: string;
   imageSrc: string;
+  isRead?: boolean;
   onAccept?: () => void;
   onReject?: () => void;
 }
@@ -13,6 +15,7 @@ const AlertInvite = ({
   groupName,
   alertText,
   imageSrc,
+  isRead = true,
   onAccept,
   onReject,
 }: AlertInviteProps) => {
@@ -25,12 +28,13 @@ const AlertInvite = ({
           alt="Group"
           className="h-10 w-10 border-hard object-cover"
         />
-        <div className="flex flex-col gap-1 text-left">
+        <div className="flex flex-1 flex-col gap-1 text-left">
           <span className="body-rg-400 text-black">{groupName}</span>
           <span className="line-clamp-2 w-full self-stretch overflow-hidden body-rg-500 text-black">
             {alertText}
           </span>
         </div>
+        {!isRead && <NewBadge />}
       </div>
 
       {/* 버튼 영역 */}
