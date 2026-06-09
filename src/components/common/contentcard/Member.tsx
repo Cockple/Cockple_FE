@@ -160,6 +160,7 @@ const ListMemberLayout = ({
     hideNumber,
     selectMode,
     isLeader,
+    isGuest,
     showDeleteButton,
     onClick,
     onAppointClick,
@@ -177,11 +178,16 @@ const ListMemberLayout = ({
     useDeleteModal ? onShowDeleteModal() : onDelete?.();
   };
 
+  const handleClick = isGuest ? undefined : onClick; 
+
   return (
     <div
-      className="w-full h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3"
-      onClick={onClick}
-    >
+        className={clsx(
+          "w-full h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3",
+          !isGuest && onClick && "cursor-pointer", 
+        )}
+        onClick={handleClick} 
+      >
       {!hideNumber && (
         <p className="body-md-500 whitespace-nowrap">{getNumberText()}</p>
       )}
