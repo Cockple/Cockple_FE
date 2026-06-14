@@ -87,7 +87,6 @@ export const AlertPage = () => {
       }
     }
 
-    // 객체로 오는 케이스도 대비
     const id = data?.invitationId;
     return typeof id === "number" ? id : Number(id ?? NaN);
   }
@@ -99,9 +98,6 @@ export const AlertPage = () => {
 
       // 현재 구현처럼 쿼리스트링로 전송
       await api.patch(`/api/notifications/${notificationId}?type=${type}`);
-
-      // 명세서대로 body로 보내야 한다면 위 1줄 대신 아래 사용
-      // await api.patch(`/api/notifications/${notificationId}`, { type });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
