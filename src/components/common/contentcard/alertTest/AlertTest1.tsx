@@ -25,7 +25,7 @@ const AlertTest1 = ({
       onClick={onClick}
     >
       {/* 상단 정보 영역 */}
-      <div className="flex w-full gap-3">
+      <div className="flex items-center w-full gap-3">
         <img
           src={imageSrc}
           alt="Group"

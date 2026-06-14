@@ -15,7 +15,7 @@ import { EmptyState } from "../../components/alert/EmptyState";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
 import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { AlertSkeleton } from "../../components/alert/AlertSkeleton";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
@@ -188,7 +188,7 @@ export const AlertPage = () => {
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
         {isLoading ? (
-          <LoadingSpinner />
+          <AlertSkeleton />
         ) : isError ? (
           <div className="text-center mt-10">에러 발생</div>
         ) : visibleNotifications.length === 0 ? (
@@ -203,7 +203,6 @@ export const AlertPage = () => {
                 groupName={alert.title}
                 alertText={alert.content}
                 imageSrc={alert.imgKey ?? DefaultGroupImg}
-                isRead={alert.isRead}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -216,21 +215,12 @@ export const AlertPage = () => {
                 alertType={alert.type}
                 isRead={alert.isRead}
                 descriptionText={getDescriptionText(alert.type)}
-                // onClick={
-                //   shouldMoveToDetail(alert.type)
-                //     ? () => handleDetail(alert.partyId, alert.data)
-                //     : undefined
-                // }
-                onClick={
-                  // 🌟CHANGE: 읽음 처리 후 상세 이동
-                  // 🌟SIMPLE: 읽음 처리만
-                  () => {
-                    markReadMutation.mutate(alert);
-                    if (shouldMoveToDetail(alert.type)) {
-                      handleDetail(alert.partyId, alert.data);
-                    }
+                onClick={() => {
+                  markReadMutation.mutate(alert);
+                  if (shouldMoveToDetail(alert.type)) {
+                    handleDetail(alert.partyId, alert.data);
                   }
-                }
+                }}
               />
             ),
           )
