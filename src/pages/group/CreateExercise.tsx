@@ -260,20 +260,18 @@ export const CreateExercise = () => {
           />
         </div>
 
-        {!exerciseId && (
-          <div className="flex flex-col gap-5">
-            <TitleBtn
-              label="모임 멤버 게스트 초대 허용"
-              checked={!!allowGuestInvite}
-              onChange={setAllowGuestInvite}
-            />
-            <TitleBtn
-              label="외부 게스트 참여 허용"
-              checked={!!allowExternalGuest}
-              onChange={setAllowExternalGuest}
-            />
-          </div>
-        )}
+        <div className="flex flex-col gap-5">
+          <TitleBtn
+            label="모임 멤버 게스트 초대 허용"
+            checked={!!allowGuestInvite}
+            onChange={setAllowGuestInvite}
+          />
+          <TitleBtn
+            label="외부 게스트 참여 허용"
+            checked={!!allowExternalGuest}
+            onChange={setAllowExternalGuest}
+          />
+        </div>
 
         <TextField maxLength={45} value={notice} onChange={setNotice} />
       </div>

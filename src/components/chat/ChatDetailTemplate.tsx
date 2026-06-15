@@ -34,7 +34,7 @@ import { uploadImage } from "../../api/image/imageUpload";
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import useUserStore from "../../store/useUserStore";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+import { ChatDetailSkeleton } from "./ChatDetailSkeleton";
 
 // 이모티콘
 import EmojiPicker from "../common/chat/EmojiPicker";
@@ -668,7 +668,7 @@ export const ChatDetailTemplate = ({
         )}
 
         {/* 상태 UI */}
-        {initLoading && <LoadingSpinner />}
+        {initLoading && <ChatDetailSkeleton />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">

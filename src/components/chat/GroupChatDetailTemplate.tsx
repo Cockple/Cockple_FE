@@ -30,7 +30,7 @@ import { uploadImage } from "../../api/image/imageUpload";
 // 유저 정보
 import useUserStore from "../../store/useUserStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+import { ChatDetailSkeleton } from "./ChatDetailSkeleton";
 
 // 이모티콘
 import EmojiPicker from "../common/chat/EmojiPicker";
@@ -519,7 +519,7 @@ export const GroupChatDetailTemplate: React.FC<
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
       >
         {/* 상태 UI */}
-        {initLoading && <LoadingSpinner />}
+        {initLoading && <ChatDetailSkeleton />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">

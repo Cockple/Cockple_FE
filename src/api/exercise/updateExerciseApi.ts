@@ -12,6 +12,8 @@ export const updateExerciseApi = async (
     endTime: string;
     maxCapacity: number;
     notice: string;
+    allowMemberGuestsInvitation: boolean;
+    allowExternalGuests: boolean;
   },
 ) => {
   const { data } = await api.patch(`/api/exercises/${exerciseId}`, payload);
