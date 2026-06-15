@@ -15,7 +15,7 @@ import { EmptyState } from "../../components/alert/EmptyState";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
 import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { AlertSkeleton } from "../../components/alert/AlertSkeleton";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
@@ -87,7 +87,6 @@ export const AlertPage = () => {
       }
     }
 
-    // 객체로 오는 케이스도 대비
     const id = data?.invitationId;
     return typeof id === "number" ? id : Number(id ?? NaN);
   }
@@ -99,9 +98,6 @@ export const AlertPage = () => {
 
       // 현재 구현처럼 쿼리스트링로 전송
       await api.patch(`/api/notifications/${notificationId}?type=${type}`);
-
-      // 명세서대로 body로 보내야 한다면 위 1줄 대신 아래 사용
-      // await api.patch(`/api/notifications/${notificationId}`, { type });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -188,7 +184,7 @@ export const AlertPage = () => {
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
         {isLoading ? (
-          <LoadingSpinner />
+          <AlertSkeleton />
         ) : isError ? (
           <div className="text-center mt-10">에러 발생</div>
         ) : visibleNotifications.length === 0 ? (
@@ -213,22 +209,14 @@ export const AlertPage = () => {
                 alertText={alert.content}
                 imageSrc={alert.imgKey ?? DefaultGroupImg}
                 alertType={alert.type}
+                isRead={alert.isRead}
                 descriptionText={getDescriptionText(alert.type)}
-                // onClick={
-                //   shouldMoveToDetail(alert.type)
-                //     ? () => handleDetail(alert.partyId, alert.data)
-                //     : undefined
-                // }
-                onClick={
-                  // 🌟CHANGE: 읽음 처리 후 상세 이동
-                  // 🌟SIMPLE: 읽음 처리만
-                  () => {
-                    markReadMutation.mutate(alert);
-                    if (shouldMoveToDetail(alert.type)) {
-                      handleDetail(alert.partyId, alert.data);
-                    }
+                onClick={() => {
+                  markReadMutation.mutate(alert);
+                  if (shouldMoveToDetail(alert.type)) {
+                    handleDetail(alert.partyId, alert.data);
                   }
-                }
+                }}
               />
             ),
           )

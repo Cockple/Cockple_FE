@@ -25,7 +25,7 @@ const AlertInvite = ({
           alt="Group"
           className="h-10 w-10 border-hard object-cover"
         />
-        <div className="flex flex-col gap-1 text-left">
+        <div className="flex flex-1 flex-col gap-1 text-left">
           <span className="body-rg-400 text-black">{groupName}</span>
           <span className="line-clamp-2 w-full self-stretch overflow-hidden body-rg-500 text-black">
             {alertText}
