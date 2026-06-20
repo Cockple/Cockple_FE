@@ -59,7 +59,6 @@ export const GroupMember = () => {
   const handleInviteLeave = useMutation({
     mutationFn: submitInvite,
     onSuccess: () => {
-      console.log("성공");
       setIsOpenModal(false);
     },
     onError: err => {

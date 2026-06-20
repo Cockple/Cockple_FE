@@ -20,8 +20,6 @@ import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
   const response = await api.get<AlertListResponse>("/api/notifications");
-
-  console.log("내 알림 목록: ", response.data.data);
   return response.data.data;
 };
 
@@ -121,7 +119,6 @@ export const AlertPage = () => {
         await api.patch(`/api/parties/invitations/${invitationId}`, {
           action: "APPROVE",
         });
-        console.log("모임으로 승인 요청 보냄, 초대 아이디: ", invitationId);
       } else if (partyId && !invitationId) {
         console.log("모임 있지만 invitationId 없음");
       } else {

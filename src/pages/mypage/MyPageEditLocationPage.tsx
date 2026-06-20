@@ -28,7 +28,6 @@ export const MyPageEditLocationPage = ({
   );
 
   const handleSearch = () => {
-    console.log(`Searching for: ${searchText}`);
     setSearchResults([]);
     setSelectedLocationId(null);
   };
@@ -36,10 +35,8 @@ export const MyPageEditLocationPage = ({
   const handleLocationClick = (id: number, isClicked: boolean) => {
     if (isClicked) {
       setSelectedLocationId(id);
-      console.log("선택된 위치 ID:", id);
     } else {
       setSelectedLocationId(null);
-      console.log("선택 해제된 위치 ID:", id);
     }
   };
 
@@ -60,7 +57,6 @@ export const MyPageEditLocationPage = ({
       loc => loc.id === selectedLocationId,
     );
     if (selectedLocation) {
-      console.log("등록할 위치:", selectedLocation);
       navigate("/mypage/edit");
     }
   };

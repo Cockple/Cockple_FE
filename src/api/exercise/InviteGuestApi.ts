@@ -69,7 +69,6 @@ export const useDeleteInviteForm = (exerciseId: number) => {
   return useMutation({
     mutationFn: (guestId: number) => deleteGuest(exerciseId, guestId),
     onSuccess: () => {
-      console.log("삭제 성공");
       queryClient.invalidateQueries({
         queryKey: ["inviteGuest", exerciseId],
       });

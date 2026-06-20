@@ -134,7 +134,6 @@ export const getExerciseDetail = async (
   }>(`/api/exercises/${exerciseId}`);
 
   const raw = response.data.data;
-  console.log("!!", raw);
 
   const mapLevelToKorean = (level: string) => {
     const levelMap: Record<string, string> = {

@@ -207,7 +207,6 @@ const sendJSON = (msg: OutgoingMessage) => {
   //if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(msg));
-    console.log("[WS→] SEND", msg);
     return true;
   }
   console.warn("[WS] not open. drop:", msg);
@@ -245,25 +244,12 @@ export const connectRawWs = (
   sock.onopen = () => {
     reconnectAttempt = 0;
     isManualClose = false; // 연결 성공 시 플래그 초기화
-    console.log("[WS open]");
     handlers.onOpen?.();
-
-    // 자동 재구독
-    // ->
-    // 재연결 시 재구독 불필요: 서버가 Redis에 구독 상태를 보관/복원
-    // if (currentRooms.size) {
-    //   [...currentRooms].forEach(id => {
-    //     //sendJSON({ type: "SUBSCRIBE", chatRoomId: id }),
-    //     const ok = sendJSON({ type: "SUBSCRIBE", chatRoomId: id });
-    //     console.log("[WS→] auto-resubscribe", id, ok ? "OK" : "FAIL");
-    //   });
-    // }
   };
 
   sock.onmessage = (e: MessageEvent) => {
     try {
       const parsed: IncomingMessage = JSON.parse(e.data);
-      console.log("[WS←] message", parsed); // 디버깅
       handlers.onMessage?.(parsed);
 
       // 🌟전역 리스너 브로드캐스트

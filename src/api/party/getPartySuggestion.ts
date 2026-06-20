@@ -112,7 +112,6 @@ export const fetchPartySuggestionPage = async (
     },
   });
 
-  console.log(data.data);
   return data.data;
 };
 

@@ -27,7 +27,6 @@ export const ModalLeave = ({ onClose, onOwnerError }: ModalLeaveProps) => {
     const errorData = err.response?.data;
     if (errorData) {
       const owner = errorData.message.split(" ")[0];
-      console.log(owner);
 
       if (errorData.code === "MEMBER401") {
         onOwnerError(owner);

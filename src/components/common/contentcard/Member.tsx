@@ -174,7 +174,11 @@ const ListMemberLayout = ({
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    useDeleteModal ? onShowDeleteModal() : onDelete?.();
+    if (useDeleteModal) {
+      onShowDeleteModal();
+    } else {
+      onDelete?.();
+    }
   };
 
   return (
@@ -215,7 +219,6 @@ const ListMemberLayout = ({
 const InviteMemberLayout = ({ props }: { props: MemberProps }) => {
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
 
-  console.log(props);
   return (
     <div className="w-[21.44rem] h-[4.75rem] bg-white rounded-[1rem] px-4 py-2 flex items-center gap-3">
       <Avatar imgUrl={props.imgUrl} name={props.name} />
@@ -292,7 +295,11 @@ export const Member = (props: MemberProps & { modalConfig?: ModalConfig }) => {
     );
 
   const handleConfirm = () => {
-    modalConfig?.onConfirm ? modalConfig.onConfirm() : props.onDelete?.();
+    if (modalConfig?.onConfirm) {
+      modalConfig.onConfirm();
+    } else {
+      props.onDelete?.();
+    }
     setIsModalOpen(false);
   };
 

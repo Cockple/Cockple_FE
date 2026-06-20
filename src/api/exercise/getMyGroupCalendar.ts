@@ -60,8 +60,6 @@ export async function fetchMyGroupCalendar(params: {
       },
     },
   );
-
-  console.log(data.data);
   return data.data;
 }
 

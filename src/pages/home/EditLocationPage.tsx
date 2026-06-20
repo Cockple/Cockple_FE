@@ -41,7 +41,6 @@ export const EditLocationPage = () => {
     const getMyLocations = async () => {
       try {
         const data = await getMyProfileLocations();
-        console.log(data);
         setLocationList(data);
 
         const mainAddr = data.find((addr: UserAddress) => addr.isMainAddr);

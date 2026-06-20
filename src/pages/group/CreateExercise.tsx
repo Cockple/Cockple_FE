@@ -66,7 +66,6 @@ export const CreateExercise = () => {
 
   useEffect(() => {
     if (editData) {
-      console.log("수정 데이터", editData);
       setSelectedDate(editData.date);
       setLocationDetail({
         buildingName: editData.buildingName,
@@ -158,8 +157,6 @@ export const CreateExercise = () => {
         notice: notice,
       };
 
-      console.log(payload);
-
       try {
         if (exerciseId) {
           await updateExerciseApi(exerciseId, payload);
@@ -170,8 +167,7 @@ export const CreateExercise = () => {
             return;
           }
           const data = await createExerciseApi(groupId, payload);
-          console.log(data);
-          addExercise(data); // 연두 : store에 바로 추가
+          addExercise(data);
           navigate(`/group/${groupId}`);
           resetForm();
         }

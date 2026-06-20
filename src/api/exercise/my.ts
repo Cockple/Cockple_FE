@@ -16,8 +16,8 @@ export interface ExerciseItem {
   startTime: string;
   endTime: string;
   levelRequirement: {
-    female: string[]; 
-    male: string[];  
+    female: string[];
+    male: string[];
   };
   participation: {
     current: number;
@@ -27,7 +27,6 @@ export interface ExerciseItem {
   isCompleted: boolean;
   isParticipating: boolean;
 }
-
 
 export interface MyExerciseItem {
   partyId: number;
@@ -51,7 +50,6 @@ export interface MyExerciseItem {
     max: number;
   };
   isBookmarked?: boolean;
-
 }
 
 export const getMyExercises = async ({
@@ -63,12 +61,11 @@ export const getMyExercises = async ({
   const response = await api.get("/api/exercises/my", {
     params: {
       filterType,
-      orderType, 
+      orderType,
       "pageable.page": page,
       "pageable.size": size,
     },
   });
-  console.log("서버 응답 전체:", response.data);
 
   const rawList = response.data?.data?.exercises ?? [];
 

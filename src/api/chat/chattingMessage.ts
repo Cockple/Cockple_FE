@@ -15,15 +15,7 @@ export interface GetChatMessagesResponse {
 export const fetchChatMessages = async (
   roomId: number,
 ): Promise<GetChatMessagesResponse> => {
-  const response = await api.get(
-    `/api/chats/rooms/${roomId}`,
-    // {
-    // headers: {
-    //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // 또는 context에서 토큰 추출
-    // },
-    // }
-  );
-  console.log("messages: ", response);
+  const response = await api.get(`/api/chats/rooms/${roomId}`);
 
   return response.data.data;
 };
@@ -47,9 +39,6 @@ export const fetchPreviousMessages = async ({
 }): Promise<FetchPreviousRes> => {
   const res = await api.get(`/api/chats/rooms/${roomId}/messages/previous`, {
     params: { cursor, size },
-    // headers: {
-    //   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    // },
   });
   return res.data.data;
 };

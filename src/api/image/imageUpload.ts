@@ -28,10 +28,6 @@ export const uploadImage = async (domainType: DomainType, imageFile: File) => {
     },
   );
 
-  console.log(
-    `imageUrl: ${res.data.data.fileUrl}, imageKey: ${res.data.data.fileKey}`,
-  );
-  //return response.data;
   // 사용하기 편하도록 평탄화해서 반환
   return {
     imgUrl: res.data.data.fileUrl,
