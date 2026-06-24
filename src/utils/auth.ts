@@ -38,11 +38,6 @@ function resolveFromToken() {
 
 export function resolveMemberId(): number | null {
   const u = useUserStore.getState().user;
-  console.log(
-    "auth.ts에서 memberId 호출: ",
-    u?.memberId,
-    resolveFromToken().memberId,
-  );
   if (u?.memberId) return u.memberId;
   return resolveFromToken().memberId;
 }

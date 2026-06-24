@@ -17,7 +17,6 @@ export const messaging = getMessaging(app);
 async function sendTokenToServer(token: string) {
   try {
     await api.patch("/api/notifications/fcm-token", { fcmToken: token });
-    console.log("[FCM] 서버 토큰 등록 성공");
   } catch (error) {
     console.error("FCM 토큰 서버 전송 실패", error);
   }

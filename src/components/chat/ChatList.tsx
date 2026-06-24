@@ -25,11 +25,6 @@ const ChatList = ({
   searchTerm,
   navigate,
 }: Props) => {
-  console.log(
-    "rooms with null lastMessage",
-    (tab === "group" ? groupChats : personalChats).filter(r => !r.lastMessage),
-  );
-
   // 🌟 탭별 빈 상태 메시지
   const emptyMessageMap: Record<Props["tab"], string> = {
     group: "아직 모임 채팅",
@@ -53,8 +48,6 @@ const ChatList = ({
       </div>
     );
   }
-
-  console.log(personalChats, "챗리스트 개인채팅방");
 
   return (
     <div className="flex flex-col gap-[0.625rem] w-full">
@@ -105,7 +98,6 @@ const ChatList = ({
               ? formatEnLowerAmPm(lm.timestamp)
               : "";
 
-            console.log(chat);
             return (
               <div
                 key={chat.chatRoomId}

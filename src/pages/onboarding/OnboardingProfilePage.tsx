@@ -68,7 +68,6 @@ export const OnboardingProfilePage = () => {
   };
 
   const imageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e);
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
@@ -129,7 +128,6 @@ export const OnboardingProfilePage = () => {
 
       // 이미지 업로드
       const { imgUrl, imgKey } = await uploadImage("PROFILE", croppedFile);
-      console.log(imgUrl);
       // 미리보기 갱신
       setTemp({ imgKey, imgUrl });
       setPreview(imgUrl);

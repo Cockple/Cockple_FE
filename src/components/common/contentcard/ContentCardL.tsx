@@ -66,7 +66,7 @@ export const ContentCardL = ({
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
-  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); 
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false);
   const [favorite, setFavorite] = useState(like);
   const [isLoading, setIsLoading] = useState(false);
 

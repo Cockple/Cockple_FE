@@ -13,7 +13,6 @@ export default function InviteGuestItem({
   item,
   exerciseId,
 }: InviteGuestProps) {
-  console.log(item);
   const handleDelete = useDeleteInviteForm(exerciseId);
   const apilevel = toKor(item.level);
   const responseLevelValue =

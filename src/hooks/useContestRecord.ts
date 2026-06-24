@@ -218,8 +218,6 @@ export const useContestRecord = () => {
         contestImgs: finalImgs.length > 0 ? finalImgs : undefined,
       };
 
-      console.log("전송할 Body:", body);
-
       let response;
       if (isEditMode && contestId) {
         // [수정 PATCH]

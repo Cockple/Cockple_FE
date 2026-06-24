@@ -42,21 +42,17 @@ export const useRawWsConnect = (opts: {
     // 토큰 없거나 memberId 무효면 연결 시도하지 않음
     if (!token || !opts.memberId) {
       setOpen(false);
-      disconnectRawWs(); // 🌟 토큰이 없으면(로그아웃/로그인화면) 즉시 연결 종료
-      // console.log("토큰 없음: ");
+      disconnectRawWs(); // 토큰이 없으면(로그아웃/로그인화면) 즉시 연결 종료
       return () => {
         mounted.current = false;
       };
     }
-
-    // console.log("토큰 있음: ", token);
 
     connectRawWs(
       { memberId: opts.memberId, origin: opts.origin },
       {
         onOpen: () => mounted.current && setOpen(true),
         onClose: () => mounted.current && setOpen(false),
-        //onMessage: msg => mounted.current && setLastMessage(msg),
         onMessage: msg => {
           if (!mounted.current) return;
           setLastMessage(msg);
@@ -66,7 +62,7 @@ export const useRawWsConnect = (opts: {
             applyInbound(msg); // 채팅방을 구독한 상대방에게 가는 브로드캐스트
           }
 
-          // 🌟채팅방 목록을 구독한 상대방에게 가는 브로드캐스트
+          // 채팅방 목록을 구독한 상대방에게 가는 브로드캐스트
           if (msg.type === "CHAT_ROOM_LIST_UPDATE") {
             const m = msg as ChatRoomListUpdate;
             applyListUpdate({
@@ -92,12 +88,11 @@ export const useRawWsConnect = (opts: {
       },
     );
 
-    // 🌟전역 리스너 구독 → 이미 열린 소켓이라도 무조건 수신 가능
+    // 전역 리스너 구독 → 이미 열린 소켓이라도 무조건 수신 가능
     const off = addWsListener(msg => {
       if (!mounted.current) return;
       setLastMessage(msg);
       if (msg.type === "SEND") applyInbound(msg);
-      //🌟
       if (msg.type === "CHAT_ROOM_LIST_UPDATE") {
         const m = msg as ChatRoomListUpdate;
         applyListUpdate({
@@ -118,11 +113,6 @@ export const useRawWsConnect = (opts: {
   return {
     isOpen,
     lastMessage,
-    //🌟
-    // sendText: (chatRoomId: number, content: string) =>
-    //   sendChatWS(chatRoomId, { kind: "text", content }),
-    // sendImage: (chatRoomId: number, imgKeys: string[]) =>
-    //   sendChatWS(chatRoomId, { kind: "image", imgKeys }),
     sendText: (chatRoomId: number, content: string) =>
       sendTextWS(chatRoomId, content),
     sendImages: (chatRoomId: number, items: WsSendImage[]) =>

@@ -32,7 +32,6 @@ export const usePostOnboarding = () => {
   return useMutation({
     mutationFn: (body: OnBoardingRequest) => postOnboarding(body),
     onSuccess: data => {
-      console.log("성공");
       console.log(data);
       navigate("/onboarding/confirm/start");
     },
@@ -65,7 +64,6 @@ export const usePostKeywords = () => {
       keywords: string[];
     }) => postKeywords(keywords, partyId),
     onSuccess: (data, v) => {
-      console.log("성공");
       console.log(data);
       navigate(`/group/making/member/${v.partyId}`);
     },

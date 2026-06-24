@@ -45,8 +45,6 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
   const silver = profile.silverCount || 0;
   const bronze = profile.bronzeCount || 0;
 
-  console.log(profile);
-
   return (
     <div className="flex flex-col overflow-hidden w-full">
       <div className="flex flex-col gap-[1.25rem] w-full">
@@ -89,13 +87,6 @@ export const MyPage = ({ disabled = false }: MyPageProps) => {
               bronzeCount={bronze}
               disabled={disabled}
               onClick={() => {
-                console.log("navigate with state:", {
-                  goldCount: gold,
-                  silverCount: silver,
-                  bronzeCount: bronze,
-                  myMedalTotal: totalMedals,
-                  disabled,
-                });
                 navigate("/myPage/mymedal", {
                   state: {
                     goldCount: gold,

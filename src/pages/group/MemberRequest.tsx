@@ -46,7 +46,6 @@ const MemberRequestPage = () => {
       `/api/parties/${partyId}/join-requests?status=PENDING`,
     );
 
-    console.log(res.data.data);
     setRequests(res.data.data.content);
   };
 
@@ -71,7 +70,6 @@ const MemberRequestPage = () => {
 
     try {
       setSubmitting(true);
-      console.log(selectedMember);
       const body: JoinRequestActionBody = { action: "APPROVE" };
       await api.patch(
         `/api/parties/${partyId}/join-requests/${selectedMember.joinRequestId}`,

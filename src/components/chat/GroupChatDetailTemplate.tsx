@@ -11,7 +11,7 @@ import React, {
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 //import ChatBtn from "../common/DynamicBtn/ChatBtn";
-//import ProfileImg from "../../assets/images/Profile_Image.png";
+//import ProfileImg from "../../assets/images/Profile_Image.webp";
 import BottomChatInput from "../common/chat/BottomChatInput";
 //import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
@@ -38,7 +38,7 @@ import { EMOJIS } from "../common/chat/emojis";
 import { useMyProfile } from "../../api/member/my";
 
 //이미지
-import ProfileImg from "@/assets/images/Profile_Image.png?url";
+import ProfileImg from "@/assets/images/Profile_Image.webp?url";
 
 // ===== 유틸: 키 → 표시 URL =====
 const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(

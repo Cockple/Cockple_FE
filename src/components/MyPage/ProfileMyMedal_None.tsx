@@ -1,4 +1,4 @@
-import NoneImg from "../../assets/images/None_Error.png";
+import NoneImg from "../../assets/images/None_Error.webp";
 
 export const ProfileMyMedal_None = () => {
   return (

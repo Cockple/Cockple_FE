@@ -36,7 +36,6 @@ const ChattingComponent = ({
   const [chatNick, setChatNick] = useState("");
   //탈퇴시 modal처리 ,
   const [modal, setModal] = useState(false);
-  console.log(message, "채팅ㅇㅇ");
 
   //회원탈퇴여부
   const isWithdrawn = message.isSenderWithdrawn;
