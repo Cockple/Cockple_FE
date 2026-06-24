@@ -10,7 +10,7 @@ import React, {
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
-import ProfileImg from "@/assets/images/Profile_Image.png?url";
+import ProfileImg from "@/assets/images/Profile_Image.webp?url";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
@@ -111,25 +111,10 @@ export const ChatDetailTemplate = ({
     refetchInitial,
   } = useChatInfinite(chatId);
 
-  console.log(initial, "이니셜");
-  console.log(messages, "채팅메세지");
-
   //개인채팅방 탈퇴
   const aloneWithdrawn =
     initial?.participants.length == 2 &&
     initial.chatRoomInfo.isCounterPartWithdrawn == true;
-  //const aloneWithdrawn = true;
-
-  // ===== 읽음 처리 =====
-  // const { markReadNow } = useChatRead({
-  //   roomId: Number(chatId),
-  //   messages,
-  //   mode: "mock", // ← 백엔드 URL 확정되면 "rest"로 교체
-  //   // wsSendFn: payload => stompClient.publish({...}) 형태로 주입 가능
-  //   //   // TODO(WS): sendReadWS(chatId, payload) 등으로 연결
-  //   //   return { lastReadMessageId: payload.lastReadMessageId };
-  //   // },
-  // });
 
   // 활성 방/읽음카운트 스토어 연동
   const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
@@ -205,21 +190,6 @@ export const ChatDetailTemplate = ({
     return () => io.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  // 🌟하단 근처 도달 시 자동 읽음 처리(목업)
-  // useEffect(() => {
-  //   const root = scrollAreaRef.current;
-  //   if (!root) return;
-
-  //   const onScroll = () => {
-  //     const nearBottom =
-  //       root.scrollHeight - root.scrollTop - root.clientHeight < 60;
-  //     if (nearBottom) markReadNow();
-  //   };
-
-  //   root.addEventListener("scroll", onScroll);
-  //   return () => root.removeEventListener("scroll", onScroll);
-  // }, [markReadNow]);
-  // 스크롤 시 하단 붙음 상태 추적 (+ 읽음 트리거는 선택)
   useEffect(
     () => {
       const root = scrollAreaRef.current;
@@ -237,7 +207,7 @@ export const ChatDetailTemplate = ({
     ],
   );
 
-  // 🌟이미지/이모티콘 로드 시 하단 붙이기(캡처 단계)
+  // 이미지/이모티콘 로드 시 하단 붙이기(캡처 단계)
   useEffect(() => {
     const root = scrollAreaRef.current;
     if (!root) return;
@@ -268,7 +238,6 @@ export const ChatDetailTemplate = ({
   }, [stickToBottom]);
 
   //===== WS 연결 및 전송 =====
-  //const { sendText, sendImages, lastMessage } = useRawWsConnect({
   const { sendText, sendImages } = useRawWsConnect({
     memberId: currentUserId,
     origin: import.meta.env.VITE_WS_ORIGIN,
@@ -295,7 +264,6 @@ export const ChatDetailTemplate = ({
       content: text,
       messageType: "TEXT",
       images: [],
-      //imageUrls: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
       isSenderWithdrawn: false,
@@ -319,7 +287,6 @@ export const ChatDetailTemplate = ({
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
-    console.log("메시지 전송:", text);
   };
 
   //==== 전송: 이미지(다중) ====
@@ -386,9 +353,7 @@ export const ChatDetailTemplate = ({
       }));
 
       setLiveMsgs((prev: ChatMessageResponse[]) => [...prev, ...optimistic]);
-      // 🌟requestAnimationFrame(() =>
-      //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      // );
+
       if (stickToBottom) {
         requestAnimationFrame(() =>
           bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
@@ -521,57 +486,12 @@ export const ChatDetailTemplate = ({
     };
   }
 
-  // ===== WS 수신 반영 =====
-  // const lastMessageRef = useRef(lastMessage);
-  // useEffect(() => {
-  //   lastMessageRef.current = lastMessage;
-  // }, [lastMessage]);
-
-  // useEffect(() => {
-  //   const msg = lastMessageRef.current;
-  //   if (!msg || msg.type !== "SEND") return;
-  //   if (msg.chatRoomId !== chatId) return;
-
-  //   const incoming = mapBroadcastToUi(msg, currentUserId);
-
-  //   setLiveMsgs(prev => {
-  //     // 낙관적 메시지와 교체(시간 가까우면)
-  //     const idx = prev.findIndex(
-  //       m =>
-  //         m.messageId < 0 &&
-  //         m.isMyMessage &&
-  //         m.messageType === incoming.messageType &&
-  //         (m.content === incoming.content ||
-  //           (m.messageType === "TEXT" &&
-  //             (m.images?.length ?? 0) > 0 &&
-  //             (incoming.images?.length ?? 0) > 0)) &&
-  //         Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
-  //           5000,
-  //     );
-  //     if (idx >= 0) {
-  //       const copy = [...prev];
-  //       copy[idx] = incoming;
-  //       return copy;
-  //     }
-  //     return [...prev, incoming];
-  //   });
-
-  //   // 🌟requestAnimationFrame(() =>
-  //   //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //   // );
-  //   if (stickToBottom) {
-  //     requestAnimationFrame(() =>
-  //       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //     );
-  //   }
-  // }, [lastMessage, chatId, currentUserId, stickToBottom]);
-  // 🌟WS 원본 이벤트를 직접 구독 (타이밍/의존성 이슈 제거)
+  // WS 원본 이벤트를 직접 구독 (타이밍/의존성 이슈 제거)
   useEffect(() => {
     const off = addWsListener((msg: IncomingMessage) => {
       if (msg.type !== "SEND") return;
       if (msg.chatRoomId !== chatId) return;
       const incoming = mapBroadcastToUi(msg, currentUserId);
-      console.log("[DETAIL] incoming", msg.type, msg.chatRoomId, chatId); //🌟
       setLiveMsgs(prev => {
         // 교체 매칭(낙관치 ↔ 확정치)
         const idx = prev.findIndex(
@@ -592,8 +512,7 @@ export const ChatDetailTemplate = ({
                 ))) &&
             Math.abs(
               +new Date(m.timestamp ?? 0) - +new Date(incoming.timestamp ?? 0),
-            ) <
-              5000,
+            ) < 5000,
         );
         if (idx >= 0) {
           const copy = [...prev];
@@ -659,7 +578,6 @@ export const ChatDetailTemplate = ({
               imgSrc={partyProfileImg ? partyProfileImg : DefaultGroupImg}
               onClick={() => {
                 navigate(`/group/${partyId}`);
-                console.log(`/group/${partyId}로 이동`);
               }}
             >
               모임 홈으로
@@ -705,9 +623,7 @@ export const ChatDetailTemplate = ({
                   (!prev || currentDateLabel !== prevDateLabel);
                 return (
                   <React.Fragment key={chat.messageId}>
-                    {showDate && (
-                      <ChatDateSeparator date={currentDateLabel} />
-                    )}
+                    {showDate && <ChatDateSeparator date={currentDateLabel} />}
                     <ChattingComponent
                       message={chat}
                       isMe={chat.senderId === currentUserId}

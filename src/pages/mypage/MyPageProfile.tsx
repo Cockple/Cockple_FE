@@ -1,4 +1,3 @@
-// 다른 사용자의 프로필 화면(memberId로 구분)
 import { MyPage_Text } from "../../components/common/contentcard/MyPage_Text";
 import { Profile } from "../../components/MyPage/Profile";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
@@ -46,11 +45,9 @@ export const MyPageProfile = () => {
           myGroupCount: profile.myPartyCnt,
         };
         setProfileData(mappedProfile);
-        // setProfileData(profile);
 
         // 다른 회원 메달 조회
         const medals = await getOtherUserMedals(numericMemberId);
-        console.log("medals:", medals);
         setMedalData({
           myMedalTotal: medals.myMedalTotal,
           goldCount: medals.goldCount,

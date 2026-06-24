@@ -73,7 +73,6 @@ export const LocationSearchPage = () => {
       setResults(prev => (isNewSearch ? newResults : [...prev, ...newResults]));
       setHasMore(newPage * 15 < totalCount);
       setPage(newPage);
-      console.log(newResults);
     } catch (err) {
       console.error("Erorr fetching places", err);
     } finally {
@@ -150,10 +149,6 @@ export const LocationSearchPage = () => {
 
   const handleSelect = async (place: Place) => {
     const payload = transformPlaceToPayload(place);
-    // const isOnboardingNow = !!useUserStore.getState().user?.isNewMember;
-    // const targetPath = isOnboardingNow
-    //   ? "/onboarding/profile"
-    //   : (location.state?.returnPath ?? "/");
 
     if (mode === "call-api") {
       // api 요청
@@ -163,7 +158,6 @@ export const LocationSearchPage = () => {
       navigate(returnPath, {
         state: { selectedPlace: place },
       });
-      console.log(returnPath);
     }
   };
 

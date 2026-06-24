@@ -1,4 +1,3 @@
-// 모임 -> 모임탭에 멤버 화면
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -21,7 +20,7 @@ export const MemberDefault = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const partyId = Number(groupId);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const [members, setMembers] = useState<MemberProps[]>([]);
   const [participantsCount, setParticipantsCount] = useState(0);
@@ -34,7 +33,6 @@ export const MemberDefault = () => {
 
   // API 멤버 -> 프론트 MemberProps 매핑
 
-  
   const mapApiMemberToMemberProps = (m: ApiMember): MemberProps => ({
     memberId: m.memberId,
     name: m.nickname,
@@ -42,8 +40,8 @@ export const MemberDefault = () => {
     //임시로 수정
     imgUrl: m.profileImageUrl
       ? m.profileImageUrl.startsWith("http")
-        ? m.profileImageUrl 
-        : `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}` 
+        ? m.profileImageUrl
+        : `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}`
       : null,
 
     gender: m.gender,
@@ -56,11 +54,10 @@ export const MemberDefault = () => {
       m.role === "OWNER" || m.role === "MANAGER" || m.role === "PARTY_MANAGER"
         ? "leader"
         : m.role === "SUBOWNER" || m.role === "PARTY_SUBMANAGER"
-        ? "sub_leader"
-        : null,
+          ? "sub_leader"
+          : null,
     status: m.role === "WAITING" ? "waiting" : "Participating",
-    inviterName: "", 
-    
+    inviterName: "",
   });
 
   useEffect(() => {
@@ -80,7 +77,6 @@ export const MemberDefault = () => {
 
           const me = members.find((m: ApiMember) => m.isMe);
           setMyRole(me?.role || null);
-          console.log("본인 role:", me?.role);
         }
       } catch (err) {
         console.error("멤버 조회 실패", err);
@@ -98,7 +94,7 @@ export const MemberDefault = () => {
         const res = await leaveParty(partyId);
         if (res.data.success) {
           alert("모임 탈퇴 성공!");
-          setMembers((prev) => prev.filter((m) => m.memberId !== memberId));
+          setMembers(prev => prev.filter(m => m.memberId !== memberId));
         } else {
           alert(res.data.message || "모임 탈퇴 실패");
         }
@@ -106,7 +102,7 @@ export const MemberDefault = () => {
         const res = await removeMemberFromParty(partyId, memberId);
         if (res.data.success) {
           alert("멤버 삭제 성공!");
-          setMembers((prev) => prev.filter((m) => m.memberId !== memberId));
+          setMembers(prev => prev.filter(m => m.memberId !== memberId));
         } else {
           alert(res.data.message || "멤버 삭제 실패");
         }
@@ -118,7 +114,7 @@ export const MemberDefault = () => {
   };
 
   // 검색어 필터링
-  const filteredMembers = members.filter((member) => {
+  const filteredMembers = members.filter(member => {
     const term = searchTerm.toLowerCase();
     return (
       member.name.toLowerCase().includes(term) ||
@@ -138,9 +134,9 @@ export const MemberDefault = () => {
   const handleProfileClick = (targetMemberId: number) => {
     if (myRole === "WAITING" || myRole === "waiting") {
       // alert("게스트는 프로필을 조회할 수 없습니다.");
-      return; 
+      return;
     }
-          
+
     navigate(`/mypage/profile/${targetMemberId}`);
   };
 
@@ -154,7 +150,7 @@ export const MemberDefault = () => {
             placeholder="이름, 급수로 검색"
             className="w-full border rounded-xl p-2 pr-14 body-md-500 text-[#C0C4CD] border-[#E4E7EA] focus:outline-none"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2">
             <Search className="w-6 h-6" />
@@ -175,28 +171,32 @@ export const MemberDefault = () => {
       </div>
 
       {/* 멤버 리스트 */}
-        {filteredMembers.map((member, idx) => {
-          const isCurrentUser = member.isMe ?? false;
+      {filteredMembers.map((member, idx) => {
+        const isCurrentUser = member.isMe ?? false;
 
-          const isLeaderUser =
-            myRole === "OWNER" || myRole === "MANAGER" || myRole === "PARTY_MANAGER";
-          const showDeleteButton = (isCurrentUser && !isLeaderUser) || (!isCurrentUser && isLeaderUser);
- 
-          const modalConfig: ModalConfig | undefined = showDeleteButton
-            ? {
-                title: isCurrentUser
-                  ? "정말 모임을 탈퇴하시겠어요?"
-                  : "정말 이 멤버를 추방하시겠어요?",
-                messages: isCurrentUser
-                  ? [
-                      "'탈퇴하기'를 누르시면, 복구할 수 없으니",
-                      "신중한 선택 부탁드려요.",
-                    ]
-                  : ["이 멤버를 모임에서 제외하시겠어요?", "복구할 수 없습니다."],
-                confirmLabel: isCurrentUser ? "탈퇴하기" : "추방하기",
-                onConfirm: () => handleLeaveOrRemove(member.memberId!, isCurrentUser),
-              }
-            : undefined;
+        const isLeaderUser =
+          myRole === "OWNER" ||
+          myRole === "MANAGER" ||
+          myRole === "PARTY_MANAGER";
+        const showDeleteButton =
+          (isCurrentUser && !isLeaderUser) || (!isCurrentUser && isLeaderUser);
+
+        const modalConfig: ModalConfig | undefined = showDeleteButton
+          ? {
+              title: isCurrentUser
+                ? "정말 모임을 탈퇴하시겠어요?"
+                : "정말 이 멤버를 추방하시겠어요?",
+              messages: isCurrentUser
+                ? [
+                    "'탈퇴하기'를 누르시면, 복구할 수 없으니",
+                    "신중한 선택 부탁드려요.",
+                  ]
+                : ["이 멤버를 모임에서 제외하시겠어요?", "복구할 수 없습니다."],
+              confirmLabel: isCurrentUser ? "탈퇴하기" : "추방하기",
+              onConfirm: () =>
+                handleLeaveOrRemove(member.memberId!, isCurrentUser),
+            }
+          : undefined;
         return (
           <div key={idx}>
             <Member

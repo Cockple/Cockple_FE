@@ -43,7 +43,6 @@ export const GroupActivity = () => {
 
   const selectedCity = region[0] || "";
   const selectedDistrict = region[1] || "전체";
-  console.log(region);
   //초기화
 
   const isFormValid =

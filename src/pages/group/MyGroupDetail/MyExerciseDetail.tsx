@@ -1,4 +1,3 @@
-// 운동 상세 페이지 -> 신청하기..
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import Vector from "../../../assets/icons/Vector.svg?react";
 import Caution from "../../../assets/icons/caution.svg?react";
@@ -56,7 +55,6 @@ export const MyExerciseDetail = () => {
   useEffect(() => {
     if (exerciseIdNumber) {
       getExerciseDetail(exerciseIdNumber, user?.memberId).then(res => {
-        console.log("운동 상세 데이터:", res);
         setDetail(res);
 
         setIsCurrentUserLeader(res.isManager);
@@ -90,8 +88,6 @@ export const MyExerciseDetail = () => {
           isWithdrawn: p.isWithdrawn,
         }));
         setMembers(participants);
-        console.log(participants);
-        // setParticipantsCount(participants.length);
 
         const waitingList: MemberProps[] = res.waitingMembers.map(w => ({
           participantId: w.id,
@@ -214,7 +210,6 @@ export const MyExerciseDetail = () => {
 
         {/* 참여 멤버 리스트 */}
         {members.map((member, idx) => {
-          console.log(members, "참여멤버리스트");
           const modalConfig = getModalConfig(
             member.status,
             isCurrentUserLeader,
@@ -282,7 +277,6 @@ export const MyExerciseDetail = () => {
             </div>
 
             {waitingMembers.map((member, idx) => {
-              // console.log("대기인원리스트", member);
               const modalConfig = getModalConfig(
                 member.status,
                 isCurrentUserLeader,

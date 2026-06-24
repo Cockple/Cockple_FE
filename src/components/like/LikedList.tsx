@@ -1,7 +1,7 @@
 import { Group_M } from "../common/contentcard/Group_M";
 import { ContentCardL } from "../common/contentcard/ContentCardL";
 import type { ExerciseCard, GroupCard } from "../../types/liked";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LikedEmptyState } from "./LikedEmptyState";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 import { mapLevels } from "../../utils/gradeMapper";
@@ -30,11 +30,6 @@ const LikedList = ({
   >([]);
   const [tempUnbookmarkedExerciseIds, setTempUnbookmarkedExerciseIds] =
     useState<number[]>([]);
-
-  useEffect(() => {
-    console.log(likedGroupIds);
-    console.log(likedExerciseIds);
-  }, [likedGroupIds, likedExerciseIds]);
 
   const isEmpty = isGroupTab
     ? groupCards.length === 0

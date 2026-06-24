@@ -1,13 +1,13 @@
 // 채팅 이모티콘들(귀여움❤️)
-import E01 from "@/assets/images/emoji_hello.png?url";
-import E02 from "@/assets/images/emoji_attend.png?url";
-import E03 from "@/assets/images/emoji_notAttend.png?url";
-import E04 from "@/assets/images/emoji_womenDouble.png?url";
-import E05 from "@/assets/images/emoji_menDouble.png?url";
-import E06 from "@/assets/images/emoji_mixedDouble.png?url";
-import E07 from "@/assets/images/emoji_guest.png?url";
-import E08 from "@/assets/images/emoji_calculate.png?url";
-import E09 from "@/assets/images/emoji_exercise.png?url";
+import E01 from "@/assets/images/emoji_hello.webp?url";
+import E02 from "@/assets/images/emoji_attend.webp?url";
+import E03 from "@/assets/images/emoji_notAttend.webp?url";
+import E04 from "@/assets/images/emoji_womenDouble.webp?url";
+import E05 from "@/assets/images/emoji_menDouble.webp?url";
+import E06 from "@/assets/images/emoji_mixedDouble.webp?url";
+import E07 from "@/assets/images/emoji_guest.webp?url";
+import E08 from "@/assets/images/emoji_calculate.webp?url";
+import E09 from "@/assets/images/emoji_exercise.webp?url";
 
 export const EMOJIS = [
   { name: "안녕하세요", url: E01 },
