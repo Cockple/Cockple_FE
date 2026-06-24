@@ -4,8 +4,17 @@ import { useNavigate } from "react-router-dom";
 import type {
   OnBoardingRequest,
   OnBoardingResponseDto,
+  onboardingStatusDTO,
 } from "../../types/auth";
 import type { GroupMakingKeywordsResponseDTO } from "../../types/groupMaking";
+
+//앱 부팅
+export const bootApp = async (): Promise<onboardingStatusDTO> => {
+  const { data } = await api.get<onboardingStatusDTO>(
+    "/api/my/onboarding-status",
+  );
+  return data;
+};
 
 //회원가입하기
 export const postOnboarding = async (
