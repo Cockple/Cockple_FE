@@ -10,7 +10,7 @@ import React, {
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
-import ProfileImg from "@/assets/images/Profile_Image.png?url";
+import ProfileImg from "@/assets/images/Profile_Image.webp?url";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";

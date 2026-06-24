@@ -7,7 +7,7 @@ import "swiper/css/pagination";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import Grad_Mix_L from "../../components/common/Btn_Static/Text/Grad_Mix_L";
 import { Modal_Delete } from "../../components/MyPage/Modal_ Delete";
-import None_Error from "../../assets/images/None_Error.png";
+import None_Error from "../../assets/images/None_Error.webp";
 import { getContestRecordDetail, deleteContestRecord } from "../../api/contest/contestmy";
 import { getMemberContestDetail } from "../../api/contest/member";
 import type { ContestDetailResponse } from "../../api/contest/member";

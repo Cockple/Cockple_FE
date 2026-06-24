@@ -2,7 +2,7 @@
 //다른 유저는 하단의 버튼 막기
 import { useNavigate, useParams } from "react-router-dom";
 import GR400_M from "../common/Btn_Static/Text/GR400_M";
-import NoneImg from "../../assets/images/None_Error.png";
+import NoneImg from "../../assets/images/None_Error.webp";
 export const MyMedal_None = () => {
   const navigate = useNavigate();
   const { memberId } = useParams<{ memberId: string }>();

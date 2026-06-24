@@ -1,7 +1,7 @@
 // api/chat/rawWs.ts
 // SockJS 전용 (STOMP 미사용). 기존 함수명/시그니처 유지.
 
-import SockJS from "sockjs-client";
+// SockJS는 WebSocket 연결 시점에 dynamic import로 로드
 import useUserStore from "../../store/useUserStore";
 
 let ws: WebSocket | null = null;
@@ -214,7 +214,7 @@ const sendJSON = (msg: OutgoingMessage) => {
 };
 
 // --------- 공개 API ----------
-export const connectRawWs = (
+export const connectRawWs = async (
   { memberId, origin }: { memberId: number; origin?: string },
   handlers: Handlers = {},
 ) => {
@@ -236,7 +236,8 @@ export const connectRawWs = (
   url.searchParams.set("memberId", String(memberId));
   url.searchParams.set("token", getToken()); // 서버가 헤더 대신 쿼리 파라미터로 읽는 형태라면 유지
 
-  // SockJS 생성 (NOTE: SockJS는 http/https URL 사용)
+  // SockJS dynamic import (초기 번들에서 제외)
+  const { default: SockJS } = await import("sockjs-client");
   const sock = new SockJS(url.toString());
   ws = sock as WebSocket;
 
