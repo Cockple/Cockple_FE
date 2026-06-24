@@ -31,10 +31,13 @@ export default function KakaoLogin() {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
         isNewMember: data.isNewMember,
+        needsOnboarding: data.needsOnboarding,
       };
       setUser(newUserData);
       localStorage.setItem("accessToken", data.accessToken);
-      if (data.isNewMember) {
+      console.log(data);
+      if (data.isNewMember && data.needsOnboarding) {
+        //onboarding으로
         //미사용자
         navigate("/onboarding");
       } else {
