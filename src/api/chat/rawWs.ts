@@ -252,7 +252,7 @@ export const connectRawWs = (
       const parsed: IncomingMessage = JSON.parse(e.data);
       handlers.onMessage?.(parsed);
 
-      // 🌟전역 리스너 브로드캐스트
+      // 전역 리스너 브로드캐스트
       listeners.forEach(fn => {
         try {
           fn(parsed);
@@ -319,9 +319,7 @@ export const subscribeChatList = (roomIds: number[]) => {
   console.log("[WS→] SUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
 };
 
-//
 export const subscribeRoom = (roomId: number) => {
-  console.log(currentRooms);
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
   const ok = sendJSON({ type: "SUBSCRIBE", chatRoomId: roomId });

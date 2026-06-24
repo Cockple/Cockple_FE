@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: false,
-        // 개발에서도 PWA 테스트할 수 있게
         devOptions: {
           enabled: true,
         },
