@@ -1,4 +1,4 @@
-import ProfileImage from "@/assets/icons/ProfileImage.svg?react";
+import ProfileImage from "@/assets/images/base_profile_img.png";
 import Prohibition from "@/assets/icons/prohibition.svg?react";
 import StarIcon from "@/assets/icons/star_filled_GR.svg?react";
 import YEStarIcon from "@/assets/icons/star_filled_YE.svg?react";
@@ -90,8 +90,10 @@ const Avatar = ({
     );
   }
   return (
-    <ProfileImage
-      className={clsx("w-[2.5rem] h-[2.5rem]", isWithdrawn && "opacity-20")}
+    <img
+      src={ProfileImage}
+      alt="기본 프로필"
+      className={clsx("w-[2.5rem] h-[2.5rem] rounded-full object-cover", isWithdrawn && "opacity-20")}
     />
   );
 };
