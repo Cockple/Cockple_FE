@@ -46,9 +46,9 @@ export const EditGroupInfoDefault = () => {
   const isFormValid =
     selectedDays.length > 0 &&
     selectedTime !== "" &&
-    designatedText.trim() !== "" &&
-    joinFeeText.trim() !== "" &&
-    monthlyFeeText.trim() !== "";
+    (designatedChecked || designatedText.trim() !== "") &&
+    (joinFeeChecked || joinFeeText.trim() !== "") &&
+    (monthlyFeeChecked || monthlyFeeText.trim() !== "");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,9 +62,23 @@ export const EditGroupInfoDefault = () => {
 
         setSelectedDays(data.activityDays);
         setSelectedTime(data.activityTime);
-        setDesignatedText(data.designatedCock);
-        setJoinFeeText(data.joinPrice?.toString() || "");
-        setMonthlyFeeText(data.price?.toString() || "");
+
+        const noDesignated = !data.designatedCock;
+        setDesignatedChecked(noDesignated);
+        setDesignatedText(noDesignated ? "" : data.designatedCock);
+
+        const noJoinFee = !data.joinPrice;
+        setJoinFeeChecked(noJoinFee);
+        setJoinFeeText(
+          noJoinFee ? "" : addWon(fmtKRW(data.joinPrice.toString())),
+        );
+
+        const noMonthlyFee = !data.price;
+        setMonthlyFeeChecked(noMonthlyFee);
+        setMonthlyFeeText(
+          noMonthlyFee ? "" : addWon(fmtKRW(data.price.toString())),
+        );
+
         setContentText(data.content || "");
         setKeywords(data.keywords || []);
         // if (data.partyImgUrl) setPhotos([data.partyImgUrl]);
@@ -202,7 +216,7 @@ export const EditGroupInfoDefault = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8 mb-8">
+    <div className="flex flex-col gap-8 mb-33">
       <PageHeader title="모임 정보 수정" onBackClick={handleBackClick} />
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
@@ -364,7 +378,8 @@ export const EditGroupInfoDefault = () => {
             </TagBtn>
           ))}
         </div>
-
+      </div>
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[444px] bg-white px-4 z-10">
         <Grad_GR400_L
           label="수정하기"
           initialStatus={isFormValid ? "default" : "disabled"}
