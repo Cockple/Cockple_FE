@@ -195,7 +195,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgKey ?? DefaultGroupImg}
+                imageSrc={alert.imgUrl?.endsWith("/null") ? DefaultGroupImg : (alert.imgUrl ?? DefaultGroupImg)}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -204,7 +204,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgKey ?? DefaultGroupImg}
+                imageSrc={alert.imgUrl?.endsWith("/null") ? DefaultGroupImg : (alert.imgUrl ?? DefaultGroupImg)}
                 alertType={alert.type}
                 isRead={alert.isRead}
                 descriptionText={getDescriptionText(alert.type)}
