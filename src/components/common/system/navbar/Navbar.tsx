@@ -10,6 +10,8 @@ import MypageIcon from "@/assets/icons/mypage.svg";
 import MypageIconFilled from "@/assets/icons/mypage_filled.svg";
 import { NavItem } from "./NavItem";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUnreadStatus } from "../../../../api/chat/unreadStatus";
+import { useChatWsStore } from "../../../../store/useChatWsStore";
 
 const NAV_ITEMS = [
   {
@@ -60,6 +62,12 @@ const NAV_ITEMS = [
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const unreadStatus = useUnreadStatus();
+  // UNREAD_STATUS_UPDATE(서버 push) 외에, 이미 CHAT_ROOM_LIST_UPDATE로 쌓인
+  // 방별 unreadCount도 같이 봐서 한쪽이 안 와도 뱃지가 뜨도록 보강
+  const hasAnyRoomUnread = useChatWsStore(state =>
+    Object.values(state.meta).some(m => (m.unreadCount ?? 0) > 0),
+  );
 
   // const user = useUserStore(state => state.user);
 
@@ -82,6 +90,10 @@ export const Navbar = () => {
             icon={IconComponent}
             active={isActive}
             onClick={() => navigate(item.path)}
+            showDot={
+              item.path === "/chat" &&
+              (unreadStatus.hasUnread || hasAnyRoomUnread)
+            }
           />
         );
       })}

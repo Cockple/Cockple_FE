@@ -23,6 +23,7 @@ import { useChatInfinite } from "../../hooks/useChatInfinite";
 import {
   addWsListener,
   subscribeRoom,
+  unsubscribeRoom,
   type IncomingMessage,
 } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
@@ -127,7 +128,7 @@ export const ChatDetailTemplate = ({
     clearUnread(chatId); // 입장 즉시 0으로 (서버 PATCH는 useChatRead에서)
 
     return () => {
-      //unsubscribeRoom(chatId);
+      unsubscribeRoom(chatId);
       setActiveRoom(null); // 상세 퇴장
     };
   }, [chatId, setActiveRoom, clearUnread]);
@@ -246,8 +247,13 @@ export const ChatDetailTemplate = ({
   // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
   const rendered = useMemo(() => {
     // messages가 오름차순이므로 live는 뒤에 붙인다.
-    // 정렬이 필요하면 여기에서 정렬.
-    return [...messages, ...liveMsgs];
+    // REST 재조회로 messages에 이미 들어온(확정 messageId) 항목은
+    // liveMsgs에서 제외해 중복 렌더를 막는다. 아직 낙관적(음수 id)인 건 유지.
+    const restIds = new Set(messages.map(m => m.messageId));
+    const filteredLive = liveMsgs.filter(
+      m => m.messageId < 0 || !restIds.has(m.messageId),
+    );
+    return [...messages, ...filteredLive];
   }, [messages, liveMsgs]);
 
   // ==== 전송: 텍스트 ====

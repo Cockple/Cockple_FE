@@ -10,6 +10,9 @@ import {
   type WsSendFile,
   type WsSendImage,
   addWsListener,
+  addWsOpenListener,
+  addWsCloseListener,
+  isRawWsOpen,
   type ChatRoomListUpdate,
 } from "../api/chat/rawWs";
 import { useChatWsStore } from "../store/useChatWsStore";
@@ -48,51 +51,24 @@ export const useRawWsConnect = (opts: {
       };
     }
 
-    connectRawWs(
-      { memberId: opts.memberId, origin: opts.origin },
-      {
-        onOpen: () => mounted.current && setOpen(true),
-        onClose: () => mounted.current && setOpen(false),
-        onMessage: msg => {
-          if (!mounted.current) return;
-          setLastMessage(msg);
+    connectRawWs({ memberId: opts.memberId, origin: opts.origin });
 
-          // WS → 전역 스토어 반영(목록 실시간 갱신)
-          if (msg.type === "SEND") {
-            applyInbound(msg); // 채팅방을 구독한 상대방에게 가는 브로드캐스트
-          }
+    // 연결 상태 구독: 소켓을 누가 만들었는지와 무관하게 항상 정확한 isOpen 반영
+    if (isRawWsOpen()) setOpen(true); // 이미 열려있으면 open 이벤트를 놓쳤을 수 있으니 즉시 반영
+    const offOpen = addWsOpenListener(() => mounted.current && setOpen(true));
+    const offClose = addWsCloseListener(() => mounted.current && setOpen(false));
 
-          // 채팅방 목록을 구독한 상대방에게 가는 브로드캐스트
-          if (msg.type === "CHAT_ROOM_LIST_UPDATE") {
-            const m = msg as ChatRoomListUpdate;
-            applyListUpdate({
-              chatRoomId: m.chatRoomId,
-              lastMessage: m.lastMessage?.content ?? null,
-              timestamp: m.lastMessage?.timestamp ?? null,
-              unreadCount: m.newUnreadCount ?? 0,
-            });
-          }
-
-          // 해제 ACK 로깅
-          if (
-            (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
-            "message" in msg &&
-            "chatRoomId" in msg
-          ) {
-            console.log(
-              `[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`,
-            );
-          }
-        },
-        onError: () => mounted.current && setOpen(false),
-      },
-    );
-
-    // 전역 리스너 구독 → 이미 열린 소켓이라도 무조건 수신 가능
+    // 전역 리스너 구독(한 곳에서만 처리 → 중복 반영 방지)
     const off = addWsListener(msg => {
       if (!mounted.current) return;
       setLastMessage(msg);
-      if (msg.type === "SEND") applyInbound(msg);
+
+      // WS → 전역 스토어 반영(목록 실시간 갱신)
+      if (msg.type === "SEND") {
+        applyInbound(msg); // 채팅방을 구독한 상대방에게 가는 브로드캐스트
+      }
+
+      // 채팅방 목록을 구독한 상대방에게 가는 브로드캐스트
       if (msg.type === "CHAT_ROOM_LIST_UPDATE") {
         const m = msg as ChatRoomListUpdate;
         applyListUpdate({
@@ -102,13 +78,24 @@ export const useRawWsConnect = (opts: {
           unreadCount: m.newUnreadCount ?? 0,
         });
       }
+
+      // 해제 ACK 로깅
+      if (
+        (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
+        "message" in msg &&
+        "chatRoomId" in msg
+      ) {
+        console.log(`[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`);
+      }
     });
 
     return () => {
       mounted.current = false;
       off(); // 🌟전역 리스너 해제
+      offOpen();
+      offClose();
     };
-  }, [opts.memberId, opts.origin, token, applyInbound]);
+  }, [opts.memberId, opts.origin, token, applyInbound, applyListUpdate]);
 
   return {
     isOpen,

@@ -17,6 +17,7 @@ import {
   searchGroupChatRooms,
   searchPersonalChatRooms,
 } from "../../api/chat/chatList";
+import { useUnreadStatus } from "../../api/chat/unreadStatus";
 
 // ws
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
@@ -42,6 +43,9 @@ export const ChatPage = () => {
     { label: "모임채팅", value: "group" },
     { label: "개인채팅", value: "personal" },
   ];
+
+  // 안읽음 뱃지
+  const unreadStatus = useUnreadStatus();
 
   // 검색
   const [searchTerm, setSearchTerm] = useState("");
@@ -160,13 +164,13 @@ export const ChatPage = () => {
 
   const prevRoomsRef = useRef<number[]>([]);
 
-  // 현재 리스트에 보이는 방 id들
+  // 탭과 무관하게 두 탭 방 전부 구독 (탭 전환해도 실시간 갱신이 끊기지 않도록)
   const visibleRoomIds = useMemo(
-    () =>
-      (activeTab === "group" ? groupChatRooms : personalChatRooms).map(
-        c => c.chatRoomId,
-      ),
-    [activeTab, groupChatRooms, personalChatRooms],
+    () => [
+      ...groupChatRooms.map(c => c.chatRoomId),
+      ...personalChatRooms.map(c => c.chatRoomId),
+    ],
+    [groupChatRooms, personalChatRooms],
   );
 
   useEffect(() => {
@@ -240,6 +244,12 @@ export const ChatPage = () => {
     });
   }, [personalChatRooms, meta]);
 
+  // UNREAD_STATUS_UPDATE 외에, 이미 병합된 방별 unreadCount로도 보강
+  const hasPartyUnreadFromMeta = mergedGroup.some(r => (r.unreadCount ?? 0) > 0);
+  const hasDirectUnreadFromMeta = mergedPersonal.some(
+    r => (r.unreadCount ?? 0) > 0,
+  );
+
   return (
     <div className="flex flex-col w-full pt-14">
       <MainHeader />
@@ -249,6 +259,10 @@ export const ChatPage = () => {
           options={tabOptions}
           selected={activeTab}
           onChange={setActiveTab}
+          dots={{
+            group: unreadStatus.hasPartyUnread || hasPartyUnreadFromMeta,
+            personal: unreadStatus.hasDirectUnread || hasDirectUnreadFromMeta,
+          }}
         />
 
         <section className="flex flex-col w-full max-w-[23.4375rem] justify-center items-center gap-y-[1.25rem]">
