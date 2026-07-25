@@ -101,6 +101,15 @@ export type UnsubscribeResponse =
       timestamp: string;
     };
 
+// --- 🌟내비바/채팅 탭 안읽음 뱃지용 (memberId 스코프, 방 구독과 무관하게 옴)
+export type UnreadStatusUpdate = {
+  type: "UNREAD_STATUS_UPDATE";
+  hasUnread: boolean;
+  hasPartyUnread: boolean;
+  hasDirectUnread: boolean;
+  timestamp: string;
+};
+
 // 새 브로드캐스트 포맷
 export type BroadcastMessage = {
   type: "SEND";
@@ -123,7 +132,8 @@ export type IncomingMessage =
   | SubscriptionResponse
   | UnsubscribeResponse
   | BroadcastMessage
-  | ChatRoomListUpdate; // 🌟 (채팅방 목록을 구독한 상대방에게 보내는 업데이트)
+  | ChatRoomListUpdate // 🌟 (채팅방 목록을 구독한 상대방에게 보내는 업데이트)
+  | UnreadStatusUpdate; // 🌟 내비바/채팅 탭 안읽음 뱃지
 
 //현재 구독 중인 방 목록을 전역으로 유지 (클라이언트 단의 '의도' 상태)
 // 서버는 Redis에 실제 구독을 보관/복원하므로 재연결시 재구독 전송은 불필요
@@ -145,12 +155,28 @@ export const addWsListener = (fn: MsgListener) => {
   };
 };
 
-type Handlers = {
-  onOpen?: (info?: ConnectResponse) => void;
-  onMessage?: (data: IncomingMessage) => void;
-  onError?: (ev: Event | Error) => void;
-  onClose?: (ev: CloseEvent) => void;
+// 연결 상태 리스너: 소켓을 누가 만들었는지와 무관하게 모든 구독자에게 통지
+type OpenListener = () => void;
+type CloseListener = (ev?: CloseEvent) => void;
+const openListeners = new Set<OpenListener>();
+const closeListeners = new Set<CloseListener>();
+
+export const addWsOpenListener = (fn: OpenListener) => {
+  openListeners.add(fn);
+  return () => {
+    openListeners.delete(fn);
+  };
 };
+
+export const addWsCloseListener = (fn: CloseListener) => {
+  closeListeners.add(fn);
+  return () => {
+    closeListeners.delete(fn);
+  };
+};
+
+// 동시 호출 시 소켓이 중복 생성되지 않도록 진행 중인 연결 시도를 공유
+let connectPromise: Promise<WebSocket | null> | null = null;
 
 const WS_ORIGIN = (
   import.meta.env.VITE_WS_ORIGIN ?? window.location.origin
@@ -214,10 +240,13 @@ const sendJSON = (msg: OutgoingMessage) => {
 };
 
 // --------- 공개 API ----------
-export const connectRawWs = async (
-  { memberId, origin }: { memberId: number; origin?: string },
-  handlers: Handlers = {},
-) => {
+export const connectRawWs = async ({
+  memberId,
+  origin,
+}: {
+  memberId: number;
+  origin?: string;
+}) => {
   // accessToken 없으면 연결 시도 안 함
   if (!hasToken()) {
     console.info("[WS] skipped: no accessToken");
@@ -231,72 +260,93 @@ export const connectRawWs = async (
     return ws;
   }
 
-  const base = buildSockUrl(origin);
-  const url = new URL(base);
-  url.searchParams.set("memberId", String(memberId));
-  url.searchParams.set("token", getToken()); // 서버가 헤더 대신 쿼리 파라미터로 읽는 형태라면 유지
+  // 동시 호출 시 소켓 중복 생성 방지 (SockJS dynamic import 대기 구간 레이스)
+  if (connectPromise) return connectPromise;
 
-  // SockJS dynamic import (초기 번들에서 제외)
-  const { default: SockJS } = await import("sockjs-client");
-  const sock = new SockJS(url.toString());
-  ws = sock as WebSocket;
+  connectPromise = (async () => {
+    const base = buildSockUrl(origin);
+    const url = new URL(base);
+    url.searchParams.set("memberId", String(memberId));
+    url.searchParams.set("token", getToken()); // 서버가 헤더 대신 쿼리 파라미터로 읽는 형태라면 유지
 
-  // readyState가 OPEN이 되면 onopen 호출
-  sock.onopen = () => {
-    reconnectAttempt = 0;
-    isManualClose = false; // 연결 성공 시 플래그 초기화
-    handlers.onOpen?.();
-  };
+    // SockJS dynamic import (초기 번들에서 제외)
+    const { default: SockJS } = await import("sockjs-client");
+    const sock = new SockJS(url.toString());
+    ws = sock as WebSocket;
 
-  sock.onmessage = (e: MessageEvent) => {
-    try {
-      const parsed: IncomingMessage = JSON.parse(e.data);
-      handlers.onMessage?.(parsed);
-
-      // 전역 리스너 브로드캐스트
-      listeners.forEach(fn => {
+    // readyState가 OPEN이 되면 onopen 호출 (등록된 모든 구독자에게 통지)
+    sock.onopen = () => {
+      reconnectAttempt = 0;
+      isManualClose = false; // 연결 성공 시 플래그 초기화
+      openListeners.forEach(fn => {
         try {
-          fn(parsed);
+          fn();
         } catch (err) {
-          console.warn("ws listener err", err);
+          console.warn("ws open listener err", err);
         }
       });
-    } catch {
-      console.warn("[SockJS] Non-JSON message:", e.data);
-    }
-  };
+    };
 
-  sock.onerror = (ev: Event) => {
-    handlers.onError?.(ev);
-  };
+    sock.onmessage = (e: MessageEvent) => {
+      try {
+        const parsed: IncomingMessage = JSON.parse(e.data);
+        console.log("[WS←]", parsed.type, parsed);
 
-  sock.onclose = (ev: CloseEvent) => {
-    console.warn("[WS close]", ev.code, ev.reason);
-    handlers.onClose?.(ev);
-    ws = null;
+        // 전역 리스너 브로드캐스트
+        listeners.forEach(fn => {
+          try {
+            fn(parsed);
+          } catch (err) {
+            console.warn("ws listener err", err);
+          }
+        });
+      } catch {
+        console.warn("[SockJS] Non-JSON message:", e.data);
+      }
+    };
 
-    // 🌟 수동으로 끊은 경우 재연결 시도 안 함
-    if (isManualClose) {
-      console.log("[WS] Manual disconnect. No reconnect.");
-      return;
-    }
+    sock.onerror = (ev: Event) => {
+      console.warn("[WS error]", ev);
+    };
 
-    // 토큰 없으면 재시도 안 함
-    if (!hasToken()) return;
+    sock.onclose = (ev: CloseEvent) => {
+      console.warn("[WS close]", ev.code, ev.reason);
+      closeListeners.forEach(fn => {
+        try {
+          fn(ev);
+        } catch (err) {
+          console.warn("ws close listener err", err);
+        }
+      });
+      ws = null;
+      connectPromise = null;
 
-    // 백오프 재연결
-    if (!reconnectTimer) {
-      const delay = Math.min(500 * 2 ** reconnectAttempt, 8000);
-      reconnectTimer = window.setTimeout(() => {
-        reconnectTimer = null;
-        reconnectAttempt++;
-        connectRawWs({ memberId, origin }, handlers);
-        //connectRawWs({ memberId, origin });
-      }, delay);
-    }
-  };
+      // 🌟 수동으로 끊은 경우 재연결 시도 안 함
+      if (isManualClose) {
+        console.log("[WS] Manual disconnect. No reconnect.");
+        return;
+      }
 
-  return ws!;
+      // 토큰 없으면 재시도 안 함
+      if (!hasToken()) return;
+
+      // 백오프 재연결
+      if (!reconnectTimer) {
+        const delay = Math.min(500 * 2 ** reconnectAttempt, 8000);
+        reconnectTimer = window.setTimeout(() => {
+          reconnectTimer = null;
+          reconnectAttempt++;
+          connectRawWs({ memberId, origin });
+        }, delay);
+      }
+    };
+
+    return ws!;
+  })();
+
+  const result = await connectPromise;
+  connectPromise = null;
+  return result;
 };
 
 export const disconnectRawWs = () => {

@@ -22,12 +22,13 @@ import { useChatInfinite } from "../../hooks/useChatInfinite";
 
 // WS 연결(원시 WebSocket 전용 훅)
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-import { subscribeRoom } from "../../api/chat/rawWs";
+import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
 // 유저 정보
+import { useChatWsStore } from "../../store/useChatWsStore";
 import useUserStore from "../../store/useUserStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import { ChatDetailSkeleton } from "./ChatDetailSkeleton";
@@ -97,13 +98,21 @@ export const GroupChatDetailTemplate: React.FC<
   //   mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
   // });
 
+  // 활성 방/읽음카운트 스토어 연동
+  const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
+  const clearUnread = useChatWsStore(s => s.clearUnread);
+
   // 방 입장/퇴장: 단일 구독 유지
   useEffect(() => {
     subscribeRoom(roomId);
+    setActiveRoom(roomId); // 상세 입장
+    clearUnread(roomId);
+
     return () => {
-      //unsubscribeRoom(roomId);
+      unsubscribeRoom(roomId);
+      setActiveRoom(null); // 상세 퇴장
     };
-  }, [roomId]);
+  }, [roomId, setActiveRoom, clearUnread]);
 
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
@@ -219,10 +228,15 @@ export const GroupChatDetailTemplate: React.FC<
   });
 
   // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
-  const rendered = useMemo(
-    () => [...messages, ...liveMsgs],
-    [messages, liveMsgs],
-  );
+  // REST 재조회로 messages에 이미 들어온(확정 messageId) 항목은
+  // liveMsgs에서 제외해 중복 렌더를 막는다. 아직 낙관적(음수 id)인 건 유지.
+  const rendered = useMemo(() => {
+    const restIds = new Set(messages.map(m => m.messageId));
+    const filteredLive = liveMsgs.filter(
+      m => m.messageId < 0 || !restIds.has(m.messageId),
+    );
+    return [...messages, ...filteredLive];
+  }, [messages, liveMsgs]);
 
   // ==== 전송: 텍스트 ====
   const handleSendMessage = () => {

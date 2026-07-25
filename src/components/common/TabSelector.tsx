@@ -14,6 +14,7 @@ interface TabSelectorProps<T extends string> {
   selected: T;
   onChange: (value: T) => void;
   type?: string;
+  dots?: Partial<Record<T, boolean>>;
 }
 
 const TabSelector = <T extends string>({
@@ -21,6 +22,7 @@ const TabSelector = <T extends string>({
   selected,
   onChange,
   type,
+  dots,
 }: TabSelectorProps<T>) => {
   return (
     <div className="w-full -ml-4 px-4 max-w-[444px] flex flex-col mb-4 fixed top-14 z-20 bg-white">
@@ -33,11 +35,17 @@ const TabSelector = <T extends string>({
         {options.map(option => (
           <TabBtn
             key={option.value}
-            children={option.label}
             onClick={() => onChange(option.value as T)}
             disabled={false}
             isSelected={selected === option.value}
-          />
+          >
+            <span className="relative inline-flex">
+              {option.label}
+              {dots?.[option.value as T] && (
+                <span className="absolute -top-0.5 -right-2 w-1.5 h-1.5 rounded-full bg-[#F62D2D]" />
+              )}
+            </span>
+          </TabBtn>
         ))}
       </div>
       <div className="h-[2px] bg-gray-100 relative -mt-[2px] z-0" />
