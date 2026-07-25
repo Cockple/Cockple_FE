@@ -179,10 +179,6 @@ export const ChatPage = () => {
     const prev = new Set(prevRoomsRef.current);
     const next = new Set(visibleRoomIds);
 
-    //🌟 // 새로 보이게 된 방만 구독
-    // for (const id of next) if (!prev.has(id)) subscribeRoom(id);
-    // // 더 이상 보이지 않는 방만 해제
-    // for (const id of prev) if (!next.has(id)) unsubscribeRoom(id);
     const added: number[] = [];
     const removed: number[] = [];
 
@@ -193,13 +189,16 @@ export const ChatPage = () => {
     if (removed.length) unsubscribeChatList(removed);
 
     prevRoomsRef.current = visibleRoomIds;
-
-    return () => {
-      // 서버가 Redis에 구독을 보관하므로, 명시적 해제를 원하지 않는 한 유지합니다.
-      //prevRoomsRef.current.forEach(id => unsubscribeRoom(id));
-      prevRoomsRef.current = [];
-    };
   }, [isOpen, visibleRoomIds]);
+
+  // 채팅 목록 화면을 완전히 벗어날 때, 지금까지 구독해둔 방 전체를 한 번에 해제
+  useEffect(() => {
+    return () => {
+      if (prevRoomsRef.current.length) {
+        unsubscribeChatList(prevRoomsRef.current);
+      }
+    };
+  }, []);
 
   // 렌더 직전, 스토어 메타를 카드 데이터에 덮어쓰기
   const mergedGroup = useMemo(() => {
