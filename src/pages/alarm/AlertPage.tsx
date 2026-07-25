@@ -20,7 +20,7 @@ import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
   const response = await api.get<AlertListResponse>("/api/notifications");
-  return response.data.data;
+  return response.data.data.notifications;
 };
 
 export const AlertPage = () => {
