@@ -10,6 +10,9 @@ import { Modal_ExDel } from "../../../components/group/Modal_ExDel copy";
 import { useState, useEffect } from "react";
 import { getModalConfig } from "../../../components/group/modalConfig";
 import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
+import TabSelector from "../../../components/common/TabSelector";
+import { GameBoardTab } from "./GameBoard/GameBoardTab";
+import { GameCompleteTab } from "./GameBoard/GameCompleteTab";
 import {
   getExerciseDetail,
   cancelSelf,
@@ -50,6 +53,15 @@ export const MyExerciseDetail = () => {
   const returnPath = searchParams.get("returnPath") ?? -1;
 
   const [isWithdrawnModal, setIsWithdrawnModal] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<
+    "detail" | "game" | "gameComplete"
+  >("detail");
+  const tabOptions = [
+    { label: "운동 상세", value: "detail" },
+    { label: "게임판", value: "game" },
+    { label: "게임 완료", value: "gameComplete" },
+  ];
 
   // 운동 상세 조회
   useEffect(() => {
@@ -162,9 +174,19 @@ export const MyExerciseDetail = () => {
         }}
       />
 
-      <div className="flex flex-col gap-8">
-        {/* 장소 정보 */}
-        <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
+      <TabSelector
+        options={tabOptions}
+        selected={activeTab}
+        onChange={val => setActiveTab(val as typeof activeTab)}
+      />
+
+      <div className="pt-[3.75rem]">
+        {activeTab === "game" && <GameBoardTab />}
+        {activeTab === "gameComplete" && <GameCompleteTab />}
+        {activeTab === "detail" && (
+          <div className="flex flex-col gap-8">
+            {/* 장소 정보 */}
+            <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
           {detail.notice && (
             <>
               <div className="flex items-center gap-2">
@@ -322,6 +344,8 @@ export const MyExerciseDetail = () => {
             })}
           </div>
         )}
+      </div>
+      )}
       </div>
 
       <SortBottomSheet
