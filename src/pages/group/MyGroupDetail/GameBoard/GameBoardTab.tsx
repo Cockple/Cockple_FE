@@ -1,7 +1,9 @@
 import { useState } from "react";
+import clsx from "clsx";
 import AddWhite from "@/assets/icons/add_white.svg";
 import Filter from "@/assets/icons/filter.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
+import Dismiss from "@/assets/icons/dismiss.svg";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import {
@@ -31,6 +33,8 @@ export const GameBoardTab = () => {
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id],
     );
   };
+
+  const selectedMembers = members.filter(m => selectedIds.includes(m.id));
 
   const handleAddPlayer = (player: {
     name: string;
@@ -181,25 +185,55 @@ export const GameBoardTab = () => {
       </div>
 
       {/* 하단 선택 바 */}
-      <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[444px] -translate-x-1/2 items-end gap-[0.5625rem] bg-gradient-to-b from-white/0 via-white/80 to-white px-4 pb-9 pt-2">
-        <div className="flex size-[3.25rem] shrink-0 flex-col items-center justify-between">
-          <span className="header-h2 text-black">{selectedIds.length}</span>
-          <span className="body-sm-500 text-gy-700">선택됨</span>
+      <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[444px] -translate-x-1/2 flex-col gap-2 bg-gradient-to-b from-white/0 via-white/80 to-white px-4 pb-9 pt-2">
+        {selectedMembers.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {selectedMembers.map((m, i) => (
+              <button
+                key={m.id}
+                type="button"
+                className={clsx(
+                  "flex items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black shadow-ds50",
+                  i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+                )}
+                onClick={() => toggleSelect(m.id)}
+              >
+                {m.name}({m.group})
+                <img src={Dismiss} alt="선택 해제" className="size-4" />
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-end gap-[0.5625rem]">
+          <div className="flex size-[3.25rem] shrink-0 flex-col items-center justify-between">
+            <span className="header-h2 text-black">{selectedIds.length}</span>
+            <span className="body-sm-500 text-gy-700">선택됨</span>
+          </div>
+          <button
+            type="button"
+            className="flex shrink-0 items-center rounded-2xl bg-gr-100 p-2.5 shadow-ds100"
+            onClick={notReady}
+          >
+            <img src={Sparkle} alt="추천" className="size-8" />
+          </button>
+          {selectedIds.length > 0 ? (
+            <button
+              type="button"
+              className="h-[3.25rem] flex-1 rounded-2xl bg-gr-600 header-h4 text-white shadow-ds100"
+              onClick={notReady}
+            >
+              대기열 추가
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="h-[3.25rem] flex-1 rounded-2xl bg-gy-400 header-h4 text-white shadow-ds100"
+            >
+              선수를 선택해주세요
+            </button>
+          )}
         </div>
-        <button
-          type="button"
-          className="flex shrink-0 items-center rounded-2xl bg-gr-100 p-2.5 shadow-ds100"
-          onClick={notReady}
-        >
-          <img src={Sparkle} alt="추천" className="size-8" />
-        </button>
-        <button
-          type="button"
-          disabled
-          className="h-[3.25rem] flex-1 rounded-2xl bg-gy-400 header-h4 text-white shadow-ds100"
-        >
-          선수를 선택해주세요
-        </button>
       </div>
 
       {isWebViewOpen && (

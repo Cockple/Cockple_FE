@@ -29,10 +29,18 @@ export const GameMemberCard = ({
   const isWithdrawn = tags.includes("미참여");
 
   return (
-    <div
+    <button
+      type="button"
+      disabled={!selectable}
+      onClick={onToggleSelect}
       className={clsx(
-        "flex w-[10.3125rem] flex-col gap-2 rounded-2xl p-2 shadow-ds100",
-        isWithdrawn ? "bg-gy-100 opacity-50" : "bg-white",
+        "flex w-[10.3125rem] flex-col gap-2 rounded-2xl p-2 text-left",
+        selectable ? "cursor-pointer" : "cursor-default",
+        isWithdrawn
+          ? "bg-gy-100 opacity-50 shadow-ds100"
+          : selected
+            ? "bg-[#f1f9f3] shadow-ds200-gr"
+            : "bg-white shadow-ds100",
       )}
     >
       <div className="flex h-6 items-center justify-between pl-1">
@@ -79,16 +87,17 @@ export const GameMemberCard = ({
             {ageGroup}
           </span>
         </div>
-        <button
-          type="button"
-          disabled={!selectable}
+        <span
+          role="button"
+          tabIndex={selectable ? 0 : -1}
+          aria-disabled={!selectable}
           className={clsx(
             "flex size-6 shrink-0 items-center justify-center rounded-lg p-1",
             selectable ? "bg-white/50" : "bg-transparent",
           )}
           onClick={e => {
             e.stopPropagation();
-            onToggleSelect();
+            if (selectable) onToggleSelect();
           }}
         >
           <img
@@ -96,8 +105,8 @@ export const GameMemberCard = ({
             alt="선택"
             className="size-4"
           />
-        </button>
+        </span>
       </div>
-    </div>
+    </button>
   );
 };
