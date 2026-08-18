@@ -61,21 +61,27 @@ export const GameBoardTab = () => {
         <div className="flex items-center">
           <span className="header-h5 text-black">대기</span>
         </div>
-        <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-[#fff4d2]">
-          <div className="w-full overflow-x-auto scrollbar-hide">
-            <div className="flex w-max gap-3 p-2">
-              {mockWaitingGroups.map(group => (
-                <WaitingCard
-                  key={group.id}
-                  label={group.label}
-                  players={group.players}
-                  onEdit={notReady}
-                  onReject={notReady}
-                />
-              ))}
+        {mockWaitingGroups.length === 0 ? (
+          <div className="flex h-32 w-full items-center justify-center rounded-[1.5rem] bg-[#fff4d2]">
+            <span className="body-sm-500 text-gy-700">대기중인 팀이 없어요</span>
+          </div>
+        ) : (
+          <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-[#fff4d2]">
+            <div className="w-full overflow-x-auto scrollbar-hide">
+              <div className="flex w-max gap-3 p-2">
+                {mockWaitingGroups.map(group => (
+                  <WaitingCard
+                    key={group.id}
+                    label={group.label}
+                    players={group.players}
+                    onEdit={notReady}
+                    onReject={notReady}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 명단 */}
