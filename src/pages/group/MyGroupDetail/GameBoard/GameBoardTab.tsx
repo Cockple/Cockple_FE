@@ -16,6 +16,7 @@ import {
 import { GameAddPlayerModal } from "./GameAddPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
 import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
+import { GameFilterPage } from "./GameFilterPage";
 import { notReady } from "./gameBoardShared";
 
 export const GameBoardTab = () => {
@@ -24,6 +25,7 @@ export const GameBoardTab = () => {
   const [courts, setCourts] = useState<CourtGroup[]>(mockCourts);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
   >(null);
@@ -166,7 +168,7 @@ export const GameBoardTab = () => {
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg bg-white py-1 pl-1.5 pr-2"
-            onClick={notReady}
+            onClick={() => setIsFilterOpen(true)}
           >
             <img src={Filter} alt="" className="size-4" />
             <span className="body-rg-500 text-black">필터</span>
@@ -262,6 +264,10 @@ export const GameBoardTab = () => {
           onClose={() => setCourtManageVariant(null)}
           onSave={handleSaveCourts}
         />
+      )}
+
+      {isFilterOpen && (
+        <GameFilterPage onClose={() => setIsFilterOpen(false)} />
       )}
     </div>
   );
