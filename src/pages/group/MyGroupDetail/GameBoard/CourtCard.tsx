@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
 import Pen from "@/assets/icons/pen.svg";
@@ -75,20 +81,25 @@ interface WaitingCardProps {
   players: GamePlayer[];
   courts: { id: number; label: string }[];
   onMoveToCourt?: (courtId: number) => void;
+  onChange?: () => void;
   onReject?: () => void;
 }
+
+const LONG_PRESS_MS = 600;
 
 export const WaitingCard = ({
   label,
   players,
   courts,
   onMoveToCourt,
+  onChange,
   onReject,
 }: WaitingCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -96,7 +107,7 @@ export const WaitingCard = ({
       if (
         menuRef.current &&
         !menuRef.current.contains(e.target as Node) &&
-        !editButtonRef.current?.contains(e.target as Node)
+        !cardRef.current?.contains(e.target as Node)
       ) {
         setIsMenuOpen(false);
       }
@@ -105,31 +116,58 @@ export const WaitingCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
 
-  const handleToggleMenu = () => {
-    const rect = editButtonRef.current?.getBoundingClientRect();
-    if (rect) {
-      setMenuPosition({ top: rect.bottom + 4, left: rect.right - 149 });
+  const openMenuAt = (x: number, y: number) => {
+    setMenuPosition({ top: y, left: x - 149 });
+    setIsMenuOpen(true);
+  };
+
+  const clearLongPressTimer = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
-    setIsMenuOpen(prev => !prev);
+  };
+
+  const handleContextMenu = (e: ReactMouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    openMenuAt(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    clearLongPressTimer();
+    longPressTimer.current = setTimeout(() => {
+      openMenuAt(touch.clientX, touch.clientY);
+    }, LONG_PRESS_MS);
   };
 
   return (
-    <div className="flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100">
+    <div
+      ref={cardRef}
+      className="flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100"
+      onContextMenu={handleContextMenu}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={clearLongPressTimer}
+      onTouchMove={clearLongPressTimer}
+    >
       <div className="flex h-6 items-center justify-between pl-1">
         <span className="body-sm-500 text-black">{label}</span>
         <div className="flex items-center gap-1">
           <button
-            ref={editButtonRef}
             type="button"
             className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-            onClick={handleToggleMenu}
+            onClick={onChange}
+            onTouchStart={e => e.stopPropagation()}
+            onContextMenu={e => e.stopPropagation()}
           >
-            <img src={Pen} alt="수정" className="size-4" />
+            <img src={Pen} alt="변경" className="size-4" />
           </button>
           <button
             type="button"
             className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
             onClick={onReject}
+            onTouchStart={e => e.stopPropagation()}
+            onContextMenu={e => e.stopPropagation()}
           >
             <img src={Reject} alt="삭제" className="size-4" />
           </button>

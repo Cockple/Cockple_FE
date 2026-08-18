@@ -16,6 +16,7 @@ export interface WaitingGroup {
   id: number;
   label: string;
   players: GamePlayer[];
+  memberIds: number[];
 }
 
 export type MemberTag = "운동" | "대기" | "미참여";
@@ -80,6 +81,7 @@ export const mockWaitingGroups: WaitingGroup[] = [
   {
     id: 1,
     label: "대기 1번",
+    memberIds: [1, 2, 3, 4],
     players: [
       player(13, "김셰익", "A", "pink"),
       player(14, "김셰익", "B", "pink"),
@@ -90,6 +92,7 @@ export const mockWaitingGroups: WaitingGroup[] = [
   {
     id: 2,
     label: "대기 2번",
+    memberIds: [2, 3, 4, 5],
     players: [
       player(17, "김셰익", "A", "pink"),
       player(18, "김셰익", "B", "pink"),

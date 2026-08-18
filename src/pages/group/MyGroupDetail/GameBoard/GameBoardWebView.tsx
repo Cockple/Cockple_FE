@@ -23,6 +23,8 @@ interface GameBoardWebViewProps {
   waitingGroups: WaitingGroup[];
   onRemoveWaitingGroup: (id: number) => void;
   onMoveToCourt: (waitingGroupId: number, courtId: number) => void;
+  onChangeWaitingGroup: (group: WaitingGroup) => void;
+  onAddToWaitingQueue: () => void;
   members: GameMember[];
   selectedIds: number[];
   toggleSelect: (id: number) => void;
@@ -36,6 +38,8 @@ export const GameBoardWebView = ({
   waitingGroups,
   onRemoveWaitingGroup,
   onMoveToCourt,
+  onChangeWaitingGroup,
+  onAddToWaitingQueue,
   members,
   selectedIds,
   toggleSelect,
@@ -110,6 +114,7 @@ export const GameBoardWebView = ({
                       players={group.players}
                       courts={courts}
                       onMoveToCourt={courtId => onMoveToCourt(group.id, courtId)}
+                      onChange={() => onChangeWaitingGroup(group)}
                       onReject={() => onRemoveWaitingGroup(group.id)}
                     />
                   ))}
@@ -169,7 +174,7 @@ export const GameBoardWebView = ({
                 type="button"
                 disabled={selectedIds.length === 0}
                 className="flex w-[10.3125rem] shrink-0 items-center justify-center rounded-lg bg-gr-600 px-4 py-2 body-sm-500 text-white disabled:bg-gy-400"
-                onClick={notReady}
+                onClick={onAddToWaitingQueue}
               >
                 대기열 추가
               </button>
