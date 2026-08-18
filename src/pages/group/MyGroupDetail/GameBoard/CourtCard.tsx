@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 import Pen from "@/assets/icons/pen.svg";
 import Reject from "@/assets/icons/reject.svg";
@@ -71,40 +73,99 @@ export const CourtCard = ({
 interface WaitingCardProps {
   label: string;
   players: GamePlayer[];
-  onEdit?: () => void;
+  courts: { id: number; label: string }[];
+  onMoveToCourt?: (courtId: number) => void;
   onReject?: () => void;
 }
 
 export const WaitingCard = ({
   label,
   players,
-  onEdit,
+  courts,
+  onMoveToCourt,
   onReject,
-}: WaitingCardProps) => (
-  <div className="flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100">
-    <div className="flex h-6 items-center justify-between pl-1">
-      <span className="body-sm-500 text-black">{label}</span>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-          onClick={onEdit}
-        >
-          <img src={Pen} alt="수정" className="size-4" />
-        </button>
-        <button
-          type="button"
-          className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-          onClick={onReject}
-        >
-          <img src={Reject} alt="삭제" className="size-4" />
-        </button>
+}: WaitingCardProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        !editButtonRef.current?.contains(e.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const handleToggleMenu = () => {
+    const rect = editButtonRef.current?.getBoundingClientRect();
+    if (rect) {
+      setMenuPosition({ top: rect.bottom + 4, left: rect.right - 149 });
+    }
+    setIsMenuOpen(prev => !prev);
+  };
+
+  return (
+    <div className="flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100">
+      <div className="flex h-6 items-center justify-between pl-1">
+        <span className="body-sm-500 text-black">{label}</span>
+        <div className="flex items-center gap-1">
+          <button
+            ref={editButtonRef}
+            type="button"
+            className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
+            onClick={handleToggleMenu}
+          >
+            <img src={Pen} alt="수정" className="size-4" />
+          </button>
+          <button
+            type="button"
+            className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
+            onClick={onReject}
+          >
+            <img src={Reject} alt="삭제" className="size-4" />
+          </button>
+        </div>
       </div>
+      <div className="flex flex-wrap justify-between gap-y-2">
+        {players.map(p => (
+          <PlayerBadge key={p.id} {...p} />
+        ))}
+      </div>
+
+      {isMenuOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+            className="fixed z-50 flex flex-col items-start rounded-xl bg-white p-1 shadow-ds400"
+          >
+            {courts.map((court, index) => (
+              <div key={court.id} className="flex w-full flex-col items-start">
+                {index > 0 && <div className="my-1 h-px w-full bg-gy-100" />}
+                <button
+                  type="button"
+                  className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-black hover:bg-gy-100"
+                  onClick={() => {
+                    onMoveToCourt?.(court.id);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {court.label}로 이동
+                </button>
+              </div>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
-    <div className="flex flex-wrap justify-between gap-y-2">
-      {players.map(p => (
-        <PlayerBadge key={p.id} {...p} />
-      ))}
-    </div>
-  </div>
-);
+  );
+};

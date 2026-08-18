@@ -6,9 +6,9 @@ import ArrowLeft from "@/assets/icons/arrow_left.svg";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import {
-  mockWaitingGroups,
   type CourtGroup,
   type GameMember,
+  type WaitingGroup,
 } from "./mockGameBoardData";
 import {
   notReady,
@@ -20,6 +20,9 @@ import {
 
 interface GameBoardWebViewProps {
   courts: CourtGroup[];
+  waitingGroups: WaitingGroup[];
+  onRemoveWaitingGroup: (id: number) => void;
+  onMoveToCourt: (waitingGroupId: number, courtId: number) => void;
   members: GameMember[];
   selectedIds: number[];
   toggleSelect: (id: number) => void;
@@ -30,6 +33,9 @@ interface GameBoardWebViewProps {
 
 export const GameBoardWebView = ({
   courts,
+  waitingGroups,
+  onRemoveWaitingGroup,
+  onMoveToCourt,
   members,
   selectedIds,
   toggleSelect,
@@ -87,7 +93,7 @@ export const GameBoardWebView = ({
           <div className="flex items-center">
             <span className="header-h5 text-black">대기</span>
           </div>
-          {mockWaitingGroups.length === 0 ? (
+          {waitingGroups.length === 0 ? (
             <div className="flex h-32 w-full items-center justify-center rounded-[1.5rem] bg-[#fff4d2]">
               <span className="body-sm-500 text-gy-700">
                 대기중인 팀이 없어요
@@ -97,13 +103,14 @@ export const GameBoardWebView = ({
             <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-[#fff4d2]">
               <div className="w-full overflow-x-auto scrollbar-hide">
                 <div className="flex w-max gap-3 p-2">
-                  {mockWaitingGroups.map(group => (
+                  {waitingGroups.map(group => (
                     <WaitingCard
                       key={group.id}
                       label={group.label}
                       players={group.players}
-                      onEdit={notReady}
-                      onReject={notReady}
+                      courts={courts}
+                      onMoveToCourt={courtId => onMoveToCourt(group.id, courtId)}
+                      onReject={() => onRemoveWaitingGroup(group.id)}
                     />
                   ))}
                 </div>

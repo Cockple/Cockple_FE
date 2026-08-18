@@ -12,6 +12,7 @@ import {
   mockWaitingGroups,
   type CourtGroup,
   type GameMember,
+  type WaitingGroup,
 } from "./mockGameBoardData";
 import { GameAddPlayerModal } from "./GameAddPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
@@ -23,6 +24,8 @@ export const GameBoardTab = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>(mockGameMembers);
   const [courts, setCourts] = useState<CourtGroup[]>(mockCourts);
+  const [waitingGroups, setWaitingGroups] =
+    useState<WaitingGroup[]>(mockWaitingGroups);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -58,6 +61,19 @@ export const GameBoardTab = () => {
       },
     ]);
     setIsAddPlayerOpen(false);
+  };
+
+  const handleRemoveWaitingGroup = (id: number) => {
+    setWaitingGroups(prev => prev.filter(group => group.id !== id));
+  };
+
+  const handleMoveToCourt = (waitingGroupId: number, courtId: number) => {
+    const group = waitingGroups.find(g => g.id === waitingGroupId);
+    if (!group) return;
+    setCourts(prev =>
+      prev.map(c => (c.id === courtId ? { ...c, players: group.players } : c)),
+    );
+    handleRemoveWaitingGroup(waitingGroupId);
   };
 
   const handleSaveCourts = (labels: string[]) => {
@@ -128,7 +144,7 @@ export const GameBoardTab = () => {
         <div className="flex items-center">
           <span className="header-h5 text-black">대기</span>
         </div>
-        {mockWaitingGroups.length === 0 ? (
+        {waitingGroups.length === 0 ? (
           <div className="flex h-32 w-full items-center justify-center rounded-[1.5rem] bg-[#fff4d2]">
             <span className="body-sm-500 text-gy-700">대기중인 팀이 없어요</span>
           </div>
@@ -136,13 +152,16 @@ export const GameBoardTab = () => {
           <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-[#fff4d2]">
             <div className="w-full overflow-x-auto scrollbar-hide">
               <div className="flex w-max gap-3 p-2">
-                {mockWaitingGroups.map(group => (
+                {waitingGroups.map(group => (
                   <WaitingCard
                     key={group.id}
                     label={group.label}
                     players={group.players}
-                    onEdit={notReady}
-                    onReject={notReady}
+                    courts={courts}
+                    onMoveToCourt={courtId =>
+                      handleMoveToCourt(group.id, courtId)
+                    }
+                    onReject={() => handleRemoveWaitingGroup(group.id)}
                   />
                 ))}
               </div>
@@ -241,6 +260,9 @@ export const GameBoardTab = () => {
       {isWebViewOpen && (
         <GameBoardWebView
           courts={courts}
+          waitingGroups={waitingGroups}
+          onRemoveWaitingGroup={handleRemoveWaitingGroup}
+          onMoveToCourt={handleMoveToCourt}
           members={members}
           selectedIds={selectedIds}
           toggleSelect={toggleSelect}
