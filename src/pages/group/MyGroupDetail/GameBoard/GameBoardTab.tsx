@@ -8,17 +8,23 @@ import {
   mockCourts,
   mockGameMembers,
   mockWaitingGroups,
+  type CourtGroup,
   type GameMember,
 } from "./mockGameBoardData";
 import { GameAddPlayerModal } from "./GameAddPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
+import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
 import { notReady } from "./gameBoardShared";
 
 export const GameBoardTab = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>(mockGameMembers);
+  const [courts, setCourts] = useState<CourtGroup[]>(mockCourts);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
+  const [courtManageVariant, setCourtManageVariant] = useState<
+    "sheet" | "overlay" | null
+  >(null);
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev =>
@@ -46,6 +52,18 @@ export const GameBoardTab = () => {
       },
     ]);
     setIsAddPlayerOpen(false);
+  };
+
+  const handleSaveCourts = (labels: string[]) => {
+    setCourts(prev =>
+      labels.map((label, index) => {
+        const existing = prev[index];
+        return existing
+          ? { ...existing, label }
+          : { id: Date.now() + index, label, players: null };
+      }),
+    );
+    setCourtManageVariant(null);
   };
 
   return (
@@ -76,7 +94,7 @@ export const GameBoardTab = () => {
             <button
               type="button"
               className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
-              onClick={notReady}
+              onClick={() => setCourtManageVariant("sheet")}
             >
               코트 관리
             </button>
@@ -85,7 +103,7 @@ export const GameBoardTab = () => {
         <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-gr-100">
           <div className="w-full overflow-x-auto scrollbar-hide">
             <div className="flex w-max gap-3 p-2">
-              {mockCourts.map(court => (
+              {courts.map(court => (
                 <CourtCard
                   key={court.id}
                   label={court.label}
@@ -186,10 +204,12 @@ export const GameBoardTab = () => {
 
       {isWebViewOpen && (
         <GameBoardWebView
+          courts={courts}
           members={members}
           selectedIds={selectedIds}
           toggleSelect={toggleSelect}
           onAddPlayer={() => setIsAddPlayerOpen(true)}
+          onManageCourts={() => setCourtManageVariant("overlay")}
           onClose={() => setIsWebViewOpen(false)}
         />
       )}
@@ -198,6 +218,15 @@ export const GameBoardTab = () => {
         <GameAddPlayerModal
           onClose={() => setIsAddPlayerOpen(false)}
           onSubmit={handleAddPlayer}
+        />
+      )}
+
+      {courtManageVariant && (
+        <CourtManageBottomSheet
+          variant={courtManageVariant}
+          courtLabels={courts.map(c => c.label)}
+          onClose={() => setCourtManageVariant(null)}
+          onSave={handleSaveCourts}
         />
       )}
     </div>

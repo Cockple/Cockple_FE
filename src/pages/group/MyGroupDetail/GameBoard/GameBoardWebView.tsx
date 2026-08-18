@@ -6,8 +6,8 @@ import ArrowLeft from "@/assets/icons/arrow_left.svg";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import {
-  mockCourts,
   mockWaitingGroups,
+  type CourtGroup,
   type GameMember,
 } from "./mockGameBoardData";
 import {
@@ -19,18 +19,22 @@ import {
 } from "./gameBoardShared";
 
 interface GameBoardWebViewProps {
+  courts: CourtGroup[];
   members: GameMember[];
   selectedIds: number[];
   toggleSelect: (id: number) => void;
   onAddPlayer: () => void;
+  onManageCourts: () => void;
   onClose: () => void;
 }
 
 export const GameBoardWebView = ({
+  courts,
   members,
   selectedIds,
   toggleSelect,
   onAddPlayer,
+  onManageCourts,
   onClose,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
@@ -56,7 +60,7 @@ export const GameBoardWebView = ({
             <button
               type="button"
               className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
-              onClick={notReady}
+              onClick={onManageCourts}
             >
               코트 관리
             </button>
@@ -64,7 +68,7 @@ export const GameBoardWebView = ({
           <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-gr-100">
             <div className="w-full overflow-x-auto scrollbar-hide">
               <div className="flex w-max gap-3 p-2">
-                {mockCourts.map(court => (
+                {courts.map(court => (
                   <CourtCard
                     key={court.id}
                     label={court.label}
