@@ -11,18 +11,41 @@ import {
   type GameMember,
 } from "./mockGameBoardData";
 import { GameAddPlayerModal } from "./GameAddPlayerModal";
-
-const notReady = () => alert("준비 중인 기능이에요.");
+import { GameBoardWebView } from "./GameBoardWebView";
+import { notReady } from "./gameBoardShared";
 
 export const GameBoardTab = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>(mockGameMembers);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
+  const [isWebViewOpen, setIsWebViewOpen] = useState(false);
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id],
     );
+  };
+
+  const handleAddPlayer = (player: {
+    name: string;
+    gender: "MALE" | "FEMALE";
+    level: string;
+    ageGroup: string;
+  }) => {
+    setMembers(prev => [
+      ...prev,
+      {
+        id: Math.max(0, ...prev.map(m => m.id)) + 1,
+        name: player.name,
+        gender: player.gender,
+        ageGroup: player.ageGroup,
+        group: player.level,
+        playCount: 0,
+        tags: ["미참여"],
+        selectable: true,
+      },
+    ]);
+    setIsAddPlayerOpen(false);
   };
 
   return (
@@ -31,13 +54,33 @@ export const GameBoardTab = () => {
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="header-h5 text-black">게임 코트</span>
-          <button
-            type="button"
-            className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
-            onClick={notReady}
-          >
-            코트 관리
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="웹으로 보기"
+              className="flex items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black"
+              onClick={() => setIsWebViewOpen(true)}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="size-5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 9V4H9M20 9V4H15M4 15V20H9M20 15V20H15" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
+              onClick={notReady}
+            >
+              코트 관리
+            </button>
+          </div>
         </div>
         <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-gr-100">
           <div className="w-full overflow-x-auto scrollbar-hide">
@@ -141,25 +184,20 @@ export const GameBoardTab = () => {
         </button>
       </div>
 
+      {isWebViewOpen && (
+        <GameBoardWebView
+          members={members}
+          selectedIds={selectedIds}
+          toggleSelect={toggleSelect}
+          onAddPlayer={() => setIsAddPlayerOpen(true)}
+          onClose={() => setIsWebViewOpen(false)}
+        />
+      )}
+
       {isAddPlayerOpen && (
         <GameAddPlayerModal
           onClose={() => setIsAddPlayerOpen(false)}
-          onSubmit={player => {
-            setMembers(prev => [
-              ...prev,
-              {
-                id: Math.max(0, ...prev.map(m => m.id)) + 1,
-                name: player.name,
-                gender: player.gender,
-                ageGroup: player.ageGroup,
-                group: player.level,
-                playCount: 0,
-                tags: ["미참여"],
-                selectable: true,
-              },
-            ]);
-            setIsAddPlayerOpen(false);
-          }}
+          onSubmit={handleAddPlayer}
         />
       )}
     </div>
