@@ -1,3 +1,4 @@
+import { useState } from "react";
 import clsx from "clsx";
 import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
@@ -5,6 +6,7 @@ import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
+import { GameEndModal } from "./GameEndModal";
 import {
   type CourtGroup,
   type GameMember,
@@ -20,6 +22,7 @@ import {
 
 interface GameBoardWebViewProps {
   courts: CourtGroup[];
+  onCompleteCourt: (courtId: number) => void;
   waitingGroups: WaitingGroup[];
   onRemoveWaitingGroup: (id: number) => void;
   onMoveToCourt: (waitingGroupId: number, courtId: number) => void;
@@ -35,6 +38,7 @@ interface GameBoardWebViewProps {
 
 export const GameBoardWebView = ({
   courts,
+  onCompleteCourt,
   waitingGroups,
   onRemoveWaitingGroup,
   onMoveToCourt,
@@ -48,6 +52,9 @@ export const GameBoardWebView = ({
   onClose,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  const [completingCourtId, setCompletingCourtId] = useState<number | null>(
+    null,
+  );
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-white">
@@ -84,7 +91,7 @@ export const GameBoardWebView = ({
                     label={court.label}
                     timer={court.timer}
                     players={court.players}
-                    onComplete={notReady}
+                    onComplete={() => setCompletingCourtId(court.id)}
                   />
                 ))}
               </div>
@@ -199,6 +206,16 @@ export const GameBoardWebView = ({
           </div>
         </div>
       </div>
+
+      {completingCourtId !== null && (
+        <GameEndModal
+          onClose={() => setCompletingCourtId(null)}
+          onConfirm={() => {
+            onCompleteCourt(completingCourtId);
+            setCompletingCourtId(null);
+          }}
+        />
+      )}
     </div>
   );
 };

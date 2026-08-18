@@ -18,6 +18,7 @@ import { GameAddPlayerModal } from "./GameAddPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
 import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
 import { GameFilterPage } from "./GameFilterPage";
+import { GameEndModal } from "./GameEndModal";
 import { notReady } from "./gameBoardShared";
 
 export const GameBoardTab = () => {
@@ -29,6 +30,9 @@ export const GameBoardTab = () => {
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [completingCourtId, setCompletingCourtId] = useState<number | null>(
+    null,
+  );
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
   >(() => (mockCourts.length === 0 ? "sheet" : null));
@@ -98,6 +102,15 @@ export const GameBoardTab = () => {
     handleRemoveWaitingGroup(waitingGroupId);
   };
 
+  const handleCompleteCourt = (courtId: number) => {
+    setCourts(prev =>
+      prev.map(c =>
+        c.id === courtId ? { ...c, players: null, timer: undefined } : c,
+      ),
+    );
+    setCompletingCourtId(null);
+  };
+
   const handleSaveCourts = (labels: string[]) => {
     setCourts(prev =>
       labels.map((label, index) => {
@@ -153,7 +166,7 @@ export const GameBoardTab = () => {
                   label={court.label}
                   timer={court.timer}
                   players={court.players}
-                  onComplete={notReady}
+                  onComplete={() => setCompletingCourtId(court.id)}
                 />
               ))}
             </div>
@@ -283,6 +296,7 @@ export const GameBoardTab = () => {
       {isWebViewOpen && (
         <GameBoardWebView
           courts={courts}
+          onCompleteCourt={handleCompleteCourt}
           waitingGroups={waitingGroups}
           onRemoveWaitingGroup={handleRemoveWaitingGroup}
           onMoveToCourt={handleMoveToCourt}
@@ -315,6 +329,13 @@ export const GameBoardTab = () => {
 
       {isFilterOpen && (
         <GameFilterPage onClose={() => setIsFilterOpen(false)} />
+      )}
+
+      {completingCourtId !== null && (
+        <GameEndModal
+          onClose={() => setCompletingCourtId(null)}
+          onConfirm={() => handleCompleteCourt(completingCourtId)}
+        />
       )}
     </div>
   );
