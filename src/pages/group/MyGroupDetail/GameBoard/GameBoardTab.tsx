@@ -31,7 +31,7 @@ export const GameBoardTab = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
-  >(null);
+  >(() => (mockCourts.length === 0 ? "sheet" : null));
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev =>
