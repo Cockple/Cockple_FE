@@ -8,12 +8,16 @@ import {
   mockCourts,
   mockGameMembers,
   mockWaitingGroups,
+  type GameMember,
 } from "./mockGameBoardData";
+import { GameAddPlayerModal } from "./GameAddPlayerModal";
 
 const notReady = () => alert("준비 중인 기능이에요.");
 
 export const GameBoardTab = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [members, setMembers] = useState<GameMember[]>(mockGameMembers);
+  const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev =>
@@ -81,15 +85,13 @@ export const GameBoardTab = () => {
           <button
             type="button"
             className="flex size-6 items-center justify-center rounded-lg bg-gr-500"
-            onClick={notReady}
+            onClick={() => setIsAddPlayerOpen(true)}
           >
             <img src={AddWhite} alt="추가" className="size-4" />
           </button>
         </div>
         <div className="flex items-center justify-between">
-          <span className="body-rg-500 text-gy-700">
-            전체 {mockGameMembers.length}
-          </span>
+          <span className="body-rg-500 text-gy-700">전체 {members.length}</span>
           <button
             type="button"
             className="flex items-center gap-2 rounded-lg bg-white py-1 pl-1.5 pr-2"
@@ -100,7 +102,7 @@ export const GameBoardTab = () => {
           </button>
         </div>
         <div className="flex flex-wrap justify-between gap-y-4">
-          {mockGameMembers.map(member => (
+          {members.map(member => (
             <GameMemberCard
               key={member.id}
               member={member}
@@ -132,6 +134,28 @@ export const GameBoardTab = () => {
           선수를 선택해주세요
         </button>
       </div>
+
+      {isAddPlayerOpen && (
+        <GameAddPlayerModal
+          onClose={() => setIsAddPlayerOpen(false)}
+          onSubmit={player => {
+            setMembers(prev => [
+              ...prev,
+              {
+                id: Math.max(0, ...prev.map(m => m.id)) + 1,
+                name: player.name,
+                gender: player.gender,
+                ageGroup: player.ageGroup,
+                group: player.level,
+                playCount: 0,
+                tags: ["미참여"],
+                selectable: true,
+              },
+            ]);
+            setIsAddPlayerOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };
