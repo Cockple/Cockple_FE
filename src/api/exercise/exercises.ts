@@ -220,3 +220,14 @@ export const deleteExercise = async (exerciseId: number) => {
     throw error.response?.data || error;
   }
 };
+
+// 게임 진행자 지정하기 (API가 아직 없을 수 있으므로 일단 추가)
+export const setGameManager = async (exerciseId: number, participantId: number) => {
+  try {
+    const response = await api.patch(`/api/exercises/${exerciseId}/participants/${participantId}/manager`);
+    return response.data;
+  } catch (error: any) {
+    console.error("게임 진행자 지정 API 호출 실패:", error);
+    throw error.response?.data || error;
+  }
+};

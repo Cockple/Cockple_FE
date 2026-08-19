@@ -12,6 +12,7 @@ import {
   MemberDefault,
   ExerciseDetailApply,
   MyExerciseDetail,
+  GameManagerPage,
   ViceLeaderDefault,
   EditGroupInfoDefault,
 } from "./pages/group";
@@ -221,6 +222,10 @@ const router = createBrowserRouter([
       {
         path: "/group/Mygroup/MyExerciseDetail/:exerciseId",
         element: <MyExerciseDetail />,
+      },
+      {
+        path: "/group/Mygroup/GameManager/:exerciseId",
+        element: <GameManagerPage />,
       },
       {
         path: "/group/Mygroup/ExerciseDetailApplye",
