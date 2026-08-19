@@ -23,6 +23,7 @@ import { GameBoardWebView } from "./GameBoardWebView";
 import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
 import { GameFilterPage } from "./GameFilterPage";
 import { GameEndModal } from "./GameEndModal";
+import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import { notReady } from "./gameBoardShared";
 
 export const GameBoardTab = () => {
@@ -35,6 +36,7 @@ export const GameBoardTab = () => {
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isDuplicateCheckOpen, setIsDuplicateCheckOpen] = useState(false);
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
     null,
   );
@@ -317,7 +319,7 @@ export const GameBoardTab = () => {
             <button
               type="button"
               className="h-[3.25rem] flex-1 rounded-2xl bg-gr-600 header-h4 text-white shadow-ds100"
-              onClick={handleAddToWaitingQueue}
+              onClick={() => setIsDuplicateCheckOpen(true)}
             >
               대기열 추가
             </button>
@@ -341,7 +343,7 @@ export const GameBoardTab = () => {
           onRemoveWaitingGroup={handleRemoveWaitingGroup}
           onMoveToCourt={handleMoveToCourt}
           onChangeWaitingGroup={handleChangeWaitingGroup}
-          onAddToWaitingQueue={handleAddToWaitingQueue}
+          onAddToWaitingQueue={() => setIsDuplicateCheckOpen(true)}
           members={members}
           selectedIds={selectedIds}
           toggleSelect={toggleSelect}
@@ -385,6 +387,18 @@ export const GameBoardTab = () => {
         <GameEndModal
           onClose={() => setCompletingCourtId(null)}
           onConfirm={() => handleCompleteCourt(completingCourtId)}
+        />
+      )}
+
+      {isDuplicateCheckOpen && (
+        <GameDuplicateCheckModal
+          variant={isWebViewOpen ? "overlay" : "sheet"}
+          members={selectedMembers}
+          onClose={() => setIsDuplicateCheckOpen(false)}
+          onConfirm={() => {
+            handleAddToWaitingQueue();
+            setIsDuplicateCheckOpen(false);
+          }}
         />
       )}
     </div>
