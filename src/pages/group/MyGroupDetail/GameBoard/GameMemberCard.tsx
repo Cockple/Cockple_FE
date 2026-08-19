@@ -1,3 +1,11 @@
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 import DefaultProfile from "@/assets/images/base_profile_img.png";
 import Female from "@/assets/icons/female.svg";
@@ -13,26 +21,89 @@ const TAG_STYLE: Record<MemberTag, string> = {
   미참여: "bg-rd-500 text-white",
 };
 
+const LONG_PRESS_MS = 600;
+
 interface GameMemberCardProps {
   member: GameMember;
   selected: boolean;
   onToggleSelect: () => void;
+  onEditInfo?: () => void;
+  onToggleParticipation?: () => void;
 }
 
 export const GameMemberCard = ({
   member,
   selected,
   onToggleSelect,
+  onEditInfo,
+  onToggleParticipation,
 }: GameMemberCardProps) => {
   const { name, gender, ageGroup, group, playCount, tags, imgUrl, selectable } =
     member;
   const isWithdrawn = tags.includes("미참여");
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressNextClick = useRef(false);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        if (cardRef.current?.contains(e.target as Node)) {
+          suppressNextClick.current = true;
+        }
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const openMenuAt = (x: number, y: number) => {
+    setMenuPosition({ top: y, left: x - 149 });
+    setIsMenuOpen(true);
+  };
+
+  const clearLongPressTimer = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const handleContextMenu = (e: ReactMouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    openMenuAt(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    clearLongPressTimer();
+    longPressTimer.current = setTimeout(() => {
+      openMenuAt(touch.clientX, touch.clientY);
+    }, LONG_PRESS_MS);
+  };
+
   return (
-    <button
-      type="button"
-      disabled={!selectable}
-      onClick={onToggleSelect}
+    <div
+      ref={cardRef}
+      role="button"
+      tabIndex={selectable ? 0 : -1}
+      onClick={() => {
+        if (suppressNextClick.current) {
+          suppressNextClick.current = false;
+          return;
+        }
+        if (selectable) onToggleSelect();
+      }}
+      onContextMenu={handleContextMenu}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={clearLongPressTimer}
+      onTouchMove={clearLongPressTimer}
       className={clsx(
         "flex w-[10.3125rem] flex-col gap-2 rounded-2xl p-2 text-left",
         selectable ? "cursor-pointer" : "cursor-default",
@@ -97,6 +168,10 @@ export const GameMemberCard = ({
           )}
           onClick={e => {
             e.stopPropagation();
+            if (suppressNextClick.current) {
+              suppressNextClick.current = false;
+              return;
+            }
             if (selectable) onToggleSelect();
           }}
         >
@@ -107,6 +182,39 @@ export const GameMemberCard = ({
           />
         </span>
       </div>
-    </button>
+
+      {isMenuOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+            className="fixed z-50 flex flex-col items-start rounded-xl bg-white p-1 shadow-ds400"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-black hover:bg-gy-100"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onEditInfo?.();
+              }}
+            >
+              정보 수정
+            </button>
+            <div className="my-1 h-px w-full bg-gy-100" />
+            <button
+              type="button"
+              className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-rd-500 hover:bg-gy-100"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onToggleParticipation?.();
+              }}
+            >
+              {isWithdrawn ? "참여로 변경" : "미참여로 변경"}
+            </button>
+          </div>,
+          document.body,
+        )}
+    </div>
   );
 };

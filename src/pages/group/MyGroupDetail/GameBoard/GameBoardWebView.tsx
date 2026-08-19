@@ -31,6 +31,8 @@ interface GameBoardWebViewProps {
   members: GameMember[];
   selectedIds: number[];
   toggleSelect: (id: number) => void;
+  onToggleParticipation: (id: number) => void;
+  onEditMember: (id: number) => void;
   onAddPlayer: () => void;
   onManageCourts: () => void;
   onClose: () => void;
@@ -47,6 +49,8 @@ export const GameBoardWebView = ({
   members,
   selectedIds,
   toggleSelect,
+  onToggleParticipation,
+  onEditMember,
   onAddPlayer,
   onManageCourts,
   onClose,
@@ -201,6 +205,8 @@ export const GameBoardWebView = ({
                 member={member}
                 selected={selectedIds.includes(member.id)}
                 onToggleSelect={() => toggleSelect(member.id)}
+                onEditInfo={() => onEditMember(member.id)}
+                onToggleParticipation={() => onToggleParticipation(member.id)}
               />
             ))}
           </div>

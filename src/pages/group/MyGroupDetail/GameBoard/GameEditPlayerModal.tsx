@@ -1,0 +1,119 @@
+import { useState } from "react";
+import { PageHeader } from "@/components/common/system/header/PageHeader";
+import InputField from "@/components/common/Search_Filed/InputField";
+import TextBox from "@/components/common/Text_Box/TextBox";
+import DropCheckBox from "@/components/common/Drop_Box/DropCheckBox";
+import { DropBox } from "@/components/common/DropBox";
+import Grad_GR400_L from "@/components/common/Btn_Static/Text/Grad_GR400_L";
+import Circle_RedIcon from "@/assets/icons/cicle_s_red.svg?url";
+import { LEVEL_KEY } from "@/constants/options";
+import type { GameMember } from "./mockGameBoardData";
+
+const AGE_OPTIONS = ["10대", "20대", "30대", "40대", "50대", "60대 이상"];
+
+export interface EditedGamePlayer {
+  name: string;
+  gender: "MALE" | "FEMALE";
+  level: string;
+  ageGroup: string;
+}
+
+interface GameEditPlayerModalProps {
+  member: GameMember;
+  onClose: () => void;
+  onSubmit: (player: EditedGamePlayer) => void;
+}
+
+export const GameEditPlayerModal = ({
+  member,
+  onClose,
+  onSubmit,
+}: GameEditPlayerModalProps) => {
+  const [name, setName] = useState(member.name);
+  const [gender, setGender] = useState<"MALE" | "FEMALE" | null>(
+    member.gender,
+  );
+  const [level, setLevel] = useState(
+    member.group === "급수없음" ? "disabled" : member.group,
+  );
+  const [ageGroup, setAgeGroup] = useState(member.ageGroup);
+
+  const levelOptions = LEVEL_KEY.slice(1);
+  const isLevelValid = level === "disabled" || levelOptions.includes(level);
+  const isFormValid = name.trim().length > 0 && gender !== null && isLevelValid;
+
+  const handleSubmit = () => {
+    if (!isFormValid || gender === null) return;
+    onSubmit({
+      name: name.trim(),
+      gender,
+      level: level === "disabled" ? "급수없음" : level,
+      ageGroup,
+    });
+  };
+
+  return (
+    <div className="fixed top-0 left-1/2 z-50 h-full w-full max-w-[444px] -translate-x-1/2 overflow-y-auto bg-white">
+      <PageHeader title="정보 수정" onBackClick={onClose} />
+      <div className="flex flex-col gap-8 px-4 pt-19 pb-32">
+        <InputField
+          labelName="이름"
+          value={name}
+          InputLength={name.length}
+          InputMaxLength={17}
+          onChange={e => setName(e.target.value.slice(0, 17))}
+        />
+
+        <div className="flex flex-col gap-2 text-left">
+          <div className="flex items-center gap-[2px] px-1">
+            <span className="header-h5 text-black">성별</span>
+            <img src={Circle_RedIcon} alt="" />
+          </div>
+          <div className="flex gap-[13px]">
+            <TextBox
+              isSelected={gender === "MALE"}
+              onClick={() => setGender(prev => (prev === "MALE" ? null : "MALE"))}
+              className="w-19"
+            >
+              남성
+            </TextBox>
+            <TextBox
+              isSelected={gender === "FEMALE"}
+              onClick={() =>
+                setGender(prev => (prev === "FEMALE" ? null : "FEMALE"))
+              }
+              className="w-19"
+            >
+              여성
+            </TextBox>
+          </div>
+        </div>
+
+        <DropCheckBox
+          title="전국 급수"
+          options={levelOptions}
+          checkLabel="급수 없음"
+          value={level}
+          onChange={val => setLevel(val ?? "")}
+        />
+
+        <div className="flex flex-col gap-2 text-left">
+          <span className="header-h5 px-1 text-black">나이대</span>
+          <DropBox
+            options={AGE_OPTIONS.map(value => ({ value }))}
+            value={ageGroup}
+            onChange={setAgeGroup}
+          />
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-1/2 z-10 w-full max-w-[444px] -translate-x-1/2">
+        <Grad_GR400_L
+          label="저장하기"
+          initialStatus={isFormValid ? "default" : "disabled"}
+          onClick={handleSubmit}
+        />
+      </div>
+    </div>
+  );
+};

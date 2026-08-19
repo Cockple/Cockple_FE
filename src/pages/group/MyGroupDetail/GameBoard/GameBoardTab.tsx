@@ -15,6 +15,10 @@ import {
   type WaitingGroup,
 } from "./mockGameBoardData";
 import { GameAddPlayerModal } from "./GameAddPlayerModal";
+import {
+  GameEditPlayerModal,
+  type EditedGamePlayer,
+} from "./GameEditPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
 import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
 import { GameFilterPage } from "./GameFilterPage";
@@ -28,6 +32,7 @@ export const GameBoardTab = () => {
   const [waitingGroups, setWaitingGroups] =
     useState<WaitingGroup[]>(mockWaitingGroups);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
@@ -44,6 +49,26 @@ export const GameBoardTab = () => {
   };
 
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  const editingMember =
+    members.find(m => m.id === editingMemberId) ?? null;
+
+  const handleSaveMemberEdit = (updated: EditedGamePlayer) => {
+    if (editingMemberId === null) return;
+    setMembers(prev =>
+      prev.map(m =>
+        m.id === editingMemberId
+          ? {
+              ...m,
+              name: updated.name,
+              gender: updated.gender,
+              group: updated.level,
+              ageGroup: updated.ageGroup,
+            }
+          : m,
+      ),
+    );
+    setEditingMemberId(null);
+  };
 
   const handleAddPlayer = (player: {
     name: string;
@@ -65,6 +90,19 @@ export const GameBoardTab = () => {
       },
     ]);
     setIsAddPlayerOpen(false);
+  };
+
+  const handleToggleParticipation = (id: number) => {
+    setMembers(prev =>
+      prev.map(m => {
+        if (m.id !== id) return m;
+        const isWithdrawn = m.tags.includes("미참여");
+        return isWithdrawn
+          ? { ...m, tags: m.tags.filter(t => t !== "미참여"), selectable: true }
+          : { ...m, tags: ["미참여"], selectable: false };
+      }),
+    );
+    setSelectedIds(prev => prev.filter(v => v !== id));
   };
 
   const handleRemoveWaitingGroup = (id: number) => {
@@ -236,6 +274,8 @@ export const GameBoardTab = () => {
               member={member}
               selected={selectedIds.includes(member.id)}
               onToggleSelect={() => toggleSelect(member.id)}
+              onEditInfo={() => setEditingMemberId(member.id)}
+              onToggleParticipation={() => handleToggleParticipation(member.id)}
             />
           ))}
         </div>
@@ -305,6 +345,8 @@ export const GameBoardTab = () => {
           members={members}
           selectedIds={selectedIds}
           toggleSelect={toggleSelect}
+          onToggleParticipation={handleToggleParticipation}
+          onEditMember={setEditingMemberId}
           onAddPlayer={() => setIsAddPlayerOpen(true)}
           onManageCourts={() => setCourtManageVariant("overlay")}
           onClose={() => setIsWebViewOpen(false)}
@@ -315,6 +357,14 @@ export const GameBoardTab = () => {
         <GameAddPlayerModal
           onClose={() => setIsAddPlayerOpen(false)}
           onSubmit={handleAddPlayer}
+        />
+      )}
+
+      {editingMember && (
+        <GameEditPlayerModal
+          member={editingMember}
+          onClose={() => setEditingMemberId(null)}
+          onSubmit={handleSaveMemberEdit}
         />
       )}
 
