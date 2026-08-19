@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
@@ -86,6 +87,24 @@ interface WaitingCardProps {
 }
 
 const LONG_PRESS_MS = 600;
+const MENU_WIDTH = 149;
+const MENU_EDGE_MARGIN = 8;
+
+const clampMenuPosition = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) => ({
+  left: Math.min(
+    Math.max(x - width, MENU_EDGE_MARGIN),
+    window.innerWidth - width - MENU_EDGE_MARGIN,
+  ),
+  top: Math.min(
+    Math.max(y, MENU_EDGE_MARGIN),
+    window.innerHeight - height - MENU_EDGE_MARGIN,
+  ),
+});
 
 export const WaitingCard = ({
   label,
@@ -97,6 +116,9 @@ export const WaitingCard = ({
 }: WaitingCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [clickPoint, setClickPoint] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const cardRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -116,8 +138,28 @@ export const WaitingCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
 
+  // 코트 개수에 따라 메뉴 높이가 달라지므로 렌더된 실제 크기를 측정해 위치를 보정한다.
+  // clickPoint는 openMenuAt마다 새 객체로 갱신되어, 메뉴가 이미 열려 있는 상태에서
+  // 같은 카드를 다시 우클릭/롱프레스해도 이 effect가 다시 실행된다.
+  useLayoutEffect(() => {
+    if (!isMenuOpen || !clickPoint || !menuRef.current) return;
+    const rect = menuRef.current.getBoundingClientRect();
+    const corrected = clampMenuPosition(
+      clickPoint.x,
+      clickPoint.y,
+      rect.width,
+      rect.height,
+    );
+    setMenuPosition(prev =>
+      prev.top === corrected.top && prev.left === corrected.left
+        ? prev
+        : corrected,
+    );
+  }, [isMenuOpen, clickPoint, courts.length]);
+
   const openMenuAt = (x: number, y: number) => {
-    setMenuPosition({ top: y, left: x - 149 });
+    setClickPoint({ x, y });
+    setMenuPosition(clampMenuPosition(x, y, MENU_WIDTH, 0));
     setIsMenuOpen(true);
   };
 

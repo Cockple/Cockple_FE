@@ -22,6 +22,9 @@ const TAG_STYLE: Record<MemberTag, string> = {
 };
 
 const LONG_PRESS_MS = 600;
+const MENU_WIDTH = 149;
+const MENU_HEIGHT = 84;
+const MENU_EDGE_MARGIN = 8;
 
 interface GameMemberCardProps {
   member: GameMember;
@@ -64,7 +67,15 @@ export const GameMemberCard = ({
   }, [isMenuOpen]);
 
   const openMenuAt = (x: number, y: number) => {
-    setMenuPosition({ top: y, left: x - 149 });
+    const left = Math.min(
+      Math.max(x - MENU_WIDTH, MENU_EDGE_MARGIN),
+      window.innerWidth - MENU_WIDTH - MENU_EDGE_MARGIN,
+    );
+    const top = Math.min(
+      Math.max(y, MENU_EDGE_MARGIN),
+      window.innerHeight - MENU_HEIGHT - MENU_EDGE_MARGIN,
+    );
+    setMenuPosition({ top, left });
     setIsMenuOpen(true);
   };
 
