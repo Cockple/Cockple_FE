@@ -24,7 +24,7 @@ import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
 import { GameFilterPage } from "./GameFilterPage";
 import { GameEndModal } from "./GameEndModal";
 import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
-import { notReady } from "./gameBoardShared";
+import { autoMatchMembers } from "./gameAutoMatch";
 
 export const GameBoardTab = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -149,6 +149,15 @@ export const GameBoardTab = () => {
       ),
     );
     setCompletingCourtId(null);
+  };
+
+  const handleAutoMatch = () => {
+    const matchedIds = autoMatchMembers(members, courts, waitingGroups);
+    if (!matchedIds) {
+      alert("자동 매칭할 인원이 부족해요. (대기 가능 인원 최소 4명 필요)");
+      return;
+    }
+    setSelectedIds(matchedIds);
   };
 
   const handleSaveCourts = (labels: string[]) => {
@@ -311,7 +320,7 @@ export const GameBoardTab = () => {
           <button
             type="button"
             className="flex shrink-0 items-center rounded-2xl bg-gr-100 p-2.5 shadow-ds100"
-            onClick={notReady}
+            onClick={handleAutoMatch}
           >
             <img src={Sparkle} alt="추천" className="size-8" />
           </button>
@@ -344,6 +353,7 @@ export const GameBoardTab = () => {
           onMoveToCourt={handleMoveToCourt}
           onChangeWaitingGroup={handleChangeWaitingGroup}
           onAddToWaitingQueue={() => setIsDuplicateCheckOpen(true)}
+          onAutoMatch={handleAutoMatch}
           members={members}
           selectedIds={selectedIds}
           toggleSelect={toggleSelect}

@@ -13,7 +13,6 @@ import {
   type WaitingGroup,
 } from "./mockGameBoardData";
 import {
-  notReady,
   FILTER_LEVEL_OPTIONS,
   FILTER_GENDER_OPTIONS,
   FILTER_SHUTTLE_OPTIONS,
@@ -28,6 +27,7 @@ interface GameBoardWebViewProps {
   onMoveToCourt: (waitingGroupId: number, courtId: number) => void;
   onChangeWaitingGroup: (group: WaitingGroup) => void;
   onAddToWaitingQueue: () => void;
+  onAutoMatch: () => void;
   members: GameMember[];
   selectedIds: number[];
   toggleSelect: (id: number) => void;
@@ -46,6 +46,7 @@ export const GameBoardWebView = ({
   onMoveToCourt,
   onChangeWaitingGroup,
   onAddToWaitingQueue,
+  onAutoMatch,
   members,
   selectedIds,
   toggleSelect,
@@ -177,7 +178,7 @@ export const GameBoardWebView = ({
               <button
                 type="button"
                 className="flex shrink-0 items-center rounded-lg bg-gr-100 p-1.5 shadow-ds100"
-                onClick={notReady}
+                onClick={onAutoMatch}
               >
                 <img src={Sparkle} alt="추천" className="size-5" />
               </button>
