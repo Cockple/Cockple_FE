@@ -367,6 +367,7 @@ export const GameBoardTab = () => {
 
       {isAddPlayerOpen && (
         <GameAddPlayerModal
+          variant={isWebViewOpen ? "overlay" : "sheet"}
           onClose={() => setIsAddPlayerOpen(false)}
           onSubmit={handleAddPlayer}
         />
@@ -374,6 +375,7 @@ export const GameBoardTab = () => {
 
       {editingMember && (
         <GameEditPlayerModal
+          variant={isWebViewOpen ? "overlay" : "sheet"}
           member={editingMember}
           onClose={() => setEditingMemberId(null)}
           onSubmit={handleSaveMemberEdit}
