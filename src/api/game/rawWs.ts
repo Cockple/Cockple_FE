@@ -305,17 +305,57 @@ export const subscribeGameBoard = (gameBoardId: number) =>
 export const unsubscribeGameBoard = (gameBoardId: number) =>
   gameWsRequest<{ gameBoardId: number }>("UNSUBSCRIBE", { gameBoardId });
 
-export const createGameWS = (payload: Record<string, unknown>) =>
-  gameWsRequest("CREATE_GAME", payload);
+// 대기열에 게임 생성
+export type CreateGamePayload = {
+  gameBoardId: number;
+  gameBoardMemberIds: number[]; // 최대 4명, 배열 순서 = playerOrder
+};
 
-export const startGameWS = (payload: Record<string, unknown>) =>
-  gameWsRequest("START_GAME", payload);
+export type CreateGameData = {
+  gameId: number;
+  board: GameBoardSnapshot;
+};
 
-export const completeGameWS = (payload: Record<string, unknown>) =>
-  gameWsRequest("COMPLETE_GAME", payload);
+export const createGameWS = (payload: CreateGamePayload) =>
+  gameWsRequest<CreateGameData>("CREATE_GAME", payload);
 
-export const deleteGameWS = (payload: Record<string, unknown>) =>
-  gameWsRequest("DELETE_GAME", payload);
+// 대기열에 있는 팀을 게임 코트로 옮길 때 사용
+export type StartGamePayload = {
+  gameBoardId: number;
+  gameId: number;
+  courtId: number;
+};
+
+export const startGameWS = (payload: StartGamePayload) =>
+  gameWsRequest<GameBoardSnapshot>("START_GAME", payload);
+
+// 게임 완료 시 코트를 비우고 팀 멤버들의 게임횟수를 증가
+export type CompleteGamePayload = {
+  gameBoardId: number;
+  gameId: number;
+};
+
+export const completeGameWS = (payload: CompleteGamePayload) =>
+  gameWsRequest<GameBoardSnapshot>("COMPLETE_GAME", payload);
+
+// PlayerInfo 필드 명세 미확정 — placeholder
+export type PlayerInfo = unknown;
+
+// 게임 취소 / 대기열 삭제 시 사용
+export type DeleteGamePayload = {
+  gameBoardId: number;
+  gameId: number;
+  restore?: boolean; // true면 삭제 게임 플레이어를 복원용으로 반환 (기본 false)
+};
+
+export type DeleteGameData = {
+  gameId: number;
+  players: PlayerInfo[]; // restore=false면 빈 배열
+  board: GameBoardSnapshot;
+};
+
+export const deleteGameWS = (payload: DeleteGamePayload) =>
+  gameWsRequest<DeleteGameData>("DELETE_GAME", payload);
 
 // 이미 코트에 배정된 경기를 다른 코트로 옮길 때 사용 (피그마상 불필요해 보이나 추후 대비)
 export type MoveCourtPayload = {
@@ -327,5 +367,11 @@ export type MoveCourtPayload = {
 export const moveCourtWS = (payload: MoveCourtPayload) =>
   gameWsRequest<GameBoardSnapshot>("MOVE_COURT", payload);
 
-export const moveToWaitingWS = (payload: Record<string, unknown>) =>
-  gameWsRequest("MOVE_TO_WAITING", payload);
+// 진행중인 게임을 대기열 맨 앞으로 이동. 코트는 비워짐
+export type MoveToWaitingPayload = {
+  gameBoardId: number;
+  gameId: number;
+};
+
+export const moveToWaitingWS = (payload: MoveToWaitingPayload) =>
+  gameWsRequest<GameBoardSnapshot>("MOVE_TO_WAITING", payload);
