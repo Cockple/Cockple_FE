@@ -4,6 +4,7 @@
 // 요청/응답이 requestId로 매칭되는 envelope 구조라, 액션 전송은 Promise 기반 request()로 처리한다.
 
 import useUserStore from "../../store/useUserStore";
+import type { GameBoardPlayer, GameBoardResponse } from "./board";
 
 let ws: WebSocket | null = null;
 
@@ -43,9 +44,8 @@ export type GameResponseType =
 
 export type GameErrorPayload = { code: string; message: string };
 
-// GameBoardDTO.Response (게임 코트 보드 조회 Response와 동일한 스냅샷).
-// 아직 해당 명세를 받지 못해 임시로 unknown 처리 — 필드 확정되면 교체.
-export type GameBoardSnapshot = unknown;
+// GameBoardDTO.Response (게임 코트 보드 조회 Response와 동일한 스냅샷)
+export type GameBoardSnapshot = GameBoardResponse;
 
 export type GameResponseEnvelope<TData = unknown> = {
   version: number;
@@ -338,8 +338,8 @@ export type CompleteGamePayload = {
 export const completeGameWS = (payload: CompleteGamePayload) =>
   gameWsRequest<GameBoardSnapshot>("COMPLETE_GAME", payload);
 
-// PlayerInfo 필드 명세 미확정 — placeholder
-export type PlayerInfo = unknown;
+// 복원용 플레이어 정보 — 보드 조회의 PlayerDto(GameBoardPlayer)와 동일하다고 가정. 다르면 교체 필요
+export type PlayerInfo = GameBoardPlayer;
 
 // 게임 취소 / 대기열 삭제 시 사용
 export type DeleteGamePayload = {
