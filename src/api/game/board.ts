@@ -1,6 +1,7 @@
 // 게임 코트 보드 조회 (REST, GET /api/game-boards/{gameBoardId})
 // 명단을 제외한 게임코트/대기열 스냅샷. 웹소켓 각 액션 응답의 board/data와 동일한 shape(GameBoardDTO.Response).
 import api from "../api";
+import type { CommonResponse } from "../../types/common";
 
 export type CourtStatus = "EMPTY" | "PLAYING";
 
@@ -37,22 +38,10 @@ export interface GameBoardResponse {
   waitings: GameBoardWaiting[];
 }
 
-interface ApiEnvelope<T> {
-  code: string;
-  message: string;
-  data: T;
-  errorReason?: {
-    code: string;
-    message: string;
-    httpStatus: string;
-  };
-  success: boolean;
-}
-
 export const getGameBoard = async (
   gameBoardId: number,
 ): Promise<GameBoardResponse> => {
-  const response = await api.get<ApiEnvelope<GameBoardResponse>>(
+  const response = await api.get<CommonResponse<GameBoardResponse>>(
     `/api/game-boards/${gameBoardId}`,
   );
   return response.data.data;
