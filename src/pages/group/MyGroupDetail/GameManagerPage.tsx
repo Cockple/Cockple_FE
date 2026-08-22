@@ -21,12 +21,6 @@ export const GameManagerPage = () => {
 
   const { data, isLoading } = useGetGameHostCandidates(exerciseIdNumber);
   const totalCount = data?.totalCount || 0;
-  useEffect(() => {
-    if (data) {
-      console.log("Game Host Candidates Data:", data);
-      data.participants.forEach(p => console.log("Participant:", p.name, "partyPosition:", p.partyPosition));
-    }
-  }, [data]);
 
   const members: MemberProps[] = data?.participants.map(p => ({
     participantId: p.participantId,

@@ -89,11 +89,11 @@ export default defineConfig(({ mode }) => {
       host: true,
       proxy: {
         "/api": {
-          target: "https://staging.cockple.site",
+          target: "https://api.cockple.site",
           changeOrigin: true,
         },
         "/ws": {
-          target: "https://staging.cockple.site",
+          target: "https://api.cockple.site",
           changeOrigin: true,
           ws: true,
         },
