@@ -1,37 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import AddWhite from "@/assets/icons/add_white.svg";
 import Filter from "@/assets/icons/filter.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
+import { getGameBoard, type GameBoardResponse } from "@/api/game/board";
+import { getGameBoardMembers } from "@/api/game/members";
+import { updateCourts } from "@/api/game/courts";
+import { useGameWs } from "@/hooks/useGameWs";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
-import {
-  mockCourts,
-  mockGameMembers,
-  mockWaitingGroups,
-  type CourtGroup,
-  type GameMember,
-  type WaitingGroup,
-} from "./mockGameBoardData";
+import { type CourtGroup, type GameMember, type WaitingGroup } from "./mockGameBoardData";
 import { GameAddPlayerModal } from "./GameAddPlayerModal";
-import {
-  GameEditPlayerModal,
-  type EditedGamePlayer,
-} from "./GameEditPlayerModal";
+import { GameEditPlayerModal, type EditedGamePlayer } from "./GameEditPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
-import { CourtManageBottomSheet } from "./CourtManageBottomSheet";
+import { CourtManageBottomSheet, type CourtManageItem } from "./CourtManageBottomSheet";
 import { GameFilterPage } from "./GameFilterPage";
 import { GameEndModal } from "./GameEndModal";
 import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import { autoMatchMembers } from "./gameAutoMatch";
+import { formatElapsed, toBoardViewModel, toGameMember } from "./gameBoardAdapter";
 
-export const GameBoardTab = () => {
+interface GameBoardTabProps {
+  gameBoardId: number;
+}
+
+export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [members, setMembers] = useState<GameMember[]>(mockGameMembers);
-  const [courts, setCourts] = useState<CourtGroup[]>(mockCourts);
-  const [waitingGroups, setWaitingGroups] =
-    useState<WaitingGroup[]>(mockWaitingGroups);
+  const [members, setMembers] = useState<GameMember[]>([]);
+  const [courts, setCourts] = useState<CourtGroup[]>([]);
+  const [waitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
@@ -42,7 +41,69 @@ export const GameBoardTab = () => {
   );
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
-  >(() => (mockCourts.length === 0 ? "sheet" : null));
+  >(null);
+
+  const gameWs = useGameWs({ gameBoardId });
+
+  const applyBoard = (board: GameBoardResponse) => {
+    const { courts: nextCourts, waitingGroups: nextWaitingGroups } =
+      toBoardViewModel(board);
+    setCourts(nextCourts);
+    setWaitingGroups(nextWaitingGroups);
+    if (board.courtCount === 0) {
+      setCourtManageVariant(prev => prev ?? "sheet");
+    }
+  };
+
+  const refreshMembers = () => {
+    getGameBoardMembers(gameBoardId).then(res => {
+      setMembers(res.gameBoardMembers.map(toGameMember));
+    });
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    Promise.all([getGameBoard(gameBoardId), getGameBoardMembers(gameBoardId)])
+      .then(([board, memberRes]) => {
+        applyBoard(board);
+        setMembers(memberRes.gameBoardMembers.map(toGameMember));
+      })
+      .finally(() => setIsLoading(false));
+  }, [gameBoardId]);
+
+  // 진행중인 코트의 경과 시간 스톱워치 (startedAt 기준 1초마다 재계산)
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCourts(prev =>
+        prev.map(c =>
+          c.startedAt ? { ...c, timer: formatElapsed(c.startedAt) } : c,
+        ),
+      );
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // 다른 클라이언트의 변경사항 브로드캐스트 반영
+  useEffect(() => {
+    const msg = gameWs.lastMessage;
+    if (!msg) return;
+
+    if (msg.type === "BOARD_UPDATED" && msg.data) {
+      applyBoard(msg.data as GameBoardResponse);
+      refreshMembers();
+    } else if (
+      (msg.type === "GAME_CREATED" || msg.type === "GAME_DELETED") &&
+      msg.data &&
+      typeof msg.data === "object" &&
+      "board" in msg.data
+    ) {
+      applyBoard((msg.data as { board: GameBoardResponse }).board);
+      refreshMembers();
+    } else if (msg.type === "MEMBERS_UPDATED") {
+      refreshMembers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameWs.lastMessage]);
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev =>
@@ -107,48 +168,72 @@ export const GameBoardTab = () => {
     setSelectedIds(prev => prev.filter(v => v !== id));
   };
 
-  const handleRemoveWaitingGroup = (id: number) => {
-    setWaitingGroups(prev => prev.filter(group => group.id !== id));
-  };
-
-  const handleAddToWaitingQueue = () => {
+  const handleAddToWaitingQueue = async () => {
     if (selectedMembers.length === 0) return;
-    const newGroup: WaitingGroup = {
-      id: Date.now(),
-      label: `대기 ${waitingGroups.length + 1}번`,
-      memberIds: selectedMembers.map(m => m.id),
-      players: selectedMembers.map((m, i) => ({
-        id: m.id,
-        name: m.name,
-        group: m.group,
-        color: i % 2 === 0 ? "pink" : "blue",
-      })),
-    };
-    setWaitingGroups(prev => [...prev, newGroup]);
-    setSelectedIds([]);
+    try {
+      await gameWs.createGame({
+        gameBoardId,
+        gameBoardMemberIds: selectedMembers.map(m => m.id),
+      });
+      setSelectedIds([]);
+    } catch (err) {
+      console.error("[GAME] CREATE_GAME 실패", err);
+      alert("대기열 추가에 실패했어요.");
+    }
   };
 
-  const handleChangeWaitingGroup = (group: WaitingGroup) => {
-    handleRemoveWaitingGroup(group.id);
-    setSelectedIds(group.memberIds);
+  const handleChangeWaitingGroup = async (group: WaitingGroup) => {
+    try {
+      const res = await gameWs.deleteGame({
+        gameBoardId,
+        gameId: group.gameId,
+        restore: true,
+      });
+      const restoredIds = res.data?.players.map(p => p.gameBoardMemberId);
+      setSelectedIds(restoredIds?.length ? restoredIds : group.memberIds);
+    } catch (err) {
+      console.error("[GAME] DELETE_GAME(restore) 실패", err);
+      alert("대기열 변경에 실패했어요.");
+    }
   };
 
-  const handleMoveToCourt = (waitingGroupId: number, courtId: number) => {
+  const handleRemoveWaitingGroup = async (id: number) => {
+    const group = waitingGroups.find(g => g.id === id);
+    if (!group) return;
+    try {
+      await gameWs.deleteGame({
+        gameBoardId,
+        gameId: group.gameId,
+        restore: false,
+      });
+    } catch (err) {
+      console.error("[GAME] DELETE_GAME 실패", err);
+      alert("대기열 삭제에 실패했어요.");
+    }
+  };
+
+  const handleMoveToCourt = async (waitingGroupId: number, courtId: number) => {
     const group = waitingGroups.find(g => g.id === waitingGroupId);
     if (!group) return;
-    setCourts(prev =>
-      prev.map(c => (c.id === courtId ? { ...c, players: group.players } : c)),
-    );
-    handleRemoveWaitingGroup(waitingGroupId);
+    try {
+      await gameWs.startGame({ gameBoardId, gameId: group.gameId, courtId });
+    } catch (err) {
+      console.error("[GAME] START_GAME 실패", err);
+      alert("게임 시작에 실패했어요.");
+    }
   };
 
-  const handleCompleteCourt = (courtId: number) => {
-    setCourts(prev =>
-      prev.map(c =>
-        c.id === courtId ? { ...c, players: null, timer: undefined } : c,
-      ),
-    );
-    setCompletingCourtId(null);
+  const handleCompleteCourt = async (courtId: number) => {
+    const court = courts.find(c => c.id === courtId);
+    if (!court?.gameId) return;
+    try {
+      await gameWs.completeGame({ gameBoardId, gameId: court.gameId });
+    } catch (err) {
+      console.error("[GAME] COMPLETE_GAME 실패", err);
+      alert("게임 완료에 실패했어요.");
+    } finally {
+      setCompletingCourtId(null);
+    }
   };
 
   const handleAutoMatch = () => {
@@ -160,17 +245,41 @@ export const GameBoardTab = () => {
     setSelectedIds(matchedIds);
   };
 
-  const handleSaveCourts = (labels: string[]) => {
-    setCourts(prev =>
-      labels.map((label, index) => {
-        const existing = prev[index];
-        return existing
-          ? { ...existing, label }
-          : { id: Date.now() + index, label, players: null };
-      }),
-    );
-    setCourtManageVariant(null);
+  const handleSaveCourts = async (items: CourtManageItem[]) => {
+    try {
+      const res = await updateCourts(gameBoardId, {
+        courts: items.map(item => ({
+          courtId: item.courtId,
+          courtName: item.courtName,
+        })),
+      });
+      setCourts(prev =>
+        res.courts.map(updatedCourt => {
+          const existing = prev.find(c => c.id === updatedCourt.courtId);
+          return {
+            id: updatedCourt.courtId,
+            label: updatedCourt.courtName,
+            gameId: existing?.gameId,
+            startedAt: existing?.startedAt,
+            timer: existing?.timer,
+            players: existing?.players ?? null,
+          };
+        }),
+      );
+      setCourtManageVariant(null);
+    } catch (err) {
+      console.error("[GAME] 코트 저장 실패", err);
+      alert("코트 저장에 실패했어요.");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <span className="body-rg-500 text-gy-700">불러오는 중이에요...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-w-0 flex-col gap-8 pb-28">
@@ -385,7 +494,7 @@ export const GameBoardTab = () => {
       {courtManageVariant && (
         <CourtManageBottomSheet
           variant={courtManageVariant}
-          courtLabels={courts.map(c => c.label)}
+          courts={courts.map(c => ({ courtId: c.id, courtName: c.label }))}
           onClose={() => setCourtManageVariant(null)}
           onSave={handleSaveCourts}
         />
@@ -405,6 +514,7 @@ export const GameBoardTab = () => {
       {isDuplicateCheckOpen && (
         <GameDuplicateCheckModal
           variant={isWebViewOpen ? "overlay" : "sheet"}
+          gameBoardId={gameBoardId}
           members={selectedMembers}
           onClose={() => setIsDuplicateCheckOpen(false)}
           onConfirm={() => {

@@ -6,38 +6,43 @@ import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import GR400_L from "@/components/common/Btn_Static/Text/GR400_L";
 import GR400_M from "@/components/common/Btn_Static/Text/GR400_M";
 
+export interface CourtManageItem {
+  courtId?: number; // 있으면 기존 코트(이름 변경), 없으면 신규 생성
+  courtName: string;
+}
+
 interface CourtManageBottomSheetProps {
   variant?: "sheet" | "overlay";
-  courtLabels: string[];
+  courts: CourtManageItem[];
   onClose: () => void;
-  onSave: (labels: string[]) => void;
+  onSave: (courts: CourtManageItem[]) => void;
 }
 
 export const CourtManageBottomSheet = ({
   variant = "sheet",
-  courtLabels,
+  courts,
   onClose,
   onSave,
 }: CourtManageBottomSheetProps) => {
   useLockBodyScroll(true);
-  const [labels, setLabels] = useState<string[]>(courtLabels);
+  const [items, setItems] = useState<CourtManageItem[]>(courts);
   const [newLabel, setNewLabel] = useState("");
   const [isNewLabelFocused, setIsNewLabelFocused] = useState(false);
 
   const handleAdd = () => {
     const trimmed = newLabel.trim();
     if (!trimmed) return;
-    setLabels(prev => [...prev, trimmed]);
+    setItems(prev => [...prev, { courtName: trimmed }]);
     setNewLabel("");
   };
 
   const handleRemove = (index: number) => {
-    setLabels(prev => prev.filter((_, i) => i !== index));
+    setItems(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSave = () => {
     const trimmed = newLabel.trim();
-    onSave(trimmed ? [...labels, trimmed] : labels);
+    onSave(trimmed ? [...items, { courtName: trimmed }] : items);
     onClose();
   };
 
@@ -48,13 +53,13 @@ export const CourtManageBottomSheet = ({
       <span className="header-h5 text-black">코트 관리</span>
 
       <div className="flex w-full flex-col gap-2">
-        {labels.map((label, index) => (
+        {items.map((item, index) => (
           <div
-            key={index}
+            key={item.courtId ?? `new-${index}`}
             className="flex w-full items-center gap-2 rounded-xl border border-gy-200 px-3 py-2.5"
           >
             <span className="flex-1 truncate body-md-500 text-black">
-              {label}
+              {item.courtName}
             </span>
             <button type="button" onClick={() => handleRemove(index)}>
               <img src={Dismiss} alt="삭제" className="size-5" />

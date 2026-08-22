@@ -158,11 +158,13 @@ export const GameMemberCard = ({
 
       <div className="flex items-center justify-center gap-1">
         <div className="flex min-w-0 flex-1 items-center gap-1">
-          <img
-            src={gender === "FEMALE" ? Female : Male}
-            alt=""
-            className="size-4 shrink-0"
-          />
+          {gender && (
+            <img
+              src={gender === "FEMALE" ? Female : Male}
+              alt=""
+              className="size-4 shrink-0"
+            />
+          )}
           <span className="body-sm-500 text-black">{group}</span>
           <img src={CircleS} alt="" className="size-2 shrink-0" />
           <span className="body-sm-500 whitespace-nowrap text-black">

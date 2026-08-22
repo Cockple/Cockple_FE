@@ -28,6 +28,7 @@ const AGE_BONUS_MALE: Record<string, number> = {
 
 const getSkillScore = (member: GameMember) => {
   const base = GRADE_SCORE[member.group] ?? 5;
+  if (!member.gender) return base; // 성별 정보 없음 - 보정 없이 기본 점수만 사용
   if (member.gender === "FEMALE") return base - 1;
   return base + (AGE_BONUS_MALE[member.ageGroup] ?? 0.2);
 };

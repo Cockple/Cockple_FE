@@ -36,7 +36,7 @@ export const GameEditPlayerModal = ({
   useLockBodyScroll(true);
   const [name, setName] = useState(member.name);
   const [gender, setGender] = useState<"MALE" | "FEMALE" | null>(
-    member.gender,
+    member.gender ?? null,
   );
   const [level, setLevel] = useState(
     member.group === "급수없음" ? "disabled" : member.group,

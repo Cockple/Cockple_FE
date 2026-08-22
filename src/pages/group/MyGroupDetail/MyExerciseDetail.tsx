@@ -181,7 +181,9 @@ export const MyExerciseDetail = () => {
       />
 
       <div className="pt-[3.75rem]">
-        {activeTab === "game" && <GameBoardTab />}
+        {activeTab === "game" && (
+          <GameBoardTab gameBoardId={exerciseIdNumber} />
+        )}
         {activeTab === "gameComplete" && <GameCompleteTab />}
         {activeTab === "detail" && (
           <div className="flex flex-col gap-8">

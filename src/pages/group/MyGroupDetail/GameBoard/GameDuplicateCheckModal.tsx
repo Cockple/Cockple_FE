@@ -1,13 +1,10 @@
+import { useEffect, useState } from "react";
 import DefaultProfile from "@/assets/images/base_profile_img.png";
 import GR400_L from "@/components/common/Btn_Static/Text/GR400_L";
 import GR400_M from "@/components/common/Btn_Static/Text/GR400_M";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
-import {
-  getMatchupInfo,
-  getMatchupKey,
-  type GameMember,
-  type MatchupType,
-} from "./mockGameBoardData";
+import { getGameDuplicateCheck } from "@/api/game/duplicateCheck";
+import { getMatchupKey, type GameMember, type MatchupInfo, type MatchupType } from "./mockGameBoardData";
 
 const LEGEND_ITEMS: { type: MatchupType; label: string; dotClass: string; textClass: string }[] = [
   { type: "recent", label: "직전 경기", dotClass: "bg-rd-500", textClass: "text-rd-500" },
@@ -43,9 +40,14 @@ const Avatar = ({ member }: { member: GameMember }) => (
 );
 
 // 정확히 4명 선택 시, 4명이 이루는 다이아몬드 대진 관계(변 4개 + 대각선 2개 = 총 6쌍)를 그대로 시각화한다.
-const DiamondMatchup = ({ members }: { members: GameMember[] }) => {
+const DiamondMatchup = ({
+  members,
+  matchups,
+}: {
+  members: GameMember[];
+  matchups: Map<string, MatchupInfo>;
+}) => {
   const [topLeft, bottomLeft, topRight, bottomRight] = members;
-  const matchups = getMatchupInfo(members.map(m => m.id));
   const infoFor = (a: GameMember, b: GameMember) =>
     matchups.get(getMatchupKey(a.id, b.id)) ?? { count: 0, type: "first" as const };
 
@@ -111,8 +113,13 @@ const DiamondMatchup = ({ members }: { members: GameMember[] }) => {
 
 // 4명이 아닌 인원수(1~3명, 5명 이상)에서는 다이아몬드 도형이 성립하지 않으므로,
 // 동일한 배지 색 규칙을 유지하는 쌍별 리스트로 대체한다.
-const PairListMatchup = ({ members }: { members: GameMember[] }) => {
-  const matchups = getMatchupInfo(members.map(m => m.id));
+const PairListMatchup = ({
+  members,
+  matchups,
+}: {
+  members: GameMember[];
+  matchups: Map<string, MatchupInfo>;
+}) => {
   const pairs: [GameMember, GameMember][] = [];
   for (let i = 0; i < members.length; i++) {
     for (let j = i + 1; j < members.length; j++) {
@@ -158,19 +165,54 @@ const PairListMatchup = ({ members }: { members: GameMember[] }) => {
 
 interface GameDuplicateCheckModalProps {
   variant?: "sheet" | "overlay";
+  gameBoardId: number;
   members: GameMember[];
   onClose: () => void;
   onConfirm: () => void;
 }
 
+const deriveMatchupType = (
+  count: number,
+  playedInLastGame: boolean,
+): MatchupType =>
+  playedInLastGame ? "recent" : count === 0 ? "first" : "previous";
+
 export const GameDuplicateCheckModal = ({
   variant = "sheet",
+  gameBoardId,
   members,
   onClose,
   onConfirm,
 }: GameDuplicateCheckModalProps) => {
   useLockBodyScroll(true);
   const isOverlay = variant === "overlay";
+
+  const [matchups, setMatchups] = useState<Map<string, MatchupInfo> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let active = true;
+    setMatchups(null);
+    getGameDuplicateCheck(
+      gameBoardId,
+      members.map(m => m.id),
+    ).then(res => {
+      if (!active) return;
+      const next = new Map<string, MatchupInfo>();
+      res.pairs.forEach(p => {
+        next.set(getMatchupKey(p.memberIdA, p.memberIdB), {
+          count: p.count,
+          type: deriveMatchupType(p.count, p.playedInLastGame),
+        });
+      });
+      setMatchups(next);
+    });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameBoardId, members.map(m => m.id).join(",")]);
 
   const content = (
     <>
@@ -195,10 +237,14 @@ export const GameDuplicateCheckModal = ({
         </div>
       </div>
 
-      {members.length === 4 ? (
-        <DiamondMatchup members={members} />
+      {matchups === null ? (
+        <div className="flex h-[18.75rem] w-full items-center justify-center rounded-2xl bg-gy-50">
+          <span className="body-rg-500 text-gy-700">불러오는 중이에요...</span>
+        </div>
+      ) : members.length === 4 ? (
+        <DiamondMatchup members={members} matchups={matchups} />
       ) : (
-        <PairListMatchup members={members} />
+        <PairListMatchup members={members} matchups={matchups} />
       )}
 
       {isOverlay ? (
