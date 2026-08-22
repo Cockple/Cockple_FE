@@ -224,7 +224,11 @@ const router = createBrowserRouter([
         element: <MyExerciseDetail />,
       },
       {
-        path: "/group/Mygroup/GameManager/:exerciseId",
+        path: "/Group/MyGroup/Detail/Exercise_Detail/EndGame/:exerciseId",
+        element: <MyExerciseDetail />,
+      },
+      {
+        path: "/Group/MyGroup/Detail/Exercise_Detail/ChangeHost/:exerciseId",
         element: <GameManagerPage />,
       },
       {

@@ -120,7 +120,7 @@ const MemberInfo = ({
           <YEStarIcon className="w-[1rem] h-[1rem]" />
         )}
         {isManager && (
-          <span className="text-[0.625rem] font-bold text-[#1F74FF] bg-[#E8F0FF] px-[0.375rem] py-[0.125rem] rounded-[0.25rem] flex items-center gap-[0.125rem] whitespace-nowrap">
+          <span className="text-[0.625rem] font-bold text-[#1F74FF] bg-[#E8F0FF] px-[0.375rem] py-[0.125rem] rounded-[8px] flex items-center gap-[0.125rem] whitespace-nowrap">
             ★ 게임 진행자
           </span>
         )}
@@ -174,6 +174,7 @@ const ListMemberLayout = ({
     onAppointClick,
     useDeleteModal,
     onDelete,
+    isManager,
   } = props;
 
   const getNumberText = () => {
@@ -210,7 +211,7 @@ const ListMemberLayout = ({
       />
       <MemberInfo {...props} />
 
-      {selectMode && !isLeader && (
+      {selectMode && !isLeader && !isManager && (
         <Star
           className="w-6 h-6 ml-auto cursor-pointer"
           onClick={e => {

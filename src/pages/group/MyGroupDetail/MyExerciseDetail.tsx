@@ -80,13 +80,27 @@ export const MyExerciseDetail = () => {
 
   const [isWithdrawnModal, setIsWithdrawnModal] = useState(false);
 
+  const location = window.location;
   type TabType = "detail" | "game" | "finished";
-  const [activeTab, setActiveTab] = useState<TabType>("detail");
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (location.pathname.includes("/EndGame")) return "finished";
+    return "detail";
+  });
   const tabOptions = [
     { label: "운동 상세", value: "detail" },
     { label: "게임판", value: "game" },
     { label: "게임 완료", value: "finished" },
   ];
+
+  const handleTabChange = (value: TabType) => {
+    setActiveTab(value);
+    const returnPathQuery = returnPath !== -1 ? `?returnPath=${returnPath}` : "";
+    if (value === "finished") {
+      window.history.replaceState(null, "", `/Group/MyGroup/Detail/Exercise_Detail/EndGame/${exerciseIdNumber}${returnPathQuery}`);
+    } else {
+      window.history.replaceState(null, "", `/group/Mygroup/MyExerciseDetail/${exerciseIdNumber}${returnPathQuery}`);
+    }
+  };
 
   // 운동 상세 조회
   useEffect(() => {
@@ -202,7 +216,7 @@ export const MyExerciseDetail = () => {
       <TabSelector
         options={tabOptions}
         selected={activeTab}
-        onChange={(val) => setActiveTab(val)}
+        onChange={(val) => handleTabChange(val as TabType)}
       />
 
       <div className="flex flex-col gap-8 pt-[3.5rem]">
@@ -386,7 +400,7 @@ export const MyExerciseDetail = () => {
         onSelect={option => {
           if (option === "게임 진행자 관리") {
             navigate(
-              `/group/Mygroup/GameManager/${exerciseId}?returnPath=${returnPath}`,
+              `/Group/MyGroup/Detail/Exercise_Detail/ChangeHost/${exerciseId}?returnPath=${returnPath}`,
             );
           }
           if (option === "운동 수정하기") {

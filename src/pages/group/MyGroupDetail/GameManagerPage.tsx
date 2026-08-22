@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { Member, type MemberProps } from "../../../components/common/contentcard/Member";
-import { getExerciseDetail, setGameManager } from "../../../api/exercise/exercises";
+import { getExerciseDetail } from "../../../api/exercise/exercises";
+import { changeGameHost, useGetGameHostCandidates } from "../../../api/game/game";
 import useUserStore from "../../../store/useUserStore";
 import { useQueryClient } from "@tanstack/react-query";
 import DismissIcon from "../../../assets/icons/dismiss.svg?react";
@@ -18,77 +19,38 @@ export const GameManagerPage = () => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [members, setMembers] = useState<MemberProps[]>([
-    {
-      participantId: 1,
-      memberId: 101,
-      status: "Participating",
-      name: "탕수육",
-      gender: "FEMALE",
-      level: "전국 D조",
-      lastExerciseDate: "2000-00-00",
-      isLeader: true,
-      isManager: true,
-    },
-    {
-      participantId: 2,
-      memberId: 102,
-      status: "Participating",
-      name: "마라탕",
-      gender: "FEMALE",
-      level: "전국 D조",
-      lastExerciseDate: "2000-00-00",
-      isLeader: false,
-      isManager: false,
-    },
-    {
-      participantId: 3,
-      memberId: 103,
-      status: "Participating",
-      name: "고구마",
-      gender: "MALE",
-      level: "전국 D조",
-      lastExerciseDate: "2000-00-00",
-      isLeader: false,
-      isManager: false,
-    },
-    {
-      participantId: 4,
-      memberId: 104,
-      status: "Participating",
-      name: "옥수수",
-      gender: "MALE",
-      level: "전국 D조",
-      lastExerciseDate: "2000-00-00",
-      isLeader: false,
-      isManager: false,
+  const { data, isLoading } = useGetGameHostCandidates(exerciseIdNumber);
+  const totalCount = data?.totalCount || 0;
+  useEffect(() => {
+    if (data) {
+      console.log("Game Host Candidates Data:", data);
+      data.participants.forEach(p => console.log("Participant:", p.name, "partyPosition:", p.partyPosition));
     }
-  ]);
-  const [totalCount, setTotalCount] = useState(4);
+  }, [data]);
 
+  const members: MemberProps[] = data?.participants.map(p => ({
+    participantId: p.participantId,
+    // memberId가 응답에 없으므로 일단 participantId로 임시 사용 또는 제외
+    memberId: p.participantId,
+    status: "Participating" as const,
+    name: p.name,
+    gender: p.gender as "MALE" | "FEMALE",
+    level: p.level,
+    lastExerciseDate: p.lastExerciseDate,
+    imgUrl: p.profileImageUrl,
+    // partyPosition: "모임장", "부모임장", "일반 회원" 등 한글 또는 영문 처리
+    isLeader: p.partyPosition === "OWNER" || p.partyPosition === "MANAGER" || p.partyPosition === "PARTY_MANAGER" || p.partyPosition === "모임장",
+    isManager: p.isGameHost,
+    position: p.partyPosition === "OWNER" || p.partyPosition === "MANAGER" || p.partyPosition === "PARTY_MANAGER" || p.partyPosition === "모임장"
+      ? "leader"
+      : p.partyPosition === "SUBOWNER" || p.partyPosition === "PARTY_SUBMANAGER" || p.partyPosition === "부모임장"
+        ? "sub_leader"
+        : null,
+  })) || [];
 
   const [selectedMember, setSelectedMember] = useState<MemberProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
-
-  useEffect(() => {
-    if (exerciseIdNumber) {
-      fetchMembers();
-    }
-  }, [exerciseIdNumber, user?.memberId]);
-
-  const fetchMembers = async () => {
-    // API 호출 대신 더미 데이터를 그대로 사용합니다.
-    /*
-    try {
-      const res = await getExerciseDetail(exerciseIdNumber, user?.memberId);
-      setMembers(res.participantMembers);
-      setTotalCount(res.participantsCount);
-    } catch (error) {
-      console.error("운동 상세 조회 실패", error);
-    }
-    */
-  };
 
 
 
@@ -105,37 +67,15 @@ export const GameManagerPage = () => {
     if (!selectedMember || selectedMember.participantId === undefined) return;
 
     try {
-      // 실제 API 호출 
-      // 만약 API가 없다면 아래 로직은 에러를 내뿜을 수 있음.
-      // API 호출 대신 프론트엔드 상태만 즉시 업데이트합니다.
-      const updatedMembers = members.map(m => {
-        if (m.participantId === selectedMember.participantId) {
-          return { ...m, isManager: true };
-        } else if (m.isManager) {
-          // 기존 게임 진행자 권한 즉시 해제
-          return { ...m, isManager: false };
-        }
-        return m;
-      });
-      setMembers(updatedMembers);
-
-      /*
-      try {
-        await setGameManager(exerciseIdNumber, selectedMember.participantId);
-      } catch (err) {
-        console.warn("API 호출 실패, 하지만 프론트엔드 상태는 업데이트됨:", err);
-      }
+      await changeGameHost(exerciseIdNumber, selectedMember.participantId);
       queryClient.invalidateQueries({
-        queryKey: ["exerciseDetail"],
+        queryKey: ["gameHostCandidates", exerciseIdNumber],
       });
-      */
 
       setIsModalOpen(false);
       setSelectMode(false);
       alert("게임 진행자가 변경되었습니다.");
 
-      // 모달 닫기 후 뒤로가기? 사용자 요구사항엔 없지만 보통 권한 변경 후 유지 또는 뒤로가기.
-      // 유지하는 것으로 결정.
     } catch (error: any) {
       alert(error?.message || "게임 진행자 변경에 실패했습니다.");
     }
@@ -235,7 +175,6 @@ export const GameManagerPage = () => {
             className="bg-white w-[21.4375rem] flex flex-col px-3 pt-6 pb-4 shadow-ds300 rounded-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* 닫기 버튼: absolute로 띄워서 내용물을 아래로 밀어내지 않게 함 */}
             <DismissIcon
               className="absolute top-3 right-3 w-8 h-8 cursor-pointer"
               onClick={() => setIsModalOpen(false)}
