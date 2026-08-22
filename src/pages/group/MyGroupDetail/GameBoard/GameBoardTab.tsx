@@ -5,7 +5,12 @@ import Filter from "@/assets/icons/filter.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import { getGameBoard, type GameBoardResponse } from "@/api/game/board";
-import { getGameBoardMembers } from "@/api/game/members";
+import {
+  createGameBoardMember,
+  getGameBoardMembers,
+  updateGameBoardMember,
+  updateGameBoardMemberParticipation,
+} from "@/api/game/members";
 import { updateCourts } from "@/api/game/courts";
 import { useGameWs } from "@/hooks/useGameWs";
 import { CourtCard, WaitingCard } from "./CourtCard";
@@ -57,7 +62,14 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
 
   const refreshMembers = () => {
     getGameBoardMembers(gameBoardId).then(res => {
-      setMembers(res.gameBoardMembers.map(toGameMember));
+      // 명단 조회 응답에 gender가 없어, 화면에서 알고 있던 값은 유지한다.
+      setMembers(prev =>
+        res.gameBoardMembers.map(m => {
+          const next = toGameMember(m);
+          const known = prev.find(p => p.id === next.id);
+          return known?.gender ? { ...next, gender: known.gender } : next;
+        }),
+      );
     });
   };
 
@@ -115,57 +127,79 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
   const editingMember =
     members.find(m => m.id === editingMemberId) ?? null;
 
-  const handleSaveMemberEdit = (updated: EditedGamePlayer) => {
+  const handleSaveMemberEdit = async (updated: EditedGamePlayer) => {
     if (editingMemberId === null) return;
-    setMembers(prev =>
-      prev.map(m =>
-        m.id === editingMemberId
-          ? {
-              ...m,
-              name: updated.name,
-              gender: updated.gender,
-              group: updated.level,
-              ageGroup: updated.ageGroup,
-            }
-          : m,
-      ),
-    );
-    setEditingMemberId(null);
+    const memberId = editingMemberId;
+    try {
+      await updateGameBoardMember(gameBoardId, memberId, {
+        name: updated.name,
+        gender: updated.gender,
+        level: updated.level,
+        ageGroup: updated.ageGroup || undefined,
+      });
+      setMembers(prev =>
+        prev.map(m =>
+          m.id === memberId
+            ? {
+                ...m,
+                name: updated.name,
+                gender: updated.gender,
+                group: updated.level,
+                ageGroup: updated.ageGroup,
+              }
+            : m,
+        ),
+      );
+      setEditingMemberId(null);
+    } catch (err) {
+      console.error("[GAME] 플레이어 정보 수정 실패", err);
+      alert("정보 수정에 실패했어요.");
+    }
   };
 
-  const handleAddPlayer = (player: {
+  const handleAddPlayer = async (player: {
     name: string;
     gender: "MALE" | "FEMALE";
     level: string;
     ageGroup: string;
   }) => {
-    setMembers(prev => [
-      ...prev,
-      {
-        id: Math.max(0, ...prev.map(m => m.id)) + 1,
-        name: player.name,
-        gender: player.gender,
-        ageGroup: player.ageGroup,
-        group: player.level,
-        playCount: 0,
-        tags: ["미참여"],
-        selectable: true,
-      },
-    ]);
-    setIsAddPlayerOpen(false);
+    try {
+      await createGameBoardMember(gameBoardId, player);
+      refreshMembers();
+      setIsAddPlayerOpen(false);
+    } catch (err) {
+      console.error("[GAME] 명단 추가 실패", err);
+      alert("명단 추가에 실패했어요.");
+    }
   };
 
-  const handleToggleParticipation = (id: number) => {
-    setMembers(prev =>
-      prev.map(m => {
-        if (m.id !== id) return m;
-        const isWithdrawn = m.tags.includes("미참여");
-        return isWithdrawn
-          ? { ...m, tags: m.tags.filter(t => t !== "미참여"), selectable: true }
-          : { ...m, tags: ["미참여"], selectable: false };
-      }),
-    );
-    setSelectedIds(prev => prev.filter(v => v !== id));
+  const handleToggleParticipation = async (id: number) => {
+    const member = members.find(m => m.id === id);
+    if (!member) return;
+    const nextParticipating = member.tags.includes("미참여");
+    try {
+      await updateGameBoardMemberParticipation(
+        gameBoardId,
+        id,
+        nextParticipating,
+      );
+      setMembers(prev =>
+        prev.map(m => {
+          if (m.id !== id) return m;
+          return nextParticipating
+            ? {
+                ...m,
+                tags: m.tags.filter(t => t !== "미참여"),
+                selectable: true,
+              }
+            : { ...m, tags: ["미참여"], selectable: false };
+        }),
+      );
+      setSelectedIds(prev => prev.filter(v => v !== id));
+    } catch (err) {
+      console.error("[GAME] 참여 상태 변경 실패", err);
+      alert("참여 상태 변경에 실패했어요.");
+    }
   };
 
   const handleAddToWaitingQueue = async () => {
