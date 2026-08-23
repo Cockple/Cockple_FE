@@ -5,10 +5,9 @@ import type {
   GameBoardResponse,
   GameBoardWaiting,
 } from "@/api/game/board";
-import {
-  LEVEL_KO_TO_EN,
-  type GameBoardMember,
-  type GetGameBoardMembersParams,
+import type {
+  GameBoardMember,
+  GetGameBoardMembersParams,
 } from "@/api/game/members";
 import type { CourtGroup, GameMember, GamePlayer, WaitingGroup } from "./mockGameBoardData";
 
@@ -49,6 +48,11 @@ export const toBoardViewModel = (board: GameBoardResponse) => ({
   waitingGroups: board.waitings.map(toWaitingGroup),
 });
 
+const GENDER_KO_TO_EN: Record<string, "MALE" | "FEMALE"> = {
+  남성: "MALE",
+  여성: "FEMALE",
+};
+
 export const toGameMember = (m: GameBoardMember): GameMember => {
   const tags = !m.participating
     ? (["미참여"] as const)
@@ -57,7 +61,7 @@ export const toGameMember = (m: GameBoardMember): GameMember => {
   return {
     id: m.gameBoardMemberId,
     name: m.name,
-    // gender: 명단 조회 API에 필드가 없어 매핑 불가 — 확정되면 채운다.
+    gender: GENDER_KO_TO_EN[m.gender],
     ageGroup: m.ageGroup,
     group: m.level,
     playCount: m.gameCount,
@@ -73,18 +77,15 @@ export interface GameBoardMemberFilters {
   shuttle: string | null; // "제출함" | "미제출" | null
 }
 
-const GENDER_KO_TO_EN: Record<string, "MALE" | "FEMALE"> = {
-  남성: "MALE",
-  여성: "FEMALE",
-};
-
+// level/gender는 한글 표시값을 그대로 API 쿼리에 전달한다 (명단조회 API 스펙).
 export const toGameBoardMembersParams = (
   filters: GameBoardMemberFilters,
 ): GetGameBoardMembersParams => ({
-  level: filters.levels.length
-    ? filters.levels.map(l => LEVEL_KO_TO_EN[l] ?? l)
-    : undefined,
-  gender: filters.gender ? GENDER_KO_TO_EN[filters.gender] : undefined,
+  level: filters.levels.length ? filters.levels : undefined,
+  gender:
+    filters.gender === "남성" || filters.gender === "여성"
+      ? filters.gender
+      : undefined,
   shuttlecockSubmitted:
     filters.shuttle === "제출함"
       ? true

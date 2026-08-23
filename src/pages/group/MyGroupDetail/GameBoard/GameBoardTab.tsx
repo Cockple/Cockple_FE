@@ -72,15 +72,8 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
     }
   };
 
-  // 명단 조회 응답에 gender가 없어, 화면에서 알고 있던 값은 유지한다.
   const applyMembersResponse = (res: { gameBoardMembers: GameBoardMember[] }) => {
-    setMembers(prev =>
-      res.gameBoardMembers.map(m => {
-        const next = toGameMember(m);
-        const known = prev.find(p => p.id === next.id);
-        return known?.gender ? { ...next, gender: known.gender } : next;
-      }),
-    );
+    setMembers(res.gameBoardMembers.map(toGameMember));
   };
 
   const refreshMembers = () => {

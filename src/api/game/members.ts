@@ -11,19 +11,21 @@ export interface GameBoardMember {
   gameCount: number; // 게임 참여 횟수
   profileImageUrl: string | null;
   name: string;
-  ageGroup: string;
-  level: string;
+  gender: string; // 한글 표시값 ("남성" | "여성")
+  ageGroup: string; // 한글 표시값 (예: "30대")
+  level: string; // 한글 표시값 (예: "A조")
   shuttlecockSubmitted: boolean;
 }
 
 export interface GameBoardMembersResponse {
-  totalCount: number; // 전체 운동 인원
+  totalCount: number; // 필터와 무관한 전체 명단 수
   gameBoardMembers: GameBoardMember[];
 }
 
+// level/gender는 한글 표시값을 그대로 전달 (예: level=A조&level=B조, gender=남성). 서로 다른 필터는 AND, 같은 level 다중 선택은 OR.
 export interface GetGameBoardMembersParams {
-  level?: string[]; // 급수, 다중 선택
-  gender?: "MALE" | "FEMALE";
+  level?: string[];
+  gender?: "남성" | "여성";
   shuttlecockSubmitted?: boolean;
 }
 

@@ -27,7 +27,7 @@ export type MemberTag = "운동" | "대기" | "미참여";
 export interface GameMember {
   id: number;
   name: string;
-  gender?: "MALE" | "FEMALE"; // 명단 조회 API 미제공 필드 — 확정되면 필수로 변경
+  gender: "MALE" | "FEMALE";
   ageGroup: string;
   group: string;
   playCount: number;
