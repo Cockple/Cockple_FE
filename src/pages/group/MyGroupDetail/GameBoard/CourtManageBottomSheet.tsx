@@ -61,9 +61,11 @@ export const CourtManageBottomSheet = ({
             <span className="flex-1 truncate body-md-500 text-black">
               {item.courtName}
             </span>
-            <button type="button" onClick={() => handleRemove(index)}>
-              <img src={Dismiss} alt="삭제" className="size-5" />
-            </button>
+            {index !== 0 && (
+              <button type="button" onClick={() => handleRemove(index)}>
+                <img src={Dismiss} alt="삭제" className="size-5" />
+              </button>
+            )}
           </div>
         ))}
 
