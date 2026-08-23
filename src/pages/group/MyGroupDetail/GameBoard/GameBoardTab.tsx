@@ -10,6 +10,7 @@ import {
   getGameBoardMembers,
   updateGameBoardMember,
   updateGameBoardMemberParticipation,
+  type GameBoardMember,
 } from "@/api/game/members";
 import { updateCourts } from "@/api/game/courts";
 import { useGameWs } from "@/hooks/useGameWs";
@@ -24,7 +25,13 @@ import { GameFilterPage } from "./GameFilterPage";
 import { GameEndModal } from "./GameEndModal";
 import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import { autoMatchMembers } from "./gameAutoMatch";
-import { formatElapsed, toBoardViewModel, toGameMember } from "./gameBoardAdapter";
+import {
+  formatElapsed,
+  toBoardViewModel,
+  toGameBoardMembersParams,
+  toGameMember,
+  type GameBoardMemberFilters,
+} from "./gameBoardAdapter";
 
 interface GameBoardTabProps {
   gameBoardId: number;
@@ -47,6 +54,11 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
   >(null);
+  const [filters, setFilters] = useState<GameBoardMemberFilters>({
+    levels: [],
+    gender: "전체",
+    shuttle: null,
+  });
 
   const gameWs = useGameWs({ gameBoardId });
 
@@ -60,27 +72,42 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
     }
   };
 
+  // 명단 조회 응답에 gender가 없어, 화면에서 알고 있던 값은 유지한다.
+  const applyMembersResponse = (res: { gameBoardMembers: GameBoardMember[] }) => {
+    setMembers(prev =>
+      res.gameBoardMembers.map(m => {
+        const next = toGameMember(m);
+        const known = prev.find(p => p.id === next.id);
+        return known?.gender ? { ...next, gender: known.gender } : next;
+      }),
+    );
+  };
+
   const refreshMembers = () => {
-    getGameBoardMembers(gameBoardId).then(res => {
-      // 명단 조회 응답에 gender가 없어, 화면에서 알고 있던 값은 유지한다.
-      setMembers(prev =>
-        res.gameBoardMembers.map(m => {
-          const next = toGameMember(m);
-          const known = prev.find(p => p.id === next.id);
-          return known?.gender ? { ...next, gender: known.gender } : next;
-        }),
-      );
-    });
+    getGameBoardMembers(gameBoardId, toGameBoardMembersParams(filters)).then(
+      applyMembersResponse,
+    );
+  };
+
+  const handleApplyFilters = (next: GameBoardMemberFilters) => {
+    setFilters(next);
+    getGameBoardMembers(gameBoardId, toGameBoardMembersParams(next)).then(
+      applyMembersResponse,
+    );
   };
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([getGameBoard(gameBoardId), getGameBoardMembers(gameBoardId)])
+    Promise.all([
+      getGameBoard(gameBoardId),
+      getGameBoardMembers(gameBoardId, toGameBoardMembersParams(filters)),
+    ])
       .then(([board, memberRes]) => {
         applyBoard(board);
         setMembers(memberRes.gameBoardMembers.map(toGameMember));
       })
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameBoardId]);
 
   // 진행중인 코트의 경과 시간 스톱워치 (startedAt 기준 1초마다 재계산)
@@ -514,6 +541,7 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
           onEditMember={setEditingMemberId}
           onAddPlayer={() => setIsAddPlayerOpen(true)}
           onManageCourts={() => setCourtManageVariant("overlay")}
+          onOpenFilter={() => setIsFilterOpen(true)}
           onClose={() => setIsWebViewOpen(false)}
         />
       )}
@@ -545,7 +573,12 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
       )}
 
       {isFilterOpen && (
-        <GameFilterPage onClose={() => setIsFilterOpen(false)} />
+        <GameFilterPage
+          variant={isWebViewOpen ? "overlay" : "sheet"}
+          initialFilters={filters}
+          onApply={handleApplyFilters}
+          onClose={() => setIsFilterOpen(false)}
+        />
       )}
 
       {completingCourtId !== null && (

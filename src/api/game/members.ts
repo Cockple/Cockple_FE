@@ -44,7 +44,7 @@ export const getGameBoardMembers = async (
 };
 
 // 한글 급수 라벨(LEVEL_KEY) → API 코드. convertLevel.ts/filterUtils.ts의 매핑과 동일한 규칙.
-const LEVEL_KO_TO_EN: Record<string, string> = {
+export const LEVEL_KO_TO_EN: Record<string, string> = {
   자강: "EXPERT",
   준자강: "SEMI_EXPERT",
   A조: "A",

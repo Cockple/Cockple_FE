@@ -4,6 +4,7 @@ import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
+import Filter from "@/assets/icons/filter.svg";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import { GameEndModal } from "./GameEndModal";
@@ -12,12 +13,6 @@ import {
   type GameMember,
   type WaitingGroup,
 } from "./mockGameBoardData";
-import {
-  FILTER_LEVEL_OPTIONS,
-  FILTER_GENDER_OPTIONS,
-  FILTER_SHUTTLE_OPTIONS,
-  FilterChipRow,
-} from "./gameBoardShared";
 
 interface GameBoardWebViewProps {
   courts: CourtGroup[];
@@ -35,6 +30,7 @@ interface GameBoardWebViewProps {
   onEditMember: (id: number) => void;
   onAddPlayer: () => void;
   onManageCourts: () => void;
+  onOpenFilter: () => void;
   onClose: () => void;
 }
 
@@ -54,6 +50,7 @@ export const GameBoardWebView = ({
   onEditMember,
   onAddPlayer,
   onManageCourts,
+  onOpenFilter,
   onClose,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
@@ -148,6 +145,14 @@ export const GameBoardWebView = ({
               >
                 <img src={AddWhite} alt="추가" className="size-4" />
               </button>
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-lg bg-gy-100 py-1 pl-1.5 pr-2"
+                onClick={onOpenFilter}
+              >
+                <img src={Filter} alt="" className="size-4" />
+                <span className="body-rg-500 text-black">필터</span>
+              </button>
             </div>
 
             <div className="flex items-center gap-3">
@@ -191,12 +196,6 @@ export const GameBoardWebView = ({
                 대기열 추가
               </button>
             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <FilterChipRow label="전국 급수" options={FILTER_LEVEL_OPTIONS} />
-            <FilterChipRow label="성별" options={FILTER_GENDER_OPTIONS} />
-            <FilterChipRow label="셔틀콕" options={FILTER_SHUTTLE_OPTIONS} />
           </div>
 
           <div className="flex flex-wrap gap-x-3 gap-y-4">
