@@ -270,13 +270,23 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
     }
   };
 
-  const handleAutoMatch = () => {
-    const matchedIds = autoMatchMembers(members, courts, waitingGroups);
-    if (!matchedIds) {
-      alert("자동 매칭할 인원이 부족해요. (대기 가능 인원 최소 4명 필요)");
-      return;
+  const handleAutoMatch = async () => {
+    try {
+      const matchedIds = await autoMatchMembers(
+        gameBoardId,
+        members,
+        courts,
+        waitingGroups,
+      );
+      if (!matchedIds) {
+        alert("자동 매칭할 인원이 부족해요. (대기 가능 인원 최소 4명 필요)");
+        return;
+      }
+      setSelectedIds(matchedIds);
+    } catch (err) {
+      console.error("[GAME] AUTO_MATCH 실패", err);
+      alert("자동 매칭에 실패했어요.");
     }
-    setSelectedIds(matchedIds);
   };
 
   const handleSaveCourts = async (items: CourtManageItem[]) => {

@@ -48,38 +48,3 @@ export const getMatchupKey = (memberIdA: number, memberIdB: number) =>
   memberIdA < memberIdB
     ? `${memberIdA}-${memberIdB}`
     : `${memberIdB}-${memberIdA}`;
-
-// 실제 매치 이력 API가 아직 없어 두 회원 id로 결정적인 가짜 대결 횟수(0~3)를 만든다.
-const mockMatchCount = (memberIdA: number, memberIdB: number) => {
-  const [lo, hi] =
-    memberIdA < memberIdB ? [memberIdA, memberIdB] : [memberIdB, memberIdA];
-  return (lo * 31 + hi * 17) % 4;
-};
-
-export const getMatchupInfo = (
-  memberIds: number[],
-): Map<string, MatchupInfo> => {
-  const counts = new Map<string, number>();
-  let mostRecentKey: string | null = null;
-  let maxCount = 0;
-
-  for (let i = 0; i < memberIds.length; i++) {
-    for (let j = i + 1; j < memberIds.length; j++) {
-      const key = getMatchupKey(memberIds[i], memberIds[j]);
-      const count = mockMatchCount(memberIds[i], memberIds[j]);
-      counts.set(key, count);
-      if (count > maxCount) {
-        maxCount = count;
-        mostRecentKey = key;
-      }
-    }
-  }
-
-  const result = new Map<string, MatchupInfo>();
-  counts.forEach((count, key) => {
-    const type: MatchupType =
-      count === 0 ? "first" : key === mostRecentKey ? "recent" : "previous";
-    result.set(key, { count, type });
-  });
-  return result;
-};

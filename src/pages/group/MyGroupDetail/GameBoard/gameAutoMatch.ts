@@ -1,5 +1,5 @@
+import { getGameDuplicateCheck } from "@/api/game/duplicateCheck";
 import {
-  getMatchupInfo,
   getMatchupKey,
   type CourtGroup,
   type GameMember,
@@ -77,13 +77,15 @@ const bestSplitSkillDiff = (four: GameMember[]) => {
 };
 
 // 4명 사이 6가지 조합 전체에 대해 과거 함께 경기한 누적 횟수 합산 (중복 페널티)
-const repeatPenaltyForQuartet = (four: GameMember[]) => {
-  const matchupInfo = getMatchupInfo(four.map(m => m.id));
+const repeatPenaltyForQuartet = (
+  four: GameMember[],
+  matchCounts: Map<string, number>,
+) => {
   let penalty = 0;
   for (let i = 0; i < 4; i++) {
     for (let j = i + 1; j < 4; j++) {
       const key = getMatchupKey(four[i].id, four[j].id);
-      penalty += matchupInfo.get(key)?.count ?? 0;
+      penalty += matchCounts.get(key) ?? 0;
     }
   }
   return penalty;
@@ -98,11 +100,12 @@ const parseElapsedMinutes = (timer?: string) => {
 };
 
 // 대기/명단 인원 중 4명을 자동으로 뽑아 회원 id 배열을 반환. 매칭 가능한 인원이 없으면 null.
-export const autoMatchMembers = (
+export const autoMatchMembers = async (
+  gameBoardId: number,
   members: GameMember[],
   courts: CourtGroup[],
   waitingGroups: WaitingGroup[],
-): number[] | null => {
+): Promise<number[] | null> => {
   const queuedIds = new Set(waitingGroups.flatMap(g => g.memberIds));
   const playingCourtOf = new Map<number, CourtGroup>();
   courts.forEach(court => {
@@ -145,12 +148,22 @@ export const autoMatchMembers = (
   }
   candidatePool = candidatePool.slice(0, 12); // 성능을 위해 최대 12명까지만 후보로 사용
 
+  // 후보군 전체 쌍에 대한 과거 대전 횟수를 한 번에 조회
+  const duplicateCheck = await getGameDuplicateCheck(
+    gameBoardId,
+    candidatePool.map(m => m.id),
+  );
+  const matchCounts = new Map<string, number>();
+  duplicateCheck.pairs.forEach(p => {
+    matchCounts.set(getMatchupKey(p.memberIdA, p.memberIdB), p.count);
+  });
+
   // 2단계: 후보군 내 모든 4인 조합에 대해 급수 밸런스 + 중복 이력 + 게임수 공정성 점수 계산
   let best: GameMember[] | null = null;
   let bestScore = Infinity;
   combinations(candidatePool, 4).forEach(four => {
     const skillDiff = bestSplitSkillDiff(four);
-    const repeatPenalty = repeatPenaltyForQuartet(four);
+    const repeatPenalty = repeatPenaltyForQuartet(four, matchCounts);
     const gamesSum = four.reduce((sum, m) => sum + m.playCount, 0);
     const score = skillDiff * 100 + repeatPenalty * 15 + gamesSum;
     if (score < bestScore) {
