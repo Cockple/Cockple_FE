@@ -16,8 +16,8 @@ import ExerciseFilled from "@/assets/icons/Exercise_filled.svg";
 import type { GameMember, MemberTag } from "./mockGameBoardData";
 
 const TAG_STYLE: Record<MemberTag, string> = {
-  운동: "bg-[#fff4d2] text-[#d96303]",
-  대기: "bg-[#e1eefe] text-bl-500",
+  운동: "bg-gr-100 text-gr-700",
+  대기: "bg-[#fff4d2] text-[#d96303]",
   미참: "bg-gy-100 text-gy-700",
 };
 

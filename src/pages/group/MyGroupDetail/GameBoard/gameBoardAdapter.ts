@@ -9,10 +9,21 @@ import type {
   GameBoardMember,
   GetGameBoardMembersParams,
 } from "@/api/game/members";
-import type { CourtGroup, GameMember, GamePlayer, WaitingGroup } from "./mockGameBoardData";
+import type {
+  CourtGroup,
+  GameMember,
+  GamePlayer,
+  WaitingGroup,
+} from "./mockGameBoardData";
+
+// 서버가 타임존 표시 없이 UTC 시각을 내려줄 때, Date가 이를 로컬 시간으로 오인해
+// 9시간(한국 UTC+9)만큼 어긋나는 것을 막기 위해 명시적으로 UTC로 해석한다.
+const parseServerDate = (value: string) =>
+  new Date(/[Zz]|[+-]\d{2}:\d{2}$/.test(value) ? value : `${value}Z`);
 
 export const formatElapsed = (startedAt: string) => {
-  const ms = Date.now() - new Date(startedAt).getTime();
+  console.log("[formatElapsed] raw startedAt:", startedAt, "now:", new Date().toISOString());
+  const ms = Date.now() - parseServerDate(startedAt).getTime();
   const totalSec = Math.max(0, Math.floor(ms / 1000));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
   const ss = String(totalSec % 60).padStart(2, "0");

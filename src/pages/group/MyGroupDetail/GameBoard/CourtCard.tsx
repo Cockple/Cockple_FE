@@ -20,12 +20,14 @@ export const waitingDraggableId = (waitingGroupId: number) =>
 export const PlayerBadge = ({ name, group, color }: GamePlayer) => (
   <div
     className={clsx(
-      "flex gap-0.5 h-7 w-[5.5rem] items-center justify-center rounded-lg px-1.5 py-1",
+      "flex h-7 w-[5.5rem] items-center justify-center gap-0.5 rounded-lg px-1.5 py-1",
       color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
     )}
   >
-    <span className="body-rg-600 text-black">{name}</span>
-    <span className="body-sm-500 text-gy-700">{group}</span>
+    <span className="body-rg-600 min-w-0 flex-1 truncate text-black">
+      {name}
+    </span>
+    <span className="body-sm-500 shrink-0 truncate text-gy-700">{group}</span>
   </div>
 );
 
