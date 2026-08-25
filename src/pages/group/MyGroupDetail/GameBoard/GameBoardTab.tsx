@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import AddWhite from "@/assets/icons/add_white.svg";
-import Filter from "@/assets/icons/filter.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
+import FilterBtn from "@/components/common/DynamicBtn/FilterBtn";
 import { getGameBoard, type GameBoardResponse } from "@/api/game/board";
 import {
   createGameBoardMember,
@@ -35,9 +35,10 @@ import {
 
 interface GameBoardTabProps {
   gameBoardId: number;
+  isManager: boolean;
 }
 
-export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
+export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
@@ -61,6 +62,11 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
   });
 
   const gameWs = useGameWs({ gameBoardId });
+
+  const isFilterActive =
+    filters.levels.length > 0 ||
+    (filters.gender !== null && filters.gender !== "전체") ||
+    filters.shuttle !== null;
 
   const applyBoard = (board: GameBoardResponse) => {
     const { courts: nextCourts, waitingGroups: nextWaitingGroups } =
@@ -351,33 +357,35 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="header-h5 text-black">게임 코트</span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="웹으로 보기"
-              className="flex items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black"
-              onClick={() => setIsWebViewOpen(true)}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="size-5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          {isManager && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="웹으로 보기"
+                className="flex items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black"
+                onClick={() => setIsWebViewOpen(true)}
               >
-                <path d="M4 9V4H9M20 9V4H15M4 15V20H9M20 15V20H15" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
-              onClick={() => setCourtManageVariant("sheet")}
-            >
-              코트 관리
-            </button>
-          </div>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="size-5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 9V4H9M20 9V4H15M4 15V20H9M20 15V20H15" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
+                onClick={() => setCourtManageVariant("sheet")}
+              >
+                코트 관리
+              </button>
+            </div>
+          )}
         </div>
         <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-gr-100">
           <div className="w-full overflow-x-auto scrollbar-hide">
@@ -432,30 +440,30 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="header-h5 text-black">명단</span>
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded-lg bg-gr-500"
-            onClick={() => setIsAddPlayerOpen(true)}
-          >
-            <img src={AddWhite} alt="추가" className="size-4" />
-          </button>
+          {isManager && (
+            <button
+              type="button"
+              className="flex size-6 items-center justify-center rounded-lg bg-gr-500"
+              onClick={() => setIsAddPlayerOpen(true)}
+            >
+              <img src={AddWhite} alt="추가" className="size-4" />
+            </button>
+          )}
         </div>
         <div className="flex items-center justify-between">
           <span className="body-rg-500 text-gy-700">전체 {members.length}</span>
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-lg bg-white py-1 pl-1.5 pr-2"
+          <FilterBtn
+            forceStatus={isFilterActive ? "clicked" : "default"}
             onClick={() => setIsFilterOpen(true)}
           >
-            <img src={Filter} alt="" className="size-4" />
-            <span className="body-rg-500 text-black">필터</span>
-          </button>
+            필터
+          </FilterBtn>
         </div>
         <div className="flex flex-wrap justify-between gap-y-4">
           {members.map(member => (
             <GameMemberCard
               key={member.id}
-              member={member}
+              member={isManager ? member : { ...member, selectable: false }}
               selected={selectedIds.includes(member.id)}
               onToggleSelect={() => toggleSelect(member.id)}
               onEditInfo={() => setEditingMemberId(member.id)}
@@ -466,56 +474,58 @@ export const GameBoardTab = ({ gameBoardId }: GameBoardTabProps) => {
       </div>
 
       {/* 하단 선택 바 */}
-      <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[444px] -translate-x-1/2 flex-col gap-2 bg-gradient-to-b from-white/0 via-white/80 to-white px-4 pb-9 pt-2">
-        {selectedMembers.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {selectedMembers.map((m, i) => (
-              <button
-                key={m.id}
-                type="button"
-                className={clsx(
-                  "flex shrink-0 items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black shadow-ds50",
-                  i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
-                )}
-                onClick={() => toggleSelect(m.id)}
-              >
-                {m.name}({m.group})
-                <img src={Dismiss} alt="선택 해제" className="size-4" />
-              </button>
-            ))}
-          </div>
-        )}
-        <div className="flex items-end gap-[0.5625rem]">
-          <div className="flex size-[3.25rem] shrink-0 flex-col items-center justify-between">
-            <span className="header-h2 text-black">{selectedIds.length}</span>
-            <span className="body-sm-500 text-gy-700">선택됨</span>
-          </div>
-          <button
-            type="button"
-            className="flex shrink-0 items-center rounded-2xl bg-gr-100 p-2.5 shadow-ds100"
-            onClick={handleAutoMatch}
-          >
-            <img src={Sparkle} alt="추천" className="size-8" />
-          </button>
-          {selectedIds.length > 0 ? (
-            <button
-              type="button"
-              className="h-[3.25rem] flex-1 rounded-2xl bg-gr-600 header-h4 text-white shadow-ds100"
-              onClick={() => setIsDuplicateCheckOpen(true)}
-            >
-              대기열 추가
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled
-              className="h-[3.25rem] flex-1 rounded-2xl bg-gy-400 header-h4 text-white shadow-ds100"
-            >
-              선수를 선택해주세요
-            </button>
+      {isManager && (
+        <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[444px] -translate-x-1/2 flex-col gap-2 bg-gradient-to-b from-white/0 via-white/80 to-white px-4 pb-9 pt-2">
+          {selectedMembers.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+              {selectedMembers.map((m, i) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  className={clsx(
+                    "flex shrink-0 items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black shadow-ds50",
+                    i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+                  )}
+                  onClick={() => toggleSelect(m.id)}
+                >
+                  {m.name}({m.group})
+                  <img src={Dismiss} alt="선택 해제" className="size-4" />
+                </button>
+              ))}
+            </div>
           )}
+          <div className="flex items-end gap-[0.5625rem]">
+            <div className="flex size-[3.25rem] shrink-0 flex-col items-center justify-between">
+              <span className="header-h2 text-black">{selectedIds.length}</span>
+              <span className="body-sm-500 text-gy-700">선택됨</span>
+            </div>
+            <button
+              type="button"
+              className="flex shrink-0 items-center rounded-2xl bg-gr-100 p-2.5 shadow-ds100"
+              onClick={handleAutoMatch}
+            >
+              <img src={Sparkle} alt="추천" className="size-8" />
+            </button>
+            {selectedIds.length > 0 ? (
+              <button
+                type="button"
+                className="h-[3.25rem] flex-1 rounded-2xl bg-gr-600 header-h4 text-white shadow-ds100"
+                onClick={() => setIsDuplicateCheckOpen(true)}
+              >
+                대기열 추가
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="h-[3.25rem] flex-1 rounded-2xl bg-gy-400 header-h4 text-white shadow-ds100"
+              >
+                선수를 선택해주세요
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {isWebViewOpen && (
         <GameBoardWebView
