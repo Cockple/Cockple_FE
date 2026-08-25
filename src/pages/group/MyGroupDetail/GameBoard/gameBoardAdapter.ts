@@ -53,10 +53,15 @@ const GENDER_KO_TO_EN: Record<string, "MALE" | "FEMALE"> = {
   여성: "FEMALE",
 };
 
+// 노출 조건 (판정 우선순위): 경기중 > 대기열 포함 > 운동 불참 > 뱃지 없음. 한 번에 하나만 노출한다.
 export const toGameMember = (m: GameBoardMember): GameMember => {
-  const tags = !m.participating
-    ? (["미참여"] as const)
-    : ([...(m.inGame ? ["운동" as const] : []), ...(m.waiting ? ["대기" as const] : [])]);
+  const tags: GameMember["tags"] = m.inGame
+    ? ["운동"]
+    : m.waiting
+      ? ["대기"]
+      : !m.participating
+        ? ["미참"]
+        : [];
 
   return {
     id: m.gameBoardMemberId,

@@ -22,7 +22,7 @@ export interface WaitingGroup {
   memberIds: number[];
 }
 
-export type MemberTag = "운동" | "대기" | "미참여";
+export type MemberTag = "운동" | "대기" | "미참";
 
 export interface GameMember {
   id: number;

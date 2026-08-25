@@ -202,7 +202,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   const handleToggleParticipation = async (id: number) => {
     const member = members.find(m => m.id === id);
     if (!member) return;
-    const nextParticipating = member.tags.includes("미참여");
+    const nextParticipating = member.tags.includes("미참");
     try {
       await updateGameBoardMemberParticipation(
         gameBoardId,
@@ -215,10 +215,10 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
           return nextParticipating
             ? {
                 ...m,
-                tags: m.tags.filter(t => t !== "미참여"),
+                tags: m.tags.filter(t => t !== "미참"),
                 selectable: true,
               }
-            : { ...m, tags: ["미참여"], selectable: false };
+            : { ...m, tags: ["미참"], selectable: false };
         }),
       );
       setSelectedIds(prev => prev.filter(v => v !== id));
