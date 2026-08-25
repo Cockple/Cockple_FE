@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import clsx from "clsx";
 import {
   DndContext,
@@ -22,6 +23,7 @@ import {
   type GameBoardMember,
 } from "@/api/game/members";
 import { updateCourts } from "@/api/game/courts";
+import { postRandomMatch } from "@/api/game/randomMatch";
 import { useGameWs } from "@/hooks/useGameWs";
 import {
   CourtCard,
@@ -49,7 +51,6 @@ import {
 import { GameFilterPage } from "./GameFilterPage";
 import { GameEndModal } from "./GameEndModal";
 import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
-import { autoMatchMembers } from "./gameAutoMatch";
 import {
   formatElapsed,
   toBoardViewModel,
@@ -403,19 +404,14 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
 
   const handleAutoMatch = async () => {
     try {
-      const matchedIds = await autoMatchMembers(
-        gameBoardId,
-        members,
-        courts,
-        waitingGroups,
-      );
-      if (!matchedIds) {
+      const { gameBoardMemberIds } = await postRandomMatch(gameBoardId);
+      setSelectedIds(gameBoardMemberIds);
+    } catch (err) {
+      console.error("[GAME] RANDOM_MATCH 실패", err);
+      if (axios.isAxiosError(err) && err.response?.status === 400) {
         alert("자동 매칭할 인원이 부족해요. (대기 가능 인원 최소 4명 필요)");
         return;
       }
-      setSelectedIds(matchedIds);
-    } catch (err) {
-      console.error("[GAME] AUTO_MATCH 실패", err);
       alert("자동 매칭에 실패했어요.");
     }
   };
