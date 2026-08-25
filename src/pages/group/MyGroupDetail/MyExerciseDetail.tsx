@@ -182,7 +182,7 @@ export const MyExerciseDetail = () => {
 
       <div className="pt-[3.75rem]">
         {activeTab === "game" && (
-          <GameBoardTab gameBoardId={exerciseIdNumber} />
+          <GameBoardTab gameBoardId={detail.gameBoardId} />
         )}
         {activeTab === "gameComplete" && <GameCompleteTab />}
         {activeTab === "detail" && (
