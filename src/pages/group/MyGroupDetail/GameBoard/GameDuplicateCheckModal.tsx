@@ -4,18 +4,49 @@ import GR400_L from "@/components/common/Btn_Static/Text/GR400_L";
 import GR400_M from "@/components/common/Btn_Static/Text/GR400_M";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { getGameDuplicateCheck } from "@/api/game/duplicateCheck";
-import { getMatchupKey, type GameMember, type MatchupInfo, type MatchupType } from "./mockGameBoardData";
+import {
+  getMatchupKey,
+  type GameMember,
+  type MatchupInfo,
+  type MatchupType,
+} from "./mockGameBoardData";
 
-const LEGEND_ITEMS: { type: MatchupType; label: string; dotClass: string; textClass: string }[] = [
-  { type: "recent", label: "직전 경기", dotClass: "bg-rd-500", textClass: "text-rd-500" },
-  { type: "first", label: "첫 경기", dotClass: "bg-gy-500", textClass: "text-gy-700" },
-  { type: "previous", label: "이전 경기", dotClass: "bg-gr-700", textClass: "text-gr-700" },
+const LEGEND_ITEMS: {
+  type: MatchupType;
+  label: string;
+  dotClass: string;
+  textClass: string;
+}[] = [
+  {
+    type: "recent",
+    label: "직전 경기",
+    dotClass: "bg-rd-500",
+    textClass: "text-rd-500",
+  },
+  {
+    type: "first",
+    label: "첫 경기",
+    dotClass: "bg-gy-500",
+    textClass: "text-gy-700",
+  },
+  {
+    type: "previous",
+    label: "이전 경기",
+    dotClass: "bg-gr-700",
+    textClass: "text-gr-700",
+  },
 ];
 
 const MATCHUP_BADGE_STYLE: Record<MatchupType, string> = {
   recent: "border border-rd-500 shadow-[0_0_4px_rgba(246,45,45,0.16)]",
   previous: "border border-gr-500 shadow-[0_0_4px_rgba(26,187,101,0.16)]",
   first: "shadow-[0_0_8px_rgba(18,18,18,0.16)]",
+};
+
+const MATCHUP_LINE_COLOR: Record<MatchupType, string> = {
+  recent: "#F62D2D",
+  previous: "#1ABB65",
+  first: "#E4E7EA",
 };
 
 interface MatchBadgeProps {
@@ -49,7 +80,10 @@ const DiamondMatchup = ({
 }) => {
   const [topLeft, bottomLeft, topRight, bottomRight] = members;
   const infoFor = (a: GameMember, b: GameMember) =>
-    matchups.get(getMatchupKey(a.id, b.id)) ?? { count: 0, type: "first" as const };
+    matchups.get(getMatchupKey(a.id, b.id)) ?? {
+      count: 0,
+      type: "first" as const,
+    };
 
   return (
     <div className="relative h-[18.75rem] w-full rounded-2xl bg-gy-50">
@@ -58,12 +92,54 @@ const DiamondMatchup = ({
         viewBox="0 0 160 160"
         fill="none"
       >
-        <line x1="0" y1="0" x2="160" y2="0" stroke="#E4E7EA" strokeWidth="1.5" />
-        <line x1="0" y1="0" x2="0" y2="160" stroke="#E4E7EA" strokeWidth="1.5" />
-        <line x1="160" y1="0" x2="160" y2="160" stroke="#E4E7EA" strokeWidth="1.5" />
-        <line x1="0" y1="160" x2="160" y2="160" stroke="#E4E7EA" strokeWidth="1.5" />
-        <line x1="0" y1="0" x2="160" y2="160" stroke="#E4E7EA" strokeWidth="1.5" />
-        <line x1="160" y1="0" x2="0" y2="160" stroke="#E4E7EA" strokeWidth="1.5" />
+        <line
+          x1="0"
+          y1="0"
+          x2="160"
+          y2="0"
+          stroke={MATCHUP_LINE_COLOR[infoFor(topLeft, topRight).type]}
+          strokeWidth="3"
+        />
+        <line
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="160"
+          stroke={MATCHUP_LINE_COLOR[infoFor(topLeft, bottomLeft).type]}
+          strokeWidth="3"
+        />
+        <line
+          x1="160"
+          y1="0"
+          x2="160"
+          y2="160"
+          stroke={MATCHUP_LINE_COLOR[infoFor(topRight, bottomRight).type]}
+          strokeWidth="3"
+        />
+        <line
+          x1="0"
+          y1="160"
+          x2="160"
+          y2="160"
+          stroke={MATCHUP_LINE_COLOR[infoFor(bottomLeft, bottomRight).type]}
+          strokeWidth="3"
+        />
+        <line
+          x1="0"
+          y1="0"
+          x2="160"
+          y2="160"
+          stroke={MATCHUP_LINE_COLOR[infoFor(topLeft, bottomRight).type]}
+          strokeWidth="3"
+        />
+        <line
+          x1="160"
+          y1="0"
+          x2="0"
+          y2="160"
+          stroke={MATCHUP_LINE_COLOR[infoFor(topRight, bottomLeft).type]}
+          strokeWidth="3"
+        />
       </svg>
 
       <div className="absolute left-[4.4375rem] top-[1.4375rem] flex flex-col items-center gap-1">
@@ -136,7 +212,7 @@ const PairListMatchup = ({
   }
 
   return (
-    <div className="flex max-h-[18.75rem] w-full flex-col gap-2 overflow-y-auto rounded-2xl bg-gy-50 p-3">
+    <div className="flex max-h-[18.75rem] w-full flex-col gap-7 overflow-y-auto rounded-2xl bg-gy-50 px-3 pb-3 pt-8">
       {pairs.map(([a, b]) => {
         const info = matchups.get(getMatchupKey(a.id, b.id)) ?? {
           count: 0,
@@ -145,15 +221,27 @@ const PairListMatchup = ({
         return (
           <div
             key={getMatchupKey(a.id, b.id)}
-            className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 shadow-ds50"
+            className="flex w-full items-center justify-center"
           >
-            <div className="flex flex-1 items-center gap-2">
+            <div className="relative shrink-0">
+              <span className="header-h5 absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap text-black">
+                {a.name}
+              </span>
               <Avatar member={a} />
-              <span className="body-rg-500 truncate text-black">{a.name}</span>
             </div>
+            <div
+              className="h-[3px] w-11"
+              style={{ backgroundColor: MATCHUP_LINE_COLOR[info.type] }}
+            />
             <MatchBadge info={info} />
-            <div className="flex flex-1 items-center justify-end gap-2">
-              <span className="body-rg-500 truncate text-black">{b.name}</span>
+            <div
+              className="h-[3px] w-11"
+              style={{ backgroundColor: MATCHUP_LINE_COLOR[info.type] }}
+            />
+            <div className="relative shrink-0">
+              <span className="header-h5 absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap text-black">
+                {b.name}
+              </span>
               <Avatar member={b} />
             </div>
           </div>
@@ -219,7 +307,7 @@ export const GameDuplicateCheckModal = ({
       <span className="header-h5 text-black">게임 중복 체크</span>
 
       <div className="flex w-full items-center justify-between px-3">
-        <div className="flex w-[11.125rem] shrink-0 flex-col gap-0.5 text-black">
+        <div className="flex w-[11.125rem] shrink-0 flex-col gap-0.5 text-left text-black">
           <span className="body-rg-500">이 조합, 얼마나 겹쳤을까요?</span>
           <span className="body-sm-400 text-gy-700">
             선수들이 이전에 서로 경기한 횟수에요.
