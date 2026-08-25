@@ -1,5 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { DndContext } from "@dnd-kit/core";
 import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
@@ -72,66 +73,72 @@ export const GameBoardWebView = ({
       </div>
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-10 py-8">
-        {/* 게임 코트 */}
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="header-h5 text-black">게임 코트</span>
-            <button
-              type="button"
-              className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
-              onClick={onManageCourts}
-            >
-              코트 관리
-            </button>
-          </div>
-          <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-gr-100">
-            <div className="w-full overflow-x-auto scrollbar-hide">
-              <div className="flex w-max gap-3 p-2">
-                {courts.map(court => (
-                  <CourtCard
-                    key={court.id}
-                    label={court.label}
-                    timer={court.timer}
-                    players={court.players}
-                    onComplete={() => setCompletingCourtId(court.id)}
-                  />
-                ))}
-              </div>
+        <DndContext sensors={[]}>
+          {/* 게임 코트 */}
+          <div className="flex min-w-0 flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="header-h5 text-black">게임 코트</span>
+              <button
+                type="button"
+                className="rounded-lg bg-gy-100 px-4 py-1.5 body-rg-500 text-black"
+                onClick={onManageCourts}
+              >
+                코트 관리
+              </button>
             </div>
-          </div>
-        </div>
-
-        {/* 대기 */}
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className="flex items-center">
-            <span className="header-h5 text-black">대기</span>
-          </div>
-          {waitingGroups.length === 0 ? (
-            <div className="flex h-32 w-full items-center justify-center rounded-[1.5rem] bg-[#fff4d2]">
-              <span className="body-sm-500 text-gy-700">
-                대기중인 팀이 없어요
-              </span>
-            </div>
-          ) : (
-            <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-[#fff4d2]">
+            <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-gr-100">
               <div className="w-full overflow-x-auto scrollbar-hide">
                 <div className="flex w-max gap-3 p-2">
-                  {waitingGroups.map(group => (
-                    <WaitingCard
-                      key={group.id}
-                      label={group.label}
-                      players={group.players}
-                      courts={courts}
-                      onMoveToCourt={courtId => onMoveToCourt(group.id, courtId)}
-                      onChange={() => onChangeWaitingGroup(group)}
-                      onReject={() => onRemoveWaitingGroup(group.id)}
+                  {courts.map(court => (
+                    <CourtCard
+                      key={court.id}
+                      courtId={court.id}
+                      label={court.label}
+                      timer={court.timer}
+                      players={court.players}
+                      onComplete={() => setCompletingCourtId(court.id)}
                     />
                   ))}
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+
+          {/* 대기 */}
+          <div className="flex min-w-0 flex-col gap-3">
+            <div className="flex items-center">
+              <span className="header-h5 text-black">대기</span>
+            </div>
+            {waitingGroups.length === 0 ? (
+              <div className="flex h-32 w-full items-center justify-center rounded-[1.5rem] bg-[#fff4d2]">
+                <span className="body-sm-500 text-gy-700">
+                  대기중인 팀이 없어요
+                </span>
+              </div>
+            ) : (
+              <div className="w-full min-w-0 overflow-hidden rounded-[1.5rem] bg-[#fff4d2]">
+                <div className="w-full overflow-x-auto scrollbar-hide">
+                  <div className="flex w-max gap-3 p-2">
+                    {waitingGroups.map(group => (
+                      <WaitingCard
+                        key={group.id}
+                        waitingGroupId={group.id}
+                        label={group.label}
+                        players={group.players}
+                        courts={courts}
+                        onMoveToCourt={courtId =>
+                          onMoveToCourt(group.id, courtId)
+                        }
+                        onChange={() => onChangeWaitingGroup(group)}
+                        onReject={() => onRemoveWaitingGroup(group.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </DndContext>
 
         {/* 명단 */}
         <div className="flex flex-col gap-3">

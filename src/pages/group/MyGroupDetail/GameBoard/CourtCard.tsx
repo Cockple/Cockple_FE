@@ -8,11 +8,16 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import Pen from "@/assets/icons/pen.svg";
 import Reject from "@/assets/icons/reject.svg";
 import type { GamePlayer } from "./mockGameBoardData";
 
-const PlayerBadge = ({ name, group, color }: GamePlayer) => (
+export const courtDroppableId = (courtId: number) => `court-${courtId}`;
+export const waitingDraggableId = (waitingGroupId: number) =>
+  `waiting-${waitingGroupId}`;
+
+export const PlayerBadge = ({ name, group, color }: GamePlayer) => (
   <div
     className={clsx(
       "flex gap-0.5 h-7 w-[5.5rem] items-center justify-center rounded-lg px-1.5 py-1",
@@ -25,21 +30,82 @@ const PlayerBadge = ({ name, group, color }: GamePlayer) => (
 );
 
 interface CourtCardProps {
+  courtId: number;
   label: string;
   timer?: string;
   players: GamePlayer[] | null;
   onComplete?: () => void;
+  onReturnToWaiting?: () => void;
+  onCancelGame?: () => void;
 }
 
 export const CourtCard = ({
+  courtId,
   label,
   timer,
   players,
   onComplete,
+  onReturnToWaiting,
+  onCancelGame,
 }: CourtCardProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressNextClick = useRef(false);
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: courtDroppableId(courtId),
+  });
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        if (cardRef.current?.contains(e.target as Node)) {
+          suppressNextClick.current = true;
+        }
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const openMenuAt = (x: number, y: number) => {
+    setMenuPosition(clampMenuPosition(x, y, MENU_WIDTH, MENU_HEIGHT));
+    setIsMenuOpen(true);
+  };
+
+  const clearLongPressTimer = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const handleContextMenu = (e: ReactMouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    openMenuAt(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    clearLongPressTimer();
+    longPressTimer.current = setTimeout(() => {
+      openMenuAt(touch.clientX, touch.clientY);
+    }, LONG_PRESS_MS);
+  };
+
   if (!players) {
     return (
-      <div className="flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100">
+      <div
+        ref={setDropRef}
+        className={clsx(
+          "flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+          isOver && "bg-gr-100 ring-2 ring-gr-500",
+        )}
+      >
         <div className="flex h-6 items-center pl-1">
           <span className="body-sm-500 text-black">{label}</span>
         </div>
@@ -51,7 +117,27 @@ export const CourtCard = ({
   }
 
   return (
-    <div className="flex w-[12.5rem] shrink-0 cursor-pointer flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100">
+    <div
+      ref={node => {
+        cardRef.current = node;
+        setDropRef(node);
+      }}
+      className={clsx(
+        "flex w-[12.5rem] shrink-0 cursor-pointer flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        isOver && "ring-2 ring-gr-500",
+      )}
+      onClick={() => {
+        if (suppressNextClick.current) {
+          suppressNextClick.current = false;
+          return;
+        }
+        onReturnToWaiting?.();
+      }}
+      onContextMenu={handleContextMenu}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={clearLongPressTimer}
+      onTouchMove={clearLongPressTimer}
+    >
       <div className="flex h-6 items-center justify-between pl-1">
         <div className="flex items-center gap-1">
           <span className="body-sm-500 text-black">{label}</span>
@@ -73,11 +159,45 @@ export const CourtCard = ({
           <PlayerBadge key={p.id} {...p} />
         ))}
       </div>
+
+      {isMenuOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+            className="fixed z-50 flex flex-col items-start rounded-xl bg-white p-1 shadow-ds400"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-black hover:bg-gy-100"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onReturnToWaiting?.();
+              }}
+            >
+              대기로 되돌리기
+            </button>
+            <div className="my-1 h-px w-full bg-gy-100" />
+            <button
+              type="button"
+              className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-rd-500 hover:bg-gy-100"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onCancelGame?.();
+              }}
+            >
+              경기 취소
+            </button>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };
 
 interface WaitingCardProps {
+  waitingGroupId: number;
   label: string;
   players: GamePlayer[];
   courts: { id: number; label: string }[];
@@ -88,6 +208,7 @@ interface WaitingCardProps {
 
 const LONG_PRESS_MS = 600;
 const MENU_WIDTH = 149;
+const MENU_HEIGHT = 84;
 const MENU_EDGE_MARGIN = 8;
 
 const clampMenuPosition = (
@@ -107,6 +228,7 @@ const clampMenuPosition = (
 });
 
 export const WaitingCard = ({
+  waitingGroupId,
   label,
   players,
   courts,
@@ -114,6 +236,12 @@ export const WaitingCard = ({
   onChange,
   onReject,
 }: WaitingCardProps) => {
+  const {
+    attributes: dragAttributes,
+    listeners: dragListeners,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({ id: waitingDraggableId(waitingGroupId) });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [clickPoint, setClickPoint] = useState<{ x: number; y: number } | null>(
@@ -185,12 +313,20 @@ export const WaitingCard = ({
 
   return (
     <div
-      ref={cardRef}
-      className="flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100"
+      ref={node => {
+        cardRef.current = node;
+        setDragRef(node);
+      }}
+      className={clsx(
+        "flex w-[12.5rem] shrink-0 touch-pan-x flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100",
+        isDragging && "opacity-40",
+      )}
       onContextMenu={handleContextMenu}
       onTouchStart={handleTouchStart}
       onTouchEnd={clearLongPressTimer}
       onTouchMove={clearLongPressTimer}
+      {...dragAttributes}
+      {...dragListeners}
     >
       <div className="flex h-6 items-center justify-between pl-1">
         <span className="body-sm-500 text-black">{label}</span>
@@ -243,6 +379,27 @@ export const WaitingCard = ({
                 </button>
               </div>
             ))}
+            <div className="my-1 h-px w-full bg-gy-100" />
+            <button
+              type="button"
+              className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-black hover:bg-gy-100"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onChange?.();
+              }}
+            >
+              변경
+            </button>
+            <button
+              type="button"
+              className="flex h-8 w-[9.3125rem] items-center justify-start rounded-lg px-2 py-1.5 body-rg-400 text-rd-500 hover:bg-gy-100"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onReject?.();
+              }}
+            >
+              취소
+            </button>
           </div>,
           document.body,
         )}
