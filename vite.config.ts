@@ -87,6 +87,17 @@ export default defineConfig(({ mode }) => {
 
     server: {
       host: true,
+      proxy: {
+        "/api": {
+          target: "https://api.cockple.site",
+          changeOrigin: true,
+        },
+        "/ws": {
+          target: "https://api.cockple.site",
+          changeOrigin: true,
+          ws: true,
+        },
+      },
     },
 
     define: {

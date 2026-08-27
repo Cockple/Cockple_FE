@@ -223,3 +223,4 @@ export const deleteExercise = async (exerciseId: number) => {
     throw error.response?.data || error;
   }
 };
+
