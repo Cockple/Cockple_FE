@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { getModalConfig } from "../../../components/group/modalConfig";
 import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
 import TabSelector from "../../../components/common/TabSelector";
+import { GameBoardTab } from "./GameBoard/GameBoardTab";
 import { GameFinishedTab } from "./GameFinishedTab";
 import {
   getExerciseDetail,
@@ -385,9 +386,10 @@ export const MyExerciseDetail = () => {
         )}
 
         {activeTab === "game" && (
-          <div className="flex justify-center items-center h-[40vh] text-[#767B89] body-md-500">
-            게임판 화면입니다.
-          </div>
+          <GameBoardTab
+            gameBoardId={detail.gameBoardId}
+            isManager={detail.isManager}
+          />
         )}
 
         {activeTab === "finished" && <GameFinishedTab exerciseId={exerciseIdNumber} />}
