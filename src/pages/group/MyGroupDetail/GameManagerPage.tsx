@@ -1,25 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { Member, type MemberProps } from "../../../components/common/contentcard/Member";
-import { getExerciseDetail } from "../../../api/exercise/exercises";
 import { changeGameHost, useGetGameHostCandidates } from "../../../api/game/game";
-import useUserStore from "../../../store/useUserStore";
 import { useQueryClient } from "@tanstack/react-query";
 import DismissIcon from "../../../assets/icons/dismiss.svg?react";
 import Search from "../../../assets/icons/search.svg?react";
 import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
-import GY800_S from "../../../components/common/Btn_Static/Text/GY800_S";
 
 export const GameManagerPage = () => {
   const navigate = useNavigate();
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const exerciseIdNumber = Number(exerciseId);
-  const { user } = useUserStore();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading } = useGetGameHostCandidates(exerciseIdNumber);
+  const { data } = useGetGameHostCandidates(exerciseIdNumber);
   const totalCount = data?.totalCount || 0;
 
   const members: MemberProps[] = data?.participants.map(p => ({
