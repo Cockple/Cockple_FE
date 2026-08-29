@@ -33,6 +33,7 @@ import { CreateExercise } from "./pages/group/CreateExercise";
 import KakaoLogin from "./pages/login/KakaoLogin";
 import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
+import { useSeedChatUnread } from "./hooks/useSeedChatUnread";
 import { resolveMemberId } from "./utils/auth";
 import { NoNavbarLayout } from "./layout/NoPtLayout";
 
@@ -289,6 +290,8 @@ function App() {
 
   const memberId = resolveMemberId() ?? 0;
   useRawWsConnect({ memberId, origin: import.meta.env.VITE_WS_ORIGIN });
+  // [임시] 채팅 탭 진입 전에도 안읽음 뱃지가 뜨도록 앱 진입 시 1회 seed
+  useSeedChatUnread();
   useEffect(() => {
     // 스플래시 화면이 한 번도 표시되지 않은 경우에만 실행
     if (!hasShownSplash) {

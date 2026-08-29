@@ -132,8 +132,8 @@ export const connectRealtimeWs = async ({
       openListeners.forEach(fn => {
         try {
           fn();
-        } catch (err) {
-          console.warn("realtime ws open listener err", err);
+        } catch {
+          // 개별 리스너 오류가 다른 리스너로 전파되지 않도록 무시
         }
       });
     };
@@ -158,27 +158,24 @@ export const connectRealtimeWs = async ({
         listeners.forEach(fn => {
           try {
             fn(parsed);
-          } catch (err) {
-            console.warn("realtime ws listener err", err);
+          } catch {
+            // 개별 리스너 오류가 다른 리스너로 전파되지 않도록 무시
           }
         });
       } catch {
-        console.warn("[Realtime WS] Non-JSON message:", e.data);
+        // JSON이 아닌 메시지는 무시
       }
     };
 
-    sock.onerror = (ev: Event) => {
-      console.warn("[Realtime WS error]", ev);
-    };
+    sock.onerror = () => {};
 
     sock.onclose = (ev: CloseEvent) => {
-      console.warn("[Realtime WS close]", ev.code, ev.reason);
       rejectAllPending("REALTIME_WS_CLOSED");
       closeListeners.forEach(fn => {
         try {
           fn(ev);
-        } catch (err) {
-          console.warn("realtime ws close listener err", err);
+        } catch {
+          // 개별 리스너 오류가 다른 리스너로 전파되지 않도록 무시
         }
       });
       ws = null;
@@ -268,7 +265,6 @@ export const sendRealtimeFireAndForget = (
   payload: Record<string, unknown>,
 ) => {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    console.warn("[Realtime WS] not open. drop:", domain, action, payload);
     return false;
   }
   const envelope: RequestEnvelope = {

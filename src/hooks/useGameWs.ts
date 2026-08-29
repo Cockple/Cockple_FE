@@ -67,14 +67,10 @@ export const useGameWs = (opts: { gameBoardId?: number; origin?: string } = {}) 
   useEffect(() => {
     if (!isOpen || !opts.gameBoardId) return;
 
-    subscribeGameBoard(opts.gameBoardId).catch(err =>
-      console.warn("[GAME WS] subscribe failed", err),
-    );
+    subscribeGameBoard(opts.gameBoardId).catch(() => {});
 
     return () => {
-      unsubscribeGameBoard(opts.gameBoardId!).catch(err =>
-        console.warn("[GAME WS] unsubscribe failed", err),
-      );
+      unsubscribeGameBoard(opts.gameBoardId!).catch(() => {});
     };
   }, [isOpen, opts.gameBoardId]);
 
