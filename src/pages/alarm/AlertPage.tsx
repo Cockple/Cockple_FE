@@ -82,8 +82,6 @@ export const AlertPage = () => {
   };
 
   const handleDetail = (partyId: number, data?: ResponseAlertDto["data"]) => {
-    console.log("모임 페이지로 이동", partyId);
-
     if (data?.exerciseDate && data?.exerciseId) {
       navigate(`/group/${partyId}`, {
         state: {
@@ -141,10 +139,6 @@ export const AlertPage = () => {
         await api.patch(`/api/parties/invitations/${invitationId}`, {
           action: "APPROVE",
         });
-      } else if (partyId && !invitationId) {
-        console.log("모임 있지만 invitationId 없음");
-      } else {
-        console.log("모임도 없고 invitationId도 없음");
       }
     },
     onSuccess: () => {

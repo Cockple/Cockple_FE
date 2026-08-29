@@ -22,7 +22,6 @@ const parseServerDate = (value: string) =>
   new Date(/[Zz]|[+-]\d{2}:\d{2}$/.test(value) ? value : `${value}Z`);
 
 export const formatElapsed = (startedAt: string) => {
-  console.log("[formatElapsed] raw startedAt:", startedAt, "now:", new Date().toISOString());
   const ms = Date.now() - parseServerDate(startedAt).getTime();
   const totalSec = Math.max(0, Math.floor(ms / 1000));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");

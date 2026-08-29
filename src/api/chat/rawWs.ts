@@ -244,15 +244,13 @@ const sendChat = (action: string, payload: Record<string, unknown>) => {
 
 export const subscribeChatList = (roomIds: number[]) => {
   if (!roomIds.length) return;
-  const ok = sendChat("SUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
-  console.log("[WS→] SUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
+  sendChat("SUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
 };
 
 export const subscribeRoom = (roomId: number) => {
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
-  const ok = sendChat("SUBSCRIBE", { chatRoomId: roomId });
-  console.log("[WS→] SUBSCRIBE", roomId, ok ? "OK" : "DEFER");
+  sendChat("SUBSCRIBE", { chatRoomId: roomId });
 };
 
 export const subscribeMany = (roomIds: number[]) => {
@@ -261,8 +259,7 @@ export const subscribeMany = (roomIds: number[]) => {
 
 export const unsubscribeChatList = (roomIds: number[]) => {
   if (!roomIds.length) return;
-  const ok = sendChat("UNSUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
-  console.log("[WS→] UNSUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
+  sendChat("UNSUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
 };
 
 export const unsubscribeRoom = (roomId: number) => {

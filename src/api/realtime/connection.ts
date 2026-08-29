@@ -105,7 +105,6 @@ export const connectRealtimeWs = async ({
   origin,
 }: { origin?: string } = {}) => {
   if (!hasToken()) {
-    console.info("[Realtime WS] skipped: no accessToken");
     return null;
   }
 
@@ -142,7 +141,6 @@ export const connectRealtimeWs = async ({
     sock.onmessage = (e: MessageEvent) => {
       try {
         const parsed: ResponseEnvelope = JSON.parse(e.data);
-        console.log("[Realtime WS←]", parsed.domain, parsed.type, parsed);
 
         if (parsed.requestId && pending.has(parsed.requestId)) {
           const entry = pending.get(parsed.requestId)!;
@@ -187,7 +185,6 @@ export const connectRealtimeWs = async ({
       connectPromise = null;
 
       if (isManualClose) {
-        console.log("[Realtime WS] Manual disconnect. No reconnect.");
         return;
       }
 
@@ -260,7 +257,6 @@ export const sendRealtimeRequest = <
       timer,
     });
 
-    console.log("[Realtime WS→]", domain, action, envelope);
     ws!.send(JSON.stringify(envelope));
   });
 };
@@ -282,7 +278,6 @@ export const sendRealtimeFireAndForget = (
     requestId: genRequestId(),
     payload,
   };
-  console.log("[Realtime WS→]", domain, action, envelope);
   ws.send(JSON.stringify(envelope));
   return true;
 };
