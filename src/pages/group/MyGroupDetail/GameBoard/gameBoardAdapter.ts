@@ -7,6 +7,7 @@ import type {
 } from "@/api/game/board";
 import type {
   GameBoardMember,
+  GameBoardMemberPayload,
   GetGameBoardMembersParams,
 } from "@/api/game/members";
 import type {
@@ -62,6 +63,24 @@ const GENDER_KO_TO_EN: Record<string, "MALE" | "FEMALE"> = {
   남성: "MALE",
   여성: "FEMALE",
 };
+
+const GENDER_EN_TO_KO: Record<"MALE" | "FEMALE", "남성" | "여성"> = {
+  MALE: "남성",
+  FEMALE: "여성",
+};
+
+// 명단 추가/수정 payload: 서버는 gender를 한글("남성"/"여성")로만 받는다.
+export const toGameBoardMemberPayload = (player: {
+  name: string;
+  gender: "MALE" | "FEMALE";
+  level: string;
+  ageGroup?: string;
+}): GameBoardMemberPayload => ({
+  name: player.name,
+  gender: GENDER_EN_TO_KO[player.gender],
+  level: player.level,
+  ageGroup: player.ageGroup || undefined,
+});
 
 // 노출 조건 (판정 우선순위): 경기중 > 대기열 포함 > 운동 불참 > 뱃지 없음. 한 번에 하나만 노출한다.
 export const toGameMember = (m: GameBoardMember): GameMember => {

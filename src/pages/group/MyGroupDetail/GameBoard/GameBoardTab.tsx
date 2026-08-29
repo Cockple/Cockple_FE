@@ -55,6 +55,7 @@ import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import {
   formatElapsed,
   toBoardViewModel,
+  toGameBoardMemberPayload,
   toGameBoardMembersParams,
   toGameMember,
   type GameBoardMemberFilters,
@@ -197,12 +198,11 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     if (editingMemberId === null) return;
     const memberId = editingMemberId;
     try {
-      await updateGameBoardMember(gameBoardId, memberId, {
-        name: updated.name,
-        gender: updated.gender,
-        level: updated.level,
-        ageGroup: updated.ageGroup || undefined,
-      });
+      await updateGameBoardMember(
+        gameBoardId,
+        memberId,
+        toGameBoardMemberPayload(updated),
+      );
       setMembers(prev =>
         prev.map(m =>
           m.id === memberId
@@ -230,7 +230,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     ageGroup: string;
   }) => {
     try {
-      await createGameBoardMember(gameBoardId, player);
+      await createGameBoardMember(gameBoardId, toGameBoardMemberPayload(player));
       refreshMembers();
       setIsAddPlayerOpen(false);
     } catch (err) {
