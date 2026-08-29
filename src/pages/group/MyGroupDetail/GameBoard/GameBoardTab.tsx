@@ -465,7 +465,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
                 <button
                   type="button"
                   aria-label="웹으로 보기"
-                  className="flex items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black"
+                  className="hidden items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black md:flex"
                   onClick={() => setIsWebViewOpen(true)}
                 >
                   <svg
