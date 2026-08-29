@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import clsx from "clsx";
 import {
   DndContext,
@@ -45,6 +44,7 @@ import {
 } from "./GameEditPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
 import { GameBoardTabSkeleton } from "./GameBoardTabSkeleton";
+import { GameRandomMatchFailModal } from "./GameRandomMatchFailModal";
 import {
   CourtManageBottomSheet,
   type CourtManageItem,
@@ -81,6 +81,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
     null,
   );
+  const [isRandomMatchFailOpen, setIsRandomMatchFailOpen] = useState(false);
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
   >(null);
@@ -409,11 +410,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
       setSelectedIds(gameBoardMemberIds);
     } catch (err) {
       console.error("[GAME] RANDOM_MATCH 실패", err);
-      if (axios.isAxiosError(err) && err.response?.status === 400) {
-        alert("자동 매칭할 인원이 부족해요. (대기 가능 인원 최소 4명 필요)");
-        return;
-      }
-      alert("자동 매칭에 실패했어요.");
+      setIsRandomMatchFailOpen(true);
     }
   };
 
@@ -703,6 +700,12 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
           <GameEndModal
             onClose={() => setCompletingCourtId(null)}
             onConfirm={() => handleCompleteCourt(completingCourtId)}
+          />
+        )}
+
+        {isRandomMatchFailOpen && (
+          <GameRandomMatchFailModal
+            onClose={() => setIsRandomMatchFailOpen(false)}
           />
         )}
 
