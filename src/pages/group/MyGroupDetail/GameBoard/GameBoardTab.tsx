@@ -44,6 +44,7 @@ import {
   type EditedGamePlayer,
 } from "./GameEditPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
+import { GameBoardTabSkeleton } from "./GameBoardTabSkeleton";
 import {
   CourtManageBottomSheet,
   type CourtManageItem,
@@ -445,11 +446,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-40 items-center justify-center">
-        <span className="body-rg-500 text-gy-700">불러오는 중이에요...</span>
-      </div>
-    );
+    return <GameBoardTabSkeleton />;
   }
 
   return (
