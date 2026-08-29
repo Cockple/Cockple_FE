@@ -7,6 +7,7 @@ import type {
 } from "@/api/game/board";
 import type {
   GameBoardMember,
+  GameBoardMemberPayload,
   GetGameBoardMembersParams,
 } from "@/api/game/members";
 import type {
@@ -22,7 +23,6 @@ const parseServerDate = (value: string) =>
   new Date(/[Zz]|[+-]\d{2}:\d{2}$/.test(value) ? value : `${value}Z`);
 
 export const formatElapsed = (startedAt: string) => {
-  console.log("[formatElapsed] raw startedAt:", startedAt, "now:", new Date().toISOString());
   const ms = Date.now() - parseServerDate(startedAt).getTime();
   const totalSec = Math.max(0, Math.floor(ms / 1000));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
@@ -63,6 +63,24 @@ const GENDER_KO_TO_EN: Record<string, "MALE" | "FEMALE"> = {
   남성: "MALE",
   여성: "FEMALE",
 };
+
+const GENDER_EN_TO_KO: Record<"MALE" | "FEMALE", "남성" | "여성"> = {
+  MALE: "남성",
+  FEMALE: "여성",
+};
+
+// 명단 추가/수정 payload: 서버는 gender를 한글("남성"/"여성")로만 받는다.
+export const toGameBoardMemberPayload = (player: {
+  name: string;
+  gender: "MALE" | "FEMALE";
+  level: string;
+  ageGroup?: string;
+}): GameBoardMemberPayload => ({
+  name: player.name,
+  gender: GENDER_EN_TO_KO[player.gender],
+  level: player.level,
+  ageGroup: player.ageGroup || undefined,
+});
 
 // 노출 조건 (판정 우선순위): 경기중 > 대기열 포함 > 운동 불참 > 뱃지 없음. 한 번에 하나만 노출한다.
 export const toGameMember = (m: GameBoardMember): GameMember => {

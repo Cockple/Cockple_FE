@@ -106,10 +106,7 @@ export const postMyProfileLocation = async (payload: AddLocationPayload) => {
 export const deleteAddress = async (memberAddrId: number) => {
   try {
     const res = await api.delete(`/api/my/profile/locations/${memberAddrId}`);
-    if (res.data.success) {
-      console.log("주소 삭제 성공", res.data.message);
-      // 삭제 성공 시 상태 갱신이나 UI 업데이트 수행
-    } else {
+    if (!res.data.success) {
       console.error("주소 삭제 실패", res.data.message);
     }
   } catch (err) {
@@ -124,9 +121,7 @@ export const setMainAddress = async (memberAddrId: number) => {
       `/api/my/profile/locations/${memberAddrId}`,
       {},
     );
-    if (res.data.success) {
-      console.log("대표 주소 변경 성공", res.data.message);
-    } else {
+    if (!res.data.success) {
       console.error("대표 주소 변경 실패", res.data.message);
     }
   } catch (err) {

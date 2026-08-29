@@ -29,17 +29,13 @@ export async function requestFcmToken(): Promise<string | null> {
       return null;
     }
 
-    console.log("[FCM] 현재 권한 상태:", Notification.permission);
-
     if (Notification.permission === "denied") {
       console.warn("[FCM] 알림 권한이 차단(denied) 상태입니다.");
       return null;
     }
 
     if (Notification.permission === "default") {
-      console.log("[FCM] 권한 요청 팝업 호출");
       const permission = await Notification.requestPermission();
-      console.log("[FCM] 권한 요청 결과:", permission);
       if (permission !== "granted") {
         return null;
       }
@@ -55,7 +51,6 @@ export async function requestFcmToken(): Promise<string | null> {
     });
 
     if (token) {
-      console.log("[FCM] 토큰 발급 성공");
       await sendTokenToServer(token);
     } else {
       console.warn("[FCM] 토큰 발급 실패(빈 토큰)");

@@ -48,7 +48,7 @@ export const EditLocationPage = () => {
           setSelectedId(mainAddr.addrId);
         }
       } catch (err) {
-        console.log("등록된 위치 불러오기 오류: ", err);
+        console.error("등록된 위치 불러오기 오류: ", err);
       }
     };
 

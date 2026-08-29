@@ -87,8 +87,10 @@ const DiamondMatchup = ({
 
   return (
     <div className="relative h-[18.75rem] w-full rounded-2xl bg-gy-50">
+      {/* overflow-visible: 외곽 4개 선이 viewBox 경계(0/160)에 걸쳐 있어 기본 clip 시
+          stroke의 절반이 잘려 대각선보다 얇게 보이므로, 잘리지 않도록 노출한다. */}
       <svg
-        className="absolute left-[5.75rem] top-[4.375rem] size-40"
+        className="absolute left-[5.75rem] top-[4.375rem] size-40 overflow-visible"
         viewBox="0 0 160 160"
         fill="none"
       >
@@ -142,21 +144,31 @@ const DiamondMatchup = ({
         />
       </svg>
 
-      <div className="absolute left-[4.4375rem] top-[1.4375rem] flex flex-col items-center gap-1">
-        <span className="header-h5 text-black">{topLeft.name}</span>
+      {/* 노드는 아바타 폭(w-10)으로 고정해 그리드 꼭짓점(x=92/252)에 정확히 중앙 정렬한다.
+          이름은 whitespace-nowrap으로 양옆 대칭 오버플로우시켜 아바타 위치에 영향을 주지 않게 한다. */}
+      <div className="absolute left-[4.5rem] top-[1.4375rem] flex w-10 flex-col items-center gap-1">
+        <span className="header-h5 whitespace-nowrap text-black">
+          {topLeft.name}
+        </span>
         <Avatar member={topLeft} />
       </div>
-      <div className="absolute left-[4.375rem] top-[13.0625rem] flex flex-col items-center gap-1">
+      <div className="absolute left-[4.5rem] top-[13.0625rem] flex w-10 flex-col items-center gap-1">
         <Avatar member={bottomLeft} />
-        <span className="header-h5 text-black">{bottomLeft.name}</span>
+        <span className="header-h5 whitespace-nowrap text-black">
+          {bottomLeft.name}
+        </span>
       </div>
-      <div className="absolute left-[14.4375rem] top-[1.4375rem] flex flex-col items-center gap-1">
-        <span className="header-h5 text-black">{topRight.name}</span>
+      <div className="absolute left-[14.5rem] top-[1.4375rem] flex w-10 flex-col items-center gap-1">
+        <span className="header-h5 whitespace-nowrap text-black">
+          {topRight.name}
+        </span>
         <Avatar member={topRight} />
       </div>
-      <div className="absolute left-[14.4375rem] top-[13.0625rem] flex flex-col items-center gap-1">
+      <div className="absolute left-[14.5rem] top-[13.0625rem] flex w-10 flex-col items-center gap-1">
         <Avatar member={bottomRight} />
-        <span className="header-h5 text-black">{bottomRight.name}</span>
+        <span className="header-h5 whitespace-nowrap text-black">
+          {bottomRight.name}
+        </span>
       </div>
 
       <MatchBadge

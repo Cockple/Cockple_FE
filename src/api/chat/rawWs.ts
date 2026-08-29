@@ -193,8 +193,10 @@ const toIncomingMessage = (env: ResponseEnvelope): IncomingMessage | null => {
         hasDirectUnread: data.hasDirectUnread as boolean,
         timestamp,
       };
+    // 목록 구독/해제 ack — 클라이언트가 따로 처리할 게 없어 조용히 무시
+    case "SUBSCRIBE_CHAT_LIST":
+    case "UNSUBSCRIBE_CHAT_LIST":
     default:
-      console.warn("[Chat WS] 알 수 없는 CHAT 응답 type:", env.type, env);
       return null;
   }
 };
@@ -236,23 +238,18 @@ export const disconnectRawWs = () => disconnectRealtimeWs();
 export const rawWsState = () => realtimeWsState(); // 0/1/2/3
 export const isRawWsOpen = () => isRealtimeWsOpen();
 
-const sendChat = (action: string, payload: Record<string, unknown>) => {
-  const ok = sendRealtimeFireAndForget("CHAT", action, payload);
-  if (!ok) console.warn("[Chat WS] not open. drop:", action, payload);
-  return ok;
-};
+const sendChat = (action: string, payload: Record<string, unknown>) =>
+  sendRealtimeFireAndForget("CHAT", action, payload);
 
 export const subscribeChatList = (roomIds: number[]) => {
   if (!roomIds.length) return;
-  const ok = sendChat("SUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
-  console.log("[WS→] SUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
+  sendChat("SUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
 };
 
 export const subscribeRoom = (roomId: number) => {
   if (currentRooms.has(roomId)) return; // 중복 방지
   currentRooms.add(roomId);
-  const ok = sendChat("SUBSCRIBE", { chatRoomId: roomId });
-  console.log("[WS→] SUBSCRIBE", roomId, ok ? "OK" : "DEFER");
+  sendChat("SUBSCRIBE", { chatRoomId: roomId });
 };
 
 export const subscribeMany = (roomIds: number[]) => {
@@ -261,17 +258,13 @@ export const subscribeMany = (roomIds: number[]) => {
 
 export const unsubscribeChatList = (roomIds: number[]) => {
   if (!roomIds.length) return;
-  const ok = sendChat("UNSUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
-  console.log("[WS→] UNSUBSCRIBE_CHAT_LIST", roomIds, ok ? "OK" : "DEFER");
+  sendChat("UNSUBSCRIBE_CHAT_LIST", { memberRooms: roomIds });
 };
 
 export const unsubscribeRoom = (roomId: number) => {
   if (!currentRooms.has(roomId)) return;
   currentRooms.delete(roomId);
-  const ok = sendChat("UNSUBSCRIBE", { chatRoomId: roomId });
-  if (!ok) {
-    console.warn("[WS] UNSUBSCRIBE send failed (socket closed)");
-  }
+  sendChat("UNSUBSCRIBE", { chatRoomId: roomId });
 };
 
 export const unsubscribeAll = () => {

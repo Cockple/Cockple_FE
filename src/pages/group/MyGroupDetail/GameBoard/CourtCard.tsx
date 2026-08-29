@@ -17,6 +17,10 @@ export const courtDroppableId = (courtId: number) => `court-${courtId}`;
 export const waitingDraggableId = (waitingGroupId: number) =>
   `waiting-${waitingGroupId}`;
 
+// 대기/코트 뱃지에서는 "급수 없음"을 "없음"으로만 표기한다.
+const formatBadgeGroup = (group: string) =>
+  group.replace(/^급수\s*없음$/, "없음");
+
 export const PlayerBadge = ({ name, group, color }: GamePlayer) => (
   <div
     className={clsx(
@@ -27,7 +31,9 @@ export const PlayerBadge = ({ name, group, color }: GamePlayer) => (
     <span className="body-rg-600 min-w-0 flex-1 truncate text-black">
       {name}
     </span>
-    <span className="body-sm-500 shrink-0 truncate text-gy-700">{group}</span>
+    <span className="body-sm-500 shrink-0 truncate text-gy-700">
+      {formatBadgeGroup(group)}
+    </span>
   </div>
 );
 

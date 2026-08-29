@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import clsx from "clsx";
 import {
   DndContext,
@@ -44,6 +43,8 @@ import {
   type EditedGamePlayer,
 } from "./GameEditPlayerModal";
 import { GameBoardWebView } from "./GameBoardWebView";
+import { GameBoardTabSkeleton } from "./GameBoardTabSkeleton";
+import { GameRandomMatchFailModal } from "./GameRandomMatchFailModal";
 import {
   CourtManageBottomSheet,
   type CourtManageItem,
@@ -54,6 +55,7 @@ import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import {
   formatElapsed,
   toBoardViewModel,
+  toGameBoardMemberPayload,
   toGameBoardMembersParams,
   toGameMember,
   type GameBoardMemberFilters,
@@ -80,6 +82,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
     null,
   );
+  const [isRandomMatchFailOpen, setIsRandomMatchFailOpen] = useState(false);
   const [courtManageVariant, setCourtManageVariant] = useState<
     "sheet" | "overlay" | null
   >(null);
@@ -195,12 +198,11 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     if (editingMemberId === null) return;
     const memberId = editingMemberId;
     try {
-      await updateGameBoardMember(gameBoardId, memberId, {
-        name: updated.name,
-        gender: updated.gender,
-        level: updated.level,
-        ageGroup: updated.ageGroup || undefined,
-      });
+      await updateGameBoardMember(
+        gameBoardId,
+        memberId,
+        toGameBoardMemberPayload(updated),
+      );
       setMembers(prev =>
         prev.map(m =>
           m.id === memberId
@@ -228,7 +230,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     ageGroup: string;
   }) => {
     try {
-      await createGameBoardMember(gameBoardId, player);
+      await createGameBoardMember(gameBoardId, toGameBoardMemberPayload(player));
       refreshMembers();
       setIsAddPlayerOpen(false);
     } catch (err) {
@@ -408,11 +410,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
       setSelectedIds(gameBoardMemberIds);
     } catch (err) {
       console.error("[GAME] RANDOM_MATCH 실패", err);
-      if (axios.isAxiosError(err) && err.response?.status === 400) {
-        alert("자동 매칭할 인원이 부족해요. (대기 가능 인원 최소 4명 필요)");
-        return;
-      }
-      alert("자동 매칭에 실패했어요.");
+      setIsRandomMatchFailOpen(true);
     }
   };
 
@@ -445,11 +443,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-40 items-center justify-center">
-        <span className="body-rg-500 text-gy-700">불러오는 중이에요...</span>
-      </div>
-    );
+    return <GameBoardTabSkeleton />;
   }
 
   return (
@@ -468,7 +462,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
                 <button
                   type="button"
                   aria-label="웹으로 보기"
-                  className="flex items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black"
+                  className="hidden items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black md:flex"
                   onClick={() => setIsWebViewOpen(true)}
                 >
                   <svg
@@ -706,6 +700,12 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
           <GameEndModal
             onClose={() => setCompletingCourtId(null)}
             onConfirm={() => handleCompleteCourt(completingCourtId)}
+          />
+        )}
+
+        {isRandomMatchFailOpen && (
+          <GameRandomMatchFailModal
+            onClose={() => setIsRandomMatchFailOpen(false)}
           />
         )}
 

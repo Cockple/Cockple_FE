@@ -84,7 +84,6 @@ export const GroupCalendarPage = () => {
                 currentCount={exercise.currentParticipants}
                 totalCount={exercise.maxCapacity}
                 like={exercise.isBookmarked}
-                onToggleFavorite={id => console.log(`Toggled favorite: ${id}`)}
               />
             </div>
           ))

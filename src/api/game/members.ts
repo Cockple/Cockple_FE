@@ -47,7 +47,7 @@ export const getGameBoardMembers = async (
 
 export interface GameBoardMemberPayload {
   name: string;
-  gender: "MALE" | "FEMALE";
+  gender: "남성" | "여성"; // 서버는 한글 표시값만 허용
   level: string; // 한글 급수 라벨 (예: "D조", "급수없음")
   ageGroup?: string; // 한글 나이대 라벨 (예: "30대")
 }
