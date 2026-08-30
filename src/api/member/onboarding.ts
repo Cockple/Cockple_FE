@@ -31,8 +31,7 @@ export const usePostOnboarding = () => {
   const navigate = useNavigate();
   return useMutation({
     mutationFn: (body: OnBoardingRequest) => postOnboarding(body),
-    onSuccess: data => {
-      console.log(data);
+    onSuccess: () => {
       navigate("/onboarding/confirm/start");
     },
     onError: err => {
@@ -63,8 +62,7 @@ export const usePostKeywords = () => {
       partyId: number;
       keywords: string[];
     }) => postKeywords(keywords, partyId),
-    onSuccess: (data, v) => {
-      console.log(data);
+    onSuccess: (_data, v) => {
       navigate(`/group/making/member/${v.partyId}`);
     },
     onError: err => {

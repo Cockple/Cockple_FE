@@ -12,11 +12,7 @@ export function useFcmToken() {
       return;
     }
 
-    console.log("[FCM] useFcmToken mounted. permission:", Notification.permission);
-
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("[FCM] 포그라운드 알림 수신:", payload);
-    });
+    const unsubscribe = onMessage(messaging, () => {});
 
     const cleanupUserGestureListeners = () => {
       document.removeEventListener("click", handleFirstGesture);
@@ -25,7 +21,6 @@ export function useFcmToken() {
     };
 
     const handleFirstGesture = () => {
-      console.log("[FCM] 사용자 제스처 감지 -> 토큰 등록 시도");
       cleanupUserGestureListeners();
       registerToken();
     };
@@ -38,12 +33,9 @@ export function useFcmToken() {
       document.addEventListener("click", handleFirstGesture);
       document.addEventListener("touchstart", handleFirstGesture);
       document.addEventListener("keydown", handleFirstGesture);
-    } else {
-      console.info("[FCM] 알림 권한이 차단되어 있습니다. 브라우저 설정에서 허용이 필요합니다.");
     }
 
     return () => {
-      console.log("[FCM] useFcmToken cleanup");
       cleanupUserGestureListeners();
       unsubscribe();
     };

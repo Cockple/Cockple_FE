@@ -74,7 +74,7 @@ export const useDeleteInviteForm = (exerciseId: number) => {
       });
     },
     onError: err => {
-      console.log(err);
+      console.error(err);
       if (axiosLib.isAxiosError(err)) {
         if (err.response?.data?.code === "EXERCISE304") {
           alert(err.response.data.message);

@@ -78,15 +78,6 @@ export const useRawWsConnect = (opts: {
           unreadCount: m.newUnreadCount ?? 0,
         });
       }
-
-      // 해제 ACK 로깅
-      if (
-        (msg.type === "UNSUBSCRIBE" || msg.type === "SUBSCRIBE") &&
-        "message" in msg &&
-        "chatRoomId" in msg
-      ) {
-        console.log(`[WS] ${msg.type} ACK #${msg.chatRoomId}: ${msg.message}`);
-      }
     });
 
     return () => {

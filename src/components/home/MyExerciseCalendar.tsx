@@ -195,7 +195,7 @@ export const MyExerciseCalendar = ({ setCount }: MyExerciseCalendarProps) => {
           setIsInitialLoading(false);
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setIsInitialLoading(false);
       } finally {
         inFlightRef.current = false;

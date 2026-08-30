@@ -33,7 +33,7 @@ export const GroupMember = () => {
   //디바운스
   const debouncedSearch = useDebounce(search, 200);
 
-  const { data: page, isLoading } = useMemberInfinite({
+  const { data: page } = useMemberInfinite({
     levelSearch: debouncedSearch,
     page: 0,
     size: 10,
@@ -89,9 +89,6 @@ export const GroupMember = () => {
       })),
     [members],
   );
-  if (!isLoading) {
-    console.log(page);
-  }
   const filteredMembers = useMemo(() => {
     const filterText = debouncedSearch.trim().toLowerCase();
     if (!filterText) return memberList;

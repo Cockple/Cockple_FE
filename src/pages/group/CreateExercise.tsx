@@ -8,7 +8,7 @@ import RedCircle from "@/assets/icons/cicle_s_red.svg?react";
 import { DropBox } from "../../components/common/DropBox";
 import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
-import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
+import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { LocationField } from "../../components/common/LocationField";
 import {
   useLocation,
@@ -272,13 +272,15 @@ export const CreateExercise = () => {
         <TextField maxLength={45} value={notice} onChange={setNotice} />
       </div>
 
-      <div className="mt-32 flex flex-col items-center justify-center">
+      <div className="h-24" />
+
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[444px] bg-white px-4 z-10">
         {errorMsg && (
           <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
             {errorMsg}
           </p>
         )}
-        <GR400_L
+        <Grad_GR400_L
           label={exerciseId ? "운동 수정하기" : "운동 만들기"}
           initialStatus={isFormValid() ? "default" : "disabled"}
           onClick={onCreateExercise}

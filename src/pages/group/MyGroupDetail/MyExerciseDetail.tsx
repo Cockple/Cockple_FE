@@ -10,6 +10,9 @@ import { Modal_ExDel } from "../../../components/group/Modal_ExDel copy";
 import { useState, useEffect } from "react";
 import { getModalConfig } from "../../../components/group/modalConfig";
 import { SortBottomSheet } from "../../../components/common/SortBottomSheet";
+import TabSelector from "../../../components/common/TabSelector";
+import { GameBoardTab } from "./GameBoard/GameBoardTab";
+import { GameFinishedTab } from "./GameFinishedTab";
 import {
   getExerciseDetail,
   cancelSelf,
@@ -35,8 +38,35 @@ export const MyExerciseDetail = () => {
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const exerciseIdNumber = Number(exerciseId);
 
-  const [detail, setDetail] = useState<ExerciseDetailResponse | null>(null);
-  const [members, setMembers] = useState<MemberProps[]>([]);
+  const [detail, setDetail] = useState<ExerciseDetailResponse | null>({
+    notice: "API 에러(CORS/Network)로 인해 출력된 임시 화면입니다.",
+    placeName: "테스트 체육관 코트",
+    placeAddress: "서울특별시 강남구 테헤란로 123",
+    participantGenderCount: { male: 2, female: 2 },
+    participantsCount: 4,
+    isManager: true,
+    participantMembers: [],
+    waitingMembers: [],
+    waitingGenderCount: { male: 0, female: 0 },
+  } as any);
+  const [members, setMembers] = useState<MemberProps[]>([
+    {
+      participantId: 1,
+      memberId: 1,
+      status: "Participating",
+      name: "김셰익스피어",
+      gender: "MALE",
+      level: "A조",
+      isMe: true,
+      isLeader: true,
+      position: "leader",
+      imgUrl: null,
+      canCancel: true,
+      isGuest: false,
+      inviterName: "",
+      isWithdrawn: false,
+    }
+  ]);
   // const [participantsCount, setParticipantsCount] = useState(0);
 
   const [waitingMembers, setWaitingMembers] = useState<MemberProps[]>([]);
@@ -50,6 +80,28 @@ export const MyExerciseDetail = () => {
   const returnPath = searchParams.get("returnPath") ?? -1;
 
   const [isWithdrawnModal, setIsWithdrawnModal] = useState(false);
+
+  const location = window.location;
+  type TabType = "detail" | "game" | "finished";
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (location.pathname.includes("/EndGame")) return "finished";
+    return "detail";
+  });
+  const tabOptions = [
+    { label: "운동 상세", value: "detail" },
+    { label: "게임판", value: "game" },
+    { label: "게임 완료", value: "finished" },
+  ];
+
+  const handleTabChange = (value: TabType) => {
+    setActiveTab(value);
+    const returnPathQuery = returnPath !== -1 ? `?returnPath=${returnPath}` : "";
+    if (value === "finished") {
+      window.history.replaceState(null, "", `/Group/MyGroup/Detail/Exercise_Detail/EndGame/${exerciseIdNumber}${returnPathQuery}`);
+    } else {
+      window.history.replaceState(null, "", `/group/Mygroup/MyExerciseDetail/${exerciseIdNumber}${returnPathQuery}`);
+    }
+  };
 
   // 운동 상세 조회
   useEffect(() => {
@@ -73,8 +125,8 @@ export const MyExerciseDetail = () => {
             p.position === "PARTY_MANAGER",
           position:
             p.position === "OWNER" ||
-            p.position === "MANAGER" ||
-            p.position === "PARTY_MANAGER"
+              p.position === "MANAGER" ||
+              p.position === "PARTY_MANAGER"
               ? "leader"
               : p.position === "SUBOWNER" || p.position === "PARTY_SUBMANAGER"
                 ? "sub_leader"
@@ -162,138 +214,77 @@ export const MyExerciseDetail = () => {
         }}
       />
 
-      <div className="flex flex-col gap-8">
-        {/* 장소 정보 */}
-        <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
-          {detail.notice && (
-            <>
-              <div className="flex items-center gap-2">
-                <Caution className="w-5 h-5" />
-                <p className="body-rg-500 truncate">{detail.notice}</p>
-              </div>
-            </>
-          )}
-          <div className="flex items-start gap-2">
-            <Vector className="w-5 h-5" />
-            <div className="flex flex-col">
-              <p className="body-rg-500 truncate text-start">
-                {detail.placeName}
-              </p>
-              <p className="body-rg-500 truncate">{detail.placeAddress}</p>
-            </div>
-          </div>
-        </div>
+      <TabSelector
+        options={tabOptions}
+        selected={activeTab}
+        onChange={(val) => handleTabChange(val as TabType)}
+      />
 
-        {/* 참여 인원 */}
-        <div className="flex flex-col">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <label className="text-left header-h5">참여 인원</label>
-              <span>
-                {detail.participantGenderCount.male +
-                  detail.participantGenderCount.female}{" "}
-                / {detail.participantsCount}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Female className="w-4 h-4" />
-              <p className="body-rg-500">
-                {detail.participantGenderCount.female}
-              </p>
-              <Male className="w-4 h-4" />
-              <p className="body-rg-500">
-                {detail.participantGenderCount.male}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 참여 멤버 리스트 */}
-        {members.map((member, idx) => {
-          const modalConfig = getModalConfig(
-            member.status,
-            isCurrentUserLeader,
-            member.isMe ?? false,
-            member.name,
-          );
-          const handleIsUSer = () => {
-            if (member.isWithdrawn) {
-              setIsWithdrawnModal(true);
-            } else {
-              navigate(`/mypage/profile/${member.memberId}`);
-            }
-          };
-          return (
-            <div key={`participant-${idx}`}>
-              <Member
-                {...member}
-                number={idx + 1}
-                position={member.position}
-                memberId={member.memberId}
-                guestName={member.inviterName}
-                imgUrl={member.imgUrl}
-                onClick={handleIsUSer}
-                onDelete={() => {
-                  if (member.participantId !== undefined) {
-                    handleDeleteMember(member.participantId, {
-                      isLeaderAction: isCurrentUserLeader && !member.isMe,
-                      isGuest: member.isGuest,
-                    });
-                  }
-                }}
-                showDeleteButton={
-                  isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
-                }
-                modalConfig={modalConfig ?? undefined}
-              />
-              <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
-              {isWithdrawnModal && (
-                <ChatWithDrawnModal
-                  onClose={() => setIsWithdrawnModal(false)}
-                />
+      <div className="flex flex-col gap-8 pt-[3.5rem]">
+        {activeTab === "detail" && (
+          <div className="flex flex-col gap-8 w-full">
+            {/* 장소 정보 */}
+            <div className="mt-5 border border-[#1ABB65] rounded-xl flex flex-col gap-3 p-4 w-full">
+              {detail.notice && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Caution className="w-5 h-5" />
+                    <p className="body-rg-500 truncate">{detail.notice}</p>
+                  </div>
+                </>
               )}
-            </div>
-          );
-        })}
-
-        {/* 대기 인원 */}
-        {waitingMembers.length > 0 && (
-          <div className="flex flex-col gap-2 mt-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <label className="text-left header-h5">대기 인원</label>
-                <p className="header-h5">{waitingCount}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Female className="w-4 h-4" />
-                <p className="body-rg-500">
-                  {detail.waitingGenderCount?.female ?? 0}
-                </p>
-                <Male className="w-4 h-4" />
-                <p className="body-rg-500">
-                  {detail.waitingGenderCount?.male ?? 0}
-                </p>
+              <div className="flex items-start gap-2">
+                <Vector className="w-5 h-5" />
+                <div className="flex flex-col">
+                  <p className="body-rg-500 truncate text-start">
+                    {detail.placeName}
+                  </p>
+                  <p className="body-rg-500 truncate">{detail.placeAddress}</p>
+                </div>
               </div>
             </div>
 
-            {waitingMembers.map((member, idx) => {
+            {/* 참여 인원 */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <label className="text-left header-h5">참여 인원</label>
+                  <span>
+                    {detail.participantGenderCount.male +
+                      detail.participantGenderCount.female}{" "}
+                    / {detail.participantsCount}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Female className="w-4 h-4" />
+                  <p className="body-rg-500">
+                    {detail.participantGenderCount.female}
+                  </p>
+                  <Male className="w-4 h-4" />
+                  <p className="body-rg-500">
+                    {detail.participantGenderCount.male}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 참여 멤버 리스트 */}
+            {members.map((member, idx) => {
               const modalConfig = getModalConfig(
                 member.status,
                 isCurrentUserLeader,
                 member.isMe ?? false,
                 member.name,
               );
-
               const handleIsUSer = () => {
                 if (member.isWithdrawn) {
                   setIsWithdrawnModal(true);
-                  // } else {
-                  //   navigate(`/mypage/profile/${member.memberId}`);
+                } else {
+                  navigate(`/mypage/profile/${member.memberId}`);
                 }
               };
-
               return (
-                <div key={`waiting-${idx}`}>
+                <div key={`participant-${idx}`}>
                   <Member
                     {...member}
                     number={idx + 1}
@@ -311,24 +302,109 @@ export const MyExerciseDetail = () => {
                       }
                     }}
                     showDeleteButton={
-                      isCurrentUserLeader ||
-                      (member.isMe && !isCurrentUserLeader)
+                      isCurrentUserLeader || (member.isMe && !isCurrentUserLeader)
                     }
                     modalConfig={modalConfig ?? undefined}
                   />
                   <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                  {isWithdrawnModal && (
+                    <ChatWithDrawnModal
+                      onClose={() => setIsWithdrawnModal(false)}
+                    />
+                  )}
                 </div>
               );
             })}
+
+            {/* 대기 인원 */}
+            {waitingMembers.length > 0 && (
+              <div className="flex flex-col gap-2 mt-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-left header-h5">대기 인원</label>
+                    <p className="header-h5">{waitingCount}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Female className="w-4 h-4" />
+                    <p className="body-rg-500">
+                      {detail.waitingGenderCount?.female ?? 0}
+                    </p>
+                    <Male className="w-4 h-4" />
+                    <p className="body-rg-500">
+                      {detail.waitingGenderCount?.male ?? 0}
+                    </p>
+                  </div>
+                </div>
+
+                {waitingMembers.map((member, idx) => {
+                  const modalConfig = getModalConfig(
+                    member.status,
+                    isCurrentUserLeader,
+                    member.isMe ?? false,
+                    member.name,
+                  );
+
+                  const handleIsUSer = () => {
+                    if (member.isWithdrawn) {
+                      setIsWithdrawnModal(true);
+                      // } else {
+                      //   navigate(`/mypage/profile/${member.memberId}`);
+                    }
+                  };
+
+                  return (
+                    <div key={`waiting-${idx}`}>
+                      <Member
+                        {...member}
+                        number={idx + 1}
+                        position={member.position}
+                        memberId={member.memberId}
+                        guestName={member.inviterName}
+                        imgUrl={member.imgUrl}
+                        onClick={handleIsUSer}
+                        onDelete={() => {
+                          if (member.participantId !== undefined) {
+                            handleDeleteMember(member.participantId, {
+                              isLeaderAction: isCurrentUserLeader && !member.isMe,
+                              isGuest: member.isGuest,
+                            });
+                          }
+                        }}
+                        showDeleteButton={
+                          isCurrentUserLeader ||
+                          (member.isMe && !isCurrentUserLeader)
+                        }
+                        modalConfig={modalConfig ?? undefined}
+                      />
+                      <div className="border-t-[#E4E7EA] border-t-[0.0625rem] mx-1" />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
+
+        {activeTab === "game" && (
+          <GameBoardTab
+            gameBoardId={detail.gameBoardId}
+            isManager={detail.isManager}
+          />
+        )}
+
+        {activeTab === "finished" && <GameFinishedTab exerciseId={exerciseIdNumber} />}
       </div>
 
       <SortBottomSheet
         isOpen={isSortOpen}
         onClose={() => setIsSortOpen(false)}
-        options={["운동 수정하기", "운동 삭제하기"]}
+        options={["게임 진행자 관리", "운동 수정하기", "운동 삭제하기"]}
         onSelect={option => {
+          if (option === "게임 진행자 관리") {
+            navigate(
+              `/Group/MyGroup/Detail/Exercise_Detail/ChangeHost/${exerciseId}?returnPath=${returnPath}`,
+            );
+          }
           if (option === "운동 수정하기") {
             navigate(
               `/group/exercise/edit/${exerciseId}?returnPath=${returnPath}`,

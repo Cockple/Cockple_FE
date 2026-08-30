@@ -58,6 +58,7 @@ export interface MemberProps {
 // 최종 변환 타입
 export interface ExerciseDetailResponse {
   partyId: number;
+  gameBoardId: number;
   notice: string;
   placeName: string;
   placeAddress: string;
@@ -74,6 +75,7 @@ export interface ExerciseDetailResponse {
 interface RawExerciseResponse {
   isManager: boolean;
   isWithdrawn?: boolean;
+  gameBoardId: number;
   info: {
     notice: string;
     buildingName: string;
@@ -174,6 +176,7 @@ export const getExerciseDetail = async (
 
   return {
     partyId: exerciseId,
+    gameBoardId: raw.gameBoardId,
     notice: raw.info.notice,
     placeName: raw.info.buildingName,
     placeAddress: raw.info.location,
@@ -220,3 +223,4 @@ export const deleteExercise = async (exerciseId: number) => {
     throw error.response?.data || error;
   }
 };
+

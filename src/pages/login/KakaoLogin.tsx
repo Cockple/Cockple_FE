@@ -34,7 +34,6 @@ export default function KakaoLogin() {
       };
       setUser(newUserData);
       localStorage.setItem("accessToken", data.accessToken);
-      console.log(data);
       if (data.isNewMember && data.needsOnboarding) {
         //onboarding으로
         //미사용자
@@ -45,7 +44,7 @@ export default function KakaoLogin() {
       }
     },
     onError: error => {
-      console.log(error);
+      console.error(error);
     },
   });
   return <div></div>;

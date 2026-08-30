@@ -37,7 +37,7 @@ export const MainHeader = ({
 
       setHasNotification(data.data.existNewNotification);
     } catch (err) {
-      console.log("알람 존재여부 api 오류: ", err);
+      console.error("알람 존재여부 api 오류: ", err);
     }
   };
 
