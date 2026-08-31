@@ -34,6 +34,7 @@ export interface GameMember {
   tags: MemberTag[];
   imgUrl?: string | null;
   selectable: boolean;
+  shuttlecockSubmitted: boolean; // 셔틀콕 제출 여부 (서버 응답값)
 }
 
 // 직전 경기: 가장 최근에 함께 뛴 조합 / 첫 경기: 한 번도 함께 뛴 적 없는 조합 / 이전 경기: 그 외 함께 뛴 적 있는 조합

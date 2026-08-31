@@ -102,13 +102,14 @@ export const toGameMember = (m: GameBoardMember): GameMember => {
     tags: [...tags],
     imgUrl: m.profileImageUrl,
     selectable: m.participating,
+    shuttlecockSubmitted: m.shuttlecockSubmitted,
   };
 };
 
 export interface GameBoardMemberFilters {
   levels: string[]; // 한글 급수 라벨, 다중 선택
   gender: string | null; // "전체" | "남성" | "여성"
-  shuttle: string | null; // "제출함" | "미제출" | null
+  shuttle: string | null; // "제출" | "미제출" | null
 }
 
 // level/gender는 한글 표시값을 그대로 API 쿼리에 전달한다 (명단조회 API 스펙).
@@ -121,7 +122,7 @@ export const toGameBoardMembersParams = (
       ? filters.gender
       : undefined,
   shuttlecockSubmitted:
-    filters.shuttle === "제출함"
+    filters.shuttle === "제출"
       ? true
       : filters.shuttle === "미제출"
         ? false

@@ -12,6 +12,7 @@ import {
 import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
+import Expand from "@/assets/icons/expand.svg";
 import FilterBtn from "@/components/common/DynamicBtn/FilterBtn";
 import { getGameBoard, type GameBoardResponse } from "@/api/game/board";
 import {
@@ -465,17 +466,7 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
                   className="hidden items-center justify-center rounded-lg bg-gy-100 p-1.5 text-black md:flex"
                   onClick={() => setIsWebViewOpen(true)}
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="size-5"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M4 9V4H9M20 9V4H15M4 15V20H9M20 15V20H15" />
-                  </svg>
+                  <img src={Expand} alt="" className="size-5" />
                 </button>
                 <button
                   type="button"
@@ -656,7 +647,8 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
             onEditMember={setEditingMemberId}
             onAddPlayer={() => setIsAddPlayerOpen(true)}
             onManageCourts={() => setCourtManageVariant("overlay")}
-            onOpenFilter={() => setIsFilterOpen(true)}
+            filters={filters}
+            onChangeFilters={handleApplyFilters}
             onClose={() => setIsWebViewOpen(false)}
           />
         )}
