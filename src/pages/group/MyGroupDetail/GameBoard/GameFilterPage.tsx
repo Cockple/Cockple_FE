@@ -5,13 +5,14 @@ import TextBox from "@/components/common/Text_Box/TextBox";
 import GR400_M from "@/components/common/Btn_Static/Text/GR400_M";
 import Refresh from "@/assets/icons/refresh.svg";
 import ArrowUp from "@/assets/icons/arrow_up.svg";
-import { LEVEL_KEY } from "@/constants/options";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import type { GameBoardMemberFilters } from "./gameBoardAdapter";
-
-const LEVEL_OPTIONS = [...LEVEL_KEY, "급수없음"];
-const GENDER_OPTIONS = ["전체", "남성", "여성"];
-const SHUTTLE_OPTIONS = ["제출함", "미제출"];
+import {
+  GENDER_OPTIONS,
+  LEVEL_OPTIONS,
+  SHUTTLE_OPTIONS,
+  toggleLevelFilter,
+} from "./gameFilterOptions";
 
 interface FilterToggleSectionProps {
   title: string;
@@ -82,17 +83,8 @@ export const GameFilterPage = ({
     initialFilters.shuttle,
   );
 
-  // "전체" 선택 시 개별 급수 선택을 모두 해제, 개별 급수 선택 시 다중 토글
   const handleToggleLevel = (option: string) => {
-    if (option === "전체") {
-      setLevels([]);
-      return;
-    }
-    setLevels(prev =>
-      prev.includes(option)
-        ? prev.filter(l => l !== option)
-        : [...prev, option],
-    );
+    setLevels(prev => toggleLevelFilter(prev, option));
   };
 
   const handleReset = () => {

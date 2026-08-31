@@ -656,7 +656,8 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
             onEditMember={setEditingMemberId}
             onAddPlayer={() => setIsAddPlayerOpen(true)}
             onManageCourts={() => setCourtManageVariant("overlay")}
-            onOpenFilter={() => setIsFilterOpen(true)}
+            filters={filters}
+            onChangeFilters={handleApplyFilters}
             onClose={() => setIsWebViewOpen(false)}
           />
         )}

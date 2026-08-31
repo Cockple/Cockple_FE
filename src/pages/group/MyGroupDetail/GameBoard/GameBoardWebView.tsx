@@ -5,10 +5,11 @@ import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
-import Filter from "@/assets/icons/filter.svg";
 import { CourtCard, WaitingCard } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import { GameEndModal } from "./GameEndModal";
+import { GameFilterInline } from "./GameFilterInline";
+import type { GameBoardMemberFilters } from "./gameBoardAdapter";
 import {
   type CourtGroup,
   type GameMember,
@@ -31,7 +32,8 @@ interface GameBoardWebViewProps {
   onEditMember: (id: number) => void;
   onAddPlayer: () => void;
   onManageCourts: () => void;
-  onOpenFilter: () => void;
+  filters: GameBoardMemberFilters;
+  onChangeFilters: (next: GameBoardMemberFilters) => void;
   onClose: () => void;
 }
 
@@ -51,7 +53,8 @@ export const GameBoardWebView = ({
   onEditMember,
   onAddPlayer,
   onManageCourts,
-  onOpenFilter,
+  filters,
+  onChangeFilters,
   onClose,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
@@ -141,7 +144,7 @@ export const GameBoardWebView = ({
         </DndContext>
 
         {/* 명단 */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="header-h5 text-black">명단</span>
@@ -151,14 +154,6 @@ export const GameBoardWebView = ({
                 onClick={onAddPlayer}
               >
                 <img src={AddWhite} alt="추가" className="size-4" />
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-lg bg-gy-100 py-1 pl-1.5 pr-2"
-                onClick={onOpenFilter}
-              >
-                <img src={Filter} alt="" className="size-4" />
-                <span className="body-rg-500 text-black">필터</span>
               </button>
             </div>
 
@@ -204,6 +199,8 @@ export const GameBoardWebView = ({
               </button>
             </div>
           </div>
+
+          <GameFilterInline filters={filters} onChange={onChangeFilters} />
 
           <div className="flex flex-wrap gap-x-3 gap-y-4">
             {members.map(member => (
