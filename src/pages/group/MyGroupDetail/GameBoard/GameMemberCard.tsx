@@ -41,8 +41,17 @@ export const GameMemberCard = ({
   onEditInfo,
   onToggleParticipation,
 }: GameMemberCardProps) => {
-  const { name, gender, ageGroup, group, playCount, tags, imgUrl, selectable } =
-    member;
+  const {
+    name,
+    gender,
+    ageGroup,
+    group,
+    playCount,
+    tags,
+    imgUrl,
+    selectable,
+    shuttlecockSubmitted,
+  } = member;
   const isWithdrawn = tags.includes("미참");
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -172,25 +181,14 @@ export const GameMemberCard = ({
           </span>
         </div>
         <span
-          role="button"
-          tabIndex={selectable ? 0 : -1}
-          aria-disabled={!selectable}
           className={clsx(
             "flex size-6 shrink-0 items-center justify-center rounded-lg p-1",
             selectable ? "bg-white/50" : "bg-transparent",
           )}
-          onClick={e => {
-            e.stopPropagation();
-            if (suppressNextClick.current) {
-              suppressNextClick.current = false;
-              return;
-            }
-            if (selectable) onToggleSelect();
-          }}
         >
           <img
-            src={selected ? ExerciseFilled : Exercise}
-            alt="선택"
+            src={shuttlecockSubmitted ? ExerciseFilled : Exercise}
+            alt={shuttlecockSubmitted ? "셔틀콕 제출함" : "셔틀콕 미제출"}
             className="size-4"
           />
         </span>
