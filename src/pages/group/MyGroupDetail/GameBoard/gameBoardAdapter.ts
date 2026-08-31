@@ -102,6 +102,7 @@ export const toGameMember = (m: GameBoardMember): GameMember => {
     tags: [...tags],
     imgUrl: m.profileImageUrl,
     selectable: m.participating,
+    shuttlecockSubmitted: m.shuttlecockSubmitted,
   };
 };
 
