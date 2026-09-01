@@ -94,7 +94,7 @@ export const GroupCalendarPage = () => {
         )}
       </div>
 
-      {calendarData?.isMember && (
+      {calendarData?.isMember && selectedDayExercises.length > 0 && (
         <div className="fixed bottom-0">
           <Grad_GR400_L label="이 날 운동 공유하기" onClick={onClickShare} />
         </div>
