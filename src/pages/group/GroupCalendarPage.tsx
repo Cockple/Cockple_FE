@@ -65,9 +65,13 @@ export const GroupCalendarPage = () => {
 
       <div className="flex flex-col pb-15">
         {selectedDayExercises.length > 0 ? (
-          selectedDayExercises.map(exercise => (
+          selectedDayExercises.map((exercise, index) => (
             <div
-              className="border-b-1 border-gy-200 mb-3"
+              className={`mb-3 ${
+                index < selectedDayExercises.length - 1
+                  ? "border-b-1 border-gy-200"
+                  : ""
+              }`}
               key={exercise.exerciseId}
             >
               <ContentCardL
