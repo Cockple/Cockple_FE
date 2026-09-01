@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import {
   DndContext,
@@ -162,6 +162,22 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     return () => clearInterval(id);
   }, []);
 
+  // 소켓이 (재)연결되면 그동안 놓친 변경을 REST로 백필한다.
+  // 최초 연결분은 위 마운트 effect가 이미 처리하므로 건너뛴다.
+  const hasConnectedRef = useRef(false);
+  useEffect(() => {
+    if (!gameWs.isOpen) return;
+    if (!hasConnectedRef.current) {
+      hasConnectedRef.current = true;
+      return;
+    }
+    getGameBoard(gameBoardId)
+      .then(applyBoard)
+      .catch(() => {});
+    refreshMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameWs.isOpen, gameBoardId]);
+
   // 다른 클라이언트의 변경사항 브로드캐스트 반영
   useEffect(() => {
     const msg = gameWs.lastMessage;
@@ -272,10 +288,12 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
   const handleAddToWaitingQueue = async () => {
     if (selectedMembers.length === 0) return;
     try {
-      await gameWs.createGame({
+      const res = await gameWs.createGame({
         gameBoardId,
         gameBoardMemberIds: selectedMembers.map(m => m.id),
       });
+      if (res.data?.board) applyBoard(res.data.board);
+      refreshMembers();
       setSelectedIds([]);
     } catch (err) {
       console.error("[GAME] CREATE_GAME 실패", err);
@@ -292,6 +310,8 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
       });
       const restoredIds = res.data?.players.map(p => p.gameBoardMemberId);
       setSelectedIds(restoredIds?.length ? restoredIds : group.memberIds);
+      if (res.data?.board) applyBoard(res.data.board);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] DELETE_GAME(restore) 실패", err);
       alert("대기열 변경에 실패했어요.");
@@ -302,11 +322,13 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     const group = waitingGroups.find(g => g.id === id);
     if (!group) return;
     try {
-      await gameWs.deleteGame({
+      const res = await gameWs.deleteGame({
         gameBoardId,
         gameId: group.gameId,
         restore: false,
       });
+      if (res.data?.board) applyBoard(res.data.board);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] DELETE_GAME 실패", err);
       alert("대기열 삭제에 실패했어요.");
@@ -317,7 +339,13 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     const group = waitingGroups.find(g => g.id === waitingGroupId);
     if (!group) return;
     try {
-      await gameWs.startGame({ gameBoardId, gameId: group.gameId, courtId });
+      const res = await gameWs.startGame({
+        gameBoardId,
+        gameId: group.gameId,
+        courtId,
+      });
+      if (res.data) applyBoard(res.data);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] START_GAME 실패", err);
       alert("게임 시작에 실패했어요.");
@@ -334,7 +362,13 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     if (!group || !court?.gameId) return;
     try {
       await gameWs.moveToWaiting({ gameBoardId, gameId: court.gameId });
-      await gameWs.startGame({ gameBoardId, gameId: group.gameId, courtId });
+      const res = await gameWs.startGame({
+        gameBoardId,
+        gameId: group.gameId,
+        courtId,
+      });
+      if (res.data) applyBoard(res.data);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] 코트 교체 실패", err);
       alert("코트 교체에 실패했어요.");
@@ -368,7 +402,12 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     const court = courts.find(c => c.id === courtId);
     if (!court?.gameId) return;
     try {
-      await gameWs.completeGame({ gameBoardId, gameId: court.gameId });
+      const res = await gameWs.completeGame({
+        gameBoardId,
+        gameId: court.gameId,
+      });
+      if (res.data) applyBoard(res.data);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] COMPLETE_GAME 실패", err);
       alert("게임 완료에 실패했어요.");
@@ -381,7 +420,12 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     const court = courts.find(c => c.id === courtId);
     if (!court?.gameId) return;
     try {
-      await gameWs.moveToWaiting({ gameBoardId, gameId: court.gameId });
+      const res = await gameWs.moveToWaiting({
+        gameBoardId,
+        gameId: court.gameId,
+      });
+      if (res.data) applyBoard(res.data);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] MOVE_TO_WAITING 실패", err);
       alert("대기로 되돌리기에 실패했어요.");
@@ -399,6 +443,8 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
       });
       const restoredIds = res.data?.players.map(p => p.gameBoardMemberId);
       setSelectedIds(restoredIds?.length ? restoredIds : []);
+      if (res.data?.board) applyBoard(res.data.board);
+      refreshMembers();
     } catch (err) {
       console.error("[GAME] 경기 취소 실패", err);
       alert("경기 취소에 실패했어요.");
