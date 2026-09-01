@@ -44,6 +44,13 @@ export const WorkoutDayEntry = ({
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-1">
+        <span className="flex-1 h-px bg-ye-300 rounded-full" />
+        <span className="body-sm-400 text-gr-700 whitespace-nowrap">
+          클릭해서 운동 상세·게임판 보기
+        </span>
+        <span className="flex-1 h-px bg-ye-300 rounded-full" />
+      </div>
       {exerciseData.map(item => (
         <DailyExercise_S
           key={item.exerciseId}
