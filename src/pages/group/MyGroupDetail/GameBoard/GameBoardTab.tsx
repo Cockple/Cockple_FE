@@ -67,9 +67,18 @@ const MAX_SELECTED_MEMBERS = 4;
 interface GameBoardTabProps {
   gameBoardId: number;
   isManager: boolean;
+  /** 헤더 새로고침 버튼을 누를 때마다 증가. 값이 바뀌면 보드/명단을 다시 불러온다. */
+  refreshSignal?: number;
+  /** 새로고침 요청이 진행 중인지 상위(헤더)로 알린다. */
+  onRefreshingChange?: (refreshing: boolean) => void;
 }
 
-export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
+export const GameBoardTab = ({
+  gameBoardId,
+  isManager,
+  refreshSignal = 0,
+  onRefreshingChange,
+}: GameBoardTabProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
@@ -177,6 +186,34 @@ export const GameBoardTab = ({ gameBoardId, isManager }: GameBoardTabProps) => {
     refreshMembers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameWs.isOpen, gameBoardId]);
+
+  // 헤더 새로고침 버튼: 보드/명단을 REST로 다시 불러온다. (초기값 0은 무시)
+  useEffect(() => {
+    if (!refreshSignal) return;
+    let cancelled = false;
+    onRefreshingChange?.(true);
+    Promise.all([
+      getGameBoard(gameBoardId).then(board => {
+        if (!cancelled) applyBoard(board);
+      }),
+      getGameBoardMembers(gameBoardId, toGameBoardMembersParams(filters)).then(
+        res => {
+          if (!cancelled) applyMembersResponse(res);
+        },
+      ),
+      // 응답이 즉시 와도 회전이 눈에 보이도록 최소 시간 확보
+      new Promise(resolve => setTimeout(resolve, 600)),
+    ])
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) onRefreshingChange?.(false);
+      });
+    return () => {
+      cancelled = true;
+      onRefreshingChange?.(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshSignal]);
 
   // 다른 클라이언트의 변경사항 브로드캐스트 반영
   useEffect(() => {
