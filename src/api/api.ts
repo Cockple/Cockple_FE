@@ -25,17 +25,17 @@ function setTokens(accessToken: string, refreshToken?: string | null) {
   useUserStore.setState({
     user: user
       ? {
-          ...user,
-          accessToken,
-          refreshToken: refreshToken ?? user.refreshToken ?? null,
-        }
+        ...user,
+        accessToken,
+        refreshToken: refreshToken ?? user.refreshToken ?? null,
+      }
       : {
-          memberId: 0,
-          nickname: "",
-          accessToken,
-          refreshToken: refreshToken ?? null,
-          isNewMember: false,
-        },
+        memberId: 0,
+        nickname: "",
+        accessToken,
+        refreshToken: refreshToken ?? null,
+        isNewMember: false,
+      },
   });
   localStorage.setItem("accessToken", accessToken);
   if (refreshToken !== undefined) {

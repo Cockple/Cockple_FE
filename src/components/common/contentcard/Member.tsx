@@ -58,6 +58,7 @@ interface MemberProps {
   //부모임장 지정
   onAppointClick?: () => void;
   selectMode?: boolean;
+  allowLeaderSelect?: boolean;
   useDeleteModal?: boolean;
   hideNumber?: boolean;
 }
@@ -175,6 +176,7 @@ const ListMemberLayout = ({
     useDeleteModal,
     onDelete,
     isManager,
+    allowLeaderSelect,
   } = props;
 
   const getNumberText = () => {
@@ -211,7 +213,7 @@ const ListMemberLayout = ({
       />
       <MemberInfo {...props} />
 
-      {selectMode && !isLeader && !isManager && (
+      {selectMode && (allowLeaderSelect || !isLeader) && !isManager && (
         <Star
           className="w-6 h-6 ml-auto cursor-pointer"
           onClick={e => {
