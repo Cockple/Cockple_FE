@@ -14,6 +14,8 @@ import axios, { AxiosError } from "axios";
 import type { CommonResponse } from "../types/common";
 import type { PersonalChatRoom } from "../types/chat";
 import { Modal_Del } from "../components/group/Modal_Del";
+import { useRoomIdByPartyId } from "../api/chat/getRoomIdByPartyId";
+import { useChatWsStore } from "../store/useChatWsStore";
 
 const options = [
   { label: "홈", value: "" },
@@ -156,6 +158,18 @@ export const GroupLayout = () => {
     partyDetail?.memberRole === "PARTY_MANAGER" ||
     partyDetail?.memberRole === "PARTY_SUBMANAGER";
 
+  // 모임 채팅 탭 안읽음 표시: 가입 회원에게만, 새 메시지가 있으면 빨간 점.
+  // 채팅 탭 진입 시 GroupChatDetailTemplate이 clearUnread로 0을 만들어 자동으로 사라진다.
+  const { data: groupChatRoomId } = useRoomIdByPartyId(
+    Number(groupId),
+    !!groupId && isJoined,
+  );
+  const hasGroupChatUnread = useChatWsStore(s =>
+    groupChatRoomId
+      ? (s.meta[groupChatRoomId]?.unreadCount ?? 0) > 0
+      : false,
+  );
+
   return (
     <div className="flex flex-col">
       <PageHeader
@@ -169,6 +183,7 @@ export const GroupLayout = () => {
         selected={select}
         onChange={handleChange}
         type="group"
+        dots={{ chat: hasGroupChatUnread }}
       />
 
       <div className="pt-14">

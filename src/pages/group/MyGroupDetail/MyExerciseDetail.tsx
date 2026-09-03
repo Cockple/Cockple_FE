@@ -81,6 +81,10 @@ export const MyExerciseDetail = () => {
 
   const [isWithdrawnModal, setIsWithdrawnModal] = useState(false);
 
+  // 게임판 헤더 새로고침: 값이 바뀔 때마다 GameBoardTab이 보드/명단을 다시 불러온다.
+  const [gameRefreshSignal, setGameRefreshSignal] = useState(0);
+  const [isGameRefreshing, setIsGameRefreshing] = useState(false);
+
   const location = window.location;
   type TabType = "detail" | "game" | "finished";
   const [activeTab, setActiveTab] = useState<TabType>(() => {
@@ -206,8 +210,16 @@ export const MyExerciseDetail = () => {
       <PageHeader
         title="내 운동 상세"
         onMoreClick={
-          isCurrentUserLeader ? () => setIsSortOpen(true) : undefined
+          activeTab === "detail" && isCurrentUserLeader
+            ? () => setIsSortOpen(true)
+            : undefined
         }
+        onRefreshClick={
+          activeTab === "game"
+            ? () => setGameRefreshSignal(n => n + 1)
+            : undefined
+        }
+        refreshing={isGameRefreshing}
         onBackClick={() => {
           if (returnPath === -1) navigate(-1);
           else navigate(returnPath);
@@ -389,6 +401,8 @@ export const MyExerciseDetail = () => {
           <GameBoardTab
             gameBoardId={detail.gameBoardId}
             isManager={detail.isManager}
+            refreshSignal={gameRefreshSignal}
+            onRefreshingChange={setIsGameRefreshing}
           />
         )}
 
