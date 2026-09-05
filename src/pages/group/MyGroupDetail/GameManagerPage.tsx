@@ -4,6 +4,7 @@ import { PageHeader } from "../../../components/common/system/header/PageHeader"
 import { Member, type MemberProps } from "../../../components/common/contentcard/Member";
 import { changeGameHost, useGetGameHostCandidates } from "../../../api/game/game";
 import { useQueryClient } from "@tanstack/react-query";
+import useUserStore from "../../../store/useUserStore";
 import DismissIcon from "../../../assets/icons/dismiss.svg?react";
 import Search from "../../../assets/icons/search.svg?react";
 import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_L";
@@ -17,6 +18,21 @@ export const GameManagerPage = () => {
 
   const { data } = useGetGameHostCandidates(exerciseIdNumber);
   const totalCount = data?.totalCount || 0;
+
+  const { user } = useUserStore();
+
+  const currentUser = data?.participants?.find(
+    (p) => p.participantId === user?.memberId
+  );
+
+  const isGroupLeaderOrSub =
+    currentUser?.partyPosition === "OWNER" ||
+    currentUser?.partyPosition === "MANAGER" ||
+    currentUser?.partyPosition === "PARTY_MANAGER" ||
+    currentUser?.partyPosition === "SUBOWNER" ||
+    currentUser?.partyPosition === "PARTY_SUBMANAGER" ||
+    currentUser?.partyPosition === "모임장" ||
+    currentUser?.partyPosition === "부모임장";
 
   const members: MemberProps[] = data?.participants.map(p => ({
     participantId: p.participantId,
@@ -60,6 +76,9 @@ export const GameManagerPage = () => {
       await changeGameHost(exerciseIdNumber, selectedMember.participantId);
       queryClient.invalidateQueries({
         queryKey: ["gameHostCandidates", exerciseIdNumber],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["exerciseDetail", exerciseIdNumber],
       });
 
       setIsModalOpen(false);
@@ -128,6 +147,7 @@ export const GameManagerPage = () => {
                 {...member}
                 hideNumber={true} // 리스트에서 번호를 가릴지 여부
                 selectMode={selectMode} // 선택 모드 활성화 (별 아이콘 표시)
+                allowLeaderSelect={true} // 모임장도 게임 진행자로 선택 가능
                 onClick={() => {
                   if (!selectMode && member.memberId) {
                     navigate(`/mypage/profile/${member.memberId}`);
@@ -142,7 +162,7 @@ export const GameManagerPage = () => {
       </div>
 
       {/* 하단버튼 */}
-      {!selectMode && (
+      {!selectMode && isGroupLeaderOrSub && (
         <div
           className="fixed bottom-0 left-0 w-full flex justify-center z-50"
           onClick={(e) => e.stopPropagation()}
