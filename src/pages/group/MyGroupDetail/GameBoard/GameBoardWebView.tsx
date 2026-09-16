@@ -202,13 +202,13 @@ export const GameBoardWebView = ({
             <div className="flex items-center gap-3">
               {selectedMembers.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
-                  {selectedMembers.map((m, i) => (
+                  {selectedMembers.map(m => (
                     <button
                       key={m.id}
                       type="button"
                       className={clsx(
                         "flex items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black",
-                        i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+                        m.gender === "FEMALE" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
                       )}
                       onClick={() => toggleSelect(m.id)}
                     >

@@ -698,13 +698,13 @@ export const GameBoardTab = ({
           <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[444px] -translate-x-1/2 flex-col gap-2 bg-gradient-to-b from-white/0 via-white/80 to-white px-4 pb-9 pt-2">
             {selectedMembers.length > 0 && (
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                {selectedMembers.map((m, i) => (
+                {selectedMembers.map(m => (
                   <button
                     key={m.id}
                     type="button"
                     className={clsx(
                       "flex shrink-0 items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black shadow-ds50",
-                      i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+                      m.gender === "FEMALE" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
                     )}
                     onClick={() => toggleSelect(m.id)}
                   >
