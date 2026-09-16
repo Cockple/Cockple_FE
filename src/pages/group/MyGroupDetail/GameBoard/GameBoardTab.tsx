@@ -259,6 +259,8 @@ export const GameBoardTab = ({
   };
 
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
+  const emptyCourts = courts.filter(c => !c.players);
   const editingMember = members.find(m => m.id === editingMemberId) ?? null;
 
   const handleSaveMemberEdit = async (updated: EditedGamePlayer) => {
@@ -637,7 +639,7 @@ export const GameBoardTab = ({
                       waitingGroupId={group.id}
                       label={group.label}
                       players={group.players}
-                      courts={courts}
+                      courts={emptyCourts}
                       onMoveToCourt={courtId =>
                         handleMoveToCourt(group.id, courtId)
                       }

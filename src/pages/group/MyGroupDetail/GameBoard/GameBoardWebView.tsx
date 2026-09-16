@@ -80,6 +80,8 @@ export const GameBoardWebView = ({
   onDragEnd,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
+  const emptyCourts = courts.filter(c => !c.players);
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
     null,
   );
@@ -156,7 +158,7 @@ export const GameBoardWebView = ({
                         waitingGroupId={group.id}
                         label={group.label}
                         players={group.players}
-                        courts={courts}
+                        courts={emptyCourts}
                         onMoveToCourt={courtId =>
                           onMoveToCourt(group.id, courtId)
                         }
