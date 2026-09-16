@@ -82,6 +82,18 @@ export const updateGameBoardMemberParticipation = async (
   );
 };
 
+// 셔틀콕 제출 상태 변경 (PATCH /api/game-boards/{boardId}/gameBoardMembers/{gameBoardMemberId}/shuttlecock-submission)
+export const updateGameBoardMemberShuttlecock = async (
+  gameBoardId: number,
+  gameBoardMemberId: number,
+  shuttlecockSubmitted: boolean,
+): Promise<void> => {
+  await api.patch<CommonResponse<null>>(
+    `/api/game-boards/${gameBoardId}/gameBoardMembers/${gameBoardMemberId}/shuttlecock-submission`,
+    { shuttlecockSubmitted },
+  );
+};
+
 // 플레이어 정보 수정 (PATCH /api/game-boards/{boardId}/gameBoardMembers/{gameBoardMemberId})
 export const updateGameBoardMember = async (
   gameBoardId: number,

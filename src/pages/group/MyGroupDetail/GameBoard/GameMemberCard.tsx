@@ -32,6 +32,7 @@ interface GameMemberCardProps {
   onToggleSelect: () => void;
   onEditInfo?: () => void;
   onToggleParticipation?: () => void;
+  onToggleShuttlecock?: () => void;
 }
 
 export const GameMemberCard = ({
@@ -40,6 +41,7 @@ export const GameMemberCard = ({
   onToggleSelect,
   onEditInfo,
   onToggleParticipation,
+  onToggleShuttlecock,
 }: GameMemberCardProps) => {
   const {
     name,
@@ -180,18 +182,23 @@ export const GameMemberCard = ({
             {ageGroup}
           </span>
         </div>
-        <span
+        <button
+          type="button"
           className={clsx(
             "flex size-6 shrink-0 items-center justify-center rounded-lg p-1",
             selectable ? "bg-white/50" : "bg-transparent",
           )}
+          onClick={e => {
+            e.stopPropagation();
+            onToggleShuttlecock?.();
+          }}
         >
           <img
             src={shuttlecockSubmitted ? ExerciseFilled : Exercise}
             alt={shuttlecockSubmitted ? "셔틀콕 제출함" : "셔틀콕 미제출"}
             className="size-4"
           />
-        </span>
+        </button>
       </div>
 
       {isMenuOpen &&

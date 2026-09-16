@@ -76,7 +76,8 @@ export const CourtManageBottomSheet = ({
             onFocus={() => setIsNewLabelFocused(true)}
             onBlur={() => setIsNewLabelFocused(false)}
             onKeyDown={e => {
-              if (e.key === "Enter") {
+              // 한글 입력 중 조합 완료 Enter까지 걸려 이중 등록되는 것을 방지
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
                 e.preventDefault();
                 handleAdd();
               }

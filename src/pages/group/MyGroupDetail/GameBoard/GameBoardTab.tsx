@@ -20,6 +20,7 @@ import {
   getGameBoardMembers,
   updateGameBoardMember,
   updateGameBoardMemberParticipation,
+  updateGameBoardMemberShuttlecock,
   type GameBoardMember,
 } from "@/api/game/members";
 import { updateCourts } from "@/api/game/courts";
@@ -82,6 +83,7 @@ export const GameBoardTab = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
+  const [rosterLevels, setRosterLevels] = useState<string[]>([]);
   const [courts, setCourts] = useState<CourtGroup[]>([]);
   const [waitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
@@ -138,6 +140,16 @@ export const GameBoardTab = ({
     );
   };
 
+  // 필터와 무관하게 명단 전체를 조회해, 실제로 존재하는 급수만 필터 옵션으로 노출한다.
+  // 급수 미지정 멤버는 level이 빈 값으로 내려올 수 있어 "급수없음"으로 보정한다.
+  const refreshRosterLevels = () => {
+    getGameBoardMembers(gameBoardId, {}).then(res => {
+      setRosterLevels([
+        ...new Set(res.gameBoardMembers.map(m => m.level || "급수없음")),
+      ]);
+    });
+  };
+
   const handleApplyFilters = (next: GameBoardMemberFilters) => {
     setFilters(next);
     getGameBoardMembers(gameBoardId, toGameBoardMembersParams(next)).then(
@@ -156,6 +168,7 @@ export const GameBoardTab = ({
         setMembers(memberRes.gameBoardMembers.map(toGameMember));
       })
       .finally(() => setIsLoading(false));
+    refreshRosterLevels();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameBoardId]);
 
@@ -246,6 +259,8 @@ export const GameBoardTab = ({
   };
 
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
+  const emptyCourts = courts.filter(c => !c.players);
   const editingMember = members.find(m => m.id === editingMemberId) ?? null;
 
   const handleSaveMemberEdit = async (updated: EditedGamePlayer) => {
@@ -270,6 +285,7 @@ export const GameBoardTab = ({
             : m,
         ),
       );
+      refreshRosterLevels();
       setEditingMemberId(null);
     } catch (err) {
       console.error("[GAME] 플레이어 정보 수정 실패", err);
@@ -286,6 +302,7 @@ export const GameBoardTab = ({
     try {
       await createGameBoardMember(gameBoardId, toGameBoardMemberPayload(player));
       refreshMembers();
+      refreshRosterLevels();
       setIsAddPlayerOpen(false);
     } catch (err) {
       console.error("[GAME] 명단 추가 실패", err);
@@ -319,6 +336,26 @@ export const GameBoardTab = ({
     } catch (err) {
       console.error("[GAME] 참여 상태 변경 실패", err);
       alert("참여 상태 변경에 실패했어요.");
+    }
+  };
+
+  const handleToggleShuttlecock = async (id: number) => {
+    const member = members.find(m => m.id === id);
+    if (!member) return;
+    const next = !member.shuttlecockSubmitted;
+    setMembers(prev =>
+      prev.map(m => (m.id === id ? { ...m, shuttlecockSubmitted: next } : m)),
+    );
+    try {
+      await updateGameBoardMemberShuttlecock(gameBoardId, id, next);
+    } catch (err) {
+      console.error("[GAME] 셔틀콕 제출 상태 변경 실패", err);
+      setMembers(prev =>
+        prev.map(m =>
+          m.id === id ? { ...m, shuttlecockSubmitted: !next } : m,
+        ),
+      );
+      alert("셔틀콕 제출 상태 변경에 실패했어요.");
     }
   };
 
@@ -602,7 +639,7 @@ export const GameBoardTab = ({
                       waitingGroupId={group.id}
                       label={group.label}
                       players={group.players}
-                      courts={courts}
+                      courts={emptyCourts}
                       onMoveToCourt={courtId =>
                         handleMoveToCourt(group.id, courtId)
                       }
@@ -652,6 +689,7 @@ export const GameBoardTab = ({
                 onToggleParticipation={() =>
                   handleToggleParticipation(member.id)
                 }
+                onToggleShuttlecock={() => handleToggleShuttlecock(member.id)}
               />
             ))}
           </div>
@@ -662,13 +700,13 @@ export const GameBoardTab = ({
           <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[444px] -translate-x-1/2 flex-col gap-2 bg-gradient-to-b from-white/0 via-white/80 to-white px-4 pb-9 pt-2">
             {selectedMembers.length > 0 && (
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                {selectedMembers.map((m, i) => (
+                {selectedMembers.map(m => (
                   <button
                     key={m.id}
                     type="button"
                     className={clsx(
                       "flex shrink-0 items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black shadow-ds50",
-                      i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+                      m.gender === "FEMALE" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
                     )}
                     onClick={() => toggleSelect(m.id)}
                   >
@@ -717,6 +755,8 @@ export const GameBoardTab = ({
           <GameBoardWebView
             courts={courts}
             onCompleteCourt={handleCompleteCourt}
+            onReturnToWaiting={handleReturnToWaiting}
+            onCancelCourtGame={handleCancelCourtGame}
             waitingGroups={waitingGroups}
             onRemoveWaitingGroup={handleRemoveWaitingGroup}
             onMoveToCourt={handleMoveToCourt}
@@ -727,12 +767,18 @@ export const GameBoardTab = ({
             selectedIds={selectedIds}
             toggleSelect={toggleSelect}
             onToggleParticipation={handleToggleParticipation}
+            onToggleShuttlecock={handleToggleShuttlecock}
             onEditMember={setEditingMemberId}
             onAddPlayer={() => setIsAddPlayerOpen(true)}
             onManageCourts={() => setCourtManageVariant("overlay")}
             filters={filters}
             onChangeFilters={handleApplyFilters}
+            availableLevels={rosterLevels}
             onClose={() => setIsWebViewOpen(false)}
+            dndSensors={dndSensors}
+            activeDragGroup={activeDragGroup}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           />
         )}
 
