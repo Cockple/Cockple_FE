@@ -25,6 +25,8 @@ import {
 interface GameBoardWebViewProps {
   courts: CourtGroup[];
   onCompleteCourt: (courtId: number) => void;
+  onReturnToWaiting: (courtId: number) => void;
+  onCancelCourtGame: (courtId: number) => void;
   waitingGroups: WaitingGroup[];
   onRemoveWaitingGroup: (id: number) => void;
   onMoveToCourt: (waitingGroupId: number, courtId: number) => void;
@@ -51,6 +53,8 @@ interface GameBoardWebViewProps {
 export const GameBoardWebView = ({
   courts,
   onCompleteCourt,
+  onReturnToWaiting,
+  onCancelCourtGame,
   waitingGroups,
   onRemoveWaitingGroup,
   onMoveToCourt,
@@ -120,6 +124,8 @@ export const GameBoardWebView = ({
                       timer={court.timer}
                       players={court.players}
                       onComplete={() => setCompletingCourtId(court.id)}
+                      onReturnToWaiting={() => onReturnToWaiting(court.id)}
+                      onCancelGame={() => onCancelCourtGame(court.id)}
                     />
                   ))}
                 </div>

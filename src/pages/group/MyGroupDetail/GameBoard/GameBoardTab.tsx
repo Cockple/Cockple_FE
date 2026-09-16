@@ -739,6 +739,8 @@ export const GameBoardTab = ({
           <GameBoardWebView
             courts={courts}
             onCompleteCourt={handleCompleteCourt}
+            onReturnToWaiting={handleReturnToWaiting}
+            onCancelCourtGame={handleCancelCourtGame}
             waitingGroups={waitingGroups}
             onRemoveWaitingGroup={handleRemoveWaitingGroup}
             onMoveToCourt={handleMoveToCourt}
