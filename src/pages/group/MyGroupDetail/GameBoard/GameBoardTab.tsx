@@ -20,6 +20,7 @@ import {
   getGameBoardMembers,
   updateGameBoardMember,
   updateGameBoardMemberParticipation,
+  updateGameBoardMemberShuttlecock,
   type GameBoardMember,
 } from "@/api/game/members";
 import { updateCourts } from "@/api/game/courts";
@@ -319,6 +320,26 @@ export const GameBoardTab = ({
     } catch (err) {
       console.error("[GAME] 참여 상태 변경 실패", err);
       alert("참여 상태 변경에 실패했어요.");
+    }
+  };
+
+  const handleToggleShuttlecock = async (id: number) => {
+    const member = members.find(m => m.id === id);
+    if (!member) return;
+    const next = !member.shuttlecockSubmitted;
+    setMembers(prev =>
+      prev.map(m => (m.id === id ? { ...m, shuttlecockSubmitted: next } : m)),
+    );
+    try {
+      await updateGameBoardMemberShuttlecock(gameBoardId, id, next);
+    } catch (err) {
+      console.error("[GAME] 셔틀콕 제출 상태 변경 실패", err);
+      setMembers(prev =>
+        prev.map(m =>
+          m.id === id ? { ...m, shuttlecockSubmitted: !next } : m,
+        ),
+      );
+      alert("셔틀콕 제출 상태 변경에 실패했어요.");
     }
   };
 
@@ -652,6 +673,7 @@ export const GameBoardTab = ({
                 onToggleParticipation={() =>
                   handleToggleParticipation(member.id)
                 }
+                onToggleShuttlecock={() => handleToggleShuttlecock(member.id)}
               />
             ))}
           </div>
@@ -727,6 +749,7 @@ export const GameBoardTab = ({
             selectedIds={selectedIds}
             toggleSelect={toggleSelect}
             onToggleParticipation={handleToggleParticipation}
+            onToggleShuttlecock={handleToggleShuttlecock}
             onEditMember={setEditingMemberId}
             onAddPlayer={() => setIsAddPlayerOpen(true)}
             onManageCourts={() => setCourtManageVariant("overlay")}
