@@ -43,6 +43,7 @@ interface GameBoardWebViewProps {
   onManageCourts: () => void;
   filters: GameBoardMemberFilters;
   onChangeFilters: (next: GameBoardMemberFilters) => void;
+  availableLevels: string[];
   onClose: () => void;
   dndSensors: ReturnType<typeof useSensors>;
   activeDragGroup: WaitingGroup | null;
@@ -71,6 +72,7 @@ export const GameBoardWebView = ({
   onManageCourts,
   filters,
   onChangeFilters,
+  availableLevels,
   onClose,
   dndSensors,
   activeDragGroup,
@@ -240,7 +242,11 @@ export const GameBoardWebView = ({
             </div>
           </div>
 
-          <GameFilterInline filters={filters} onChange={onChangeFilters} />
+          <GameFilterInline
+            filters={filters}
+            onChange={onChangeFilters}
+            availableLevels={availableLevels}
+          />
 
           <div className="flex flex-wrap gap-x-3 gap-y-4">
             {members.map(member => (

@@ -83,6 +83,7 @@ export const GameBoardTab = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
+  const [rosterLevels, setRosterLevels] = useState<string[]>([]);
   const [courts, setCourts] = useState<CourtGroup[]>([]);
   const [waitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
@@ -139,6 +140,16 @@ export const GameBoardTab = ({
     );
   };
 
+  // 필터와 무관하게 명단 전체를 조회해, 실제로 존재하는 급수만 필터 옵션으로 노출한다.
+  // 급수 미지정 멤버는 level이 빈 값으로 내려올 수 있어 "급수없음"으로 보정한다.
+  const refreshRosterLevels = () => {
+    getGameBoardMembers(gameBoardId, {}).then(res => {
+      setRosterLevels([
+        ...new Set(res.gameBoardMembers.map(m => m.level || "급수없음")),
+      ]);
+    });
+  };
+
   const handleApplyFilters = (next: GameBoardMemberFilters) => {
     setFilters(next);
     getGameBoardMembers(gameBoardId, toGameBoardMembersParams(next)).then(
@@ -157,6 +168,7 @@ export const GameBoardTab = ({
         setMembers(memberRes.gameBoardMembers.map(toGameMember));
       })
       .finally(() => setIsLoading(false));
+    refreshRosterLevels();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameBoardId]);
 
@@ -271,6 +283,7 @@ export const GameBoardTab = ({
             : m,
         ),
       );
+      refreshRosterLevels();
       setEditingMemberId(null);
     } catch (err) {
       console.error("[GAME] 플레이어 정보 수정 실패", err);
@@ -287,6 +300,7 @@ export const GameBoardTab = ({
     try {
       await createGameBoardMember(gameBoardId, toGameBoardMemberPayload(player));
       refreshMembers();
+      refreshRosterLevels();
       setIsAddPlayerOpen(false);
     } catch (err) {
       console.error("[GAME] 명단 추가 실패", err);
@@ -757,6 +771,7 @@ export const GameBoardTab = ({
             onManageCourts={() => setCourtManageVariant("overlay")}
             filters={filters}
             onChangeFilters={handleApplyFilters}
+            availableLevels={rosterLevels}
             onClose={() => setIsWebViewOpen(false)}
             dndSensors={dndSensors}
             activeDragGroup={activeDragGroup}
