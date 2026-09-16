@@ -1,11 +1,17 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragOverlay,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
-import { CourtCard, WaitingCard } from "./CourtCard";
+import { CourtCard, WaitingCard, PlayerBadge } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import { GameEndModal } from "./GameEndModal";
 import { GameFilterInline } from "./GameFilterInline";
@@ -19,6 +25,8 @@ import {
 interface GameBoardWebViewProps {
   courts: CourtGroup[];
   onCompleteCourt: (courtId: number) => void;
+  onReturnToWaiting: (courtId: number) => void;
+  onCancelCourtGame: (courtId: number) => void;
   waitingGroups: WaitingGroup[];
   onRemoveWaitingGroup: (id: number) => void;
   onMoveToCourt: (waitingGroupId: number, courtId: number) => void;
@@ -29,17 +37,25 @@ interface GameBoardWebViewProps {
   selectedIds: number[];
   toggleSelect: (id: number) => void;
   onToggleParticipation: (id: number) => void;
+  onToggleShuttlecock: (id: number) => void;
   onEditMember: (id: number) => void;
   onAddPlayer: () => void;
   onManageCourts: () => void;
   filters: GameBoardMemberFilters;
   onChangeFilters: (next: GameBoardMemberFilters) => void;
+  availableLevels: string[];
   onClose: () => void;
+  dndSensors: ReturnType<typeof useSensors>;
+  activeDragGroup: WaitingGroup | null;
+  onDragStart: (event: DragStartEvent) => void;
+  onDragEnd: (event: DragEndEvent) => void;
 }
 
 export const GameBoardWebView = ({
   courts,
   onCompleteCourt,
+  onReturnToWaiting,
+  onCancelCourtGame,
   waitingGroups,
   onRemoveWaitingGroup,
   onMoveToCourt,
@@ -50,14 +66,22 @@ export const GameBoardWebView = ({
   selectedIds,
   toggleSelect,
   onToggleParticipation,
+  onToggleShuttlecock,
   onEditMember,
   onAddPlayer,
   onManageCourts,
   filters,
   onChangeFilters,
+  availableLevels,
   onClose,
+  dndSensors,
+  activeDragGroup,
+  onDragStart,
+  onDragEnd,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
+  const emptyCourts = courts.filter(c => !c.players);
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
     null,
   );
@@ -76,7 +100,11 @@ export const GameBoardWebView = ({
       </div>
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-10 py-8">
-        <DndContext sensors={[]}>
+        <DndContext
+          sensors={dndSensors}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+        >
           {/* 게임 코트 */}
           <div className="flex min-w-0 flex-col gap-3">
             <div className="flex items-center justify-between">
@@ -100,6 +128,8 @@ export const GameBoardWebView = ({
                       timer={court.timer}
                       players={court.players}
                       onComplete={() => setCompletingCourtId(court.id)}
+                      onReturnToWaiting={() => onReturnToWaiting(court.id)}
+                      onCancelGame={() => onCancelCourtGame(court.id)}
                     />
                   ))}
                 </div>
@@ -128,7 +158,7 @@ export const GameBoardWebView = ({
                         waitingGroupId={group.id}
                         label={group.label}
                         players={group.players}
-                        courts={courts}
+                        courts={emptyCourts}
                         onMoveToCourt={courtId =>
                           onMoveToCourt(group.id, courtId)
                         }
@@ -141,6 +171,20 @@ export const GameBoardWebView = ({
               </div>
             )}
           </div>
+          <DragOverlay>
+            {activeDragGroup ? (
+              <div className="flex w-[12.5rem] flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds300">
+                <span className="body-sm-500 px-1 text-black">
+                  {activeDragGroup.label}
+                </span>
+                <div className="flex flex-wrap justify-between gap-y-2">
+                  {activeDragGroup.players.map(p => (
+                    <PlayerBadge key={p.id} {...p} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
 
         {/* 명단 */}
@@ -160,13 +204,13 @@ export const GameBoardWebView = ({
             <div className="flex items-center gap-3">
               {selectedMembers.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
-                  {selectedMembers.map((m, i) => (
+                  {selectedMembers.map(m => (
                     <button
                       key={m.id}
                       type="button"
                       className={clsx(
                         "flex items-center gap-1 rounded-xl py-1 pl-2 pr-1.5 body-sm-500 text-black",
-                        i % 2 === 0 ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+                        m.gender === "FEMALE" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
                       )}
                       onClick={() => toggleSelect(m.id)}
                     >
@@ -200,7 +244,11 @@ export const GameBoardWebView = ({
             </div>
           </div>
 
-          <GameFilterInline filters={filters} onChange={onChangeFilters} />
+          <GameFilterInline
+            filters={filters}
+            onChange={onChangeFilters}
+            availableLevels={availableLevels}
+          />
 
           <div className="flex flex-wrap gap-x-3 gap-y-4">
             {members.map(member => (
@@ -211,6 +259,7 @@ export const GameBoardWebView = ({
                 onToggleSelect={() => toggleSelect(member.id)}
                 onEditInfo={() => onEditMember(member.id)}
                 onToggleParticipation={() => onToggleParticipation(member.id)}
+                onToggleShuttlecock={() => onToggleShuttlecock(member.id)}
               />
             ))}
           </div>

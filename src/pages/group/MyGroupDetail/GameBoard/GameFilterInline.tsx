@@ -10,6 +10,7 @@ import {
 interface GameFilterInlineProps {
   filters: GameBoardMemberFilters;
   onChange: (next: GameBoardMemberFilters) => void;
+  availableLevels: string[];
 }
 
 interface FilterChipProps {
@@ -66,11 +67,12 @@ const FilterSection = ({
 export const GameFilterInline = ({
   filters,
   onChange,
+  availableLevels,
 }: GameFilterInlineProps) => (
   <div className="flex flex-wrap items-center gap-x-11 gap-y-4">
     <FilterSection
       title="전국 급수"
-      options={LEVEL_OPTIONS_INLINE}
+      options={LEVEL_OPTIONS_INLINE.filter(o => availableLevels.includes(o))}
       isSelected={option => filters.levels.includes(option)}
       onSelect={option =>
         onChange({
