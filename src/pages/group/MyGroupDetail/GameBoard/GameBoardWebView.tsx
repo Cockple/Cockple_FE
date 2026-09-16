@@ -1,11 +1,17 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragOverlay,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
-import { CourtCard, WaitingCard } from "./CourtCard";
+import { CourtCard, WaitingCard, PlayerBadge } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import { GameEndModal } from "./GameEndModal";
 import { GameFilterInline } from "./GameFilterInline";
@@ -36,6 +42,10 @@ interface GameBoardWebViewProps {
   filters: GameBoardMemberFilters;
   onChangeFilters: (next: GameBoardMemberFilters) => void;
   onClose: () => void;
+  dndSensors: ReturnType<typeof useSensors>;
+  activeDragGroup: WaitingGroup | null;
+  onDragStart: (event: DragStartEvent) => void;
+  onDragEnd: (event: DragEndEvent) => void;
 }
 
 export const GameBoardWebView = ({
@@ -58,6 +68,10 @@ export const GameBoardWebView = ({
   filters,
   onChangeFilters,
   onClose,
+  dndSensors,
+  activeDragGroup,
+  onDragStart,
+  onDragEnd,
 }: GameBoardWebViewProps) => {
   const selectedMembers = members.filter(m => selectedIds.includes(m.id));
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
@@ -78,7 +92,11 @@ export const GameBoardWebView = ({
       </div>
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-10 py-8">
-        <DndContext sensors={[]}>
+        <DndContext
+          sensors={dndSensors}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+        >
           {/* 게임 코트 */}
           <div className="flex min-w-0 flex-col gap-3">
             <div className="flex items-center justify-between">
@@ -143,6 +161,20 @@ export const GameBoardWebView = ({
               </div>
             )}
           </div>
+          <DragOverlay>
+            {activeDragGroup ? (
+              <div className="flex w-[12.5rem] flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds300">
+                <span className="body-sm-500 px-1 text-black">
+                  {activeDragGroup.label}
+                </span>
+                <div className="flex flex-wrap justify-between gap-y-2">
+                  {activeDragGroup.players.map(p => (
+                    <PlayerBadge key={p.id} {...p} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
 
         {/* 명단 */}

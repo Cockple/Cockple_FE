@@ -756,6 +756,10 @@ export const GameBoardTab = ({
             filters={filters}
             onChangeFilters={handleApplyFilters}
             onClose={() => setIsWebViewOpen(false)}
+            dndSensors={dndSensors}
+            activeDragGroup={activeDragGroup}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           />
         )}
 
