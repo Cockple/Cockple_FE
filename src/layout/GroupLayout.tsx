@@ -154,9 +154,9 @@ export const GroupLayout = () => {
   };
 
   const isJoined = partyDetail?.memberStatus === "MEMBER";
-  const isOwner =
-    partyDetail?.memberRole === "PARTY_MANAGER" ||
-    partyDetail?.memberRole === "PARTY_SUBMANAGER";
+  const isOwner = partyDetail?.memberRole === "PARTY_MANAGER";
+  const isSubManager = partyDetail?.memberRole === "PARTY_SUBMANAGER";
+  const canManageGroup = isOwner || isSubManager;
 
   // 모임 채팅 탭 안읽음 표시: 가입 회원에게만, 새 메시지가 있으면 빨간 점.
   // 채팅 탭 진입 시 GroupChatDetailTemplate이 clearUnread로 0을 만들어 자동으로 사라진다.
@@ -175,7 +175,7 @@ export const GroupLayout = () => {
       <PageHeader
         title={partyDetail?.partyName ?? groupName}
         onBackClick={handleBackClick}
-        onMoreClick={isOwner ? () => setIsMoreOpen(true) : undefined}
+        onMoreClick={canManageGroup ? () => setIsMoreOpen(true) : undefined}
       />
 
       <TabSelector
@@ -195,7 +195,7 @@ export const GroupLayout = () => {
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         selected=""
-        options={["모임 삭제하기", "부모임장 설정하기", "모임 정보 수정하기"]}
+        options={isOwner ? ["모임 삭제하기", "부모임장 설정하기", "모임 정보 수정하기"] : ["모임 정보 수정하기"]}
         onSelect={label => {
           if (label === "모임 삭제하기") {
             setIsMoreOpen(false);
