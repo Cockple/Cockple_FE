@@ -178,8 +178,15 @@ export const MemberDefault = () => {
           myRole === "OWNER" ||
           myRole === "MANAGER" ||
           myRole === "PARTY_MANAGER";
+        const isSubLeaderUser =
+          myRole === "SUBOWNER" ||
+          myRole === "PARTY_SUBMANAGER";
+        const isTargetNormalMember = member.position === null;
+
         const showDeleteButton =
-          (isCurrentUser && !isLeaderUser) || (!isCurrentUser && isLeaderUser);
+          (isCurrentUser && !isLeaderUser) || 
+          (!isCurrentUser && isLeaderUser) ||
+          (!isCurrentUser && isSubLeaderUser && isTargetNormalMember);
 
         const modalConfig: ModalConfig | undefined = showDeleteButton
           ? {
