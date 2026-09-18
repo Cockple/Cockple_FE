@@ -19,6 +19,7 @@ import {
   deleteExercise,
 } from "../../../api/exercise/exercises";
 import { cancelByLeader } from "../../../api/exercise/participants";
+import { useGetGameHostCandidates } from "../../../api/game/game";
 import type {
   ExerciseDetailResponse,
   CancelSelfResponse,
@@ -37,6 +38,12 @@ export const MyExerciseDetail = () => {
 
   const { exerciseId } = useParams<{ exerciseId: string }>();
   const exerciseIdNumber = Number(exerciseId);
+
+  const { data: hostData } = useGetGameHostCandidates(exerciseIdNumber);
+  const currentUserHostInfo = hostData?.participants?.find(
+    (p) => p.participantId === user?.memberId
+  );
+  const isGameHost = currentUserHostInfo?.isGameHost ?? false;
 
   const [detail, setDetail] = useState<ExerciseDetailResponse | null>({
     notice: "API 에러(CORS/Network)로 인해 출력된 임시 화면입니다.",
@@ -113,7 +120,13 @@ export const MyExerciseDetail = () => {
       getExerciseDetail(exerciseIdNumber, user?.memberId).then(res => {
         setDetail(res);
 
-        setIsCurrentUserLeader(res.isManager);
+        const currentUser = res.participantMembers.find((p) => p.isMe);
+        setIsCurrentUserLeader(
+          res.isManager ||
+          currentUser?.position === "SUBOWNER" ||
+          currentUser?.position === "PARTY_SUBMANAGER" ||
+          currentUser?.position === "부모임장"
+        );
 
         const participants: MemberProps[] = res.participantMembers.map(p => ({
           participantId: p.id,
@@ -400,13 +413,13 @@ export const MyExerciseDetail = () => {
         {activeTab === "game" && (
           <GameBoardTab
             gameBoardId={detail.gameBoardId}
-            isManager={detail.isManager}
+            isManager={isGameHost}
             refreshSignal={gameRefreshSignal}
             onRefreshingChange={setIsGameRefreshing}
           />
         )}
 
-        {activeTab === "finished" && <GameFinishedTab exerciseId={exerciseIdNumber} />}
+        {activeTab === "finished" && <GameFinishedTab gameBoardId={detail.gameBoardId} />}
       </div>
 
       <SortBottomSheet

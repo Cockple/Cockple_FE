@@ -16,14 +16,14 @@ export interface MatchInfo {
 }
 
 interface GameFinishedTabProps {
-  exerciseId: number;
+  gameBoardId: number;
 }
 
-export const GameFinishedTab = ({ exerciseId }: GameFinishedTabProps) => {
+export const GameFinishedTab = ({ gameBoardId }: GameFinishedTabProps) => {
   const [courtNo, setCourtNo] = useState(1);
 
   const { data, fetchNextPage, hasNextPage, isLoading } = useGetCompletedGames(
-    exerciseId,
+    gameBoardId,
     courtNo
   );
 
