@@ -25,11 +25,6 @@ const ChatList = ({
   searchTerm,
   navigate,
 }: Props) => {
-  console.log(
-    "rooms with null lastMessage",
-    (tab === "group" ? groupChats : personalChats).filter(r => !r.lastMessage),
-  );
-
   // 🌟 탭별 빈 상태 메시지
   const emptyMessageMap: Record<Props["tab"], string> = {
     group: "아직 모임 채팅",
@@ -40,15 +35,17 @@ const ChatList = ({
 
   if (searchTerm !== "" && chatData.length == 0) {
     return (
-      // <div className="text-center text-gy-500 py-4">검색 결과가 없습니다.</div>
-      <EmptyState message="검색 결과가" />
+      <div className="flex flex-1 items-center justify-center min-h-[60dvh]">
+        <EmptyState message="검색 결과가" />
+      </div>
     );
   }
 
   if (chatData.length === 0) {
     return (
-      // <div className="text-center text-gy-500 py-4">채팅방이 없습니다.</div>
-      <EmptyState message={emptyMessageMap[tab]} />
+      <div className="flex flex-1 items-center justify-center min-h-[60dvh]">
+        <EmptyState message={emptyMessageMap[tab]} />
+      </div>
     );
   }
 
@@ -117,6 +114,8 @@ const ChatList = ({
                   lastMessage={lastText} // 안전
                   lastMessageTime={lastTime} // 안전
                   unreadCount={chat.unreadCount}
+                  isAloneWithdrawn={chat.isWithdrawn}
+                  // isAloneWithdrawn={true}
                 />
               </div>
             );

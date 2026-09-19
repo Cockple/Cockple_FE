@@ -4,18 +4,20 @@ import type { BtnStatus } from "../types";
 interface RD500SProps {
   initialStatus?: BtnStatus;
   label?: string;
+  isChat?: boolean;
   onClick?: () => void;
 }
 
 const RD500_S = ({
   initialStatus = "default",
   label = "Btn",
+  isChat,
   onClick,
 }: RD500SProps) => {
   return (
     <Btn_Static
       kind="RD500"
-      size="S"
+      size={isChat ? "ThinL" : "S"}
       label={label}
       initialStatus={initialStatus}
       onClick={onClick}

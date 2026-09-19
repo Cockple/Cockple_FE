@@ -52,12 +52,13 @@ export interface MemberProps {
   canCancel: boolean;
   guest: string | null;
   inviterName: string;
-
+  isWithdrawn: boolean;
 }
 
 // 최종 변환 타입
 export interface ExerciseDetailResponse {
   partyId: number;
+  gameBoardId: number;
   notice: string;
   placeName: string;
   placeAddress: string;
@@ -68,10 +69,13 @@ export interface ExerciseDetailResponse {
   waitingGenderCount: { male: number; female: number };
   waitingMembers: MemberProps[];
   isManager: boolean;
+  isWithdrawn: boolean;
 }
 
 interface RawExerciseResponse {
   isManager: boolean;
+  isWithdrawn?: boolean;
+  gameBoardId: number;
   info: {
     notice: string;
     buildingName: string;
@@ -132,7 +136,6 @@ export const getExerciseDetail = async (
   }>(`/api/exercises/${exerciseId}`);
 
   const raw = response.data.data;
-  console.log("!!", raw);
 
   const mapLevelToKorean = (level: string) => {
     const levelMap: Record<string, string> = {
@@ -160,18 +163,20 @@ export const getExerciseDetail = async (
     isMe: currentUserId === p.participantId,
     isLeader:
       currentUserId === p.participantId
-        ? p.partyPosition === "party_MANAGER"
+        ? p.partyPosition === "PARTY_MANAGER"
         : false,
     position: p.partyPosition,
     imgUrl: p.profileImageUrl ?? null,
     canCancel: currentUserId === p.participantId || p.canCancel,
     guest: p.inviterName ?? null,
-    inviterName: p.inviterName ?? "",   
+    inviterName: p.inviterName ?? "",
     isManager: p.isManager,
+    isWithdrawn: p.isWithdrawn,
   });
 
   return {
     partyId: exerciseId,
+    gameBoardId: raw.gameBoardId,
     notice: raw.info.notice,
     placeName: raw.info.buildingName,
     placeAddress: raw.info.location,
@@ -186,8 +191,9 @@ export const getExerciseDetail = async (
       male: raw.waiting.manCount,
       female: raw.waiting.womenCount,
     },
-    
+
     isManager: raw.isManager,
+    isWithdrawn: raw.isWithdrawn ?? false,
     waitingMembers: raw.waiting.list.map(transformMember),
   };
 };

@@ -10,7 +10,7 @@ import React, {
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 import ChatBtn from "../common/DynamicBtn/ChatBtn";
-import ProfileImg from "@/assets/images/Profile_Image.png?url";
+import ProfileImg from "@/assets/images/Profile_Image.webp?url";
 import BottomChatInput from "../common/chat/BottomChatInput";
 import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
@@ -23,6 +23,7 @@ import { useChatInfinite } from "../../hooks/useChatInfinite";
 import {
   addWsListener,
   subscribeRoom,
+  unsubscribeRoom,
   type IncomingMessage,
 } from "../../api/chat/rawWs";
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
@@ -34,7 +35,7 @@ import { uploadImage } from "../../api/image/imageUpload";
 import { useChatWsStore } from "../../store/useChatWsStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
 import useUserStore from "../../store/useUserStore";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+import { ChatDetailSkeleton } from "./ChatDetailSkeleton";
 
 // 이모티콘
 import EmojiPicker from "../common/chat/EmojiPicker";
@@ -103,6 +104,7 @@ export const ChatDetailTemplate = ({
     messages, // 오름차순
     initLoading,
     initError,
+    initial,
     //isEmpty,
     hasNextPage,
     isFetchingNextPage,
@@ -110,16 +112,10 @@ export const ChatDetailTemplate = ({
     refetchInitial,
   } = useChatInfinite(chatId);
 
-  // ===== 읽음 처리 =====
-  // const { markReadNow } = useChatRead({
-  //   roomId: Number(chatId),
-  //   messages,
-  //   mode: "mock", // ← 백엔드 URL 확정되면 "rest"로 교체
-  //   // wsSendFn: payload => stompClient.publish({...}) 형태로 주입 가능
-  //   //   // TODO(WS): sendReadWS(chatId, payload) 등으로 연결
-  //   //   return { lastReadMessageId: payload.lastReadMessageId };
-  //   // },
-  // });
+  //개인채팅방 탈퇴
+  const aloneWithdrawn =
+    initial?.participants.length == 2 &&
+    initial.chatRoomInfo.isCounterPartWithdrawn == true;
 
   // 활성 방/읽음카운트 스토어 연동
   const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
@@ -132,7 +128,7 @@ export const ChatDetailTemplate = ({
     clearUnread(chatId); // 입장 즉시 0으로 (서버 PATCH는 useChatRead에서)
 
     return () => {
-      //unsubscribeRoom(chatId);
+      unsubscribeRoom(chatId);
       setActiveRoom(null); // 상세 퇴장
     };
   }, [chatId, setActiveRoom, clearUnread]);
@@ -195,21 +191,6 @@ export const ChatDetailTemplate = ({
     return () => io.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  // 🌟하단 근처 도달 시 자동 읽음 처리(목업)
-  // useEffect(() => {
-  //   const root = scrollAreaRef.current;
-  //   if (!root) return;
-
-  //   const onScroll = () => {
-  //     const nearBottom =
-  //       root.scrollHeight - root.scrollTop - root.clientHeight < 60;
-  //     if (nearBottom) markReadNow();
-  //   };
-
-  //   root.addEventListener("scroll", onScroll);
-  //   return () => root.removeEventListener("scroll", onScroll);
-  // }, [markReadNow]);
-  // 스크롤 시 하단 붙음 상태 추적 (+ 읽음 트리거는 선택)
   useEffect(
     () => {
       const root = scrollAreaRef.current;
@@ -227,7 +208,7 @@ export const ChatDetailTemplate = ({
     ],
   );
 
-  // 🌟이미지/이모티콘 로드 시 하단 붙이기(캡처 단계)
+  // 이미지/이모티콘 로드 시 하단 붙이기(캡처 단계)
   useEffect(() => {
     const root = scrollAreaRef.current;
     if (!root) return;
@@ -258,7 +239,6 @@ export const ChatDetailTemplate = ({
   }, [stickToBottom]);
 
   //===== WS 연결 및 전송 =====
-  //const { sendText, sendImages, lastMessage } = useRawWsConnect({
   const { sendText, sendImages } = useRawWsConnect({
     memberId: currentUserId,
     origin: import.meta.env.VITE_WS_ORIGIN,
@@ -267,8 +247,13 @@ export const ChatDetailTemplate = ({
   // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
   const rendered = useMemo(() => {
     // messages가 오름차순이므로 live는 뒤에 붙인다.
-    // 정렬이 필요하면 여기에서 정렬.
-    return [...messages, ...liveMsgs];
+    // REST 재조회로 messages에 이미 들어온(확정 messageId) 항목은
+    // liveMsgs에서 제외해 중복 렌더를 막는다. 아직 낙관적(음수 id)인 건 유지.
+    const restIds = new Set(messages.map(m => m.messageId));
+    const filteredLive = liveMsgs.filter(
+      m => m.messageId < 0 || !restIds.has(m.messageId),
+    );
+    return [...messages, ...filteredLive];
   }, [messages, liveMsgs]);
 
   // ==== 전송: 텍스트 ====
@@ -285,9 +270,9 @@ export const ChatDetailTemplate = ({
       content: text,
       messageType: "TEXT",
       images: [],
-      //imageUrls: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
+      isSenderWithdrawn: false,
     };
 
     // 1) 즉시 화면 반영
@@ -308,7 +293,6 @@ export const ChatDetailTemplate = ({
     requestAnimationFrame(() =>
       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
     );
-    console.log("메시지 전송:", text);
   };
 
   //==== 전송: 이미지(다중) ====
@@ -371,12 +355,11 @@ export const ChatDetailTemplate = ({
         ],
         timestamp: now,
         isMyMessage: true,
+        isSenderWithdrawn: false,
       }));
 
       setLiveMsgs((prev: ChatMessageResponse[]) => [...prev, ...optimistic]);
-      // 🌟requestAnimationFrame(() =>
-      //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-      // );
+
       if (stickToBottom) {
         requestAnimationFrame(() =>
           bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
@@ -449,6 +432,7 @@ export const ChatDetailTemplate = ({
         //imageUrls: [imgUrl],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
+        isSenderWithdrawn: false,
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
@@ -499,65 +483,21 @@ export const ChatDetailTemplate = ({
       senderId: msg.senderId,
       senderName: msg.senderName,
       senderProfileImageUrl: msg.senderProfileImageUrl,
-      content: images.length ? "" : (msg.content ?? ""),
-      messageType: "TEXT",
+      content: images.length ? "" : msg.content,
+      messageType: msg.messageType === "SYSTEM" ? "SYSTEM" : "TEXT",
       images,
-      timestamp: msg.timestamp,
+      timestamp: msg.timestamp ?? new Date().toISOString(),
       isMyMessage: msg.senderId === meId,
+      isSenderWithdrawn: (msg as any).isSenderWithdrawn ?? false,
     };
   }
 
-  // ===== WS 수신 반영 =====
-  // const lastMessageRef = useRef(lastMessage);
-  // useEffect(() => {
-  //   lastMessageRef.current = lastMessage;
-  // }, [lastMessage]);
-
-  // useEffect(() => {
-  //   const msg = lastMessageRef.current;
-  //   if (!msg || msg.type !== "SEND") return;
-  //   if (msg.chatRoomId !== chatId) return;
-
-  //   const incoming = mapBroadcastToUi(msg, currentUserId);
-
-  //   setLiveMsgs(prev => {
-  //     // 낙관적 메시지와 교체(시간 가까우면)
-  //     const idx = prev.findIndex(
-  //       m =>
-  //         m.messageId < 0 &&
-  //         m.isMyMessage &&
-  //         m.messageType === incoming.messageType &&
-  //         (m.content === incoming.content ||
-  //           (m.messageType === "TEXT" &&
-  //             (m.images?.length ?? 0) > 0 &&
-  //             (incoming.images?.length ?? 0) > 0)) &&
-  //         Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
-  //           5000,
-  //     );
-  //     if (idx >= 0) {
-  //       const copy = [...prev];
-  //       copy[idx] = incoming;
-  //       return copy;
-  //     }
-  //     return [...prev, incoming];
-  //   });
-
-  //   // 🌟requestAnimationFrame(() =>
-  //   //   bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //   // );
-  //   if (stickToBottom) {
-  //     requestAnimationFrame(() =>
-  //       bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
-  //     );
-  //   }
-  // }, [lastMessage, chatId, currentUserId, stickToBottom]);
-  // 🌟WS 원본 이벤트를 직접 구독 (타이밍/의존성 이슈 제거)
+  // WS 원본 이벤트를 직접 구독 (타이밍/의존성 이슈 제거)
   useEffect(() => {
     const off = addWsListener((msg: IncomingMessage) => {
       if (msg.type !== "SEND") return;
       if (msg.chatRoomId !== chatId) return;
       const incoming = mapBroadcastToUi(msg, currentUserId);
-      console.log("[DETAIL] incoming", msg.type, msg.chatRoomId, chatId); //🌟
       setLiveMsgs(prev => {
         // 교체 매칭(낙관치 ↔ 확정치)
         const idx = prev.findIndex(
@@ -576,8 +516,9 @@ export const ChatDetailTemplate = ({
                       (oi.fileSize && oi.fileSize === ii.fileSize),
                   ),
                 ))) &&
-            Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
-              5000,
+            Math.abs(
+              +new Date(m.timestamp ?? 0) - +new Date(incoming.timestamp ?? 0),
+            ) < 5000,
         );
         if (idx >= 0) {
           const copy = [...prev];
@@ -643,7 +584,6 @@ export const ChatDetailTemplate = ({
               imgSrc={partyProfileImg ? partyProfileImg : DefaultGroupImg}
               onClick={() => {
                 navigate(`/group/${partyId}`);
-                console.log(`/group/${partyId}로 이동`);
               }}
             >
               모임 홈으로
@@ -652,7 +592,7 @@ export const ChatDetailTemplate = ({
         )}
 
         {/* 상태 UI */}
-        {initLoading && <LoadingSpinner />}
+        {initLoading && <ChatDetailSkeleton />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">
@@ -680,20 +620,20 @@ export const ChatDetailTemplate = ({
 
               {rendered.map((chat, idx) => {
                 const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                const currentDateLabel = formatDateWithDay(chat.timestamp);
+                const prevDateLabel = prev
+                  ? formatDateWithDay(prev.timestamp)
+                  : "";
                 const showDate =
-                  !prev ||
-                  formatDateWithDay(chat.timestamp) !==
-                    formatDateWithDay(prev.timestamp);
+                  !!currentDateLabel &&
+                  (!prev || currentDateLabel !== prevDateLabel);
                 return (
                   <React.Fragment key={chat.messageId}>
-                    {showDate && (
-                      <ChatDateSeparator
-                        date={formatDateWithDay(chat.timestamp)}
-                      />
-                    )}
+                    {showDate && <ChatDateSeparator date={currentDateLabel} />}
                     <ChattingComponent
                       message={chat}
                       isMe={chat.senderId === currentUserId}
+                      isAloneWithdrawn={aloneWithdrawn}
                       // onImageClick={setPreviewImage}
                       onImageClick={handleImageClick}
                       time={formatEnLowerAmPm(chat.timestamp)}
@@ -721,34 +661,38 @@ export const ChatDetailTemplate = ({
         )}
       </div>
       {/* 입력창 */}
-      <div className="sticky bottom-0">
-        <BottomChatInput
-          input={input}
-          isComposing={isComposing}
-          onInputChange={setInput}
-          onCompositionStart={() => setIsComposing(true)}
-          onCompositionEnd={e => {
-            setIsComposing(false);
-            setInput(e.currentTarget.value);
-          }}
-          onSendMessage={handleSendMessage}
-          onImageUpload={handleImageUpload}
-          fileInputRef={fileInputRef}
-          //🌟onToggleEmoji={() => setShowEmoji(v => !v)} //
-          onToggleEmoji={toggleEmoji}
-          onFocusInput={() => setShowEmoji(false)} // 입력창 클릭/포커스 → 닫기
-        />
-        {/* 입력창 아래에 표시 (카톡처럼) */}
-        {showEmoji && (
-          //🌟<EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
-          <div
-            ref={emojiRef}
-            // className="absolute left-0 right-0 bottom-[4.25rem] z-50" // 필요시 위치 조정
-          >
-            <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
-          </div>
-        )}
-      </div>
+      {aloneWithdrawn ? (
+        <p className="header-h4 bg-gr-200 pb-4">대화가 불가능한 멤버입니다.</p>
+      ) : (
+        <div className="sticky bottom-0">
+          <BottomChatInput
+            input={input}
+            isComposing={isComposing}
+            onInputChange={setInput}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={e => {
+              setIsComposing(false);
+              setInput(e.currentTarget.value);
+            }}
+            onSendMessage={handleSendMessage}
+            onImageUpload={handleImageUpload}
+            fileInputRef={fileInputRef}
+            //🌟onToggleEmoji={() => setShowEmoji(v => !v)} //
+            onToggleEmoji={toggleEmoji}
+            onFocusInput={() => setShowEmoji(false)} // 입력창 클릭/포커스 → 닫기
+          />
+          {/* 입력창 아래에 표시 (카톡처럼) */}
+          {showEmoji && (
+            //🌟<EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+            <div
+              ref={emojiRef}
+              // className="absolute left-0 right-0 bottom-[4.25rem] z-50" // 필요시 위치 조정
+            >
+              <EmojiPicker emojis={EMOJIS} onSelect={handleSendEmoji} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

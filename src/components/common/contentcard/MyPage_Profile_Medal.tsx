@@ -29,9 +29,11 @@ export const MyPage_Profile_Medal = ({
     <div className="flex flex-col gap-[1rem]">
       {/* 내 메달 섹션 */}
       <div
-        className={`w-[21.4375rem] h-[13.5rem] px-[1rem] py-[0.75rem] shadow-ds100 rounded-[1rem] flex flex-col justify-between gap-[1rem] cursor-pointer ${
-          disabled ? "pointer-events-none opacity-50" : ""
-        }`}
+          className={`w-full h-[13.5rem] px-[1rem] py-[0.75rem] shadow-ds100 rounded-[1rem] flex flex-col justify-between gap-[1rem]
+          ${disabled ? "cursor-default" : "cursor-pointer"}`}
+        // className={`w-[21.4375rem] h-[13.5rem] px-[1rem] py-[0.75rem] shadow-ds100 rounded-[1rem] flex flex-col justify-between gap-[1rem] cursor-pointer ${
+        //   disabled ? "pointer-events-none opacity-50" : ""
+        // }`}
         onClick={!disabled ? onClick : undefined}
       >
         <div className="flex items-center justify-between w-full">

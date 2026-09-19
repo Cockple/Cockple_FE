@@ -5,6 +5,8 @@ import KakaoIcon from "@/assets/icons/kakao.svg?url";
 import { TEXT_MAP } from "@/constants/onboarding";
 
 export const LoginPage = () => {
+  const token = localStorage.getItem("accessToken");
+
   const handleKakako = () => {
     const REST_API_KEY = `${import.meta.env.VITE_KAKAO_REST_API_KEY}`;
     const REDIRECT_URI = `${window.location.origin}/login/kakao`;

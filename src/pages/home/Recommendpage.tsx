@@ -80,8 +80,6 @@ export const RecommendPage = () => {
 
         const newData = await fetchRecommendedCalendar(params);
 
-        console.log(newData);
-
         if (direction) {
           setCalendarData(prev => {
             if (!prev) return newData;

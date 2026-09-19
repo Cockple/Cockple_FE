@@ -33,11 +33,11 @@ export const MainHeader = ({
 
   const getNotificationsCount = async () => {
     try {
-      const { data } = await api.get("/api/notifications/count");
+      const { data } = await api.get("/api/v2/notifications/count?destination=APP");
 
       setHasNotification(data.data.existNewNotification);
     } catch (err) {
-      console.log("알람 존재여부 api 오류: ", err);
+      console.error("알람 존재여부 api 오류: ", err);
     }
   };
 

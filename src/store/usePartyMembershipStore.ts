@@ -2,7 +2,7 @@
 import { create } from "zustand";
 
 type MemberStatus = "MEMBER" | "NOT_MEMBER" | null;
-type MemberRole = "party_MEMBER" | "party_MANAGER" | "party_SUBMANAGER" | null;
+type MemberRole = "PARTY_MEMBER" | "PARTY_MANAGER" | "PARTY_SUBMANAGER" | null;
 
 interface PartyMembershipState {
   memberStatus: MemberStatus;

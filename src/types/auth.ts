@@ -7,7 +7,15 @@ export type KakaoLoginResponseDTO = {
   memberId: number;
   nickname: string;
   isNewMember: boolean;
+  needsOnboarding: boolean;
 };
+
+//신규 앱 부팅
+export type onboardingStatu = {
+  needsOnboarding: boolean;
+};
+
+export type onboardingStatusDTO = CommonResponse<onboardingStatu>;
 
 //회원정보 상세 추가
 export type OnBoardingRequest = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AlertInvite from "../../components/common/contentcard/alertTest/AlertInvite";
@@ -13,15 +13,16 @@ import api from "../../api/api";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { EmptyState } from "../../components/alert/EmptyState";
 import AlertTest1 from "../../components/common/contentcard/alertTest/AlertTest1";
-import type { AlertListResponse, ResponseAlertDto } from "../../types/alert";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import type { AlertListResponse, ResponseAlertDto, AlertListPage } from "../../types/alert";
+import { useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertSkeleton } from "../../components/alert/AlertSkeleton";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
-const fetchNotifications = async (): Promise<ResponseAlertDto[]> => {
-  const response = await api.get<AlertListResponse>("/api/notifications");
-
-  console.log("내 알림 목록: ", response.data.data);
+const fetchNotifications = async ({ pageParam = null }: { pageParam?: number | null }): Promise<AlertListPage> => {
+  const cursorParam = pageParam ? `&cursor=${pageParam}` : "";
+  const response = await api.get<AlertListResponse>(
+    `/api/v2/notifications?destination=APP${cursorParam}`
+  );
   return response.data.data;
 };
 
@@ -33,19 +34,42 @@ export const AlertPage = () => {
   const [modalType, setModalType] = useState<"approve" | "reject" | null>(null);
 
   const {
-    data: notifications = [],
+    data,
+    fetchNextPage,
+    hasNextPage,
     isLoading,
     isError,
-  } = useQuery({
+  } = useInfiniteQuery({
     queryKey: ["notifications"],
     queryFn: fetchNotifications,
+    initialPageParam: null as number | null,
+    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
     staleTime: 1000 * 60,
   });
+
+  const notifications = data?.pages.flatMap(page => page.notifications) || [];
 
   // INVITE/CHANGE/SIMPLE 만 노출
   const visibleNotifications = notifications.filter(alert =>
     ["INVITE", "CHANGE", "SIMPLE"].includes(alert.type),
   );
+
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasNextPage && !isLoading) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+    return () => observer.disconnect();
+  }, [hasNextPage, fetchNextPage, isLoading]);
 
   const handleAccept = (id: number) => {
     setTargetId(id);
@@ -58,8 +82,6 @@ export const AlertPage = () => {
   };
 
   const handleDetail = (partyId: number, data?: ResponseAlertDto["data"]) => {
-    console.log("모임 페이지로 이동", partyId);
-
     if (data?.exerciseDate && data?.exerciseId) {
       navigate(`/group/${partyId}`, {
         state: {
@@ -87,7 +109,6 @@ export const AlertPage = () => {
       }
     }
 
-    // 객체로 오는 케이스도 대비
     const id = data?.invitationId;
     return typeof id === "number" ? id : Number(id ?? NaN);
   }
@@ -95,13 +116,8 @@ export const AlertPage = () => {
   // 🌟CHANGE/SIMPLE 읽음 처리 공통 뮤테이션
   const markReadMutation = useMutation({
     mutationFn: async (notification: ResponseAlertDto) => {
-      const { notificationId, type } = notification;
-
-      // 현재 구현처럼 쿼리스트링로 전송
-      await api.patch(`/api/notifications/${notificationId}?type=${type}`);
-
-      // 명세서대로 body로 보내야 한다면 위 1줄 대신 아래 사용
-      // await api.patch(`/api/notifications/${notificationId}`, { type });
+      const { notificationId } = notification;
+      await api.patch(`/api/v2/notifications/${notificationId}/read`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -116,20 +132,13 @@ export const AlertPage = () => {
       const { notificationId, partyId } = notification;
       const invitationId = extractInvitationId(notification.data);
 
-      // 알림 상태 수정 (INVITE → INVITE_ACCEPT)
-      await api.patch(
-        `/api/notifications/${notificationId}?type=INVITE_ACCEPT`,
-      );
+      // V2: 알림 읽음 처리만 하고, 수락은 초대 API로 별도 호출
+      await api.patch(`/api/v2/notifications/${notificationId}/read`);
 
       if (partyId && invitationId) {
         await api.patch(`/api/parties/invitations/${invitationId}`, {
           action: "APPROVE",
         });
-        console.log("모임으로 승인 요청 보냄, 초대 아이디: ", invitationId);
-      } else if (partyId && !invitationId) {
-        console.log("모임 있지만 invitationId 없음");
-      } else {
-        console.log("모임도 없고 invitationId도 없음");
       }
     },
     onSuccess: () => {
@@ -145,9 +154,8 @@ export const AlertPage = () => {
     mutationFn: async (notification: ResponseAlertDto) => {
       const { notificationId, data } = notification;
 
-      await api.patch(
-        `/api/notifications/${notificationId}?type=INVITE_REJECT`,
-      );
+      // V2: 알림 읽음 처리만 하고, 거절은 초대 API로 별도 호출
+      await api.patch(`/api/v2/notifications/${notificationId}/read`);
 
       if (data?.invitationId) {
         await api.patch(`/api/parties/invitations/${data.invitationId}`, {
@@ -188,7 +196,7 @@ export const AlertPage = () => {
       {/* 알림 카드들 */}
       <div className="flex-1 flex flex-col items-center gap-4">
         {isLoading ? (
-          <LoadingSpinner />
+          <AlertSkeleton />
         ) : isError ? (
           <div className="text-center mt-10">에러 발생</div>
         ) : visibleNotifications.length === 0 ? (
@@ -202,7 +210,7 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgKey ?? DefaultGroupImg}
+                imageSrc={alert.imgUrl?.endsWith("/null") ? DefaultGroupImg : (alert.imgUrl ?? DefaultGroupImg)}
                 onAccept={() => handleAccept(alert.notificationId)}
                 onReject={() => handleReject(alert.notificationId)}
               />
@@ -211,28 +219,21 @@ export const AlertPage = () => {
                 key={alert.notificationId}
                 groupName={alert.title}
                 alertText={alert.content}
-                imageSrc={alert.imgKey ?? DefaultGroupImg}
+                imageSrc={alert.imgUrl?.endsWith("/null") ? DefaultGroupImg : (alert.imgUrl ?? DefaultGroupImg)}
                 alertType={alert.type}
+                isRead={alert.isRead}
                 descriptionText={getDescriptionText(alert.type)}
-                // onClick={
-                //   shouldMoveToDetail(alert.type)
-                //     ? () => handleDetail(alert.partyId, alert.data)
-                //     : undefined
-                // }
-                onClick={
-                  // 🌟CHANGE: 읽음 처리 후 상세 이동
-                  // 🌟SIMPLE: 읽음 처리만
-                  () => {
-                    markReadMutation.mutate(alert);
-                    if (shouldMoveToDetail(alert.type)) {
-                      handleDetail(alert.partyId, alert.data);
-                    }
+                onClick={() => {
+                  markReadMutation.mutate(alert);
+                  if (shouldMoveToDetail(alert.type)) {
+                    handleDetail(alert.partyId, alert.data);
                   }
-                }
+                }}
               />
             ),
           )
         )}
+        {hasNextPage && <div ref={observerRef} className="h-10 w-full" />}
       </div>
 
       {modalType === "approve" && selectedAlert && (

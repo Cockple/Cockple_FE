@@ -22,7 +22,6 @@ export default function TabBtn({
         ? "clicked"
         : "default";
 
-  // console.log(isSelected);
   const statusMap: Record<TextIconStatus, { bg?: string; span?: string }> = {
     //clicked
     clicked: {

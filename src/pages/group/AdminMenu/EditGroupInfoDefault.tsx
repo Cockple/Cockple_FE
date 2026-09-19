@@ -10,21 +10,23 @@ import Grad_GR400_L from "../../../components/common/Btn_Static/Text/Grad_GR400_
 import TagBtn from "../../../components/common/DynamicBtn/TagBtn";
 import { PageHeader } from "../../../components/common/system/header/PageHeader";
 import { Modal_Caution } from "../../../components/MyPage/Modal_Caution";
-import { useNavigate, useParams  } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { updateParty, getPartyDetail } from "../../../api/party/patchParties";
-import type { UpdatePartyRequest, PartyDetail } from "../../../api/party/patchParties";
+import type {
+  UpdatePartyRequest,
+  PartyDetail,
+} from "../../../api/party/patchParties";
 import { addWon, fmtKRW } from "../../../utils/moneychange";
-import { uploadImage } from "../../../api/image/imageUpload"; 
+import { uploadImage } from "../../../api/image/imageUpload";
 
 const dayOptions = ["전체", "월", "화", "수", "목", "금", "토", "일"];
 const timeOptions = ["상시", "오전", "오후"];
 
 export const EditGroupInfoDefault = () => {
-  const { partyId } = useParams<{ partyId: string }>(); 
+  const { partyId } = useParams<{ partyId: string }>();
   const numericPartyId = Number(partyId);
-  console.log(numericPartyId);
   const digits = (s: string) => s.replace(/\D/g, "");
-  const [joinFeeChecked, setJoinFeeChecked] = useState(false); 
+  const [joinFeeChecked, setJoinFeeChecked] = useState(false);
   const [joinFeeText, setJoinFeeText] = useState("");
   const [designatedChecked, setDesignatedChecked] = useState(false);
   const navigate = useNavigate();
@@ -38,15 +40,15 @@ export const EditGroupInfoDefault = () => {
   const [designatedText, setDesignatedText] = useState("");
   const [contentText, setContentText] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [photos, setPhotos] = useState<string[]>([]); 
-  const [photoKeys, setPhotoKeys] = useState<string[]>([]); 
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoKeys, setPhotoKeys] = useState<string[]>([]);
 
   const isFormValid =
     selectedDays.length > 0 &&
     selectedTime !== "" &&
-    designatedText.trim() !== "" &&
-    joinFeeText.trim() !== "" &&
-    monthlyFeeText.trim() !== "";
+    (designatedChecked || designatedText.trim() !== "") &&
+    (joinFeeChecked || joinFeeText.trim() !== "") &&
+    (monthlyFeeChecked || monthlyFeeText.trim() !== "");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,9 +62,23 @@ export const EditGroupInfoDefault = () => {
 
         setSelectedDays(data.activityDays);
         setSelectedTime(data.activityTime);
-        setDesignatedText(data.designatedCock);
-        setJoinFeeText(data.joinPrice?.toString() || "");
-        setMonthlyFeeText(data.price?.toString() || "");
+
+        const noDesignated = !data.designatedCock;
+        setDesignatedChecked(noDesignated);
+        setDesignatedText(noDesignated ? "" : data.designatedCock);
+
+        const noJoinFee = !data.joinPrice;
+        setJoinFeeChecked(noJoinFee);
+        setJoinFeeText(
+          noJoinFee ? "" : addWon(fmtKRW(data.joinPrice.toString())),
+        );
+
+        const noMonthlyFee = !data.price;
+        setMonthlyFeeChecked(noMonthlyFee);
+        setMonthlyFeeText(
+          noMonthlyFee ? "" : addWon(fmtKRW(data.price.toString())),
+        );
+
         setContentText(data.content || "");
         setKeywords(data.keywords || []);
         // if (data.partyImgUrl) setPhotos([data.partyImgUrl]);
@@ -106,11 +122,15 @@ export const EditGroupInfoDefault = () => {
         activityDay: selectedDays,
         activityTime: selectedTime,
         designatedCock: designatedText || undefined,
-        joinPrice: joinFeeText ? Number(joinFeeText.replace(/\D/g, "")) : undefined,
-        price: monthlyFeeText ? Number(monthlyFeeText.replace(/\D/g, "")) : undefined,
+        joinPrice: joinFeeText
+          ? Number(joinFeeText.replace(/\D/g, ""))
+          : undefined,
+        price: monthlyFeeText
+          ? Number(monthlyFeeText.replace(/\D/g, ""))
+          : undefined,
         content: contentText || undefined,
         keyword: keywords.length > 0 ? keywords : undefined,
-        imgKey: photoKeys[0] || undefined, 
+        imgKey: photoKeys[0] || undefined,
       };
 
       const res = await updateParty(numericPartyId, payload);
@@ -196,7 +216,7 @@ export const EditGroupInfoDefault = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8 mb-8">
+    <div className="flex flex-col gap-8 mb-33">
       <PageHeader title="모임 정보 수정" onBackClick={handleBackClick} />
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
@@ -238,17 +258,17 @@ export const EditGroupInfoDefault = () => {
           singleSelect={true}
         />
       </div>
-      <div className="flex flex-col gap-y-6"> 
+      <div className="flex flex-col gap-y-6">
         <CheckBox_Long_noButton
           title="지정콕"
           maxLength={20}
           Label="없음"
           showIcon={true}
-          value={designatedText}  
-          checked={designatedChecked}         
+          value={designatedText}
+          checked={designatedChecked}
           onChange={(checked, value) => {
             setDesignatedChecked(checked);
-            setDesignatedText(value);   
+            setDesignatedText(value);
           }}
         />
         <CheckBox_Long_noButton
@@ -269,7 +289,7 @@ export const EditGroupInfoDefault = () => {
           maxLength={100}
           Label="없음"
           showIcon={true}
-          value={monthlyFeeText}  
+          value={monthlyFeeText}
           checked={monthlyFeeChecked}
           onChange={(checked, value) => {
             setMonthlyFeeChecked(checked);
@@ -278,7 +298,6 @@ export const EditGroupInfoDefault = () => {
           }}
         />
       </div>
-
 
       {/* 사진 업로드 */}
       <div className=" flex-grow min-h-0 overflow-y-auto">
@@ -302,59 +321,65 @@ export const EditGroupInfoDefault = () => {
             type="button"
           >
             <div className="flex flex-col items-center justify-center text-center">
-                <Camera />
-                {/* <label className="mt-1">{`${photos.length} / 3`}</label> */}
+              <Camera />
+              {/* <label className="mt-1">{`${photos.length} / 3`}</label> */}
             </div>
           </button>
 
           {photos[0] && (
-          <div className="relative w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] overflow-hidden">
-            <img
-              src={photos[0]}
-              alt="uploaded"
-              className="w-full h-full object-cover rounded-xl"
-            />
-            <Dismiss_Gy800
-              onClick={() => {
-                setPhotos([]);
-                setPhotoKeys([]);
-              }}
-              className="absolute top-1 right-1 w-6 h-6 p-1 cursor-pointer"
-            />
-          </div>
-        )}
-
+            <div className="relative w-24 h-24 flex-shrink-0 border rounded-xl border-[#E4E7EA] overflow-hidden">
+              <img
+                src={photos[0]}
+                alt="uploaded"
+                className="w-full h-full object-cover rounded-xl"
+              />
+              <Dismiss_Gy800
+                onClick={() => {
+                  setPhotos([]);
+                  setPhotoKeys([]);
+                }}
+                className="absolute top-1 right-1 w-6 h-6 p-1 cursor-pointer"
+              />
+            </div>
+          )}
         </div>
 
         {/* 소개 글 및 키워드 */}
         <div className="mt-8">
-        <InputField
-          title="멤버에게 하고 싶은 말 / 소개"
-          maxLength={45}
-          value={contentText}           
-          onChange={setContentText}    
-        />
-      
+          <InputField
+            title="멤버에게 하고 싶은 말 / 소개"
+            maxLength={45}
+            value={contentText}
+            onChange={setContentText}
+          />
         </div>
-          <label className="flex items-center text-left header-h5 mb-1">
-            키워드
-          </label>
-          <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
-            {["브랜드 스폰", "가입비 무료", "친목", "운영진이 게임을 짜드려요"].map((kw) => (
-              <TagBtn
-                key={`${kw}-${keywords.includes(kw)}`} 
-                isSelected={keywords.includes(kw)}
-                onClick={() => {
-                  setKeywords(prev =>
-                    prev.includes(kw) ? prev.filter(k => k !== kw) : [...prev, kw]
-                  );
-                }}
-              >
-                {kw}
-              </TagBtn>
-            ))}
-          </div>
-
+        <label className="flex items-center text-left header-h5 mb-1">
+          키워드
+        </label>
+        <div className="flex flex-wrap gap-2 items-center justify-center mb-8">
+          {[
+            "브랜드 스폰",
+            "가입비 무료",
+            "친목",
+            "운영진이 게임을 짜드려요",
+          ].map(kw => (
+            <TagBtn
+              key={`${kw}-${keywords.includes(kw)}`}
+              isSelected={keywords.includes(kw)}
+              onClick={() => {
+                setKeywords(prev =>
+                  prev.includes(kw)
+                    ? prev.filter(k => k !== kw)
+                    : [...prev, kw],
+                );
+              }}
+            >
+              {kw}
+            </TagBtn>
+          ))}
+        </div>
+      </div>
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[444px] bg-white px-4 z-10">
         <Grad_GR400_L
           label="수정하기"
           initialStatus={isFormValid ? "default" : "disabled"}

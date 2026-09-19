@@ -6,14 +6,32 @@ import type { Exercise } from "../../types/calendar";
 
 interface WorkoutDayEntryProps {
   exerciseData: Exercise[] | null;
-  onExerciseClick?: (partyId: number) => void;
+  onExerciseClick?: (exerciseId: number) => void;
+  isLoading?: boolean;
 }
+
+const DailyExerciseSkeletonItem = () => (
+  <div className="p-[0.5rem] w-full h-[5rem] rounded-[0.75rem] shadow-ds50 flex items-center gap-3">
+    <div className="w-[4rem] h-[4rem] rounded-[0.5rem] bg-gy-100 animate-pulse shrink-0" />
+    <div className="flex flex-col gap-[0.5rem] flex-1">
+      <div className="h-[0.875rem] w-[8rem] bg-gy-100 animate-pulse rounded" />
+      <div className="h-[0.75rem] w-[6rem] bg-gy-100 animate-pulse rounded" />
+      <div className="h-[0.75rem] w-[5rem] bg-gy-100 animate-pulse rounded" />
+    </div>
+  </div>
+);
 
 export const WorkoutDayEntry = ({
   exerciseData,
   onExerciseClick,
+  isLoading = false,
 }: WorkoutDayEntryProps) => {
   const navigate = useNavigate();
+
+  if (isLoading) {
+    return <DailyExerciseSkeletonItem />;
+  }
+
   if (!exerciseData || exerciseData.length === 0) {
     return (
       <div className="w-full h-20 flex items-center justify-center">
@@ -26,6 +44,13 @@ export const WorkoutDayEntry = ({
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-1">
+        <span className="flex-1 h-px bg-ye-300 rounded-full" />
+        <span className="body-sm-400 text-gr-700 whitespace-nowrap">
+          클릭해서 운동 상세·게임판 보기
+        </span>
+        <span className="flex-1 h-px bg-ye-300 rounded-full" />
+      </div>
       {exerciseData.map(item => (
         <DailyExercise_S
           key={item.exerciseId}
@@ -33,7 +58,7 @@ export const WorkoutDayEntry = ({
           location={item.buildingName}
           time={item.startTime + " - " + item.endTime}
           imageSrc={item.profileImageUrl ?? DefaultGroupImg}
-          onClick={() => onExerciseClick?.(Number(item.partyId))}
+          onClick={() => onExerciseClick?.(item.exerciseId)}
         />
       ))}
     </div>

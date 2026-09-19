@@ -1,5 +1,6 @@
 import { useMemo, useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import CheckBoxBtn from "../../components/common/DynamicBtn/CheckBoxBtn";
 import FilterBtn from "../../components/common/DynamicBtn/FilterBtn";
@@ -9,9 +10,10 @@ import {
   isFilterDirty,
   useGroupRecommendFilterState,
 } from "../../store/useGroupRecommendFilterStore";
-import { usePartySuggestionInfinite } from "../../api/party/getPartySuggeston";
+import { fetchPartySuggestionPage } from "../../api/party/getPartySuggestion";
 import { Group_M } from "../../components/common/contentcard/Group_M";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
+import Search from "../../assets/icons/search.svg?react";
 
 type SortLabel = "최신순" | "운동 많은 순";
 const mapSortToApi = (label: SortLabel) =>
@@ -21,6 +23,8 @@ export const GroupRecommendPage = () => {
   const navigate = useNavigate();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState<SortLabel>("최신순");
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
 
   const {
     recommend,
@@ -33,6 +37,18 @@ export const GroupRecommendPage = () => {
     keyword,
     resetFilter,
   } = useGroupRecommendFilterState();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchText(searchText.trim());
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  const handleSearch = () => {
+    setDebouncedSearchText(searchText.trim());
+  };
 
   const filterStatus = isFilterDirty({
     region,
@@ -53,12 +69,42 @@ export const GroupRecommendPage = () => {
     isFetchingNextPage,
     status,
     error,
-  } = usePartySuggestionInfinite({
-    size: 7,
-    sort: mapSortToApi(sortOption),
+  } = useInfiniteQuery({
+    queryKey: [
+      "partySuggestionInfinite",
+      {
+        region,
+        level,
+        style,
+        day,
+        time,
+        keyword,
+        sort: mapSortToApi(sortOption),
+        size: 7,
+        search: debouncedSearchText,
+      },
+    ],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      fetchPartySuggestionPage({
+        isCockpleRecommend: false,
+        page: pageParam,
+        size: 7,
+        sort: mapSortToApi(sortOption),
+        search: debouncedSearchText,
+        ...(region?.[0] ? { addr1: region[0] } : {}),
+        ...(region?.[1] ? { addr2: region[1] } : {}),
+        ...(level?.length ? { level } : {}),
+        ...(style ? { partyType: style } : {}),
+        ...(day?.length ? { activityDay: day } : {}),
+        ...(time ? { activityTime: time } : {}),
+        ...(keyword?.length ? { keyword } : {}),
+      }),
+    getNextPageParam: lastPage => {
+      return lastPage.last ? undefined : lastPage.number + 1;
+    },
   });
 
-  console.log(data);
   const items = useMemo(() => {
     const flat = data ? data.pages.flatMap(p => p.content) : [];
     const seen = new Set<number>();
@@ -113,6 +159,26 @@ export const GroupRecommendPage = () => {
     <div className="flex flex-col gap-2">
       <PageHeader title="모임 추천" onBackClick={onBackClick} />
       <div className="flex flex-col gap-3">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            placeholder="모임 이름으로 검색"
+            className="w-full border rounded-xl p-2 pr-14 body-md-500 text-black border-[#E4E7EA] focus:outline-none"
+          />
+          <button
+            onClick={handleSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+          >
+            <Search className="w-6 h-6" />
+          </button>
+        </div>
         <div className="flex justify-between w-full h-7">
           <CheckBoxBtn checked={recommend} onClick={toggleRecommend}>
             <span>콕플 추천</span>
@@ -165,11 +231,11 @@ export const GroupRecommendPage = () => {
                 />
               </div>
             ))
-          ) : (
+          ) : status === "success" ? (
             <div className="text-center py-8 text-gray-500">
               콕플 추천 모임이 없습니다
             </div>
-          )}
+          ) : null}
 
           {hasNextPage && <div ref={sentinelRef} className="h-6" />}
         </div>

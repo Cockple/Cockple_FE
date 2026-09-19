@@ -42,18 +42,21 @@ export const ViceLeaderDefault = () => {
     name: m.nickname,
     // imgUrl: m.profileImageUrl || null,
     imgUrl: m.profileImageUrl
-      ? `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}`
+      ? m.profileImageUrl.startsWith("http")
+        ? m.profileImageUrl 
+        : `https://storage.googleapis.com/cockple-assets-project-fcaa6e71-8bce-4fb7-9de/${m.profileImageUrl}` 
       : null,
+      
     gender: m.gender,
     level: m.level,
     lastExerciseDate: m.lastExerciseDate,
     isMe: !!m.isMe,
     isLeader:
-      m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER",
+      m.role === "OWNER" || m.role === "MANAGER" || m.role === "PARTY_MANAGER",
     position:
-      m.role === "OWNER" || m.role === "MANAGER" || m.role === "party_MANAGER"
+      m.role === "OWNER" || m.role === "MANAGER" || m.role === "PARTY_MANAGER"
         ? "leader"
-        : m.role === "SUBOWNER" || m.role === "party_SUBMANAGER"
+        : m.role === "SUBOWNER" || m.role === "PARTY_SUBMANAGER"
         ? "sub_leader"
         : null,
     status: m.role === "WAITING" ? "waiting" : "Participating",
@@ -112,7 +115,7 @@ export const ViceLeaderDefault = () => {
 
     const targetMember = members.find((m) => m.memberId === targetMemberId);
     const isCurrentlySubLeader = targetMember?.position === "sub_leader";
-    const newRole = isCurrentlySubLeader ? "party_MEMBER" : "party_SUBMANAGER";
+    const newRole = isCurrentlySubLeader ? "PARTY_MEMBER" : "PARTY_SUBMANAGER";
 
     try {
       await updateMemberRole(partyId, targetMemberId, newRole);

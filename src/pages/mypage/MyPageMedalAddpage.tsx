@@ -190,6 +190,7 @@ export const MyPageMedalAddPage = () => {
           {/* 8. 영상 링크 */}
           <MyMedalCheckBox
             title="영상 링크"
+            Label="비공개"
             value={state.videoLinks.length ? state.videoLinks : [""]}
             onChange={actions.setVideoLinks}
           />

@@ -7,12 +7,14 @@ import { useNavigate } from "react-router-dom";
 import { MyExerciseCalendar } from "@/components/home/MyExerciseCalendar";
 import { MainHeader } from "@/components/common/system/header/MainHeader";
 import { Footer } from "@/components/common/system/Footer";
+import { useFcmToken } from "@/hooks/useFcmToken";
 
 export const HomePage = () => {
   const navigate = useNavigate();
   const [count, setCount] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [rightOffset, setRightOffset] = useState(0);
+  useFcmToken();
 
   useEffect(() => {
     const updateOffset = () => {

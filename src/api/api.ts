@@ -1,26 +1,3 @@
-// import axios from "axios";
-// const api = axios.create({
-//   baseURL: "https://cockple.store",
-// });
-
-// const TEMP_TOKEN = import.meta.env.VITE_APP_DEV_TOKEN;
-
-// api.interceptors.request.use(
-//   config => {
-//     if (TEMP_TOKEN) {
-//       config.headers.Authorization = `Bearer ${TEMP_TOKEN}`;
-//     }
-
-//     return config;
-//   },
-//   error => {
-//     return Promise.reject(error);
-//   },
-// );
-
-// export default api;
-
-//--------------------------리프레쉬 반영--------------------------
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import useUserStore from "../store/useUserStore";
 
@@ -48,17 +25,17 @@ function setTokens(accessToken: string, refreshToken?: string | null) {
   useUserStore.setState({
     user: user
       ? {
-          ...user,
-          accessToken,
-          refreshToken: refreshToken ?? user.refreshToken ?? null,
-        }
+        ...user,
+        accessToken,
+        refreshToken: refreshToken ?? user.refreshToken ?? null,
+      }
       : {
-          memberId: 0,
-          nickname: "",
-          accessToken,
-          refreshToken: refreshToken ?? null,
-          isNewMember: false,
-        },
+        memberId: 0,
+        nickname: "",
+        accessToken,
+        refreshToken: refreshToken ?? null,
+        isNewMember: false,
+      },
   });
   localStorage.setItem("accessToken", accessToken);
   if (refreshToken !== undefined) {
@@ -71,7 +48,7 @@ function clearTokensAndRedirect() {
   useUserStore.getState().resetUser?.();
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
-  // window.location.href = "/login";
+  window.location.href = "/login";
 }
 
 // 요청 인터셉터: refresh 호출은 제외하고 Authorization 주입

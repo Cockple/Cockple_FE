@@ -34,48 +34,48 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
     participantsCount = 5,
     participantGenderCount = { male: 2, female: 3 },
     participantMembers = [
-        {
-          requestId: 1,
-          status: "Participating",
-          name: "홍길동",
-          gender: "MALE", 
-          level: "A조",
-          isMe: false,
-          isLeader: true,
-          position: "leader",
-        },
-        {
-          requestId: 2,
-          status: "Participating",
-          name: "김민수",
-          gender: "MALE",
-          level: "B조",
-          isMe: true,
-          isLeader: false,
-          position: "sub_leader",
-        },
-        {
-          requestId: 3,
-          status: "Participating",
-          name: "이지은",
-          gender: "FEMALE",
-          level: "C조",
-          isMe: false,
-          isLeader: false,
-          position: null,
-        },
-        {
-          requestId: 4,
-          status: "Participating",
-          name: "박서준",
-          gender: "MALE",
-          level: "D조",
-          isMe: false,
-          isLeader: false,
-          position: null,
-        },
-      ],
-      } = props;
+      {
+        requestId: 1,
+        status: "Participating",
+        name: "홍길동",
+        gender: "MALE",
+        level: "A조",
+        isMe: false,
+        isLeader: true,
+        position: "leader",
+      },
+      {
+        requestId: 2,
+        status: "Participating",
+        name: "김민수",
+        gender: "MALE",
+        level: "B조",
+        isMe: true,
+        isLeader: false,
+        position: "sub_leader",
+      },
+      {
+        requestId: 3,
+        status: "Participating",
+        name: "이지은",
+        gender: "FEMALE",
+        level: "C조",
+        isMe: false,
+        isLeader: false,
+        position: null,
+      },
+      {
+        requestId: 4,
+        status: "Participating",
+        name: "박서준",
+        gender: "MALE",
+        level: "D조",
+        isMe: false,
+        isLeader: false,
+        position: null,
+      },
+    ],
+  } = props;
 
   const [members, setMembers] = useState<MemberProps[]>(participantMembers);
 
@@ -97,9 +97,6 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
   const isCurrentUserLeader = currentUser?.isLeader;
 
   const navigate = useNavigate();
-
-  // ‼️ 배포 오류를 위한 임시 코드
-  console.log(participantsCountState);
 
   return (
     <>
@@ -131,7 +128,7 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
             <div className="flex items-center gap-2">
               <label className="text-left header-h5">참여 인원</label>
               {participantGenderCount.male +
-                participantGenderCount.female} / {participantsCount}
+                participantGenderCount.female} / {participantsCountState}
             </div>
             <div className="flex items-center gap-2">
               <Female className="w-4 h-4" />
@@ -232,7 +229,7 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
                   status: "waiting",
                   requestId: 1,
                   name: "오류제바류ㅠ",
-                  gender: "MALE", 
+                  gender: "MALE",
                   level: "D조",
                   isMe: false,
                   isLeader: true,
@@ -243,8 +240,7 @@ export const ExerciseDetail = (props: MyPageExerciseDetailPageProps) => {
                 setWaitingMembers(updated);
                 setWaitingCount(updated.length);
               } else {
-                console.log("운동 상세 페이지로 이동");
-                // navigate("");
+                navigate("");
               }
               setIsModalOpen(false);
             }}

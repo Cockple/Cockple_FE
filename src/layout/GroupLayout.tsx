@@ -14,6 +14,8 @@ import axios, { AxiosError } from "axios";
 import type { CommonResponse } from "../types/common";
 import type { PersonalChatRoom } from "../types/chat";
 import { Modal_Del } from "../components/group/Modal_Del";
+import { useRoomIdByPartyId } from "../api/chat/getRoomIdByPartyId";
+import { useChatWsStore } from "../store/useChatWsStore";
 
 const options = [
   { label: "홈", value: "" },
@@ -31,7 +33,6 @@ export const GroupLayout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [joinErrorMessage, setJoinErrorMessage] = useState("");
-  //////////////////////////////////////////////////////////////////////////////
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isDelModalOpen, setIsDelModalOpen] = useState(false);
 
@@ -82,8 +83,9 @@ export const GroupLayout = () => {
     }
   };
 
-  // 모입가입하기 버튼 관련
-  const { data: partyDetail } = usePartyDetail(Number(groupId));
+  const { data: partyDetail, isLoading: isPartyDetailLoading } = usePartyDetail(
+    Number(groupId),
+  );
   const [hasPending, setHasPending] = useState(
     partyDetail?.hasPendingJoinRequest ?? false,
   );
@@ -147,21 +149,33 @@ export const GroupLayout = () => {
         },
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
   const isJoined = partyDetail?.memberStatus === "MEMBER";
-  const isOwner =
-    partyDetail?.memberRole === "party_MANAGER" ||
-    partyDetail?.memberRole === "party_SUBMANAGER";
+  const isOwner = partyDetail?.memberRole === "PARTY_MANAGER";
+  const isSubManager = partyDetail?.memberRole === "PARTY_SUBMANAGER";
+  const canManageGroup = isOwner || isSubManager;
+
+  // 모임 채팅 탭 안읽음 표시: 가입 회원에게만, 새 메시지가 있으면 빨간 점.
+  // 채팅 탭 진입 시 GroupChatDetailTemplate이 clearUnread로 0을 만들어 자동으로 사라진다.
+  const { data: groupChatRoomId } = useRoomIdByPartyId(
+    Number(groupId),
+    !!groupId && isJoined,
+  );
+  const hasGroupChatUnread = useChatWsStore(s =>
+    groupChatRoomId
+      ? (s.meta[groupChatRoomId]?.unreadCount ?? 0) > 0
+      : false,
+  );
 
   return (
     <div className="flex flex-col">
       <PageHeader
         title={partyDetail?.partyName ?? groupName}
         onBackClick={handleBackClick}
-        onMoreClick={isOwner ? () => setIsMoreOpen(true) : undefined}
+        onMoreClick={canManageGroup ? () => setIsMoreOpen(true) : undefined}
       />
 
       <TabSelector
@@ -169,6 +183,7 @@ export const GroupLayout = () => {
         selected={select}
         onChange={handleChange}
         type="group"
+        dots={{ chat: hasGroupChatUnread }}
       />
 
       <div className="pt-14">
@@ -180,7 +195,7 @@ export const GroupLayout = () => {
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         selected=""
-        options={["모임 삭제하기","부모임장 설정하기", "모임 정보 수정하기"]}
+        options={isOwner ? ["모임 삭제하기", "부모임장 설정하기", "모임 정보 수정하기"] : ["모임 정보 수정하기"]}
         onSelect={label => {
           if (label === "모임 삭제하기") {
             setIsMoreOpen(false);
@@ -191,7 +206,7 @@ export const GroupLayout = () => {
         }}
       />
 
-      {!isJoined && (
+      {!isPartyDetailLoading && !isJoined && (
         <div className="flex flex-col fixed bottom-0 left-1/2 -translate-x-1/2 px-4 z-50">
           {joinErrorMessage && (
             <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">

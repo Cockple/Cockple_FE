@@ -46,7 +46,6 @@ const MemberRequestPage = () => {
       `/api/parties/${partyId}/join-requests?status=PENDING`,
     );
 
-    console.log(res.data.data);
     setRequests(res.data.data.content);
   };
 
@@ -71,7 +70,6 @@ const MemberRequestPage = () => {
 
     try {
       setSubmitting(true);
-      console.log(selectedMember);
       const body: JoinRequestActionBody = { action: "APPROVE" };
       await api.patch(
         `/api/parties/${partyId}/join-requests/${selectedMember.joinRequestId}`,
@@ -158,10 +156,8 @@ const MemberRequestPage = () => {
                     requestId={req.joinRequestId}
                     name={req.nickname}
                     gender={req.gender}
-                    // level={req.level}
                     level={mapLevels([req.level])[0] ?? "급수 없음"}
                     birth={formatDotDate(req.createdAt)}
-                    //imgUrl={req.profileImageUrl}
                     imgUrl={
                       req.profileImageUrl
                         ? `https://s3.ap-northeast-2.amazonaws.com/cockple-bucket/${req.profileImageUrl}`
@@ -234,6 +230,5 @@ const MemberRequestPage = () => {
     </div>
   );
 };
-
 
 export default MemberRequestPage;

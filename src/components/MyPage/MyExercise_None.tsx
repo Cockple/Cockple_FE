@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import NoneImg from "../../assets/images/None_Error.png";
+import NoneImg from "../../assets/images/None_Error.webp";
 import GR400_M from "../common/Btn_Static/Text/GR400_M";
 
 export const MyExercise_None = () => {

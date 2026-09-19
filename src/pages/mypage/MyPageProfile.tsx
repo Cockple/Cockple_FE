@@ -1,7 +1,5 @@
-// 다른 사용자의 프로필 화면(memberId로 구분)
 import { MyPage_Text } from "../../components/common/contentcard/MyPage_Text";
 import { Profile } from "../../components/MyPage/Profile";
-import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { PageHeader } from "../../components/common/system/header/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import { MyPage_Profile_Medal } from "../../components/common/contentcard/MyPage_Profile_Medal";
@@ -9,7 +7,8 @@ import { getProfile } from "../../api/member/profile";
 import { getOtherUserMedals } from "../../api/contest/member";
 import type { ProfileResponseData } from "../../api/member/profile";
 import { useState, useEffect } from "react";
-import { createDirectChat } from "../../api/chat/direct";
+import Grad_GR400_L from "@/components/common/Btn_Static/Text/Grad_GR400_L";
+import { createDirectChat } from "@/api/chat/direct";
 
 export const MyPageProfile = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -46,11 +45,9 @@ export const MyPageProfile = () => {
           myGroupCount: profile.myPartyCnt,
         };
         setProfileData(mappedProfile);
-        // setProfileData(profile);
 
         // 다른 회원 메달 조회
         const medals = await getOtherUserMedals(numericMemberId);
-        console.log("medals:", medals);
         setMedalData({
           myMedalTotal: medals.myMedalTotal,
           goldCount: medals.goldCount,
@@ -104,45 +101,55 @@ export const MyPageProfile = () => {
     return <div className="text-center py-10 text-red-500">에러: {error}</div>;
 
   return (
-    <div className="flex flex-col overflow-hidden w-full">
-      <PageHeader title="프로필" />
-      <Profile
-        name={profileData?.memberName || ""}
-        gender={profileData?.gender === "MALE" ? "MALE" : "FEMALE"}
-        level={convertLevel(profileData?.level || "")}
-        birth={profileData?.birth || ""}
-        profileImage={profileData?.profileImgUrl || ""}
-      />
+    <div className="flex flex-col overflow-hidden w-full h-screen relative">
+      <div className="flex flex-col gap-[1.25rem] w-full">
+        {/* 1. 상단 헤더 영역 */}
+        <div className="w-full">
+          <PageHeader title={profileData?.memberName || "프로필"} />
+        </div>
 
-      <div className="my-8 flex flex-col gap-4 w-full items-center">
-        <MyPage_Text
-          textLabel="모임"
-          numberValue={profileData?.myGroupCount ?? 0}
-          onClick={() =>
-            navigate(`/mypage/mygroup?memberId=${numericMemberId}`)
-          }
-          // onClick={() => navigate("/mypage/profile/group")}
-        />
+        <div className="w-full flex flex-col items-center overflow-y-auto overflow-x-hidden px-4 pb-24">
+          <Profile
+            name={profileData?.memberName || ""}
+            gender={profileData?.gender === "MALE" ? "MALE" : "FEMALE"}
+            level={convertLevel(profileData?.level || "")}
+            birth={profileData?.birth || ""}
+            profileImage={profileData?.profileImgUrl || ""}
+          />
 
-        <MyPage_Profile_Medal
-          myMedalTotal={medalData.myMedalTotal}
-          goldCount={medalData.goldCount}
-          silverCount={medalData.silverCount}
-          bronzeCount={medalData.bronzeCount}
-          onClick={() =>
-            navigate(`/mypage/profile/medal/${numericMemberId}`, {
-              state: {
-                myMedalTotal: medalData.myMedalTotal,
-                goldCount: medalData.goldCount,
-                silverCount: medalData.silverCount,
-                bronzeCount: medalData.bronzeCount,
-              },
-            })
-          }
-        />
+          <div className="my-8 flex flex-col gap-4">
+            <MyPage_Text
+              textLabel="모임"
+              numberValue={profileData?.myGroupCount ?? 0}
+              onClick={() =>
+                navigate(`/mypage/mygroup?memberId=${numericMemberId}`)
+              }
+            />
+            <MyPage_Profile_Medal
+              myMedalTotal={medalData.myMedalTotal}
+              goldCount={medalData.goldCount}
+              silverCount={medalData.silverCount}
+              bronzeCount={medalData.bronzeCount}
+              onClick={() =>
+                navigate(`/mypage/profile/medal/${numericMemberId}`, {
+                  state: {
+                    myMedalTotal: medalData.myMedalTotal,
+                    goldCount: medalData.goldCount,
+                    silverCount: medalData.silverCount,
+                    bronzeCount: medalData.bronzeCount,
+                  },
+                })
+              }
+            />
+          </div>
+        </div>
       </div>
 
-      <Grad_GR400_L label="개인 채팅 보내기" onClick={handleChatClick} />
+      <div className="absolute bottom-[2rem] left-0 w-full flex justify-center z-50 pointer-events-none">
+        <div className="pointer-events-auto">
+          <Grad_GR400_L label="개인 채팅 보내기" onClick={handleChatClick} />
+        </div>
+      </div>
     </div>
   );
 };

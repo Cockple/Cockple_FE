@@ -1,5 +1,5 @@
 import LockIcon from "../../../assets/icons/lock_filled.svg";
-import ChatBg from "../../../assets/images/groupChatPage.png"; // 캡처 이미지
+import ChatBg from "../../../assets/images/groupChatPage.webp"; // 캡처 이미지
 
 const GroupChatLockedView = () => {
   return (

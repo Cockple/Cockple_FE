@@ -35,8 +35,16 @@ export type ResponseAlertDto = {
   content: string;
   type: AlertType;
   isRead: boolean;
-  imgKey: string;
+  imgUrl: string;
   data?: AlertData; //운동 id, 날짜
 };
 
-export type AlertListResponse = CommonResponse<ResponseAlertDto[]>;
+// 커서 기반 페이징 응답 구조
+export interface AlertListPage {
+  notifications: ResponseAlertDto[];
+  hasNext: boolean;
+  nextCursor: number | null;
+  totalElements: number;
+}
+
+export type AlertListResponse = CommonResponse<AlertListPage>;

@@ -1,5 +1,5 @@
 //내 모임이 없을 경우에 나오는 컴포넌트입니다.
-import NoneImg from "../../assets/images/None_Error.png";
+import NoneImg from "../../assets/images/None_Error.webp";
 
 export const ProfileMyGroupNone = () => {
   return (

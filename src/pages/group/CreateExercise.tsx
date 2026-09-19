@@ -8,7 +8,7 @@ import RedCircle from "@/assets/icons/cicle_s_red.svg?react";
 import { DropBox } from "../../components/common/DropBox";
 import { TitleBtn } from "../../components/group/main/create_exercise/TitleBtn";
 import { TextField } from "../../components/group/main/create_exercise/TextField";
-import GR400_L from "../../components/common/Btn_Static/Text/GR400_L";
+import Grad_GR400_L from "../../components/common/Btn_Static/Text/Grad_GR400_L";
 import { LocationField } from "../../components/common/LocationField";
 import {
   useLocation,
@@ -66,7 +66,6 @@ export const CreateExercise = () => {
 
   useEffect(() => {
     if (editData) {
-      console.log("수정 데이터", editData);
       setSelectedDate(editData.date);
       setLocationDetail({
         buildingName: editData.buildingName,
@@ -158,8 +157,6 @@ export const CreateExercise = () => {
         notice: notice,
       };
 
-      console.log(payload);
-
       try {
         if (exerciseId) {
           await updateExerciseApi(exerciseId, payload);
@@ -170,8 +167,7 @@ export const CreateExercise = () => {
             return;
           }
           const data = await createExerciseApi(groupId, payload);
-          console.log(data);
-          addExercise(data); // 연두 : store에 바로 추가
+          addExercise(data);
           navigate(`/group/${groupId}`);
           resetForm();
         }
@@ -260,31 +256,31 @@ export const CreateExercise = () => {
           />
         </div>
 
-        {!exerciseId && (
-          <div className="flex flex-col gap-5">
-            <TitleBtn
-              label="모임 멤버 게스트 초대 허용"
-              checked={!!allowGuestInvite}
-              onChange={setAllowGuestInvite}
-            />
-            <TitleBtn
-              label="외부 게스트 참여 허용"
-              checked={!!allowExternalGuest}
-              onChange={setAllowExternalGuest}
-            />
-          </div>
-        )}
+        <div className="flex flex-col gap-5">
+          <TitleBtn
+            label="모임 멤버 게스트 초대 허용"
+            checked={!!allowGuestInvite}
+            onChange={setAllowGuestInvite}
+          />
+          <TitleBtn
+            label="외부 게스트 참여 허용"
+            checked={!!allowExternalGuest}
+            onChange={setAllowExternalGuest}
+          />
+        </div>
 
         <TextField maxLength={45} value={notice} onChange={setNotice} />
       </div>
 
-      <div className="mt-32 flex flex-col items-center justify-center">
+      <div className="h-24" />
+
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[444px] bg-white px-4 z-10">
         {errorMsg && (
           <p className="text-red-500 mt-4 text-xs w-full text-left ml-8">
             {errorMsg}
           </p>
         )}
-        <GR400_L
+        <Grad_GR400_L
           label={exerciseId ? "운동 수정하기" : "운동 만들기"}
           initialStatus={isFormValid() ? "default" : "disabled"}
           onClick={onCreateExercise}

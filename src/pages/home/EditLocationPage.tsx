@@ -41,7 +41,6 @@ export const EditLocationPage = () => {
     const getMyLocations = async () => {
       try {
         const data = await getMyProfileLocations();
-        console.log(data);
         setLocationList(data);
 
         const mainAddr = data.find((addr: UserAddress) => addr.isMainAddr);
@@ -49,7 +48,7 @@ export const EditLocationPage = () => {
           setSelectedId(mainAddr.addrId);
         }
       } catch (err) {
-        console.log("등록된 위치 불러오기 오류: ", err);
+        console.error("등록된 위치 불러오기 오류: ", err);
       }
     };
 

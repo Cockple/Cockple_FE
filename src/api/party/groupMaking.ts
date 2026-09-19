@@ -20,8 +20,6 @@ export const usePostGroupMaking = () => {
   return useMutation({
     mutationFn: (body: GroupMakingRequestDto) => postGroupMaking(body),
     onSuccess: res => {
-      console.log("성공");
-      console.log(res.data);
       resetFilter();
       navigate(`/confirm/${res.data.partyId}`, {
         state: {

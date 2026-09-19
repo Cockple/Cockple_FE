@@ -2,7 +2,7 @@ import { useLocation, useParams } from "react-router-dom";
 import TagBtn from "@/components/common/DynamicBtn/TagBtn";
 import Btn_Static from "@/components/common/Btn_Static/Btn_Static";
 import IntroText from "@/components/onboarding/IntroText";
-import Onboarding4 from "@/assets/images/onboarding4.png?url";
+import Onboarding4 from "@/assets/images/onboarding4.webp?url";
 import { TAGMAP } from "@/constants/options";
 import { keywordMap } from "@/constants/onboarding";
 import { useKeywordSelect } from "@/hooks/useKeywordSelect";

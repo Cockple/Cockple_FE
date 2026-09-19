@@ -1,4 +1,4 @@
-import ImgNoneError from "@/assets/images/None_Error.png?url";
+import ImgNoneError from "@/assets/images/None_Error.webp?url";
 interface NoAlertMessageProps {
   message?: string;
 }

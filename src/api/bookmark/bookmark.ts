@@ -16,7 +16,6 @@ export const fetchGroupBookmarks = async (
     params: { orderType },
     // headers: { Authorization: `Bearer ${token}` },
   });
-  console.log("모임 찜 조회: ", res.data);
   return res.data;
 };
 
@@ -27,7 +26,6 @@ export const fetchLikedGroupIds = async (): Promise<number[]> => {
     params: { orderType: "LATEST" },
     // headers: { Authorization: `Bearer ${token}` },
   });
-  console.log("짐한 모임 ID 목록: ", res.data.data);
   return res.data.data.map((group: GroupCard) => group.partyId);
 };
 
@@ -40,7 +38,6 @@ export const fetchExerciseBookmarks = async (
     params: { orderType },
     // headers: { Authorization: `Bearer ${token}` },
   });
-  console.log("운동 찜 조회: ", res.data);
   return res.data;
 };
 
@@ -56,60 +53,26 @@ export const fetchLikedExerciseIds = async (): Promise<number[]> => {
 
 // 모임 찜
 export const bookmarkGroup = async (partyId: number) => {
-  //const token = localStorage.getItem("accessToken");
-  const res = await api.post(
-    `/api/parties/${partyId}/bookmark`,
-    null,
-    // {
-    // headers: { Authorization: `Bearer ${token}` },
-    // }
-  );
-  console.log("모임 찜! : ", partyId);
+  const res = await api.post(`/api/parties/${partyId}/bookmark`, null);
   return res;
 };
 
 // 모임 찜 해제
 export const unbookmarkGroup = async (partyId: number) => {
-  //const token = localStorage.getItem("accessToken");
-  const res = await api.delete(
-    `/api/parties/${partyId}/bookmark`,
-    // {
-    // headers: {
-    //   Authorization: `Bearer ${token}`,
-    // },
-    // }
-  );
-  console.log("모임 찜 해제!: ", partyId);
+  const res = await api.delete(`/api/parties/${partyId}/bookmark`);
   return res;
 };
 
 // 운동 찜
 export const bookmarkExercise = async (exerciseId: number) => {
-  //const token = localStorage.getItem("accessToken");
-  const res = await api.post(
-    `/api/exercises/${exerciseId}/bookmark`,
-    null,
-    // {
-    // headers: { Authorization: `Bearer ${token}` },
-    // }
-  );
+  const res = await api.post(`/api/exercises/${exerciseId}/bookmark`, null);
 
-  console.log("운동 찜! : ", exerciseId);
   return res;
 };
 
 // 운동 찜 해제
 export const unbookmarkExercise = async (exerciseId: number) => {
-  //const token = localStorage.getItem("accessToken");
-  const res = await api.delete(
-    `/api/exercises/${exerciseId}/bookmark`,
-    // {
-    // headers: {
-    //   Authorization: `Bearer ${token}`,
-    // },
-    // }
-  );
+  const res = await api.delete(`/api/exercises/${exerciseId}/bookmark`);
 
-  console.log("운동 찜 해제! : ", exerciseId);
   return res;
 };

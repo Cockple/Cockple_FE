@@ -14,7 +14,7 @@ import { useGetMyPartySimple } from "../../api/party/getMyPartySimple";
 import {
   usePartySuggestion,
   type PartySuggestion,
-} from "../../api/party/getPartySuggeston";
+} from "../../api/party/getPartySuggestion";
 import DefaultGroupImg from "@/assets/icons/defaultGroupImg.svg?url";
 
 export const GroupPage = () => {

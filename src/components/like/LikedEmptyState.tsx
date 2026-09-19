@@ -1,4 +1,4 @@
-import ImgNoneError from "@/assets/images/None_Error.png?url";
+import ImgNoneError from "@/assets/images/None_Error.webp?url";
 import GR400_M from "../common/Btn_Static/Text/GR400_M";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";

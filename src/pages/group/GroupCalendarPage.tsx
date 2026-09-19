@@ -65,9 +65,13 @@ export const GroupCalendarPage = () => {
 
       <div className="flex flex-col pb-15">
         {selectedDayExercises.length > 0 ? (
-          selectedDayExercises.map(exercise => (
+          selectedDayExercises.map((exercise, index) => (
             <div
-              className="border-b-1 border-gy-200 mb-3"
+              className={`mb-3 ${
+                index < selectedDayExercises.length - 1
+                  ? "border-b-1 border-gy-200"
+                  : ""
+              }`}
               key={exercise.exerciseId}
             >
               <ContentCardL
@@ -84,7 +88,6 @@ export const GroupCalendarPage = () => {
                 currentCount={exercise.currentParticipants}
                 totalCount={exercise.maxCapacity}
                 like={exercise.isBookmarked}
-                onToggleFavorite={id => console.log(`Toggled favorite: ${id}`)}
               />
             </div>
           ))
@@ -95,9 +98,11 @@ export const GroupCalendarPage = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0">
-        <Grad_GR400_L label="이 날 운동 공유하기" onClick={onClickShare} />
-      </div>
+      {calendarData?.isMember && selectedDayExercises.length > 0 && (
+        <div className="fixed bottom-0">
+          <Grad_GR400_L label="이 날 운동 공유하기" onClick={onClickShare} />
+        </div>
+      )}
     </div>
   );
 };

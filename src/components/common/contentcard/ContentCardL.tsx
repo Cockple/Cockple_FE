@@ -66,7 +66,7 @@ export const ContentCardL = ({
 
   const showGuestButton = isUserJoined && isGuestAllowedByOwner;
   const containerPressed = isStartPressing || isGuestPressing;
-  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false); 
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false);
   const [favorite, setFavorite] = useState(like);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -138,7 +138,7 @@ export const ContentCardL = ({
       await queryClient.invalidateQueries({ queryKey: ["partyCalendar"] });
       await queryClient.invalidateQueries({ queryKey: ["partyDetail"] });
     } catch (err) {
-      console.log("운동 신청, 취소 오류: ", err);
+      console.error("운동 신청, 취소 오류: ", err);
       setIsStarted(originalIsJoined);
     } finally {
       setIsLoading(false);

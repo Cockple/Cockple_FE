@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: "autoUpdate",
-        // 개발에서도 PWA 테스트할 수 있게
+        injectRegister: false,
         devOptions: {
           enabled: true,
         },
@@ -62,8 +62,42 @@ export default defineConfig(({ mode }) => {
       include: ["swiper", "swiper/react"],
     },
 
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // React 코어
+            "vendor-react": ["react", "react-dom", "react-router-dom"],
+            // 상태관리 & 데이터 패칭
+            "vendor-query": ["@tanstack/react-query", "zustand", "axios"],
+            // Firebase (가장 무거움)
+            "vendor-firebase": ["firebase/app", "firebase/messaging"],
+            // 애니메이션
+            "vendor-motion": ["framer-motion"],
+            // 폼
+            "vendor-form": ["react-hook-form", "react-datepicker"],
+            // UI 유틸
+            "vendor-ui": ["swiper", "react-select", "react-easy-crop", "react-range", "@headlessui/react"],
+            // 날짜
+            "vendor-date": ["date-fns", "dayjs"],
+          },
+        },
+      },
+    },
+
     server: {
       host: true,
+      proxy: {
+        "/api": {
+          target: "https://api.cockple.site",
+          changeOrigin: true,
+        },
+        "/ws": {
+          target: "https://api.cockple.site",
+          changeOrigin: true,
+          ws: true,
+        },
+      },
     },
 
     define: {

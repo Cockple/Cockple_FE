@@ -51,7 +51,6 @@ export const GroupBasicInfo = () => {
     setLocalName(v);
   });
   const { data: me, isLoading, isError } = useMyProfile();
-  // console.log(me);
   const gender = me?.gender;
   const isMale = gender === "MALE";
 

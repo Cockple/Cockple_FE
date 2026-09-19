@@ -40,7 +40,7 @@ export const removeMemberFromParty = async (partyId: number, memberId: number) =
 export const updateMemberRole = async (
   partyId: number,
   memberId: number,
-  role: "party_SUBMANAGER" | "party_MEMBER"
+  role: "PARTY_SUBMANAGER" | "PARTY_MEMBER"
 ) => {
   try {
     const response = await api.patch(

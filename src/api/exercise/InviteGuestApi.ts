@@ -69,13 +69,12 @@ export const useDeleteInviteForm = (exerciseId: number) => {
   return useMutation({
     mutationFn: (guestId: number) => deleteGuest(exerciseId, guestId),
     onSuccess: () => {
-      console.log("삭제 성공");
       queryClient.invalidateQueries({
         queryKey: ["inviteGuest", exerciseId],
       });
     },
     onError: err => {
-      console.log(err);
+      console.error(err);
       if (axiosLib.isAxiosError(err)) {
         if (err.response?.data?.code === "EXERCISE304") {
           alert(err.response.data.message);

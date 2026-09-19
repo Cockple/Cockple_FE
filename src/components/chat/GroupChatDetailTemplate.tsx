@@ -11,7 +11,7 @@ import React, {
 import ChattingComponent from "../common/chat/ChattingComponent";
 import ImagePreviewModal from "./ImagePreviewModal";
 //import ChatBtn from "../common/DynamicBtn/ChatBtn";
-//import ProfileImg from "../../assets/images/Profile_Image.png";
+//import ProfileImg from "../../assets/images/Profile_Image.webp";
 import BottomChatInput from "../common/chat/BottomChatInput";
 //import { PageHeader } from "../common/system/header/PageHeader";
 import ChatDateSeparator from "./ChatDataSeperator";
@@ -22,15 +22,16 @@ import { useChatInfinite } from "../../hooks/useChatInfinite";
 
 // WS 연결(원시 WebSocket 전용 훅)
 import { useRawWsConnect } from "../../hooks/useRawWsConnect";
-import { subscribeRoom } from "../../api/chat/rawWs";
+import { subscribeRoom, unsubscribeRoom } from "../../api/chat/rawWs";
 import type { ChatMessageResponse } from "../../types/chat";
 import { formatDateWithDay, formatEnLowerAmPm } from "../../utils/time";
 import { uploadImage } from "../../api/image/imageUpload";
 
 // 유저 정보
+import { useChatWsStore } from "../../store/useChatWsStore";
 import useUserStore from "../../store/useUserStore";
 import { resolveMemberId, resolveNickname } from "../../utils/auth";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+import { ChatDetailSkeleton } from "./ChatDetailSkeleton";
 
 // 이모티콘
 import EmojiPicker from "../common/chat/EmojiPicker";
@@ -38,7 +39,7 @@ import { EMOJIS } from "../common/chat/emojis";
 import { useMyProfile } from "../../api/member/my";
 
 //이미지
-import ProfileImg from "@/assets/images/Profile_Image.png?url";
+import ProfileImg from "@/assets/images/Profile_Image.webp?url";
 
 // ===== 유틸: 키 → 표시 URL =====
 const S3_BASE = (import.meta.env.VITE_S3_PUBLIC_BASE ?? "").replace(
@@ -97,13 +98,21 @@ export const GroupChatDetailTemplate: React.FC<
   //   mode: "mock", // TODO: 백엔드 REST/WS 경로 확정 시 "rest" 또는 wsSendFn 적용
   // });
 
+  // 활성 방/읽음카운트 스토어 연동
+  const setActiveRoom = useChatWsStore(s => s.setActiveRoom);
+  const clearUnread = useChatWsStore(s => s.clearUnread);
+
   // 방 입장/퇴장: 단일 구독 유지
   useEffect(() => {
     subscribeRoom(roomId);
+    setActiveRoom(roomId); // 상세 입장
+    clearUnread(roomId);
+
     return () => {
-      //unsubscribeRoom(roomId);
+      unsubscribeRoom(roomId);
+      setActiveRoom(null); // 상세 퇴장
     };
-  }, [roomId]);
+  }, [roomId, setActiveRoom, clearUnread]);
 
   // ===== 로컬 상태 ====
   const [input, setInput] = useState("");
@@ -219,10 +228,15 @@ export const GroupChatDetailTemplate: React.FC<
   });
 
   // 리스트에 그릴 최종 배열(초기 + 실시간/낙관적)
-  const rendered = useMemo(
-    () => [...messages, ...liveMsgs],
-    [messages, liveMsgs],
-  );
+  // REST 재조회로 messages에 이미 들어온(확정 messageId) 항목은
+  // liveMsgs에서 제외해 중복 렌더를 막는다. 아직 낙관적(음수 id)인 건 유지.
+  const rendered = useMemo(() => {
+    const restIds = new Set(messages.map(m => m.messageId));
+    const filteredLive = liveMsgs.filter(
+      m => m.messageId < 0 || !restIds.has(m.messageId),
+    );
+    return [...messages, ...filteredLive];
+  }, [messages, liveMsgs]);
 
   // ==== 전송: 텍스트 ====
   const handleSendMessage = () => {
@@ -240,6 +254,7 @@ export const GroupChatDetailTemplate: React.FC<
       images: [],
       timestamp: new Date().toISOString(),
       isMyMessage: true,
+      isSenderWithdrawn: false,
     };
 
     setLiveMsgs(prev => [...prev, optimistic]);
@@ -314,6 +329,7 @@ export const GroupChatDetailTemplate: React.FC<
         ],
         timestamp: now,
         isMyMessage: true,
+        isSenderWithdrawn: false,
       }));
 
       setLiveMsgs(prev => [...prev, ...optimistic]);
@@ -379,6 +395,7 @@ export const GroupChatDetailTemplate: React.FC<
         ],
         timestamp: new Date().toISOString(),
         isMyMessage: true,
+        isSenderWithdrawn: false,
       };
       setLiveMsgs(prev => [...prev, optimistic]);
 
@@ -425,11 +442,12 @@ export const GroupChatDetailTemplate: React.FC<
       senderId: msg.senderId,
       senderName: msg.senderName,
       senderProfileImageUrl: msg.senderProfileImageUrl,
-      content: images.length ? "" : (msg.content ?? ""),
-      messageType: "TEXT",
+      content: images.length ? "" : msg.content,
+      messageType: msg.messageType === "SYSTEM" ? "SYSTEM" : "TEXT",
       images,
-      timestamp: msg.timestamp,
+      timestamp: msg.timestamp ?? new Date().toISOString(),
       isMyMessage: msg.senderId === meId,
+      isSenderWithdrawn: (msg as any).isSenderWithdrawn ?? false,
     };
   }
 
@@ -457,7 +475,9 @@ export const GroupChatDetailTemplate: React.FC<
             (m.messageType === "TEXT" &&
               (m.images?.length ?? 0) > 0 &&
               (incoming.images?.length ?? 0) > 0)) &&
-          Math.abs(+new Date(m.timestamp) - +new Date(incoming.timestamp)) <
+          Math.abs(
+            +new Date(m.timestamp ?? 0) - +new Date(incoming.timestamp ?? 0),
+          ) <
             5000,
       );
       if (idx >= 0) {
@@ -513,7 +533,7 @@ export const GroupChatDetailTemplate: React.FC<
         className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden bg-gr-200"
       >
         {/* 상태 UI */}
-        {initLoading && <LoadingSpinner />}
+        {initLoading && <ChatDetailSkeleton />}
         {initError && (
           <CenterBox>
             <div className="flex flex-col items-center gap-3">
@@ -540,16 +560,17 @@ export const GroupChatDetailTemplate: React.FC<
 
               {rendered.map((chat, idx) => {
                 const prev = idx > 0 ? rendered[idx - 1] : undefined;
+                const currentDateLabel = formatDateWithDay(chat.timestamp);
+                const prevDateLabel = prev
+                  ? formatDateWithDay(prev.timestamp)
+                  : "";
                 const showDate =
-                  !prev ||
-                  formatDateWithDay(chat.timestamp) !==
-                    formatDateWithDay(prev.timestamp);
+                  !!currentDateLabel &&
+                  (!prev || currentDateLabel !== prevDateLabel);
                 return (
                   <React.Fragment key={chat.messageId}>
                     {showDate && (
-                      <ChatDateSeparator
-                        date={formatDateWithDay(chat.timestamp)}
-                      />
+                      <ChatDateSeparator date={currentDateLabel} />
                     )}
                     <ChattingComponent
                       message={chat}

@@ -12,6 +12,6 @@ export const getMyLocation = async () => {
     const res = await api.get("/api/my/location");
     return res.data.data;
   } catch (err) {
-    console.log("회원 위치 조회 API 실패:", err);
+    console.error("회원 위치 조회 API 실패:", err);
   }
 };

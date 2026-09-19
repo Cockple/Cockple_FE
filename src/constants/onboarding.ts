@@ -2,9 +2,9 @@ import medal1 from "@/assets/icons/medal_1.svg";
 import medal2 from "@/assets/icons/medal_2.svg";
 import medal3 from "@/assets/icons/medal_3.svg";
 
-import OnboardingImg1 from "@/assets/images/onboarding1.png?url";
-import OnboardingImg2 from "@/assets/images/onboarding2.png?url";
-import OnboardingImg3 from "@/assets/images/onboarding3.png?url";
+import OnboardingImg1 from "@/assets/images/onboarding1.webp?url";
+import OnboardingImg2 from "@/assets/images/onboarding2.webp?url";
+import OnboardingImg3 from "@/assets/images/onboarding3.webp?url";
 
 export const MEDAL = [
   { label: "금메달", icon: medal1 },
