@@ -84,6 +84,8 @@ export const GameBoardTab = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
+  // 필터와 무관한 전체 명단. 필터로 목록에서 빠진 선택 인원도 유지/표시하기 위해 보관한다.
+  const [rosterMembers, setRosterMembers] = useState<GameMember[]>([]);
   const [rosterLevels, setRosterLevels] = useState<string[]>([]);
   const [rawCourts, setCourts] = useState<CourtGroup[]>([]);
   const [rawWaitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
@@ -173,7 +175,9 @@ export const GameBoardTab = ({
   // 급수 미지정 멤버는 level이 빈 값으로 내려올 수 있어 "급수없음"으로 보정한다.
   const refreshRosterLevels = () => {
     getGameBoardMembers(gameBoardId, {}).then(res => {
-      mergeGenders(res.gameBoardMembers.map(toGameMember));
+      const roster = res.gameBoardMembers.map(toGameMember);
+      mergeGenders(roster);
+      setRosterMembers(roster);
       setRosterLevels([
         ...new Set(res.gameBoardMembers.map(m => m.level || "급수없음")),
       ]);
@@ -288,7 +292,16 @@ export const GameBoardTab = ({
     });
   };
 
-  const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  // 필터가 적용된 members에 없는 선택 인원도 전체 명단에서 찾아 유지한다 (명단 순서 유지).
+  const selectedMembers = (() => {
+    const latest = new Map(members.map(m => [m.id, m]));
+    const merged = rosterMembers.map(m => latest.get(m.id) ?? m);
+    const rosterIds = new Set(rosterMembers.map(m => m.id));
+    members.forEach(m => {
+      if (!rosterIds.has(m.id)) merged.push(m);
+    });
+    return merged.filter(m => selectedIds.includes(m.id));
+  })();
   // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
   const emptyCourts = courts.filter(c => !c.players);
   const editingMember = members.find(m => m.id === editingMemberId) ?? null;
@@ -794,6 +807,7 @@ export const GameBoardTab = ({
             onAddToWaitingQueue={() => setIsDuplicateCheckOpen(true)}
             onAutoMatch={handleAutoMatch}
             members={members}
+            selectedMembers={selectedMembers}
             selectedIds={selectedIds}
             toggleSelect={toggleSelect}
             onToggleParticipation={handleToggleParticipation}
