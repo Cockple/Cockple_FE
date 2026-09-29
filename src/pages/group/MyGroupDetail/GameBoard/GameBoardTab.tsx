@@ -85,6 +85,9 @@ export const GameBoardTab = ({
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
   // 필터와 무관한 전체 명단. 필터로 목록에서 빠진 선택 인원도 유지/표시하기 위해 보관한다.
+  // PC 모드(웹뷰)는 운동 상세 헤더를 덮으므로 자체 새로고침 버튼을 쓴다.
+  const [localRefreshSignal, setLocalRefreshSignal] = useState(0);
+  const [isLocalRefreshing, setIsLocalRefreshing] = useState(false);
   const [rosterMembers, setRosterMembers] = useState<GameMember[]>([]);
   const [rosterLevels, setRosterLevels] = useState<string[]>([]);
   const [rawCourts, setCourts] = useState<CourtGroup[]>([]);
@@ -236,9 +239,10 @@ export const GameBoardTab = ({
 
   // 헤더 새로고침 버튼: 보드/명단을 REST로 다시 불러온다. (초기값 0은 무시)
   useEffect(() => {
-    if (!refreshSignal) return;
+    if (!refreshSignal && !localRefreshSignal) return;
     let cancelled = false;
     onRefreshingChange?.(true);
+    setIsLocalRefreshing(true);
     Promise.all([
       getGameBoard(gameBoardId).then(board => {
         if (!cancelled) applyBoard(board);
@@ -253,14 +257,18 @@ export const GameBoardTab = ({
     ])
       .catch(() => {})
       .finally(() => {
-        if (!cancelled) onRefreshingChange?.(false);
+        if (!cancelled) {
+          onRefreshingChange?.(false);
+          setIsLocalRefreshing(false);
+        }
       });
     return () => {
       cancelled = true;
       onRefreshingChange?.(false);
+      setIsLocalRefreshing(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshSignal]);
+  }, [refreshSignal, localRefreshSignal]);
 
   // 다른 클라이언트의 변경사항 브로드캐스트 반영
   useEffect(() => {
@@ -808,6 +816,8 @@ export const GameBoardTab = ({
             onAutoMatch={handleAutoMatch}
             members={members}
             selectedMembers={selectedMembers}
+            isRefreshing={isLocalRefreshing}
+            onRefresh={() => setLocalRefreshSignal(n => n + 1)}
             selectedIds={selectedIds}
             toggleSelect={toggleSelect}
             onToggleParticipation={handleToggleParticipation}

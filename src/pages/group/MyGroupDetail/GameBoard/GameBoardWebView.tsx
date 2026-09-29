@@ -11,6 +11,7 @@ import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
+import Refresh from "@/assets/icons/refresh.svg";
 import { CourtCard, WaitingCard, PlayerBadge } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import { GameEndModal } from "./GameEndModal";
@@ -42,6 +43,8 @@ interface GameBoardWebViewProps {
   onEditMember: (id: number) => void;
   onAddPlayer: () => void;
   onManageCourts: () => void;
+  isRefreshing: boolean;
+  onRefresh: () => void;
   filters: GameBoardMemberFilters;
   onChangeFilters: (next: GameBoardMemberFilters) => void;
   availableLevels: string[];
@@ -72,6 +75,8 @@ export const GameBoardWebView = ({
   onEditMember,
   onAddPlayer,
   onManageCourts,
+  isRefreshing,
+  onRefresh,
   filters,
   onChangeFilters,
   availableLevels,
@@ -97,7 +102,20 @@ export const GameBoardWebView = ({
         >
           <img src={ArrowLeft} className="w-6" alt="닫기" />
         </button>
-        <span className="header-h4 text-black">게임판</span>
+        <span className="header-h4 flex-1 text-black">게임판</span>
+        <button
+          type="button"
+          className="cursor-pointer p-1 disabled:cursor-default"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          aria-label="새로고침"
+        >
+          <img
+            src={Refresh}
+            className={clsx("w-6", isRefreshing && "animate-spin")}
+            alt="새로고침"
+          />
+        </button>
       </div>
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-10 py-8">
