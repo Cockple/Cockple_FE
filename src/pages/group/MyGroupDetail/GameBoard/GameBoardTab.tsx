@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import {
   DndContext,
@@ -57,6 +57,7 @@ import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import {
   formatElapsed,
   toBoardViewModel,
+  colorPlayersByGender,
   toGameBoardMemberPayload,
   toGameBoardMembersParams,
   toGameMember,
@@ -84,8 +85,28 @@ export const GameBoardTab = ({
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
   const [rosterLevels, setRosterLevels] = useState<string[]>([]);
-  const [courts, setCourts] = useState<CourtGroup[]>([]);
-  const [waitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
+  const [rawCourts, setCourts] = useState<CourtGroup[]>([]);
+  const [rawWaitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
+  // 게임판 응답에는 성별이 없어, 명단(필터 무관 전체)의 성별로 뱃지 색을 정한다.
+  const [genderById, setGenderById] = useState<
+    Record<number, "MALE" | "FEMALE">
+  >({});
+  const courts = useMemo(
+    () =>
+      rawCourts.map(c => ({
+        ...c,
+        players: c.players && colorPlayersByGender(c.players, genderById),
+      })),
+    [rawCourts, genderById],
+  );
+  const waitingGroups = useMemo(
+    () =>
+      rawWaitingGroups.map(g => ({
+        ...g,
+        players: colorPlayersByGender(g.players, genderById),
+      })),
+    [rawWaitingGroups, genderById],
+  );
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
@@ -131,8 +152,16 @@ export const GameBoardTab = ({
   const applyMembersResponse = (res: {
     gameBoardMembers: GameBoardMember[];
   }) => {
-    setMembers(res.gameBoardMembers.map(toGameMember));
+    const next = res.gameBoardMembers.map(toGameMember);
+    setMembers(next);
+    mergeGenders(next);
   };
+
+  const mergeGenders = (list: GameMember[]) =>
+    setGenderById(prev => ({
+      ...prev,
+      ...Object.fromEntries(list.map(m => [m.id, m.gender])),
+    }));
 
   const refreshMembers = () => {
     getGameBoardMembers(gameBoardId, toGameBoardMembersParams(filters)).then(
@@ -144,6 +173,7 @@ export const GameBoardTab = ({
   // 급수 미지정 멤버는 level이 빈 값으로 내려올 수 있어 "급수없음"으로 보정한다.
   const refreshRosterLevels = () => {
     getGameBoardMembers(gameBoardId, {}).then(res => {
+      mergeGenders(res.gameBoardMembers.map(toGameMember));
       setRosterLevels([
         ...new Set(res.gameBoardMembers.map(m => m.level || "급수없음")),
       ]);

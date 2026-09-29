@@ -34,8 +34,18 @@ const toGamePlayer = (p: GameBoardPlayer): GamePlayer => ({
   id: p.gameBoardMemberId,
   name: p.name,
   group: p.level,
-  color: p.playerOrder % 2 === 0 ? "pink" : "blue",
+  color: "blue",
 });
+
+// 성별 정보가 없는 플레이어는 남성(파랑)으로 둔다.
+export const colorPlayersByGender = (
+  players: GamePlayer[],
+  genderById: Record<number, "MALE" | "FEMALE">,
+): GamePlayer[] =>
+  players.map(p => ({
+    ...p,
+    color: genderById[p.id] === "FEMALE" ? "pink" : "blue",
+  }));
 
 export const toCourtGroup = (c: GameBoardCourt): CourtGroup => ({
   id: c.courtId,
