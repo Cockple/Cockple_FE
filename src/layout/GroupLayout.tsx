@@ -219,6 +219,7 @@ export const GroupLayout = () => {
             onClick={() => setIsModalOpen(true)}
             onImageClick={onClickChat}
             initialStatus={hasPending ? "disabled" : "default"}
+            leftInitialStatus="default" // 가입 신청 후에도 모임장 채팅은 가능
           />
         </div>
       )}
