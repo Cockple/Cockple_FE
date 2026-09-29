@@ -100,6 +100,10 @@ export const GroupInfoSection = ({ partyDetail }: GroupInfoSectionProps) => {
           )}
           <img
             src={partyDetail.partyImgUrl ?? DefaultGroupImg}
+            alt={`${partyDetail.partyName} 모임 대표 이미지`}
+            width={120}
+            height={120}
+            fetchPriority="high"
             decoding="async"
             onLoad={() => setImgLoaded(true)}
             className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
@@ -137,7 +141,7 @@ export const GroupInfoSection = ({ partyDetail }: GroupInfoSectionProps) => {
               className="inline-flex items-center gap-1 rounded-full py-2 pl-2.5 pr-3 border-1 border-gy-200 shadow-ds50 body-rg-500"
               key={`${kw}-${idx}`}
             >
-              <img src={HashIcon} className="w-4 h-4 shrink-0" />
+              <img src={HashIcon} alt="" className="w-4 h-4 shrink-0" />
               <span>{kw}</span>
             </div>
           ))}
@@ -146,7 +150,7 @@ export const GroupInfoSection = ({ partyDetail }: GroupInfoSectionProps) => {
 
       {partyDetail.content && (
         <div className="w-full p-4 flex items-center gap-2 border-1 border-gr-500 border-soft">
-          <img src={CautionIcon} className="size-5" />
+          <img src={CautionIcon} alt="" className="size-5" />
           <div className="text-left body-rg-500">{partyDetail.content}</div>
         </div>
       )}
