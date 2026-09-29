@@ -33,7 +33,7 @@ export const MainHeader = ({
 
   const getNotificationsCount = async () => {
     try {
-      const { data } = await api.get("/api/v2/notifications/count?destination=APP");
+      const { data } = await api.get("/api/notifications/count");
 
       setHasNotification(data.data.existNewNotification);
     } catch (err) {
