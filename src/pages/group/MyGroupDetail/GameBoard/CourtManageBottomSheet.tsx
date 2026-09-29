@@ -27,13 +27,24 @@ export const CourtManageBottomSheet = ({
   useLockBodyScroll(true);
   const [items, setItems] = useState<CourtManageItem[]>(courts);
   const [newLabel, setNewLabel] = useState("");
+  // "추가하기"를 눌렀을 때만 입력창을 보여주고, 입력 확정도 추가 버튼/Enter로만 한다.
+  const [isAdding, setIsAdding] = useState(false);
   const [isNewLabelFocused, setIsNewLabelFocused] = useState(false);
 
   const handleAdd = () => {
+    if (!isAdding) {
+      setIsAdding(true);
+      return;
+    }
     const trimmed = newLabel.trim();
-    if (!trimmed) return;
-    setItems(prev => [...prev, { courtName: trimmed }]);
+    if (trimmed) setItems(prev => [...prev, { courtName: trimmed }]);
     setNewLabel("");
+    setIsAdding(false);
+  };
+
+  const handleCancelAdd = () => {
+    setNewLabel("");
+    setIsAdding(false);
   };
 
   const handleRemove = (index: number) => {
@@ -41,8 +52,7 @@ export const CourtManageBottomSheet = ({
   };
 
   const handleSave = () => {
-    const trimmed = newLabel.trim();
-    onSave(trimmed ? [...items, { courtName: trimmed }] : items);
+    onSave(items);
     onClose();
   };
 
@@ -70,23 +80,33 @@ export const CourtManageBottomSheet = ({
         ))}
 
         <div className="flex w-full flex-col gap-2">
-          <input
-            value={newLabel}
-            onChange={e => setNewLabel(e.target.value)}
-            onFocus={() => setIsNewLabelFocused(true)}
-            onBlur={() => setIsNewLabelFocused(false)}
-            onKeyDown={e => {
-              // 한글 입력 중 조합 완료 Enter까지 걸려 이중 등록되는 것을 방지
-              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-                e.preventDefault();
-                handleAdd();
-              }
-            }}
-            className={clsx(
-              "w-full rounded-xl border px-3 py-2.5 body-md-500 text-black outline-none",
-              isNewLabelFocused ? "border-[#87c95e]" : "border-gy-200",
-            )}
-          />
+          {isAdding && (
+            <div
+              className={clsx(
+                "flex w-full items-center gap-2 rounded-xl border px-3 py-2.5",
+                isNewLabelFocused ? "border-[#87c95e]" : "border-gy-200",
+              )}
+            >
+              <input
+                autoFocus
+                value={newLabel}
+                onChange={e => setNewLabel(e.target.value)}
+                onFocus={() => setIsNewLabelFocused(true)}
+                onBlur={() => setIsNewLabelFocused(false)}
+                onKeyDown={e => {
+                  // 한글 입력 중 조합 완료 Enter까지 걸려 이중 등록되는 것을 방지
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    handleAdd();
+                  }
+                }}
+                className="min-w-0 flex-1 body-md-500 text-black outline-none"
+              />
+              <button type="button" onClick={handleCancelAdd}>
+                <img src={Dismiss} alt="입력 취소" className="size-5" />
+              </button>
+            </div>
+          )}
           <button
             type="button"
             className="flex w-full items-center justify-center gap-3 rounded-lg bg-gy-100 px-4 py-2 body-rg-500 text-black"
