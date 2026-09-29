@@ -28,12 +28,20 @@ export interface AlertData {
   invitationId?: number; // type이 invite인 경우 모임 api에 사용
 }
 
+// V2 알림 응답: type/partyId 대신 이동 대상 정보(destination)가 내려온다.
+export interface AlertDestination {
+  resourceType: string; // 예: "EXERCISE" | "GAME_BOARD"
+  resourceId: number;
+  action: string; // 예: "VIEW"
+}
+
 export type ResponseAlertDto = {
   notificationId: number;
-  partyId: number; // 모임 이동시 필요
+  partyId?: number; // 모임 이동시 필요 (구 응답)
   title: string;
   content: string;
-  type: AlertType;
+  type?: AlertType; // 구 응답에만 존재
+  destination?: AlertDestination;
   isRead: boolean;
   imgUrl: string;
   data?: AlertData; //운동 id, 날짜

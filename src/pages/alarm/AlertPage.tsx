@@ -49,9 +49,10 @@ export const AlertPage = () => {
 
   const notifications = data?.pages.flatMap(page => page.notifications) || [];
 
-  // INVITE/CHANGE/SIMPLE 만 노출
-  const visibleNotifications = notifications.filter(alert =>
-    ["INVITE", "CHANGE", "SIMPLE"].includes(alert.type),
+  // type이 내려오는 경우 INVITE/CHANGE/SIMPLE 만 노출, type이 없는 V2 응답은 전부 노출
+  const visibleNotifications = notifications.filter(
+    alert =>
+      !alert.type || ["INVITE", "CHANGE", "SIMPLE"].includes(alert.type),
   );
 
   const observerRef = useRef<HTMLDivElement>(null);
@@ -81,7 +82,8 @@ export const AlertPage = () => {
     setModalType("reject");
   };
 
-  const handleDetail = (partyId: number, data?: ResponseAlertDto["data"]) => {
+  const handleDetail = (partyId?: number, data?: ResponseAlertDto["data"]) => {
+    if (!partyId) return;
     if (data?.exerciseDate && data?.exerciseId) {
       navigate(`/group/${partyId}`, {
         state: {
@@ -172,12 +174,13 @@ export const AlertPage = () => {
     },
   });
 
-  const shouldMoveToDetail = (type: string): boolean => {
+  // type/partyId가 없는 V2 응답은 이동 정보가 없어 상세 이동을 하지 않는다.
+  const shouldMoveToDetail = (type?: string): boolean => {
     // SIMPLE(운동/모임 삭제 알림 등)은 상세 이동 X
-    return !(type === "SIMPLE");
+    return !!type && type !== "SIMPLE";
   };
 
-  const getDescriptionText = (type: string) => {
+  const getDescriptionText = (type?: string) => {
     if (shouldMoveToDetail(type)) {
       return "클릭하시면 모임 페이지로 이동해요.";
     }
@@ -220,7 +223,7 @@ export const AlertPage = () => {
                 groupName={alert.title}
                 alertText={alert.content}
                 imageSrc={alert.imgUrl?.endsWith("/null") ? DefaultGroupImg : (alert.imgUrl ?? DefaultGroupImg)}
-                alertType={alert.type}
+                alertType={alert.type ?? ""}
                 isRead={alert.isRead}
                 descriptionText={getDescriptionText(alert.type)}
                 onClick={() => {
