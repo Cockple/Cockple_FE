@@ -3,6 +3,7 @@ export interface GamePlayer {
   name: string;
   group: string;
   color: "pink" | "blue";
+  imgUrl?: string | null;
 }
 
 export interface CourtGroup {

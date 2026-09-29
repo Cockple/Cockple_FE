@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import Pen from "@/assets/icons/pen.svg";
 import Reject from "@/assets/icons/reject.svg";
+import DefaultProfile from "@/assets/images/base_profile_img.png";
 import type { GamePlayer } from "./mockGameBoardData";
 
 export const courtDroppableId = (courtId: number) => `court-${courtId}`;
@@ -21,27 +22,60 @@ export const waitingDraggableId = (waitingGroupId: number) =>
 const formatBadgeGroup = (group: string) =>
   group.replace(/^급수\s*없음$/, "없음");
 
-export const PlayerBadge = ({ name, group, color }: GamePlayer) => (
-  <div
-    className={clsx(
-      "flex h-7 w-[5.5rem] items-center justify-center gap-0.5 rounded-lg px-1.5 py-1",
-      color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
-    )}
-  >
-    <span className="body-rg-600 min-w-0 flex-1 truncate text-black">
-      {name}
-    </span>
-    <span className="body-sm-500 shrink-0 truncate text-gy-700">
-      {formatBadgeGroup(group)}
-    </span>
-  </div>
-);
+// pad=true: PC(아이패드) 모드. 프로필 이미지가 포함된 큰 뱃지를 쓴다.
+export const PlayerBadge = ({
+  name,
+  group,
+  color,
+  imgUrl,
+  pad = false,
+}: GamePlayer & { pad?: boolean }) =>
+  pad ? (
+    <div
+      className={clsx(
+        "flex w-[7.25rem] shrink-0 items-center gap-1.5 rounded-xl p-2",
+        color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+      )}
+    >
+      <img
+        src={imgUrl || DefaultProfile}
+        alt=""
+        className="size-5 shrink-0 rounded-full object-cover"
+      />
+      <span className="body-rg-600 min-w-0 truncate whitespace-nowrap text-black">
+        {name}
+      </span>
+      <span className="body-sm-500 shrink-0 whitespace-nowrap text-gy-700">
+        {formatBadgeGroup(group)}
+      </span>
+    </div>
+  ) : (
+    <div
+      className={clsx(
+        "flex h-7 w-[5.5rem] items-center justify-center gap-0.5 rounded-lg px-1.5 py-1",
+        color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+      )}
+    >
+      <span className="body-rg-600 min-w-0 flex-1 truncate text-black">
+        {name}
+      </span>
+      <span className="body-sm-500 shrink-0 truncate text-gy-700">
+        {formatBadgeGroup(group)}
+      </span>
+    </div>
+  );
+
+// 카드 폭/선수 목록 레이아웃 (모바일 200px, PC 256px)
+export const cardWidthClass = (pad?: boolean) => (pad ? "w-64" : "w-[12.5rem]");
+export const playerListClass = (pad?: boolean) =>
+  pad ? "flex flex-wrap gap-2" : "flex flex-wrap justify-between gap-y-2";
 
 interface CourtCardProps {
   courtId: number;
   label: string;
   timer?: string;
   players: GamePlayer[] | null;
+  pad?: boolean;
   onComplete?: () => void;
   onReturnToWaiting?: () => void;
   onCancelGame?: () => void;
@@ -52,6 +86,7 @@ export const CourtCard = ({
   label,
   timer,
   players,
+  pad,
   onComplete,
   onReturnToWaiting,
   onCancelGame,
@@ -110,7 +145,8 @@ export const CourtCard = ({
       <div
         ref={setDropRef}
         className={clsx(
-          "flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+          "flex shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+          cardWidthClass(pad),
           isOver && "bg-gr-100 ring-2 ring-gr-500",
         )}
       >
@@ -131,7 +167,8 @@ export const CourtCard = ({
         setDropRef(node);
       }}
       className={clsx(
-        "flex w-[12.5rem] shrink-0 cursor-pointer flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        "flex shrink-0 cursor-pointer flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        cardWidthClass(pad),
         isOver && "ring-2 ring-gr-500",
       )}
       onClick={() => {
@@ -162,9 +199,9 @@ export const CourtCard = ({
           완료
         </button>
       </div>
-      <div className="flex flex-wrap justify-between gap-y-2">
+      <div className={playerListClass(pad)}>
         {players.map(p => (
-          <PlayerBadge key={p.id} {...p} />
+          <PlayerBadge key={p.id} {...p} pad={pad} />
         ))}
       </div>
 
@@ -208,6 +245,7 @@ interface WaitingCardProps {
   waitingGroupId: number;
   label: string;
   players: GamePlayer[];
+  pad?: boolean;
   courts: { id: number; label: string }[];
   onMoveToCourt?: (courtId: number) => void;
   onChange?: () => void;
@@ -239,6 +277,7 @@ export const WaitingCard = ({
   waitingGroupId,
   label,
   players,
+  pad,
   courts,
   onMoveToCourt,
   onChange,
@@ -326,7 +365,8 @@ export const WaitingCard = ({
         setDragRef(node);
       }}
       className={clsx(
-        "flex w-[12.5rem] shrink-0 touch-pan-x flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100",
+        "flex shrink-0 touch-pan-x flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100",
+        cardWidthClass(pad),
         isDragging && "opacity-40",
       )}
       onContextMenu={handleContextMenu}
@@ -359,9 +399,9 @@ export const WaitingCard = ({
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap justify-between gap-y-2">
+      <div className={playerListClass(pad)}>
         {players.map(p => (
-          <PlayerBadge key={p.id} {...p} />
+          <PlayerBadge key={p.id} {...p} pad={pad} />
         ))}
       </div>
 

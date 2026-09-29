@@ -127,6 +127,7 @@ export const GameBoardWebView = ({
                       label={court.label}
                       timer={court.timer}
                       players={court.players}
+                      pad
                       onComplete={() => setCompletingCourtId(court.id)}
                       onReturnToWaiting={() => onReturnToWaiting(court.id)}
                       onCancelGame={() => onCancelCourtGame(court.id)}
@@ -158,6 +159,7 @@ export const GameBoardWebView = ({
                         waitingGroupId={group.id}
                         label={group.label}
                         players={group.players}
+                        pad
                         courts={emptyCourts}
                         onMoveToCourt={courtId =>
                           onMoveToCourt(group.id, courtId)
@@ -173,13 +175,13 @@ export const GameBoardWebView = ({
           </div>
           <DragOverlay>
             {activeDragGroup ? (
-              <div className="flex w-[12.5rem] flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds300">
+              <div className="flex w-64 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds300">
                 <span className="body-sm-500 px-1 text-black">
                   {activeDragGroup.label}
                 </span>
-                <div className="flex flex-wrap justify-between gap-y-2">
+                <div className="flex flex-wrap gap-2">
                   {activeDragGroup.players.map(p => (
-                    <PlayerBadge key={p.id} {...p} />
+                    <PlayerBadge key={p.id} {...p} pad />
                   ))}
                 </div>
               </div>

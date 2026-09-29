@@ -35,6 +35,7 @@ const toGamePlayer = (p: GameBoardPlayer): GamePlayer => ({
   name: p.name,
   group: p.level,
   color: "blue",
+  imgUrl: p.profileImageUrl,
 });
 
 // 성별 정보가 없는 플레이어는 남성(파랑)으로 둔다.
