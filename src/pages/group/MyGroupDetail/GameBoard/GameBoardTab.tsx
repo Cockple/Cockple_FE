@@ -659,6 +659,7 @@ export const GameBoardTab = ({
                     label={court.label}
                     timer={court.timer}
                     players={court.players}
+                    readOnly={!isManager}
                     onComplete={() => setCompletingCourtId(court.id)}
                     onReturnToWaiting={() => handleReturnToWaiting(court.id)}
                     onCancelGame={() => handleCancelCourtGame(court.id)}
@@ -690,6 +691,7 @@ export const GameBoardTab = ({
                       waitingGroupId={group.id}
                       label={group.label}
                       players={group.players}
+                      readOnly={!isManager}
                       courts={emptyCourts}
                       onMoveToCourt={courtId =>
                         handleMoveToCourt(group.id, courtId)
@@ -734,6 +736,7 @@ export const GameBoardTab = ({
               <GameMemberCard
                 key={member.id}
                 member={isManager ? member : { ...member, selectable: false }}
+                readOnly={!isManager}
                 selected={selectedIds.includes(member.id)}
                 onToggleSelect={() => toggleSelect(member.id)}
                 onEditInfo={() => setEditingMemberId(member.id)}

@@ -76,6 +76,7 @@ interface CourtCardProps {
   timer?: string;
   players: GamePlayer[] | null;
   pad?: boolean;
+  readOnly?: boolean; // 일반 멤버: 완료/대기 복귀/메뉴 등 조작 불가
   onComplete?: () => void;
   onReturnToWaiting?: () => void;
   onCancelGame?: () => void;
@@ -87,6 +88,7 @@ export const CourtCard = ({
   timer,
   players,
   pad,
+  readOnly = false,
   onComplete,
   onReturnToWaiting,
   onCancelGame,
@@ -99,6 +101,7 @@ export const CourtCard = ({
   const suppressNextClick = useRef(false);
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: courtDroppableId(courtId),
+    disabled: readOnly,
   });
 
   useEffect(() => {
@@ -167,37 +170,44 @@ export const CourtCard = ({
         setDropRef(node);
       }}
       className={clsx(
-        "flex shrink-0 cursor-pointer flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        "flex shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        !readOnly && "cursor-pointer",
         cardWidthClass(pad),
         isOver && "ring-2 ring-gr-500",
       )}
-      onClick={() => {
-        if (suppressNextClick.current) {
-          suppressNextClick.current = false;
-          return;
-        }
-        onReturnToWaiting?.();
-      }}
-      onContextMenu={handleContextMenu}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={clearLongPressTimer}
-      onTouchMove={clearLongPressTimer}
+      onClick={
+        readOnly
+          ? undefined
+          : () => {
+              if (suppressNextClick.current) {
+                suppressNextClick.current = false;
+                return;
+              }
+              onReturnToWaiting?.();
+            }
+      }
+      onContextMenu={readOnly ? undefined : handleContextMenu}
+      onTouchStart={readOnly ? undefined : handleTouchStart}
+      onTouchEnd={readOnly ? undefined : clearLongPressTimer}
+      onTouchMove={readOnly ? undefined : clearLongPressTimer}
     >
       <div className="flex h-6 items-center justify-between pl-1">
         <div className="flex items-center gap-1">
           <span className="body-sm-500 text-black">{label}</span>
           {timer && <span className="body-sm-500 text-gr-700">{timer}</span>}
         </div>
-        <button
-          type="button"
-          className="rounded-lg bg-gy-100 px-2 py-1 body-sm-400 text-rd-500"
-          onClick={e => {
-            e.stopPropagation();
-            onComplete?.();
-          }}
-        >
-          완료
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            className="rounded-lg bg-gy-100 px-2 py-1 body-sm-400 text-rd-500"
+            onClick={e => {
+              e.stopPropagation();
+              onComplete?.();
+            }}
+          >
+            완료
+          </button>
+        )}
       </div>
       <div className={playerListClass(pad)}>
         {players.map(p => (
@@ -246,6 +256,7 @@ interface WaitingCardProps {
   label: string;
   players: GamePlayer[];
   pad?: boolean;
+  readOnly?: boolean;
   courts: { id: number; label: string }[];
   onMoveToCourt?: (courtId: number) => void;
   onChange?: () => void;
@@ -278,6 +289,7 @@ export const WaitingCard = ({
   label,
   players,
   pad,
+  readOnly = false,
   courts,
   onMoveToCourt,
   onChange,
@@ -288,7 +300,10 @@ export const WaitingCard = ({
     listeners: dragListeners,
     setNodeRef: setDragRef,
     isDragging,
-  } = useDraggable({ id: waitingDraggableId(waitingGroupId) });
+  } = useDraggable({
+    id: waitingDraggableId(waitingGroupId),
+    disabled: readOnly,
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [clickPoint, setClickPoint] = useState<{ x: number; y: number } | null>(
@@ -369,35 +384,37 @@ export const WaitingCard = ({
         cardWidthClass(pad),
         isDragging && "opacity-40",
       )}
-      onContextMenu={handleContextMenu}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={clearLongPressTimer}
-      onTouchMove={clearLongPressTimer}
-      {...dragAttributes}
-      {...dragListeners}
+      onContextMenu={readOnly ? undefined : handleContextMenu}
+      onTouchStart={readOnly ? undefined : handleTouchStart}
+      onTouchEnd={readOnly ? undefined : clearLongPressTimer}
+      onTouchMove={readOnly ? undefined : clearLongPressTimer}
+      {...(readOnly ? {} : dragAttributes)}
+      {...(readOnly ? {} : dragListeners)}
     >
       <div className="flex h-6 items-center justify-between pl-1">
         <span className="body-sm-500 text-black">{label}</span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-            onClick={onChange}
-            onTouchStart={e => e.stopPropagation()}
-            onContextMenu={e => e.stopPropagation()}
-          >
-            <img src={Pen} alt="변경" className="size-4" />
-          </button>
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-            onClick={onReject}
-            onTouchStart={e => e.stopPropagation()}
-            onContextMenu={e => e.stopPropagation()}
-          >
-            <img src={Reject} alt="삭제" className="size-4" />
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
+              onClick={onChange}
+              onTouchStart={e => e.stopPropagation()}
+              onContextMenu={e => e.stopPropagation()}
+            >
+              <img src={Pen} alt="변경" className="size-4" />
+            </button>
+            <button
+              type="button"
+              className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
+              onClick={onReject}
+              onTouchStart={e => e.stopPropagation()}
+              onContextMenu={e => e.stopPropagation()}
+            >
+              <img src={Reject} alt="삭제" className="size-4" />
+            </button>
+          </div>
+        )}
       </div>
       <div className={playerListClass(pad)}>
         {players.map(p => (
