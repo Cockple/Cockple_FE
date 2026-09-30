@@ -14,6 +14,7 @@ export const MyPageEditPage = () => {
 
   const { 
     isLoading, 
+    isUploading,
     name, 
     profileImage, 
     selectedGender, 
@@ -43,6 +44,12 @@ export const MyPageEditPage = () => {
         onBackClick={actions.onBackClick} 
       />
       
+      {isUploading && (
+        <div className="fixed inset-0 flex justify-center items-center bg-white/60 z-50">
+          <LoadingSpinner />
+        </div>
+      )}
+
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <Modal_Caution
@@ -55,7 +62,7 @@ export const MyPageEditPage = () => {
         </div>
       )}
 
-      <div className="flex flex-col">
+      <div className="flex flex-col pb-28">
         {/* 1. 프로필 이미지 */}
         <ProfileImageSection
           image={profileImage}
@@ -96,7 +103,7 @@ export const MyPageEditPage = () => {
         />
 
         {/* 6. 저장 버튼 */}
-        <div className="mt-8 mb-8 flex justify-center">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[444px] bg-white px-4 pt-4 pb-8 flex justify-center z-40">
           <Btn_Static
             kind="GR400"
             size="L"

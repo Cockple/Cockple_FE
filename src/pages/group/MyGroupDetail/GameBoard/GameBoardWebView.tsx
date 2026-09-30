@@ -11,6 +11,7 @@ import AddWhite from "@/assets/icons/add_white.svg";
 import Sparkle from "@/assets/icons/sparkle_filled.svg";
 import Dismiss from "@/assets/icons/dismiss.svg";
 import ArrowLeft from "@/assets/icons/arrow_left.svg";
+import Refresh from "@/assets/icons/refresh.svg";
 import { CourtCard, WaitingCard, PlayerBadge } from "./CourtCard";
 import { GameMemberCard } from "./GameMemberCard";
 import { GameEndModal } from "./GameEndModal";
@@ -34,6 +35,7 @@ interface GameBoardWebViewProps {
   onAddToWaitingQueue: () => void;
   onAutoMatch: () => void;
   members: GameMember[];
+  selectedMembers: GameMember[];
   selectedIds: number[];
   toggleSelect: (id: number) => void;
   onToggleParticipation: (id: number) => void;
@@ -41,6 +43,8 @@ interface GameBoardWebViewProps {
   onEditMember: (id: number) => void;
   onAddPlayer: () => void;
   onManageCourts: () => void;
+  isRefreshing: boolean;
+  onRefresh: () => void;
   filters: GameBoardMemberFilters;
   onChangeFilters: (next: GameBoardMemberFilters) => void;
   availableLevels: string[];
@@ -63,6 +67,7 @@ export const GameBoardWebView = ({
   onAddToWaitingQueue,
   onAutoMatch,
   members,
+  selectedMembers,
   selectedIds,
   toggleSelect,
   onToggleParticipation,
@@ -70,6 +75,8 @@ export const GameBoardWebView = ({
   onEditMember,
   onAddPlayer,
   onManageCourts,
+  isRefreshing,
+  onRefresh,
   filters,
   onChangeFilters,
   availableLevels,
@@ -79,7 +86,6 @@ export const GameBoardWebView = ({
   onDragStart,
   onDragEnd,
 }: GameBoardWebViewProps) => {
-  const selectedMembers = members.filter(m => selectedIds.includes(m.id));
   // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
   const emptyCourts = courts.filter(c => !c.players);
   const [completingCourtId, setCompletingCourtId] = useState<number | null>(
@@ -96,7 +102,20 @@ export const GameBoardWebView = ({
         >
           <img src={ArrowLeft} className="w-6" alt="닫기" />
         </button>
-        <span className="header-h4 text-black">게임판</span>
+        <span className="header-h4 flex-1 text-black">게임판</span>
+        <button
+          type="button"
+          className="cursor-pointer p-1 disabled:cursor-default"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          aria-label="새로고침"
+        >
+          <img
+            src={Refresh}
+            className={clsx("w-6", isRefreshing && "animate-spin")}
+            alt="새로고침"
+          />
+        </button>
       </div>
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-10 py-8">
@@ -127,6 +146,7 @@ export const GameBoardWebView = ({
                       label={court.label}
                       timer={court.timer}
                       players={court.players}
+                      pad
                       onComplete={() => setCompletingCourtId(court.id)}
                       onReturnToWaiting={() => onReturnToWaiting(court.id)}
                       onCancelGame={() => onCancelCourtGame(court.id)}
@@ -158,6 +178,7 @@ export const GameBoardWebView = ({
                         waitingGroupId={group.id}
                         label={group.label}
                         players={group.players}
+                        pad
                         courts={emptyCourts}
                         onMoveToCourt={courtId =>
                           onMoveToCourt(group.id, courtId)
@@ -173,13 +194,13 @@ export const GameBoardWebView = ({
           </div>
           <DragOverlay>
             {activeDragGroup ? (
-              <div className="flex w-[12.5rem] flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds300">
+              <div className="flex w-64 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds300">
                 <span className="body-sm-500 px-1 text-black">
                   {activeDragGroup.label}
                 </span>
-                <div className="flex flex-wrap justify-between gap-y-2">
+                <div className="flex flex-wrap gap-2">
                   {activeDragGroup.players.map(p => (
-                    <PlayerBadge key={p.id} {...p} />
+                    <PlayerBadge key={p.id} {...p} pad />
                   ))}
                 </div>
               </div>

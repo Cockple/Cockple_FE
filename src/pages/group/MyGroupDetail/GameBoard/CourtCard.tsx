@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import Pen from "@/assets/icons/pen.svg";
 import Reject from "@/assets/icons/reject.svg";
+import DefaultProfile from "@/assets/images/base_profile_img.png";
 import type { GamePlayer } from "./mockGameBoardData";
 
 export const courtDroppableId = (courtId: number) => `court-${courtId}`;
@@ -21,27 +22,61 @@ export const waitingDraggableId = (waitingGroupId: number) =>
 const formatBadgeGroup = (group: string) =>
   group.replace(/^급수\s*없음$/, "없음");
 
-export const PlayerBadge = ({ name, group, color }: GamePlayer) => (
-  <div
-    className={clsx(
-      "flex h-7 w-[5.5rem] items-center justify-center gap-0.5 rounded-lg px-1.5 py-1",
-      color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
-    )}
-  >
-    <span className="body-rg-600 min-w-0 flex-1 truncate text-black">
-      {name}
-    </span>
-    <span className="body-sm-500 shrink-0 truncate text-gy-700">
-      {formatBadgeGroup(group)}
-    </span>
-  </div>
-);
+// pad=true: PC(아이패드) 모드. 프로필 이미지가 포함된 큰 뱃지를 쓴다.
+export const PlayerBadge = ({
+  name,
+  group,
+  color,
+  imgUrl,
+  pad = false,
+}: GamePlayer & { pad?: boolean }) =>
+  pad ? (
+    <div
+      className={clsx(
+        "flex w-[7.25rem] shrink-0 items-center gap-1.5 rounded-xl p-2",
+        color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+      )}
+    >
+      <img
+        src={imgUrl || DefaultProfile}
+        alt=""
+        className="size-5 shrink-0 rounded-full object-cover"
+      />
+      <span className="body-rg-600 min-w-0 truncate whitespace-nowrap text-black">
+        {name}
+      </span>
+      <span className="body-sm-500 shrink-0 whitespace-nowrap text-gy-700">
+        {formatBadgeGroup(group)}
+      </span>
+    </div>
+  ) : (
+    <div
+      className={clsx(
+        "flex h-7 w-[5.5rem] items-center justify-center gap-0.5 rounded-lg px-1.5 py-1",
+        color === "pink" ? "bg-[#feecf4]" : "bg-[#e1eefe]",
+      )}
+    >
+      <span className="body-rg-600 min-w-0 flex-1 truncate text-black">
+        {name}
+      </span>
+      <span className="body-sm-500 shrink-0 truncate text-gy-700">
+        {formatBadgeGroup(group)}
+      </span>
+    </div>
+  );
+
+// 카드 폭/선수 목록 레이아웃 (모바일 200px, PC 256px)
+export const cardWidthClass = (pad?: boolean) => (pad ? "w-64" : "w-[12.5rem]");
+export const playerListClass = (pad?: boolean) =>
+  pad ? "flex flex-wrap gap-2" : "flex flex-wrap justify-between gap-y-2";
 
 interface CourtCardProps {
   courtId: number;
   label: string;
   timer?: string;
   players: GamePlayer[] | null;
+  pad?: boolean;
+  readOnly?: boolean; // 일반 멤버: 완료/대기 복귀/메뉴 등 조작 불가
   onComplete?: () => void;
   onReturnToWaiting?: () => void;
   onCancelGame?: () => void;
@@ -52,6 +87,8 @@ export const CourtCard = ({
   label,
   timer,
   players,
+  pad,
+  readOnly = false,
   onComplete,
   onReturnToWaiting,
   onCancelGame,
@@ -64,6 +101,7 @@ export const CourtCard = ({
   const suppressNextClick = useRef(false);
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: courtDroppableId(courtId),
+    disabled: readOnly,
   });
 
   useEffect(() => {
@@ -110,7 +148,8 @@ export const CourtCard = ({
       <div
         ref={setDropRef}
         className={clsx(
-          "flex w-[12.5rem] shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+          "flex shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+          cardWidthClass(pad),
           isOver && "bg-gr-100 ring-2 ring-gr-500",
         )}
       >
@@ -131,40 +170,48 @@ export const CourtCard = ({
         setDropRef(node);
       }}
       className={clsx(
-        "flex w-[12.5rem] shrink-0 cursor-pointer flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        "flex shrink-0 flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100 transition-colors",
+        !readOnly && "cursor-pointer",
+        cardWidthClass(pad),
         isOver && "ring-2 ring-gr-500",
       )}
-      onClick={() => {
-        if (suppressNextClick.current) {
-          suppressNextClick.current = false;
-          return;
-        }
-        onReturnToWaiting?.();
-      }}
-      onContextMenu={handleContextMenu}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={clearLongPressTimer}
-      onTouchMove={clearLongPressTimer}
+      onClick={
+        readOnly
+          ? undefined
+          : () => {
+              if (suppressNextClick.current) {
+                suppressNextClick.current = false;
+                return;
+              }
+              onReturnToWaiting?.();
+            }
+      }
+      onContextMenu={readOnly ? undefined : handleContextMenu}
+      onTouchStart={readOnly ? undefined : handleTouchStart}
+      onTouchEnd={readOnly ? undefined : clearLongPressTimer}
+      onTouchMove={readOnly ? undefined : clearLongPressTimer}
     >
       <div className="flex h-6 items-center justify-between pl-1">
         <div className="flex items-center gap-1">
           <span className="body-sm-500 text-black">{label}</span>
           {timer && <span className="body-sm-500 text-gr-700">{timer}</span>}
         </div>
-        <button
-          type="button"
-          className="rounded-lg bg-gy-100 px-2 py-1 body-sm-400 text-rd-500"
-          onClick={e => {
-            e.stopPropagation();
-            onComplete?.();
-          }}
-        >
-          완료
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            className="rounded-lg bg-gy-100 px-2 py-1 body-sm-400 text-rd-500"
+            onClick={e => {
+              e.stopPropagation();
+              onComplete?.();
+            }}
+          >
+            완료
+          </button>
+        )}
       </div>
-      <div className="flex flex-wrap justify-between gap-y-2">
+      <div className={playerListClass(pad)}>
         {players.map(p => (
-          <PlayerBadge key={p.id} {...p} />
+          <PlayerBadge key={p.id} {...p} pad={pad} />
         ))}
       </div>
 
@@ -208,6 +255,8 @@ interface WaitingCardProps {
   waitingGroupId: number;
   label: string;
   players: GamePlayer[];
+  pad?: boolean;
+  readOnly?: boolean;
   courts: { id: number; label: string }[];
   onMoveToCourt?: (courtId: number) => void;
   onChange?: () => void;
@@ -239,6 +288,8 @@ export const WaitingCard = ({
   waitingGroupId,
   label,
   players,
+  pad,
+  readOnly = false,
   courts,
   onMoveToCourt,
   onChange,
@@ -249,7 +300,10 @@ export const WaitingCard = ({
     listeners: dragListeners,
     setNodeRef: setDragRef,
     isDragging,
-  } = useDraggable({ id: waitingDraggableId(waitingGroupId) });
+  } = useDraggable({
+    id: waitingDraggableId(waitingGroupId),
+    disabled: readOnly,
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [clickPoint, setClickPoint] = useState<{ x: number; y: number } | null>(
@@ -326,42 +380,45 @@ export const WaitingCard = ({
         setDragRef(node);
       }}
       className={clsx(
-        "flex w-[12.5rem] shrink-0 touch-pan-x flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100",
+        "flex shrink-0 touch-pan-x flex-col gap-2 rounded-2xl bg-white p-2 shadow-ds100",
+        cardWidthClass(pad),
         isDragging && "opacity-40",
       )}
-      onContextMenu={handleContextMenu}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={clearLongPressTimer}
-      onTouchMove={clearLongPressTimer}
-      {...dragAttributes}
-      {...dragListeners}
+      onContextMenu={readOnly ? undefined : handleContextMenu}
+      onTouchStart={readOnly ? undefined : handleTouchStart}
+      onTouchEnd={readOnly ? undefined : clearLongPressTimer}
+      onTouchMove={readOnly ? undefined : clearLongPressTimer}
+      {...(readOnly ? {} : dragAttributes)}
+      {...(readOnly ? {} : dragListeners)}
     >
       <div className="flex h-6 items-center justify-between pl-1">
         <span className="body-sm-500 text-black">{label}</span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-            onClick={onChange}
-            onTouchStart={e => e.stopPropagation()}
-            onContextMenu={e => e.stopPropagation()}
-          >
-            <img src={Pen} alt="변경" className="size-4" />
-          </button>
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
-            onClick={onReject}
-            onTouchStart={e => e.stopPropagation()}
-            onContextMenu={e => e.stopPropagation()}
-          >
-            <img src={Reject} alt="삭제" className="size-4" />
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
+              onClick={onChange}
+              onTouchStart={e => e.stopPropagation()}
+              onContextMenu={e => e.stopPropagation()}
+            >
+              <img src={Pen} alt="변경" className="size-4" />
+            </button>
+            <button
+              type="button"
+              className="flex size-6 items-center justify-center rounded-lg bg-gy-100"
+              onClick={onReject}
+              onTouchStart={e => e.stopPropagation()}
+              onContextMenu={e => e.stopPropagation()}
+            >
+              <img src={Reject} alt="삭제" className="size-4" />
+            </button>
+          </div>
+        )}
       </div>
-      <div className="flex flex-wrap justify-between gap-y-2">
+      <div className={playerListClass(pad)}>
         {players.map(p => (
-          <PlayerBadge key={p.id} {...p} />
+          <PlayerBadge key={p.id} {...p} pad={pad} />
         ))}
       </div>
 

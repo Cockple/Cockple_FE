@@ -1,41 +1,87 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import { lazy, Suspense, useEffect } from "react";
-import { LoginPage } from "./pages/login/LoginPage";
-import { ChatPage } from "./pages/chat/ChatPage";
-import { LikedPage } from "./pages/like/LikedPage";
 import { PrivateRoute } from "./layout/PrivateRoute";
 import { NavbarLayout } from "./layout/NavbarLayout";
-import {
-  GroupPage,
-  ExerciseDetail,
-  MemberDefault,
-  ExerciseDetailApply,
-  MyExerciseDetail,
-  GameManagerPage,
-  ViceLeaderDefault,
-  EditGroupInfoDefault,
-} from "./pages/group";
-import { AlertPage } from "./pages/alarm/AlertPage";
-import { HomePage } from "./pages/home/HomePage";
 import useSplashStore from "./store/useSplashStore";
 import SplashScreen from "./components/login/SplashScreen";
-import { GroupLayout } from "./layout/GroupLayout";
-import { GroupHomePage } from "./pages/group/GroupHomePage";
-import { GroupChatPage } from "./pages/group/GroupChatPage";
-import { GroupCalendarPage } from "./pages/group/GroupCalendarPage";
-import { GroupBasicInfo } from "./pages/group/groupMaking/GroupBasicInfo";
-import { GroupActivity } from "./pages/group/groupMaking/GroupActivity";
-import { GroupFilter } from "./pages/group/groupMaking/GroupFilter";
-import { GroupSelect } from "./pages/group/groupMaking/GroupSelect";
-import { GroupMember } from "./pages/group/groupMaking/GroupMember";
-import { CreateExercise } from "./pages/group/CreateExercise";
-import KakaoLogin from "./pages/login/KakaoLogin";
-import OnboardingLayout from "./pages/onboarding/onBoardingLayout";
 import { useRawWsConnect } from "./hooks/useRawWsConnect";
 import { useSeedChatUnread } from "./hooks/useSeedChatUnread";
 import { resolveMemberId } from "./utils/auth";
 import { NoNavbarLayout } from "./layout/NoPtLayout";
+
+// 라우트 단위 코드 스플리팅: 첫 진입에 필요한 페이지만 내려받는다.
+const LoginPage = lazy(() =>
+  import("./pages/login/LoginPage").then(m => ({ default: m.LoginPage })),
+);
+const ChatPage = lazy(() =>
+  import("./pages/chat/ChatPage").then(m => ({ default: m.ChatPage })),
+);
+const LikedPage = lazy(() =>
+  import("./pages/like/LikedPage").then(m => ({ default: m.LikedPage })),
+);
+const AlertPage = lazy(() =>
+  import("./pages/alarm/AlertPage").then(m => ({ default: m.AlertPage })),
+);
+const HomePage = lazy(() =>
+  import("./pages/home/HomePage").then(m => ({ default: m.HomePage })),
+);
+const GroupLayout = lazy(() =>
+  import("./layout/GroupLayout").then(m => ({ default: m.GroupLayout })),
+);
+const GroupHomePage = lazy(() =>
+  import("./pages/group/GroupHomePage").then(m => ({ default: m.GroupHomePage })),
+);
+const GroupChatPage = lazy(() =>
+  import("./pages/group/GroupChatPage").then(m => ({ default: m.GroupChatPage })),
+);
+const GroupCalendarPage = lazy(() =>
+  import("./pages/group/GroupCalendarPage").then(m => ({ default: m.GroupCalendarPage })),
+);
+const GroupBasicInfo = lazy(() =>
+  import("./pages/group/groupMaking/GroupBasicInfo").then(m => ({ default: m.GroupBasicInfo })),
+);
+const GroupActivity = lazy(() =>
+  import("./pages/group/groupMaking/GroupActivity").then(m => ({ default: m.GroupActivity })),
+);
+const GroupFilter = lazy(() =>
+  import("./pages/group/groupMaking/GroupFilter").then(m => ({ default: m.GroupFilter })),
+);
+const GroupSelect = lazy(() =>
+  import("./pages/group/groupMaking/GroupSelect").then(m => ({ default: m.GroupSelect })),
+);
+const GroupMember = lazy(() =>
+  import("./pages/group/groupMaking/GroupMember").then(m => ({ default: m.GroupMember })),
+);
+const CreateExercise = lazy(() =>
+  import("./pages/group/CreateExercise").then(m => ({ default: m.CreateExercise })),
+);
+const GroupPage = lazy(() =>
+  import("./pages/group/GroupPage").then(m => ({ default: m.GroupPage })),
+);
+const ExerciseDetail = lazy(() =>
+  import("./pages/group/MyGroupDetail/ExerciseDetail").then(m => ({ default: m.ExerciseDetail })),
+);
+const MemberDefault = lazy(() =>
+  import("./pages/group/MyGroupDetail/MemberDefault").then(m => ({ default: m.MemberDefault })),
+);
+const ExerciseDetailApply = lazy(() =>
+  import("./pages/group/MyGroupDetail/ExerciseDetailApply").then(m => ({ default: m.ExerciseDetailApply })),
+);
+const MyExerciseDetail = lazy(() =>
+  import("./pages/group/MyGroupDetail/MyExerciseDetail").then(m => ({ default: m.MyExerciseDetail })),
+);
+const GameManagerPage = lazy(() =>
+  import("./pages/group/MyGroupDetail/GameManagerPage").then(m => ({ default: m.GameManagerPage })),
+);
+const ViceLeaderDefault = lazy(() =>
+  import("./pages/group/AdminMenu/ViceLeaderDefault").then(m => ({ default: m.ViceLeaderDefault })),
+);
+const EditGroupInfoDefault = lazy(() =>
+  import("./pages/group/AdminMenu/EditGroupInfoDefault").then(m => ({ default: m.EditGroupInfoDefault })),
+);
+const KakaoLogin = lazy(() => import("./pages/login/KakaoLogin"));
+const OnboardingLayout = lazy(() => import("./pages/onboarding/onBoardingLayout"));
 
 // 지도/위치 - lazy (카카오맵 SDK 포함)
 const ExerciseMapPage = lazy(() =>

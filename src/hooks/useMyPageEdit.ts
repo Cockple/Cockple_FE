@@ -26,6 +26,7 @@ export const useMyPageEdit = () => {
   const [name, setName] = useState("");
   const [profileImage, setProfileImage] = useState<string>("");
   const [profileImageKey, setProfileImageKey] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("급수 없음");
   const [disabled, setDisabled] = useState(false);
@@ -153,6 +154,8 @@ export const useMyPageEdit = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setProfileImage(URL.createObjectURL(file));
+    setProfileImageKey("");
+    setIsUploading(true);
     try {
       const { imgUrl, imgKey } = await uploadImage("PROFILE", file);
       setProfileImage(imgUrl);
@@ -160,6 +163,8 @@ export const useMyPageEdit = () => {
     } catch (err) {
       console.error(err);
       alert("이미지 업로드 실패");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -196,6 +201,10 @@ export const useMyPageEdit = () => {
   const toggleEditMode = () => setEditMode((prev) => !prev);
 
   const handleSave = async () => {
+    if (isUploading) {
+      alert("이미지를 업로드하는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
     if (!name.trim()) {
       alert("이름은 반드시 입력해야 합니다.");
       return;
@@ -233,6 +242,7 @@ export const useMyPageEdit = () => {
   return {
     state: {
       isLoading,
+      isUploading,
       name,
       profileImage,
       selectedDate,
