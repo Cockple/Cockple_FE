@@ -10,6 +10,7 @@ export interface GameBoardPlayer {
   name: string;
   level: string;
   playerOrder: number;
+  profileImageUrl: string | null;
 }
 
 export interface GameBoardCourtGame {

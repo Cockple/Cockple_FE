@@ -20,6 +20,7 @@ interface GradMixLProps {
   type: GradMixType;
   label?: string;
   initialStatus?: BtnStatus;
+  leftInitialStatus?: BtnStatus; // 왼쪽 이미지 버튼만 다른 상태로 둘 때 (기본: initialStatus)
   onClick?: () => void; // 오른쪽 버튼(Btn_Static)의 클릭 핸들러
   onImageClick?: () => void; // 왼쪽 이미지 버튼 클릭 핸들러
 }
@@ -28,6 +29,7 @@ const Grad_Mix_L = ({
   type,
   label = "Btn",
   initialStatus = "default",
+  leftInitialStatus,
   onClick,
   onImageClick,
 }: GradMixLProps) => {
@@ -81,7 +83,7 @@ const Grad_Mix_L = ({
         kind={getLeftBtnKind()}
         size="M"
         iconMap={getIconMap()}
-        initialStatus={initialStatus}
+        initialStatus={leftInitialStatus ?? initialStatus}
         width="w-[5rem]"
         shadow="shadow-ds100"
         onClick={onImageClick}

@@ -33,6 +33,7 @@ interface GameMemberCardProps {
   onEditInfo?: () => void;
   onToggleParticipation?: () => void;
   onToggleShuttlecock?: () => void;
+  readOnly?: boolean; // 일반 멤버: 메뉴/셔틀콕 토글 불가
 }
 
 export const GameMemberCard = ({
@@ -42,6 +43,7 @@ export const GameMemberCard = ({
   onEditInfo,
   onToggleParticipation,
   onToggleShuttlecock,
+  readOnly = false,
 }: GameMemberCardProps) => {
   const {
     name,
@@ -122,10 +124,10 @@ export const GameMemberCard = ({
         }
         if (selectable) onToggleSelect();
       }}
-      onContextMenu={handleContextMenu}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={clearLongPressTimer}
-      onTouchMove={clearLongPressTimer}
+      onContextMenu={readOnly ? undefined : handleContextMenu}
+      onTouchStart={readOnly ? undefined : handleTouchStart}
+      onTouchEnd={readOnly ? undefined : clearLongPressTimer}
+      onTouchMove={readOnly ? undefined : clearLongPressTimer}
       className={clsx(
         "flex w-[10.3125rem] flex-col gap-2 rounded-2xl p-2 text-left",
         selectable ? "cursor-pointer" : "cursor-default",
@@ -188,9 +190,10 @@ export const GameMemberCard = ({
             "flex size-6 shrink-0 items-center justify-center rounded-lg p-1",
             selectable ? "bg-white/50" : "bg-transparent",
           )}
+          disabled={readOnly}
           onClick={e => {
             e.stopPropagation();
-            onToggleShuttlecock?.();
+            if (!readOnly) onToggleShuttlecock?.();
           }}
         >
           <img

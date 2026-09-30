@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import {
   DndContext,
@@ -57,6 +57,7 @@ import { GameDuplicateCheckModal } from "./GameDuplicateCheckModal";
 import {
   formatElapsed,
   toBoardViewModel,
+  colorPlayersByGender,
   toGameBoardMemberPayload,
   toGameBoardMembersParams,
   toGameMember,
@@ -83,9 +84,34 @@ export const GameBoardTab = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [members, setMembers] = useState<GameMember[]>([]);
+  // 필터와 무관한 전체 명단. 필터로 목록에서 빠진 선택 인원도 유지/표시하기 위해 보관한다.
+  // PC 모드(웹뷰)는 운동 상세 헤더를 덮으므로 자체 새로고침 버튼을 쓴다.
+  const [localRefreshSignal, setLocalRefreshSignal] = useState(0);
+  const [isLocalRefreshing, setIsLocalRefreshing] = useState(false);
+  const [rosterMembers, setRosterMembers] = useState<GameMember[]>([]);
   const [rosterLevels, setRosterLevels] = useState<string[]>([]);
-  const [courts, setCourts] = useState<CourtGroup[]>([]);
-  const [waitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
+  const [rawCourts, setCourts] = useState<CourtGroup[]>([]);
+  const [rawWaitingGroups, setWaitingGroups] = useState<WaitingGroup[]>([]);
+  // 게임판 응답에는 성별이 없어, 명단(필터 무관 전체)의 성별로 뱃지 색을 정한다.
+  const [genderById, setGenderById] = useState<
+    Record<number, "MALE" | "FEMALE">
+  >({});
+  const courts = useMemo(
+    () =>
+      rawCourts.map(c => ({
+        ...c,
+        players: c.players && colorPlayersByGender(c.players, genderById),
+      })),
+    [rawCourts, genderById],
+  );
+  const waitingGroups = useMemo(
+    () =>
+      rawWaitingGroups.map(g => ({
+        ...g,
+        players: colorPlayersByGender(g.players, genderById),
+      })),
+    [rawWaitingGroups, genderById],
+  );
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const [isWebViewOpen, setIsWebViewOpen] = useState(false);
@@ -131,8 +157,16 @@ export const GameBoardTab = ({
   const applyMembersResponse = (res: {
     gameBoardMembers: GameBoardMember[];
   }) => {
-    setMembers(res.gameBoardMembers.map(toGameMember));
+    const next = res.gameBoardMembers.map(toGameMember);
+    setMembers(next);
+    mergeGenders(next);
   };
+
+  const mergeGenders = (list: GameMember[]) =>
+    setGenderById(prev => ({
+      ...prev,
+      ...Object.fromEntries(list.map(m => [m.id, m.gender])),
+    }));
 
   const refreshMembers = () => {
     getGameBoardMembers(gameBoardId, toGameBoardMembersParams(filters)).then(
@@ -144,6 +178,9 @@ export const GameBoardTab = ({
   // 급수 미지정 멤버는 level이 빈 값으로 내려올 수 있어 "급수없음"으로 보정한다.
   const refreshRosterLevels = () => {
     getGameBoardMembers(gameBoardId, {}).then(res => {
+      const roster = res.gameBoardMembers.map(toGameMember);
+      mergeGenders(roster);
+      setRosterMembers(roster);
       setRosterLevels([
         ...new Set(res.gameBoardMembers.map(m => m.level || "급수없음")),
       ]);
@@ -202,9 +239,10 @@ export const GameBoardTab = ({
 
   // 헤더 새로고침 버튼: 보드/명단을 REST로 다시 불러온다. (초기값 0은 무시)
   useEffect(() => {
-    if (!refreshSignal) return;
+    if (!refreshSignal && !localRefreshSignal) return;
     let cancelled = false;
     onRefreshingChange?.(true);
+    setIsLocalRefreshing(true);
     Promise.all([
       getGameBoard(gameBoardId).then(board => {
         if (!cancelled) applyBoard(board);
@@ -219,14 +257,18 @@ export const GameBoardTab = ({
     ])
       .catch(() => {})
       .finally(() => {
-        if (!cancelled) onRefreshingChange?.(false);
+        if (!cancelled) {
+          onRefreshingChange?.(false);
+          setIsLocalRefreshing(false);
+        }
       });
     return () => {
       cancelled = true;
       onRefreshingChange?.(false);
+      setIsLocalRefreshing(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshSignal]);
+  }, [refreshSignal, localRefreshSignal]);
 
   // 다른 클라이언트의 변경사항 브로드캐스트 반영
   useEffect(() => {
@@ -258,7 +300,16 @@ export const GameBoardTab = ({
     });
   };
 
-  const selectedMembers = members.filter(m => selectedIds.includes(m.id));
+  // 필터가 적용된 members에 없는 선택 인원도 전체 명단에서 찾아 유지한다 (명단 순서 유지).
+  const selectedMembers = (() => {
+    const latest = new Map(members.map(m => [m.id, m]));
+    const merged = rosterMembers.map(m => latest.get(m.id) ?? m);
+    const rosterIds = new Set(rosterMembers.map(m => m.id));
+    members.forEach(m => {
+      if (!rosterIds.has(m.id)) merged.push(m);
+    });
+    return merged.filter(m => selectedIds.includes(m.id));
+  })();
   // 대기열 "코트로 이동" 메뉴에는 현재 경기 중이 아닌(빈) 코트만 노출한다.
   const emptyCourts = courts.filter(c => !c.players);
   const editingMember = members.find(m => m.id === editingMemberId) ?? null;
@@ -608,6 +659,7 @@ export const GameBoardTab = ({
                     label={court.label}
                     timer={court.timer}
                     players={court.players}
+                    readOnly={!isManager}
                     onComplete={() => setCompletingCourtId(court.id)}
                     onReturnToWaiting={() => handleReturnToWaiting(court.id)}
                     onCancelGame={() => handleCancelCourtGame(court.id)}
@@ -639,6 +691,7 @@ export const GameBoardTab = ({
                       waitingGroupId={group.id}
                       label={group.label}
                       players={group.players}
+                      readOnly={!isManager}
                       courts={emptyCourts}
                       onMoveToCourt={courtId =>
                         handleMoveToCourt(group.id, courtId)
@@ -683,6 +736,7 @@ export const GameBoardTab = ({
               <GameMemberCard
                 key={member.id}
                 member={isManager ? member : { ...member, selectable: false }}
+                readOnly={!isManager}
                 selected={selectedIds.includes(member.id)}
                 onToggleSelect={() => toggleSelect(member.id)}
                 onEditInfo={() => setEditingMemberId(member.id)}
@@ -764,6 +818,9 @@ export const GameBoardTab = ({
             onAddToWaitingQueue={() => setIsDuplicateCheckOpen(true)}
             onAutoMatch={handleAutoMatch}
             members={members}
+            selectedMembers={selectedMembers}
+            isRefreshing={isLocalRefreshing}
+            onRefresh={() => setLocalRefreshSignal(n => n + 1)}
             selectedIds={selectedIds}
             toggleSelect={toggleSelect}
             onToggleParticipation={handleToggleParticipation}

@@ -119,22 +119,26 @@ export const GameFinishedTab = ({ gameBoardId }: GameFinishedTabProps) => {
                 <span className="text-[#767B89] body-sm-500">{match.endTime}</span>
               </div>
               <div className="flex flex-col gap-2 w-full">
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  {match.teamA.map((p, idx) => (
-                    <div key={idx} className="bg-[#FEECF4] rounded-lg py-[0.375rem] flex items-center justify-center gap-1">
-                      <span className="text-[#121212] body-rg-500">{p.name}</span>
-                      <span className="text-[#767B89] body-rg-500 text-[0.625rem]">{p.tag}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  {match.teamB.map((p, idx) => (
-                    <div key={idx} className="bg-[#E1EEFE] rounded-lg py-[0.375rem] flex items-center justify-center gap-1">
-                      <span className="text-[#121212] body-rg-500">{p.name}</span>
-                      <span className="text-[#767B89] body-rg-500 text-[0.625rem]">{p.tag}</span>
-                    </div>
-                  ))}
-                </div>
+                {[
+                  ...(match.teamA.length + match.teamB.length <= 2
+                    ? [[
+                        ...match.teamA.map(p => ({ ...p, bg: "bg-[#FEECF4]" })),
+                        ...match.teamB.map(p => ({ ...p, bg: "bg-[#E1EEFE]" })),
+                      ]]
+                    : [
+                        match.teamA.map(p => ({ ...p, bg: "bg-[#FEECF4]" })),
+                        match.teamB.map(p => ({ ...p, bg: "bg-[#E1EEFE]" })),
+                      ]),
+                ].map((row, rowIdx) => (
+                  <div key={rowIdx} className="grid grid-cols-2 gap-2 w-full">
+                    {row.map((p, idx) => (
+                      <div key={idx} className={`${p.bg} rounded-lg py-[0.375rem] flex items-center justify-center gap-1`}>
+                        <span className="text-[#121212] body-rg-500">{p.name}</span>
+                        <span className="text-[#767B89] body-rg-500 text-[0.625rem]">{p.tag}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
             </div>
           ))}
