@@ -38,6 +38,7 @@ interface GameMemberCardProps {
   onToggleParticipation?: () => void;
   onToggleShuttlecock?: () => void;
   readOnly?: boolean; // 일반 멤버: 메뉴/셔틀콕 토글 불가
+  pad?: boolean; // PC(아이패드) 모드: 프로필/이름이 더 큰 카드
 }
 
 export const GameMemberCard = ({
@@ -48,6 +49,7 @@ export const GameMemberCard = ({
   onToggleParticipation,
   onToggleShuttlecock,
   readOnly = false,
+  pad = false,
 }: GameMemberCardProps) => {
   const {
     name,
@@ -191,11 +193,19 @@ export const GameMemberCard = ({
           src={imgUrl ?? DefaultProfile}
           alt={`${name} 프로필`}
           className={clsx(
-            "size-6 rounded-full object-cover",
+            "rounded-full object-cover",
+            pad ? "size-10" : "size-6",
             isWithdrawn && "opacity-20",
           )}
         />
-        <span className="header-h5 truncate text-black">{name}</span>
+        <span
+          className={clsx(
+            "truncate text-black",
+            pad ? "header-h4" : "header-h5",
+          )}
+        >
+          {name}
+        </span>
       </div>
 
       <div className="flex items-center justify-center gap-1">

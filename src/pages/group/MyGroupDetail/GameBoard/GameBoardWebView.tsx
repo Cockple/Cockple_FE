@@ -276,6 +276,7 @@ export const GameBoardWebView = ({
               <GameMemberCard
                 key={member.id}
                 member={member}
+                pad
                 selected={selectedIds.includes(member.id)}
                 onToggleSelect={() => toggleSelect(member.id)}
                 onEditInfo={() => onEditMember(member.id)}
