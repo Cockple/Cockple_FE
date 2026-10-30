@@ -93,15 +93,12 @@ export const toGameBoardMemberPayload = (player: {
   ageGroup: player.ageGroup || undefined,
 });
 
-// 노출 조건 (판정 우선순위): 경기중 > 대기열 포함 > 운동 불참 > 뱃지 없음. 한 번에 하나만 노출한다.
+// 노출 조건: 경기중(운동)·대기열(대기)은 함께 노출될 수 있고, 둘 다 아니면서 불참이면 미참. 해당 없으면 뱃지 없음.
 export const toGameMember = (m: GameBoardMember): GameMember => {
-  const tags: GameMember["tags"] = m.inGame
-    ? ["운동"]
-    : m.waiting
-      ? ["대기"]
-      : !m.participating
-        ? ["미참"]
-        : [];
+  const tags: GameMember["tags"] = [];
+  if (m.inGame) tags.push("운동");
+  if (m.waiting) tags.push("대기");
+  if (tags.length === 0 && !m.participating) tags.push("미참");
 
   return {
     id: m.gameBoardMemberId,
