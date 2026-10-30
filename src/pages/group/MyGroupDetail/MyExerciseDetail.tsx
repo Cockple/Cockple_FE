@@ -45,35 +45,8 @@ export const MyExerciseDetail = () => {
   );
   const isGameHost = currentUserHostInfo?.isGameHost ?? false;
 
-  const [detail, setDetail] = useState<ExerciseDetailResponse | null>({
-    notice: "API 에러(CORS/Network)로 인해 출력된 임시 화면입니다.",
-    placeName: "테스트 체육관 코트",
-    placeAddress: "서울특별시 강남구 테헤란로 123",
-    participantGenderCount: { male: 2, female: 2 },
-    participantsCount: 4,
-    isManager: true,
-    participantMembers: [],
-    waitingMembers: [],
-    waitingGenderCount: { male: 0, female: 0 },
-  } as any);
-  const [members, setMembers] = useState<MemberProps[]>([
-    {
-      participantId: 1,
-      memberId: 1,
-      status: "Participating",
-      name: "김셰익스피어",
-      gender: "MALE",
-      level: "A조",
-      isMe: true,
-      isLeader: true,
-      position: "leader",
-      imgUrl: null,
-      canCancel: true,
-      isGuest: false,
-      inviterName: "",
-      isWithdrawn: false,
-    }
-  ]);
+  const [detail, setDetail] = useState<ExerciseDetailResponse | null>(null);
+  const [members, setMembers] = useState<MemberProps[]>([]);
   // const [participantsCount, setParticipantsCount] = useState(0);
 
   const [waitingMembers, setWaitingMembers] = useState<MemberProps[]>([]);
@@ -172,6 +145,8 @@ export const MyExerciseDetail = () => {
         }));
         setWaitingMembers(waitingList);
         setWaitingCount(waitingList.length);
+      }).catch(error => {
+        console.error("운동 상세 조회 실패:", error);
       });
     }
   }, [exerciseIdNumber, user?.memberId]);
