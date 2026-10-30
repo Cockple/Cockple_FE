@@ -15,11 +15,15 @@ import Exercise from "@/assets/icons/Exercise.svg";
 import ExerciseFilled from "@/assets/icons/Exercise_filled.svg";
 import type { GameMember, MemberTag } from "./mockGameBoardData";
 
-const TAG_STYLE: Record<MemberTag, string> = {
-  운동: "bg-gr-100 text-gr-700",
-  대기: "bg-[#fff4d2] text-[#d96303]",
-  미참: "bg-gy-100 text-gy-700",
+const TAG_LABEL: Record<MemberTag, string> = {
+  운동: "운동",
+  대기: "대기",
+  미참: "미참여",
 };
+
+// 운동 + 대기 동시 노출 시 우측 상단에 대기 색(크림)이 번지는 배경
+const EXERCISE_WAITING_BG =
+  "radial-gradient(ellipse 140px 85px at 142px 15px, #fff7e1 0%, #f1f9f3 100%)";
 
 const LONG_PRESS_MS = 600;
 const MENU_WIDTH = 149;
@@ -57,6 +61,9 @@ export const GameMemberCard = ({
     shuttlecockSubmitted,
   } = member;
   const isWithdrawn = tags.includes("미참");
+  const isExercise = tags.includes("운동");
+  const isWaiting = tags.includes("대기");
+  const isTinted = isExercise || isWaiting;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
@@ -128,33 +135,55 @@ export const GameMemberCard = ({
       onTouchStart={readOnly ? undefined : handleTouchStart}
       onTouchEnd={readOnly ? undefined : clearLongPressTimer}
       onTouchMove={readOnly ? undefined : clearLongPressTimer}
+      style={
+        !isWithdrawn && isExercise && isWaiting
+          ? { backgroundImage: EXERCISE_WAITING_BG }
+          : undefined
+      }
       className={clsx(
-        "flex w-[10.3125rem] flex-col gap-2 rounded-2xl p-2 text-left",
+        "flex w-[10.3125rem] flex-col gap-2 rounded-2xl border p-2 text-left",
         selectable ? "cursor-pointer" : "cursor-default",
+        selected && !isWithdrawn ? "border-gr-500" : "border-transparent",
         isWithdrawn
           ? "bg-gy-100 opacity-50 shadow-ds100"
-          : selected
-            ? "bg-[#f1f9f3] shadow-ds200-gr"
-            : "bg-white shadow-ds100",
+          : [
+              isExercise
+                ? "bg-[#f1f9f3]"
+                : isWaiting
+                  ? "bg-[#fff7e1]"
+                  : "bg-white",
+              selected || isMenuOpen ? "shadow-ds300-gr" : "shadow-ds100",
+            ],
       )}
     >
-      <div className="flex h-6 items-center justify-between pl-1">
-        <div className="flex items-start gap-1">
-          {tags.map(tag => (
-            <span
-              key={tag}
-              className={clsx(
-                "flex items-center justify-center rounded-lg px-1 py-0.5 body-sm-500",
-                TAG_STYLE[tag],
-              )}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-        <span className="flex items-center justify-center rounded-lg bg-gy-100 px-1 py-0.5 body-sm-500 text-gy-700">
+      <div className="flex items-center justify-between">
+        <span
+          className={clsx(
+            "flex items-center justify-center rounded-lg px-1 py-0.5 body-sm-500 text-gy-700",
+            isTinted || isWithdrawn ? "bg-white" : "bg-gy-100",
+          )}
+        >
           {playCount}회
         </span>
+        {isWithdrawn ? (
+          <span className="flex items-center justify-center rounded-lg bg-gy-700 px-1 py-0.5 body-sm-500 text-white">
+            {TAG_LABEL["미참"]}
+          </span>
+        ) : isExercise ? (
+          <span className="flex items-center justify-center rounded-lg bg-gr-100 px-1 py-0.5 body-sm-500 text-gr-700">
+            {TAG_LABEL["운동"]}
+            {isWaiting && (
+              <>
+                <img src={CircleS} alt="" className="size-2 shrink-0" />
+                <span className="text-[#d96303]">{TAG_LABEL["대기"]}</span>
+              </>
+            )}
+          </span>
+        ) : isWaiting ? (
+          <span className="flex items-center justify-center rounded-lg px-1 py-0.5 body-sm-500 text-[#d96303]">
+            {TAG_LABEL["대기"]}
+          </span>
+        ) : null}
       </div>
 
       <div className="flex items-center gap-2">
