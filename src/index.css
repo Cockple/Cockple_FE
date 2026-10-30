@@ -91,6 +91,7 @@
   --shadow-ds200: 0px 0px 16px 0px rgba(18, 18, 18, 0.16);
   --shadow-ds200-gr: 0px 0px 8px 0px rgba(26, 187, 101, 0.16);
   --shadow-ds300: 0px 0px 24px 0px rgba(18, 18, 18, 0.2);
+  --shadow-ds300-gr: 0px 0px 12px 0px rgba(26, 187, 101, 0.16);
   --shadow-ds400: 0px 0px 40px 0px rgba(18, 18, 18, 0.24);
   --shadow-ds50-is50:
     -0.5px -1px 1px 0px rgba(252, 252, 255, 0.4) inset,
@@ -330,6 +331,10 @@
 
   .shadow-ds300 {
     box-shadow: var(--shadow-ds300);
+  }
+
+  .shadow-ds300-gr {
+    box-shadow: var(--shadow-ds300-gr);
   }
 
   .shadow-ds400 {
