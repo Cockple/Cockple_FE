@@ -6,7 +6,7 @@ import { StrictMode } from "react";
 
 const queryClient = new QueryClient();
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && navigator.serviceWorker) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .getRegistrations()
@@ -21,7 +21,7 @@ if ("serviceWorker" in navigator) {
       })
       .finally(() => {
         navigator.serviceWorker
-          .register("/firebase-messaging-sw.js")
+          ?.register("/firebase-messaging-sw.js")
           .catch((err) => {
             console.error("Service Worker 등록 실패:", err);
           });
