@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  isSupported,
+  onMessage,
+  type Messaging,
+} from "firebase/messaging";
 import api from "./api/api";
 
 const firebaseConfig = {
@@ -12,7 +18,31 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const messaging = getMessaging(app);
+let messagingInstance: Messaging | null = null;
+
+export async function getFirebaseMessaging(): Promise<Messaging | null> {
+  if (messagingInstance) return messagingInstance;
+
+  try {
+    const supported =
+      typeof window !== "undefined" &&
+      "serviceWorker" in navigator &&
+      Boolean(navigator.serviceWorker) &&
+      typeof Notification !== "undefined" &&
+      (await isSupported());
+
+    if (!supported) {
+      console.warn("[FCM] 이 브라우저는 Firebase Messaging을 지원하지 않습니다.");
+      return null;
+    }
+
+    messagingInstance = getMessaging(app);
+    return messagingInstance;
+  } catch (e) {
+    console.warn("[FCM] Firebase Messaging 지원 여부 확인/초기화 실패:", e);
+    return null;
+  }
+}
 
 async function sendTokenToServer(token: string) {
   try {
@@ -24,8 +54,8 @@ async function sendTokenToServer(token: string) {
 
 export async function requestFcmToken(): Promise<string | null> {
   try {
-    if (typeof Notification === "undefined") {
-      console.warn("[FCM] 이 환경은 Notification API를 지원하지 않습니다.");
+    const messaging = await getFirebaseMessaging();
+    if (!messaging) {
       return null;
     }
 
